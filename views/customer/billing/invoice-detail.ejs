@@ -257,11 +257,18 @@
                             <ul class="list-unstyled">
                                 <li class="mb-2">
                                     <i class="bi bi-cash text-success"></i> 
-                                    <strong>Tunai:</strong> Kantor kami
+                                    <strong>Tunai:</strong> <%= settings.payment_cash_address || 'Kantor kami' %>
+                                    <% if (settings.payment_cash_hours) { %>
+                                        <br><small class="text-muted">Jam: <%= settings.payment_cash_hours %></small>
+                                    <% } %>
                                 </li>
                                 <li class="mb-2">
                                     <i class="bi bi-bank text-primary"></i> 
-                                    <strong>Transfer:</strong> Bank yang ditentukan
+                                    <strong>Transfer:</strong> <%= settings.payment_bank_name || 'Bank' %> 
+                                    <br><small class="text-muted">
+                                        No. Rek: <%= settings.payment_account_number || '1234567890' %>
+                                        <br>A/N: <%= settings.payment_account_holder || 'ALIJAYA DIGITAL NETWORK' %>
+                                    </small>
                                 </li>
                                 <li class="mb-2">
                                     <i class="bi bi-qr-code text-info"></i> 

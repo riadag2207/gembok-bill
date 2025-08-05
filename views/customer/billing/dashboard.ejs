@@ -384,6 +384,79 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Informasi Pembayaran -->
+            <div class="row mt-4">
+              <div class="col-md-12">
+                <div class="card border-0 bg-light">
+                  <div class="card-body">
+                    <h6 class="card-title text-primary">
+                      <i class="bi bi-credit-card me-2"></i>Informasi Pembayaran
+                    </h6>
+                    <div class="row">
+                      <div class="col-md-6">
+                        <div class="card border-0 bg-white">
+                          <div class="card-body">
+                            <h6 class="card-title text-success">
+                              <i class="bi bi-bank me-2"></i>Transfer Bank
+                            </h6>
+                            <div class="mb-2">
+                              <strong>Bank:</strong> <%= settings.payment_bank_name || 'BCA' %>
+                            </div>
+                            <div class="mb-2">
+                              <strong>No. Rekening:</strong> 
+                              <span class="fw-bold text-primary">
+                                <%= settings.payment_account_number || '1234567890' %>
+                              </span>
+                            </div>
+                            <div class="mb-2">
+                              <strong>Atas Nama:</strong> 
+                              <%= settings.payment_account_holder || 'ALIJAYA DIGITAL NETWORK' %>
+                            </div>
+                            <div class="mt-3">
+                              <small class="text-muted">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Transfer sesuai nominal tagihan dan simpan bukti transfer
+                              </small>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="card border-0 bg-white">
+                          <div class="card-body">
+                            <h6 class="card-title text-warning">
+                              <i class="bi bi-cash-coin me-2"></i>Pembayaran Tunai
+                            </h6>
+                            <div class="mb-2">
+                              <strong>Alamat:</strong> 
+                              <%= settings.payment_cash_address || 'Jl. Contoh No. 123' %>
+                            </div>
+                            <div class="mb-2">
+                              <strong>Jam Operasional:</strong> 
+                              <%= settings.payment_cash_hours || '08:00 - 17:00' %>
+                            </div>
+                            <div class="mb-2">
+                              <strong>Kontak:</strong> 
+                              <a href="https://wa.me/<%= settings.contact_whatsapp || '6281947215703' %>" target="_blank" class="text-decoration-none">
+                                <i class="bi bi-whatsapp me-1"></i>
+                                <%= settings.contact_whatsapp || '081947215703' %>
+                              </a>
+                            </div>
+                            <div class="mt-3">
+                              <small class="text-muted">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Pembayaran dapat dilakukan langsung di kantor kami
+                              </small>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
         </div>
 
         <% if (invoices && invoices.length > 0) { %>

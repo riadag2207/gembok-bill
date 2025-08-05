@@ -1089,6 +1089,118 @@ router.post('/payments', async (req, res) => {
     }
 });
 
+// Export customers to CSV
+router.get('/export/customers', getAppSettings, async (req, res) => {
+    try {
+        const customers = await billingManager.getCustomers();
+        
+        // Create CSV content
+        let csvContent = 'ID,Username,Nama,Phone,Email,Address,Package,Status,Payment Status,Created At\n';
+        
+        customers.forEach(customer => {
+            const row = [
+                customer.id,
+                customer.username,
+                customer.name,
+                customer.phone,
+                customer.email || '',
+                customer.address || '',
+                customer.package_name || '',
+                customer.status,
+                customer.payment_status,
+                new Date(customer.created_at).toLocaleDateString('id-ID')
+            ].map(field => `"${field}"`).join(',');
+            
+            csvContent += row + '\n';
+        });
+        
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', 'attachment; filename=customers.csv');
+        res.send(csvContent);
+        
+    } catch (error) {
+        logger.error('Error exporting customers:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error exporting customers',
+            error: error.message
+        });
+    }
+});
+
+// Export invoices to CSV
+router.get('/export/invoices', getAppSettings, async (req, res) => {
+    try {
+        const invoices = await billingManager.getInvoices();
+        
+        // Create CSV content
+        let csvContent = 'ID,Invoice Number,Customer,Amount,Status,Due Date,Created At\n';
+        
+        invoices.forEach(invoice => {
+            const row = [
+                invoice.id,
+                invoice.invoice_number,
+                invoice.customer_name,
+                invoice.amount,
+                invoice.status,
+                new Date(invoice.due_date).toLocaleDateString('id-ID'),
+                new Date(invoice.created_at).toLocaleDateString('id-ID')
+            ].map(field => `"${field}"`).join(',');
+            
+            csvContent += row + '\n';
+        });
+        
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', 'attachment; filename=invoices.csv');
+        res.send(csvContent);
+        
+    } catch (error) {
+        logger.error('Error exporting invoices:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error exporting invoices',
+            error: error.message
+        });
+    }
+});
+
+// Export payments to CSV
+router.get('/export/payments', getAppSettings, async (req, res) => {
+    try {
+        const payments = await billingManager.getPayments();
+        
+        // Create CSV content
+        let csvContent = 'ID,Invoice Number,Customer,Amount,Payment Method,Payment Date,Reference,Notes\n';
+        
+        payments.forEach(payment => {
+            const row = [
+                payment.id,
+                payment.invoice_number,
+                payment.customer_name,
+                payment.amount,
+                payment.payment_method,
+                new Date(payment.payment_date).toLocaleDateString('id-ID'),
+                payment.reference_number || '',
+                payment.notes || ''
+            ].map(field => `"${field}"`).join(',');
+            
+            csvContent += row + '\n';
+        });
+        
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', 'attachment; filename=payments.csv');
+        res.send(csvContent);
+        
+    } catch (error) {
+        logger.error('Error exporting payments:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error exporting payments',
+            error: error.message
+        });
+    }
+});
+
 // API Routes untuk AJAX
 router.get('/api/packages', async (req, res) => {
     try {

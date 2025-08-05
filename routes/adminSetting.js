@@ -251,6 +251,175 @@ router.post('/wa-delete', async (req, res) => {
     }
 });
 
+// Backup database
+router.post('/backup', async (req, res) => {
+    try {
+        const fs = require('fs');
+        const path = require('path');
+        const { logger } = require('../../config/logger');
+        
+        const dbPath = path.join(__dirname, '../../data/billing.db');
+        const backupPath = path.join(__dirname, '../../data/backup');
+        
+        // Buat direktori backup jika belum ada
+        if (!fs.existsSync(backupPath)) {
+            fs.mkdirSync(backupPath, { recursive: true });
+        }
+        
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const backupFile = path.join(backupPath, `billing_backup_${timestamp}.db`);
+        
+        // Copy database file
+        fs.copyFileSync(dbPath, backupFile);
+        
+        logger.info(`Database backup created: ${backupFile}`);
+        
+        res.json({
+            success: true,
+            message: 'Database backup berhasil dibuat',
+            backup_file: path.basename(backupFile)
+        });
+    } catch (error) {
+        logger.error('Error creating backup:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error creating backup',
+            error: error.message
+        });
+    }
+});
+
+// Restore database
+router.post('/restore', upload.single('backup_file'), async (req, res) => {
+    try {
+        const fs = require('fs');
+        const path = require('path');
+        const { logger } = require('../../config/logger');
+        
+        if (!req.file) {
+            return res.status(400).json({
+                success: false,
+                message: 'File backup tidak ditemukan'
+            });
+        }
+        
+        const dbPath = path.join(__dirname, '../../data/billing.db');
+        const backupPath = path.join(__dirname, '../../data/backup', req.file.filename);
+        
+        // Backup database saat ini sebelum restore
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const currentBackup = path.join(__dirname, '../../data/backup', `pre_restore_${timestamp}.db`);
+        fs.copyFileSync(dbPath, currentBackup);
+        
+        // Restore database
+        fs.copyFileSync(backupPath, dbPath);
+        
+        logger.info(`Database restored from: ${req.file.filename}`);
+        
+        res.json({
+            success: true,
+            message: 'Database berhasil di-restore',
+            restored_file: req.file.filename
+        });
+    } catch (error) {
+        logger.error('Error restoring database:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error restoring database',
+            error: error.message
+        });
+    }
+});
+
+// Get backup files list
+router.get('/backups', async (req, res) => {
+    try {
+        const fs = require('fs');
+        const path = require('path');
+        
+        const backupPath = path.join(__dirname, '../../data/backup');
+        
+        if (!fs.existsSync(backupPath)) {
+            return res.json({
+                success: true,
+                backups: []
+            });
+        }
+        
+        const files = fs.readdirSync(backupPath)
+            .filter(file => file.endsWith('.db'))
+            .map(file => {
+                const filePath = path.join(backupPath, file);
+                const stats = fs.statSync(filePath);
+                return {
+                    filename: file,
+                    size: stats.size,
+                    created: stats.birthtime
+                };
+            })
+            .sort((a, b) => new Date(b.created) - new Date(a.created));
+        
+        res.json({
+            success: true,
+            backups: files
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Error getting backup files',
+            error: error.message
+        });
+    }
+});
+
+// Get activity logs
+router.get('/activity-logs', async (req, res) => {
+    try {
+        const { activityLogger } = require('../../config/logger');
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 50;
+        const offset = (page - 1) * limit;
+        
+        const logs = await activityLogger.getLogs(limit, offset);
+        
+        res.json({
+            success: true,
+            logs: logs,
+            page: page,
+            limit: limit
+        });
+    } catch (error) {
+        logger.error('Error getting activity logs:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error getting activity logs',
+            error: error.message
+        });
+    }
+});
+
+// Clear old activity logs
+router.post('/clear-logs', async (req, res) => {
+    try {
+        const { activityLogger } = require('../../config/logger');
+        const { days = 30 } = req.body;
+        
+        await activityLogger.clearOldLogs(days);
+        
+        res.json({
+            success: true,
+            message: `Activity logs older than ${days} days have been cleared`
+        });
+    } catch (error) {
+        logger.error('Error clearing activity logs:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error clearing activity logs',
+            error: error.message
+        });
+    }
+});
+
 // GET: Test endpoint untuk upload logo (tanpa auth)
 router.get('/test-upload', (req, res) => {
     res.send(`
