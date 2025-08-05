@@ -1,0 +1,129 @@
+<%- include('../../partials/header') %>
+
+<%- include('../../partials/billing-navbar') %>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box">
+                <h4 class="page-title">Detail Paket</h4>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/admin/billing/packages">Paket</a></li>
+                        <li class="breadcrumb-item active" aria-current="page"><%= package.name %></li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- Package Info Card -->
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="mdi mdi-package-variant text-info"></i> Informasi Paket
+                    </h5>
+                    <div class="mb-3">
+                        <strong>Nama Paket:</strong> <%= package.name %>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Kecepatan:</strong> <%= package.speed %>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Harga:</strong> Rp <%= parseFloat(package.price).toLocaleString('id-ID') %>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Deskripsi:</strong> <%= package.description || '-' %>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Status:</strong> 
+                        <span class="badge bg-success">Aktif</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="mdi mdi-account-group text-primary"></i> Pelanggan yang Menggunakan Paket Ini
+                    </h5>
+                    <div class="table-responsive">
+                        <table class="table table-centered table-nowrap table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Nama</th>
+                                    <th>Telepon</th>
+                                    <th>Status</th>
+                                    <th>Bergabung</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (customers && customers.length > 0) { %>
+                                    <% customers.forEach(function(customer) { %>
+                                        <tr>
+                                            <td>
+                                                <span class="text-body fw-bold"><%= customer.username %></span>
+                                            </td>
+                                            <td><%= customer.name %></td>
+                                            <td><%= customer.phone || '-' %></td>
+                                            <td>
+                                                <% if (customer.status === 'active') { %>
+                                                    <span class="badge bg-success">Aktif</span>
+                                                <% } else if (customer.status === 'inactive') { %>
+                                                    <span class="badge bg-secondary">Tidak Aktif</span>
+                                                <% } else if (customer.status === 'suspended') { %>
+                                                    <span class="badge bg-warning">Ditangguhkan</span>
+                                                <% } %>
+                                            </td>
+                                            <td><%= new Date(customer.join_date).toLocaleDateString('id-ID') %></td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <a href="/admin/billing/customers/<%= customer.username %>" 
+                                                       class="btn btn-sm btn-outline-primary"
+                                                       data-bs-toggle="tooltip" 
+                                                       data-bs-placement="top" 
+                                                       title="Detail Pelanggan">
+                                                        <i class="mdi mdi-account-details-outline"></i>
+                                                    </a>
+                                                    <a href="/admin/billing/invoices?customer_username=<%= customer.username %>" 
+                                                       class="btn btn-sm btn-outline-info"
+                                                       data-bs-toggle="tooltip" 
+                                                       data-bs-placement="top" 
+                                                       title="Lihat Tagihan">
+                                                        <i class="mdi mdi-receipt-outline"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <% }); %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted">Belum ada pelanggan yang menggunakan paket ini</td>
+                                    </tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
+</script>
+
+<%- include('../../partials/footer') %> 

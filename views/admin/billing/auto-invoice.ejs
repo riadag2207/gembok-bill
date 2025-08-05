@@ -1,0 +1,324 @@
+<%- include('../../partials/header') %>
+
+<%- include('../../partials/billing-navbar') %>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box">
+                <h4 class="page-title">Pengaturan Invoice Otomatis</h4>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Card -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Status Sistem Auto Invoice</h5>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <div class="mb-2">
+                                    <i class="mdi mdi-calendar-clock text-primary" style="font-size: 2rem;"></i>
+                                </div>
+                                <h6>Jadwal Berjalan</h6>
+                                <p class="text-muted">Setiap tanggal 1 bulanan</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <div class="mb-2">
+                                    <i class="mdi mdi-account-check text-success" style="font-size: 2rem;"></i>
+                                </div>
+                                <h6>Pelanggan Aktif</h6>
+                                <p class="text-muted"><%= activeCustomersCount %> pelanggan</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <div class="mb-2">
+                                    <i class="mdi mdi-receipt text-info" style="font-size: 2rem;"></i>
+                                </div>
+                                <h6>Invoice Bulan Ini</h6>
+                                <p class="text-muted"><%= thisMonthInvoicesCount %> invoice</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <div class="mb-2">
+                                    <i class="mdi mdi-clock text-warning" style="font-size: 2rem;"></i>
+                                </div>
+                                <h6>Berikutnya</h6>
+                                <p class="text-muted"><%= nextRunDate %></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Aksi Manual</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <button type="button" class="btn btn-primary btn-lg w-100 mb-3" id="generateInvoicesBtn">
+                                <i class="mdi mdi-calendar-plus-outline"></i> Generate Invoice Bulan Ini
+                            </button>
+                            <p class="text-muted small">Buat invoice untuk semua pelanggan aktif yang belum memiliki invoice bulan ini</p>
+                        </div>
+                        <div class="col-md-6">
+                            <button type="button" class="btn btn-outline-info btn-lg w-100 mb-3" id="previewInvoicesBtn">
+                                <i class="mdi mdi-eye-outline"></i> Preview Invoice yang Akan Dibuat
+                            </button>
+                            <p class="text-muted small">Lihat daftar pelanggan yang akan dibuatkan invoice</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Preview Section -->
+    <div class="row" id="previewSection" style="display: none;">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Preview Invoice yang Akan Dibuat</h5>
+                    <div class="table-responsive">
+                        <table class="table table-centered table-nowrap table-hover mb-0" id="previewTable">
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Nama</th>
+                                    <th>Paket</th>
+                                    <th>Harga</th>
+                                    <th>Jatuh Tempo</th>
+                                </tr>
+                            </thead>
+                            <tbody id="previewTableBody">
+                                <!-- Data akan diisi via JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Section -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Pengaturan Auto Invoice</h5>
+                    <form id="autoInvoiceSettingsForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="dueDateDay" class="form-label">Tanggal Jatuh Tempo</label>
+                                    <select class="form-select" id="dueDateDay" name="due_date_day">
+                                        <option value="5">5</option>
+                                        <option value="10">10</option>
+                                        <option value="15" selected>15</option>
+                                        <option value="20">20</option>
+                                        <option value="25">25</option>
+                                    </select>
+                                    <small class="text-muted">Tanggal jatuh tempo invoice (dalam bulan)</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="autoInvoiceEnabled" class="form-label">Status Auto Invoice</label>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="autoInvoiceEnabled" name="auto_invoice_enabled" checked>
+                                        <label class="form-check-label" for="autoInvoiceEnabled">
+                                            Aktifkan pembuatan invoice otomatis
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="invoiceNotes" class="form-label">Template Catatan Invoice</label>
+                            <textarea class="form-control" id="invoiceNotes" name="invoice_notes" rows="3" placeholder="Tagihan bulanan {bulan} {tahun}">Tagihan bulanan {bulan} {tahun}</textarea>
+                            <small class="text-muted">Gunakan {bulan} dan {tahun} sebagai placeholder</small>
+                        </div>
+                        <button type="submit" class="btn btn-success">
+                            <i class="mdi mdi-content-save-outline"></i> Simpan Pengaturan
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+// Alert function
+function showAlert(type, message) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+    alertDiv.style.cssText = `
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        min-width: 300px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        border: none;
+        border-radius: 8px;
+    `;
+    alertDiv.innerHTML = `
+        <div class="d-flex align-items-center">
+            <div class="flex-grow-1">
+                ${message}
+            </div>
+            <button type="button" class="btn-close ms-2" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+    
+    document.body.appendChild(alertDiv);
+    
+    // Auto remove after 4 seconds
+    setTimeout(() => {
+        if (alertDiv.parentNode) {
+            alertDiv.remove();
+        }
+    }, 4000);
+}
+
+// Generate invoices manually
+document.getElementById('generateInvoicesBtn').addEventListener('click', function() {
+    if (confirm('Apakah Anda yakin ingin membuat invoice untuk semua pelanggan aktif?')) {
+        const btn = this;
+        const originalText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="mdi mdi-loading mdi-spin"></i> Generating...';
+        
+        fetch('/admin/billing/auto-invoice/generate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                showAlert('success', `✅ Berhasil membuat ${result.count} invoice!`);
+                setTimeout(() => location.reload(), 2000);
+            } else {
+                showAlert('danger', '❌ ' + result.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('danger', '❌ Terjadi kesalahan saat membuat invoice');
+        })
+        .finally(() => {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        });
+    }
+});
+
+// Preview invoices
+document.getElementById('previewInvoicesBtn').addEventListener('click', function() {
+    const btn = this;
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="mdi mdi-loading mdi-spin"></i> Loading...';
+    
+    fetch('/admin/billing/auto-invoice/preview', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            displayPreviewData(result.customers);
+            document.getElementById('previewSection').style.display = 'block';
+        } else {
+            showAlert('danger', '❌ ' + result.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showAlert('danger', '❌ Terjadi kesalahan saat memuat preview');
+    })
+    .finally(() => {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    });
+});
+
+function displayPreviewData(customers) {
+    const tbody = document.getElementById('previewTableBody');
+    tbody.innerHTML = '';
+    
+    if (customers.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Tidak ada pelanggan yang memerlukan invoice baru</td></tr>';
+        return;
+    }
+    
+    customers.forEach(customer => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td><span class="text-body fw-bold">${customer.username}</span></td>
+            <td>${customer.name}</td>
+            <td><span class="badge bg-info">${customer.package_name}</span></td>
+            <td>Rp ${parseFloat(customer.package_price).toLocaleString('id-ID')}</td>
+            <td>${new Date(customer.due_date).toLocaleDateString('id-ID')}</td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+// Save settings
+document.getElementById('autoInvoiceSettingsForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const data = Object.fromEntries(formData);
+    
+    const btn = this.querySelector('button[type="submit"]');
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="mdi mdi-loading mdi-spin"></i> Menyimpan...';
+    
+    fetch('/admin/billing/auto-invoice/settings', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            showAlert('success', '✅ Pengaturan berhasil disimpan!');
+        } else {
+            showAlert('danger', '❌ ' + result.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showAlert('danger', '❌ Terjadi kesalahan saat menyimpan pengaturan');
+    })
+    .finally(() => {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    });
+});
+</script>
+
+<%- include('../../partials/footer') %> 

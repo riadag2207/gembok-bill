@@ -1,0 +1,442 @@
+<%- include('../../partials/header') %>
+
+<%- include('../../partials/billing-navbar') %>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box">
+                <h4 class="page-title">Riwayat Pembayaran</h4>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="text-muted fw-normal mt-0" title="Total Payments">Total Pembayaran</h5>
+                            <h3 class="mt-3 mb-3"><%= payments ? payments.length : 0 %></h3>
+                        </div>
+                        <div class="avatar-sm">
+                            <span class="avatar-title bg-soft-primary rounded">
+                                <i class="mdi mdi-cash-multiple font-20 text-primary"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="text-muted fw-normal mt-0" title="Total Amount">Total Jumlah</h5>
+                            <h3 class="mt-3 mb-3">
+                                Rp <%= payments ? payments.reduce((sum, payment) => sum + parseFloat(payment.amount), 0).toLocaleString('id-ID') : '0' %>
+                            </h3>
+                        </div>
+                        <div class="avatar-sm">
+                            <span class="avatar-title bg-soft-success rounded">
+                                <i class="mdi mdi-currency-usd font-20 text-success"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="text-muted fw-normal mt-0" title="Cash Payments">Pembayaran Tunai</h5>
+                            <h3 class="mt-3 mb-3">
+                                <%= payments ? payments.filter(p => p.payment_method === 'cash').length : 0 %>
+                            </h3>
+                        </div>
+                        <div class="avatar-sm">
+                            <span class="avatar-title bg-soft-info rounded">
+                                <i class="mdi mdi-cash font-20 text-info"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="text-muted fw-normal mt-0" title="Digital Payments">Pembayaran Digital</h5>
+                            <h3 class="mt-3 mb-3">
+                                <%= payments ? payments.filter(p => ['transfer', 'qris', 'ewallet'].includes(p.payment_method)).length : 0 %>
+                            </h3>
+                        </div>
+                        <div class="avatar-sm">
+                            <span class="avatar-title bg-soft-warning rounded">
+                                <i class="mdi mdi-credit-card font-20 text-warning"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="header-title">Daftar Pembayaran</h4>
+                        <div>
+                            <button type="button" class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#addPaymentModal">
+                                <i class="mdi mdi-plus"></i> Tambah Pembayaran
+                            </button>
+                            <button type="button" class="btn btn-outline-primary export-payments-btn">
+                                <i class="mdi mdi-download"></i> Export
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-centered table-nowrap table-hover mb-0" id="paymentsTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>No. Tagihan</th>
+                                    <th>Pelanggan</th>
+                                    <th>Jumlah</th>
+                                    <th>Metode Pembayaran</th>
+                                    <th>Tanggal Pembayaran</th>
+                                    <th>Referensi</th>
+                                    <th>Catatan</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (payments && payments.length > 0) { %>
+                                    <% payments.forEach(function(payment) { %>
+                                        <tr>
+                                            <td><%= payment.id %></td>
+                                            <td>
+                                                <span class="text-body fw-bold"><%= payment.invoice_number %></span>
+                                            </td>
+                                            <td>
+                                                <span class="text-body fw-bold"><%= payment.customer_name %></span>
+                                                <br>
+                                                <small class="text-muted"><%= payment.customer_name %></small>
+                                            </td>
+                                            <td>Rp <%= parseFloat(payment.amount).toLocaleString('id-ID') %></td>
+                                            <td>
+                                                <% if (payment.payment_method === 'cash') { %>
+                                                    <span class="badge bg-success">Tunai</span>
+                                                <% } else if (payment.payment_method === 'transfer') { %>
+                                                    <span class="badge bg-primary">Transfer Bank</span>
+                                                <% } else if (payment.payment_method === 'qris') { %>
+                                                    <span class="badge bg-info">QRIS</span>
+                                                <% } else if (payment.payment_method === 'ewallet') { %>
+                                                    <span class="badge bg-warning">E-Wallet</span>
+                                                <% } else { %>
+                                                    <span class="badge bg-secondary"><%= payment.payment_method %></span>
+                                                <% } %>
+                                            </td>
+                                            <td><%= new Date(payment.payment_date).toLocaleDateString('id-ID') %></td>
+                                            <td><%= payment.reference_number || '-' %></td>
+                                            <td><%= payment.notes || '-' %></td>
+                                        </tr>
+                                    <% }); %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="8" class="text-center text-muted">Belum ada pembayaran</td>
+                                    </tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Payment Modal -->
+<div class="modal fade" id="addPaymentModal" tabindex="-1" aria-labelledby="addPaymentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addPaymentModalLabel">Tambah Pembayaran</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="addPaymentForm">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="paymentInvoiceId" class="form-label">Pilih Invoice *</label>
+                        <select class="form-select" id="paymentInvoiceId" name="invoice_id" required>
+                            <option value="">Pilih Invoice</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="paymentAmount" class="form-label">Jumlah Pembayaran *</label>
+                        <input type="number" class="form-control" id="paymentAmount" name="amount" step="0.01" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="paymentMethod" class="form-label">Metode Pembayaran *</label>
+                        <select class="form-select" id="paymentMethod" name="payment_method" required>
+                            <option value="">Pilih Metode Pembayaran</option>
+                            <option value="cash">Tunai</option>
+                            <option value="transfer">Transfer Bank</option>
+                            <option value="qris">QRIS</option>
+                            <option value="ewallet">E-Wallet</option>
+                            <option value="other">Lainnya</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="paymentReference" class="form-label">Nomor Referensi</label>
+                        <input type="text" class="form-control" id="paymentReference" name="reference_number" placeholder="Nomor referensi pembayaran">
+                    </div>
+                    <div class="mb-3">
+                        <label for="paymentNotes" class="form-label">Catatan</label>
+                        <textarea class="form-control" id="paymentNotes" name="notes" rows="3" placeholder="Catatan pembayaran (opsional)"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-success">Simpan Pembayaran</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Alert function
+function showAlert(type, message) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+    alertDiv.style.cssText = `
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        min-width: 300px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        border: none;
+        border-radius: 8px;
+    `;
+    alertDiv.innerHTML = `
+        <div class="d-flex align-items-center">
+            <div class="flex-grow-1">
+                ${message}
+            </div>
+            <button type="button" class="btn-close ms-2" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+    
+    document.body.appendChild(alertDiv);
+    
+    // Auto remove after 4 seconds
+    setTimeout(() => {
+        if (alertDiv.parentNode) {
+            alertDiv.remove();
+        }
+    }, 4000);
+}
+
+// Export payments function
+function exportPayments() {
+    // Disable export button to prevent double click
+    const exportBtn = document.querySelector('.export-payments-btn');
+    const originalText = exportBtn.innerHTML;
+    exportBtn.disabled = true;
+    exportBtn.innerHTML = '<i class="mdi mdi-loading mdi-spin"></i> Exporting...';
+    
+    try {
+        // Create CSV content
+        let csvContent = "data:text/csv;charset=utf-8,";
+        
+        // Add header
+        csvContent += "ID,No. Tagihan,Pelanggan,Jumlah,Metode Pembayaran,Tanggal Pembayaran,Referensi,Catatan\n";
+        
+        // Add data
+        const payments = <%- JSON.stringify(payments || []) %>;
+        payments.forEach(payment => {
+            const row = [
+                payment.id,
+                payment.invoice_number,
+                payment.customer_name,
+                payment.amount,
+                payment.payment_method,
+                new Date(payment.payment_date).toLocaleDateString('id-ID'),
+                payment.reference_number || '',
+                payment.notes || ''
+            ].join(',');
+            csvContent += row + '\n';
+        });
+        
+        // Create download link
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `pembayaran_${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        // Show success notification
+        showAlert('success', '✅ Data pembayaran berhasil diexport!');
+        
+    } catch (error) {
+        console.error('Error exporting payments:', error);
+        showAlert('danger', '❌ Terjadi kesalahan saat export data');
+    } finally {
+        // Re-enable export button
+        exportBtn.disabled = false;
+        exportBtn.innerHTML = originalText;
+    }
+}
+
+// Event listener for export button
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.export-payments-btn')) {
+        exportPayments();
+    }
+});
+
+// Search and filter functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Add search input
+    const searchInput = document.createElement('input');
+    searchInput.type = 'text';
+    searchInput.className = 'form-control mb-3';
+    searchInput.placeholder = 'Cari pembayaran...';
+    searchInput.id = 'paymentSearch';
+    
+    const table = document.getElementById('paymentsTable');
+    table.parentNode.insertBefore(searchInput, table);
+    
+    // Search functionality
+    searchInput.addEventListener('keyup', function() {
+        const searchTerm = this.value.toLowerCase();
+        const rows = table.querySelectorAll('tbody tr');
+        
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            if (text.includes(searchTerm)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+});
+
+// Auto refresh every 5 minutes
+setInterval(function() {
+    location.reload();
+}, 300000);
+
+// Load unpaid invoices for payment form
+document.addEventListener('DOMContentLoaded', function() {
+    // Load unpaid invoices when modal is shown
+    $('#addPaymentModal').on('show.bs.modal', function() {
+        loadUnpaidInvoices();
+    });
+    
+    // Handle payment form submission
+    document.getElementById('addPaymentForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const data = Object.fromEntries(formData);
+        
+        // Validate required fields
+        if (!data.invoice_id || !data.amount || !data.payment_method) {
+            showAlert('danger', 'Mohon isi semua field yang wajib diisi');
+            return;
+        }
+        
+        // Disable submit button to prevent double submission
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="mdi mdi-loading mdi-spin"></i> Menyimpan...';
+        
+        fetch('/admin/billing/payments', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                // Reset form and close modal
+                document.getElementById('addPaymentForm').reset();
+                $('#addPaymentModal').modal('hide');
+                
+                // Show success notification
+                showAlert('success', '✅ Pembayaran berhasil ditambahkan!');
+                
+                // Reload page after a short delay
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                showAlert('danger', '❌ ' + result.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('danger', '❌ Terjadi kesalahan saat menambah pembayaran');
+        })
+        .finally(() => {
+            // Re-enable submit button
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+        });
+    });
+});
+
+// Function to load unpaid invoices
+function loadUnpaidInvoices() {
+    fetch('/admin/billing/api/invoices')
+    .then(response => response.json())
+    .then(invoices => {
+        const select = document.getElementById('paymentInvoiceId');
+        select.innerHTML = '<option value="">Pilih Invoice</option>';
+        
+        // Filter unpaid invoices
+        const unpaidInvoices = invoices.filter(invoice => invoice.status === 'unpaid');
+        
+        unpaidInvoices.forEach(invoice => {
+            const option = document.createElement('option');
+            option.value = invoice.id;
+            option.textContent = `${invoice.invoice_number} - ${invoice.customer_name} (Rp ${parseFloat(invoice.amount).toLocaleString('id-ID')})`;
+            option.setAttribute('data-amount', invoice.amount);
+            select.appendChild(option);
+        });
+    })
+    .catch(error => {
+        console.error('Error loading invoices:', error);
+        showAlert('danger', '❌ Gagal memuat daftar invoice');
+    });
+}
+
+// Auto-fill amount when invoice is selected
+document.getElementById('paymentInvoiceId').addEventListener('change', function() {
+    const selectedOption = this.options[this.selectedIndex];
+    const amount = selectedOption.getAttribute('data-amount');
+    if (amount) {
+        document.getElementById('paymentAmount').value = amount;
+    }
+});
+</script>
+
+<%- include('../../partials/footer') %> 

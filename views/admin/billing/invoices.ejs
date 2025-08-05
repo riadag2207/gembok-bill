@@ -1,0 +1,496 @@
+<%- include('../../partials/header') %>
+
+<%- include('../../partials/billing-navbar') %>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box">
+                <h4 class="page-title">Kelola Tagihan</h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="header-title">Daftar Tagihan</h4>
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addInvoiceModal">
+                            <i class="mdi mdi-plus"></i> Buat Tagihan
+                        </button>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-centered table-nowrap table-hover mb-0" id="invoicesTable">
+                            <thead>
+                                <tr>
+                                    <th>No. Tagihan</th>
+                                    <th>Pelanggan</th>
+                                    <th>Paket</th>
+                                    <th>Jumlah</th>
+                                    <th>Status</th>
+                                    <th>Jatuh Tempo</th>
+                                    <th>Tanggal Dibuat</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (invoices && invoices.length > 0) { %>
+                                    <% invoices.forEach(function(invoice) { %>
+                                        <tr>
+                                            <td>
+                                                <span class="text-body fw-bold"><%= invoice.invoice_number %></span>
+                                            </td>
+                                            <td>
+                                                <span class="text-body fw-bold"><%= invoice.customer_name %></span>
+                                                <br>
+                                                <small class="text-muted"><%= invoice.customer_phone %></small>
+                                            </td>
+                                            <td><%= invoice.package_name %></td>
+                                            <td>Rp <%= parseFloat(invoice.amount).toLocaleString('id-ID') %></td>
+                                            <td>
+                                                <% if (invoice.status === 'paid') { %>
+                                                    <span class="badge bg-success">Lunas</span>
+                                                <% } else if (invoice.status === 'unpaid') { %>
+                                                    <% if (new Date(invoice.due_date) < new Date()) { %>
+                                                        <span class="badge bg-danger">Terlambat</span>
+                                                    <% } else { %>
+                                                        <span class="badge bg-warning">Belum Lunas</span>
+                                                    <% } %>
+                                                <% } %>
+                                            </td>
+                                            <td>
+                                                <% if (new Date(invoice.due_date) < new Date() && invoice.status === 'unpaid') { %>
+                                                    <span class="text-danger">
+                                                        <%= new Date(invoice.due_date).toLocaleDateString('id-ID') %>
+                                                    </span>
+                                                <% } else { %>
+                                                    <%= new Date(invoice.due_date).toLocaleDateString('id-ID') %>
+                                                <% } %>
+                                            </td>
+                                            <td><%= new Date(invoice.created_at).toLocaleDateString('id-ID') %></td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <button type="button" class="btn btn-sm btn-outline-primary view-invoice-btn"
+                                                            data-id="<%= invoice.id %>"
+                                                            data-bs-toggle="tooltip" 
+                                                            data-bs-placement="top" 
+                                                            title="Lihat Detail">
+                                                        <i class="mdi mdi-file-document-outline"></i>
+                                                    </button>
+                                                    <% if (invoice.status === 'unpaid') { %>
+                                                        <button type="button" class="btn btn-sm btn-outline-success mark-paid-btn"
+                                                                data-id="<%= invoice.id %>"
+                                                                data-invoice-number="<%= invoice.invoice_number %>"
+                                                                data-bs-toggle="tooltip" 
+                                                                data-bs-placement="top" 
+                                                                title="Tandai Lunas">
+                                                            <i class="mdi mdi-cash-check"></i>
+                                                        </button>
+                                                    <% } %>
+                                                    <button type="button" class="btn btn-sm btn-outline-info print-invoice-btn"
+                                                            data-id="<%= invoice.id %>"
+                                                            data-bs-toggle="tooltip" 
+                                                            data-bs-placement="top" 
+                                                            title="Cetak Invoice">
+                                                        <i class="mdi mdi-printer-outline"></i>
+                                                    </button>
+                                                    <button type="button" class="btn btn-sm btn-outline-secondary edit-invoice-btn"
+                                                            data-id="<%= invoice.id %>"
+                                                            data-bs-toggle="tooltip" 
+                                                            data-bs-placement="top" 
+                                                            title="Edit Invoice">
+                                                        <i class="mdi mdi-pencil-outline"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <% }); %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="8" class="text-center text-muted">Belum ada tagihan</td>
+                                    </tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Buat Tagihan -->
+<div class="modal fade" id="addInvoiceModal" tabindex="-1" aria-labelledby="addInvoiceModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addInvoiceModalLabel">Buat Tagihan Baru</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="addInvoiceForm">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="invoiceCustomer" class="form-label">Pelanggan *</label>
+                                <select class="form-select" id="invoiceCustomer" name="customer_id" required>
+                                    <option value="">Pilih Pelanggan</option>
+                                    <% if (customers && customers.length > 0) { %>
+                                        <% customers.forEach(function(customer) { %>
+                                            <option value="<%= customer.id %>">
+                                                <%= customer.username %> - <%= customer.name %>
+                                            </option>
+                                        <% }); %>
+                                    <% } %>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="invoicePackage" class="form-label">Paket *</label>
+                                <select class="form-select" id="invoicePackage" name="package_id" required>
+                                    <option value="">Pilih Paket</option>
+                                    <% if (packages && packages.length > 0) { %>
+                                        <% packages.forEach(function(package) { %>
+                                            <option value="<%= package.id %>" data-price="<%= package.price %>">
+                                                <%= package.name %> - <%= package.speed %> - Rp <%= parseFloat(package.price).toLocaleString('id-ID') %>
+                                            </option>
+                                        <% }); %>
+                                    <% } %>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="invoiceAmount" class="form-label">Jumlah (Rp) *</label>
+                                <input type="number" class="form-control" id="invoiceAmount" name="amount" min="0" step="1000" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="invoiceDueDate" class="form-label">Jatuh Tempo *</label>
+                                <input type="date" class="form-control" id="invoiceDueDate" name="due_date" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="invoiceNotes" class="form-label">Catatan</label>
+                        <textarea class="form-control" id="invoiceNotes" name="notes" rows="3" placeholder="Catatan tambahan (opsional)"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Buat Tagihan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Mark as Paid -->
+<div class="modal fade" id="markAsPaidModal" tabindex="-1" aria-labelledby="markAsPaidModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="markAsPaidModalLabel">Tandai Sebagai Lunas</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="markAsPaidForm">
+                <div class="modal-body">
+                    <input type="hidden" id="paidInvoiceId" name="invoice_id">
+                    <div class="mb-3">
+                        <label for="paymentMethod" class="form-label">Metode Pembayaran *</label>
+                        <select class="form-select" id="paymentMethod" name="payment_method" required>
+                            <option value="">Pilih Metode Pembayaran</option>
+                            <option value="cash">Tunai</option>
+                            <option value="transfer">Transfer Bank</option>
+                            <option value="qris">QRIS</option>
+                            <option value="ewallet">E-Wallet</option>
+                            <option value="other">Lainnya</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="paymentNotes" class="form-label">Catatan Pembayaran</label>
+                        <textarea class="form-control" id="paymentNotes" name="notes" rows="3" placeholder="Catatan pembayaran (opsional)"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-success">Tandai Lunas</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+// Auto-fill amount when package is selected
+document.getElementById('invoicePackage').addEventListener('change', function() {
+    const selectedOption = this.options[this.selectedIndex];
+    const price = selectedOption.getAttribute('data-price');
+    if (price) {
+        document.getElementById('invoiceAmount').value = price;
+    }
+});
+
+// Buat Tagihan
+document.getElementById('addInvoiceForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const data = Object.fromEntries(formData);
+    
+    // Validate required fields
+    if (!data.customer_username || !data.package_id || !data.amount || !data.due_date) {
+        showAlert('danger', 'Mohon isi semua field yang wajib diisi');
+        return;
+    }
+    
+    // Disable submit button to prevent double submission
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="mdi mdi-loading mdi-spin"></i> Membuat...';
+    
+    fetch('/admin/billing/invoices', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            // Reset form and close modal
+            document.getElementById('addInvoiceForm').reset();
+            $('#addInvoiceModal').modal('hide');
+            
+            // Show success notification
+            showAlert('success', '✅ Tagihan berhasil dibuat!');
+            
+            // Reload page after a short delay
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            showAlert('danger', '❌ ' + result.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showAlert('danger', '❌ Terjadi kesalahan saat membuat tagihan');
+    })
+    .finally(() => {
+        // Re-enable submit button
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+    });
+});
+
+// Event Listeners for Invoice Actions
+document.addEventListener('DOMContentLoaded', function() {
+    // Mark as Paid
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.mark-paid-btn')) {
+            const button = e.target.closest('.mark-paid-btn');
+            const id = button.getAttribute('data-id');
+            const invoiceNumber = button.getAttribute('data-invoice-number');
+            
+            document.getElementById('paidInvoiceId').value = id;
+            document.getElementById('markAsPaidModalLabel').textContent = `Tandai Sebagai Lunas - ${invoiceNumber}`;
+            $('#markAsPaidModal').modal('show');
+        }
+    });
+    
+        // Initialize tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+
+    // View Invoice
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.view-invoice-btn')) {
+            const button = e.target.closest('.view-invoice-btn');
+            const id = button.getAttribute('data-id');
+            window.open(`/admin/billing/invoices/${id}`, '_blank');
+        }
+    });
+    
+    // Print Invoice
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.print-invoice-btn')) {
+            const button = e.target.closest('.print-invoice-btn');
+            const id = button.getAttribute('data-id');
+            window.open(`/admin/billing/invoices/${id}/print`, '_blank');
+        }
+    });
+
+    // Edit Invoice
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.edit-invoice-btn')) {
+            const button = e.target.closest('.edit-invoice-btn');
+            const id = button.getAttribute('data-id');
+            // Redirect to edit page or open edit modal
+            window.location.href = `/admin/billing/invoices/${id}/edit`;
+        }
+    });
+});
+
+document.getElementById('markAsPaidForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const data = Object.fromEntries(formData);
+    const invoiceId = data.invoice_id;
+    const paymentMethod = data.payment_method;
+    const notes = data.notes;
+    
+    // Validate required fields
+    if (!paymentMethod) {
+        showAlert('danger', 'Mohon pilih metode pembayaran');
+        return;
+    }
+    
+    // Disable submit button to prevent double submission
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="mdi mdi-loading mdi-spin"></i> Memproses...';
+    
+    // Get invoice amount first
+    fetch(`/admin/billing/api/invoices/${invoiceId}`)
+    .then(response => response.json())
+    .then(invoiceData => {
+        if (!invoiceData.success) {
+            throw new Error('Failed to get invoice data');
+        }
+        
+        const invoiceAmount = parseFloat(invoiceData.invoice.amount);
+        
+        // Record the payment with correct amount
+        return fetch('/admin/billing/payments', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                invoice_id: invoiceId,
+                amount: invoiceAmount,
+                payment_method: paymentMethod,
+                reference_number: '',
+                notes: notes || ''
+            })
+        });
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            // Then update invoice status
+            return fetch(`/admin/billing/invoices/${invoiceId}/status`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    status: 'paid',
+                    payment_method: paymentMethod
+                })
+            });
+        } else {
+            throw new Error(result.message);
+        }
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            // Close modal and reset form
+            $('#markAsPaidModal').modal('hide');
+            document.getElementById('markAsPaidForm').reset();
+            
+            // Show success notification
+            showAlert('success', '✅ Tagihan berhasil ditandai sebagai lunas!');
+            
+            // Reload page after a short delay
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            showAlert('danger', '❌ ' + result.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showAlert('danger', '❌ Terjadi kesalahan saat menandai tagihan sebagai lunas');
+    })
+    .finally(() => {
+        // Re-enable submit button
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+    });
+});
+
+// Alert function
+function showAlert(type, message) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+    alertDiv.style.cssText = `
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        min-width: 300px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        border: none;
+        border-radius: 8px;
+    `;
+    alertDiv.innerHTML = `
+        <div class="d-flex align-items-center">
+            <div class="flex-grow-1">
+                ${message}
+            </div>
+            <button type="button" class="btn-close ms-2" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+    
+    document.body.appendChild(alertDiv);
+    
+    // Auto remove after 4 seconds
+    setTimeout(() => {
+        if (alertDiv.parentNode) {
+            alertDiv.remove();
+        }
+    }, 4000);
+}
+
+// Set default due date to next month
+document.addEventListener('DOMContentLoaded', function() {
+    const today = new Date();
+    const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, today.getDate());
+    const dueDateInput = document.getElementById('invoiceDueDate');
+    if (dueDateInput) {
+        dueDateInput.value = nextMonth.toISOString().split('T')[0];
+    }
+});
+
+// Format amount input
+document.getElementById('invoiceAmount').addEventListener('input', function(e) {
+    this.value = this.value.replace(/[^0-9]/g, '');
+});
+
+// Reset form when modal is hidden
+document.addEventListener('DOMContentLoaded', function() {
+    $('#addInvoiceModal').on('hidden.bs.modal', function() {
+        document.getElementById('addInvoiceForm').reset();
+    });
+    
+    $('#markAsPaidModal').on('hidden.bs.modal', function() {
+        document.getElementById('markAsPaidForm').reset();
+    });
+});
+</script>
+
+<%- include('../../partials/footer') %> 

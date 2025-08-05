@@ -1,0 +1,475 @@
+<%- include('../../partials/header') %>
+
+<%- include('../../partials/billing-navbar') %>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box">
+                <h4 class="page-title">Kelola Paket Internet</h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="header-title">Daftar Paket</h4>
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addPackageModal">
+                            <i class="mdi mdi-plus"></i> Tambah Paket
+                        </button>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-centered table-nowrap table-hover mb-0" id="packagesTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nama Paket</th>
+                                    <th>Kecepatan</th>
+                                    <th>Harga</th>
+                                    <th>Deskripsi</th>
+                                    <th>Status</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (packages && packages.length > 0) { %>
+                                    <% packages.forEach(function(package) { %>
+                                        <tr>
+                                            <td><%= package.id %></td>
+                                            <td>
+                                                <span class="text-body fw-bold"><%= package.name %></span>
+                                            </td>
+                                            <td><%= package.speed %></td>
+                                            <td>Rp <%= parseFloat(package.price).toLocaleString('id-ID') %></td>
+                                            <td><%= package.description || '-' %></td>
+                                            <td>
+                                                <span class="badge bg-success">Aktif</span>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <button type="button" class="btn btn-sm btn-outline-primary edit-package-btn"
+                                                            data-id="<%= package.id %>"
+                                                            data-name="<%= package.name %>"
+                                                            data-speed="<%= package.speed %>"
+                                                            data-price="<%= package.price %>"
+                                                            data-description="<%= package.description || '' %>"
+                                                            data-bs-toggle="tooltip" 
+                                                            data-bs-placement="top" 
+                                                            title="Edit Paket">
+                                                        <i class="mdi mdi-pencil-outline"></i>
+                                                    </button>
+                                                    <button type="button" class="btn btn-sm btn-outline-danger delete-package-btn"
+                                                            data-id="<%= package.id %>"
+                                                            data-name="<%= package.name %>"
+                                                            data-bs-toggle="tooltip" 
+                                                            data-bs-placement="top" 
+                                                            title="Hapus Paket">
+                                                        <i class="mdi mdi-delete-outline"></i>
+                                                    </button>
+                                                    <button type="button" class="btn btn-sm btn-outline-info view-package-btn"
+                                                            data-id="<%= package.id %>"
+                                                            data-bs-toggle="tooltip" 
+                                                            data-bs-placement="top" 
+                                                            title="Detail Paket">
+                                                        <i class="mdi mdi-package-variant-outline"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <% }); %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="7" class="text-center text-muted">Belum ada paket</td>
+                                    </tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Tambah Paket -->
+<div class="modal fade" id="addPackageModal" tabindex="-1" aria-labelledby="addPackageModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addPackageModalLabel">Tambah Paket Baru</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="addPackageForm">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="packageName" class="form-label">Nama Paket *</label>
+                        <input type="text" class="form-control" id="packageName" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="packageSpeed" class="form-label">Kecepatan *</label>
+                        <input type="text" class="form-control" id="packageSpeed" name="speed" placeholder="Contoh: 10 Mbps" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="packagePrice" class="form-label">Harga (Rp) *</label>
+                        <input type="number" class="form-control" id="packagePrice" name="price" min="0" step="1000" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="packageDescription" class="form-label">Deskripsi</label>
+                        <textarea class="form-control" id="packageDescription" name="description" rows="3" placeholder="Deskripsi paket (opsional)"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Edit Paket -->
+<div class="modal fade" id="editPackageModal" tabindex="-1" aria-labelledby="editPackageModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editPackageModalLabel">Edit Paket</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editPackageForm">
+                <div class="modal-body">
+                    <input type="hidden" id="editPackageId" name="id">
+                    <div class="mb-3">
+                        <label for="editPackageName" class="form-label">Nama Paket *</label>
+                        <input type="text" class="form-control" id="editPackageName" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editPackageSpeed" class="form-label">Kecepatan *</label>
+                        <input type="text" class="form-control" id="editPackageSpeed" name="speed" placeholder="Contoh: 10 Mbps" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editPackagePrice" class="form-label">Harga (Rp) *</label>
+                        <input type="number" class="form-control" id="editPackagePrice" name="price" min="0" step="1000" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editPackageDescription" class="form-label">Deskripsi</label>
+                        <textarea class="form-control" id="editPackageDescription" name="description" rows="3" placeholder="Deskripsi paket (opsional)"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Update</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+// Tambah Paket
+document.getElementById('addPackageForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const data = Object.fromEntries(formData);
+    
+    // Validate required fields
+    if (!data.name || !data.speed || !data.price) {
+        showAlert('danger', 'Mohon isi semua field yang wajib diisi');
+        return;
+    }
+    
+    // Disable submit button to prevent double submission
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="mdi mdi-loading mdi-spin"></i> Menyimpan...';
+    
+    fetch('/admin/billing/packages', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            // Reset form and close modal
+            document.getElementById('addPackageForm').reset();
+            $('#addPackageModal').modal('hide');
+            
+            // Show success notification
+            showAlert('success', '✅ Paket berhasil ditambahkan!');
+            
+            // Reload page after a short delay
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            showAlert('danger', '❌ ' + result.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showAlert('danger', '❌ Terjadi kesalahan saat menambah paket');
+    })
+    .finally(() => {
+        // Re-enable submit button
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+    });
+});
+
+// Edit Paket - Event Listener
+document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.edit-package-btn')) {
+            const button = e.target.closest('.edit-package-btn');
+            const id = button.getAttribute('data-id');
+            const name = button.getAttribute('data-name');
+            const speed = button.getAttribute('data-speed');
+            const price = button.getAttribute('data-price');
+            const description = button.getAttribute('data-description');
+            
+            document.getElementById('editPackageId').value = id;
+            document.getElementById('editPackageName').value = name;
+            document.getElementById('editPackageSpeed').value = speed;
+            document.getElementById('editPackagePrice').value = price;
+            document.getElementById('editPackageDescription').value = description;
+            
+            $('#editPackageModal').modal('show');
+            
+            // Enable submit button when modal opens (since all fields are filled)
+            setTimeout(() => {
+                validateEditPackageForm();
+            }, 100);
+        }
+    });
+});
+
+document.getElementById('editPackageForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const data = Object.fromEntries(formData);
+    const id = data.id;
+    delete data.id;
+    
+    // Validate required fields
+    if (!data.name || !data.speed || !data.price) {
+        showAlert('danger', 'Mohon isi semua field yang wajib diisi');
+        return;
+    }
+    
+    // Disable submit button to prevent double submission
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="mdi mdi-loading mdi-spin"></i> Mengupdate...';
+    
+    fetch(`/admin/billing/packages/${id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            // Close modal
+            $('#editPackageModal').modal('hide');
+            
+            // Show success notification
+            showAlert('success', '✅ Paket berhasil diupdate!');
+            
+            // Reload page after a short delay
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            showAlert('danger', '❌ ' + result.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showAlert('danger', '❌ Terjadi kesalahan saat mengupdate paket');
+    })
+    .finally(() => {
+        // Re-enable submit button
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+    });
+});
+
+// Initialize tooltips
+document.addEventListener('DOMContentLoaded', function() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
+
+// Hapus Paket - Event Listener
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.delete-package-btn')) {
+        const button = e.target.closest('.delete-package-btn');
+        const id = button.getAttribute('data-id');
+        const name = button.getAttribute('data-name');
+        
+        if (confirm(`Apakah Anda yakin ingin menghapus paket "${name}"?`)) {
+            fetch(`/admin/billing/packages/${id}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    showAlert('success', result.message);
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showAlert('danger', result.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('danger', 'Terjadi kesalahan saat menghapus paket');
+            });
+        }
+    }
+});
+
+// View Package - Event Listener
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.view-package-btn')) {
+        const button = e.target.closest('.view-package-btn');
+        const id = button.getAttribute('data-id');
+        // Redirect to package detail page
+        window.location.href = `/admin/billing/packages/${id}`;
+    }
+});
+
+// Alert function
+function showAlert(type, message) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+    alertDiv.style.cssText = `
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        min-width: 300px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        border: none;
+        border-radius: 8px;
+    `;
+    alertDiv.innerHTML = `
+        <div class="d-flex align-items-center">
+            <div class="flex-grow-1">
+                ${message}
+            </div>
+            <button type="button" class="btn-close ms-2" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+    
+    document.body.appendChild(alertDiv);
+    
+    // Auto remove after 4 seconds
+    setTimeout(() => {
+        if (alertDiv.parentNode) {
+            alertDiv.remove();
+        }
+    }, 4000);
+}
+
+// Format harga input
+document.getElementById('packagePrice').addEventListener('input', function(e) {
+    this.value = this.value.replace(/[^0-9]/g, '');
+    validateAddPackageForm();
+});
+
+document.getElementById('editPackagePrice').addEventListener('input', function(e) {
+    this.value = this.value.replace(/[^0-9]/g, '');
+});
+
+// Form validation for Add Package
+function validateAddPackageForm() {
+    const name = document.getElementById('packageName').value.trim();
+    const speed = document.getElementById('packageSpeed').value.trim();
+    const price = document.getElementById('packagePrice').value.trim();
+    const submitBtn = document.querySelector('#addPackageForm button[type="submit"]');
+    
+    if (name && speed && price) {
+        submitBtn.disabled = false;
+    } else {
+        submitBtn.disabled = true;
+    }
+}
+
+// Form validation for Edit Package
+function validateEditPackageForm() {
+    const name = document.getElementById('editPackageName').value.trim();
+    const speed = document.getElementById('editPackageSpeed').value.trim();
+    const price = document.getElementById('editPackagePrice').value.trim();
+    const submitBtn = document.querySelector('#editPackageForm button[type="submit"]');
+    
+    if (name && speed && price) {
+        submitBtn.disabled = false;
+    } else {
+        submitBtn.disabled = true;
+    }
+}
+
+// Add event listeners for form validation
+document.addEventListener('DOMContentLoaded', function() {
+    const addPackageForm = document.getElementById('addPackageForm');
+    const nameInput = document.getElementById('packageName');
+    const speedInput = document.getElementById('packageSpeed');
+    const priceInput = document.getElementById('packagePrice');
+    
+    if (nameInput) {
+        nameInput.addEventListener('input', validateAddPackageForm);
+    }
+    if (speedInput) {
+        speedInput.addEventListener('input', validateAddPackageForm);
+    }
+    if (priceInput) {
+        priceInput.addEventListener('input', validateAddPackageForm);
+    }
+    
+    // Initial validation
+    validateAddPackageForm();
+    
+    // Add event listeners for edit form validation
+    const editNameInput = document.getElementById('editPackageName');
+    const editSpeedInput = document.getElementById('editPackageSpeed');
+    const editPriceInput = document.getElementById('editPackagePrice');
+    
+    if (editNameInput) {
+        editNameInput.addEventListener('input', validateEditPackageForm);
+    }
+    if (editSpeedInput) {
+        editSpeedInput.addEventListener('input', validateEditPackageForm);
+    }
+    if (editPriceInput) {
+        editPriceInput.addEventListener('input', validateEditPackageForm);
+    }
+    
+    // Modal event listeners
+    $('#addPackageModal').on('shown.bs.modal', function() {
+        validateAddPackageForm();
+    });
+    
+    $('#editPackageModal').on('shown.bs.modal', function() {
+        validateEditPackageForm();
+    });
+    
+    // Reset form when modal is hidden
+    $('#addPackageModal').on('hidden.bs.modal', function() {
+        document.getElementById('addPackageForm').reset();
+        validateAddPackageForm();
+    });
+});
+</script>
+
+<%- include('../../partials/footer') %> 

@@ -1,0 +1,275 @@
+<%- include('../../partials/header') %>
+
+<%- include('../../partials/billing-navbar') %>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="page-title">Detail Invoice</h4>
+                    <div class="btn-group" role="group">
+                        <a href="/admin/billing/invoices/<%= invoice.id %>/print" target="_blank" class="btn btn-outline-primary">
+                            <i class="mdi mdi-printer-outline"></i> Cetak
+                        </a>
+                        <a href="/admin/billing/invoices/<%= invoice.id %>/edit" class="btn btn-outline-secondary">
+                            <i class="mdi mdi-pencil-outline"></i> Edit
+                        </a>
+                        <a href="/admin/billing/invoices" class="btn btn-outline-info">
+                            <i class="mdi mdi-arrow-left-bold"></i> Kembali
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Informasi Invoice</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td class="fw-bold">No. Invoice:</td>
+                                    <td><%= invoice.invoice_number %></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Status:</td>
+                                    <td>
+                                        <% if (invoice.status === 'paid') { %>
+                                            <span class="badge bg-success">Lunas</span>
+                                        <% } else if (invoice.status === 'unpaid') { %>
+                                            <% if (new Date(invoice.due_date) < new Date()) { %>
+                                                <span class="badge bg-danger">Terlambat</span>
+                                            <% } else { %>
+                                                <span class="badge bg-warning">Belum Lunas</span>
+                                            <% } %>
+                                        <% } %>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Jumlah:</td>
+                                    <td class="h5 text-primary">Rp <%= parseFloat(invoice.amount).toLocaleString('id-ID') %></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Jatuh Tempo:</td>
+                                    <td>
+                                        <% if (new Date(invoice.due_date) < new Date() && invoice.status === 'unpaid') { %>
+                                            <span class="text-danger">
+                                                <%= new Date(invoice.due_date).toLocaleDateString('id-ID') %>
+                                            </span>
+                                        <% } else { %>
+                                            <%= new Date(invoice.due_date).toLocaleDateString('id-ID') %>
+                                        <% } %>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td class="fw-bold">Tanggal Dibuat:</td>
+                                    <td><%= new Date(invoice.created_at).toLocaleDateString('id-ID') %></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Paket:</td>
+                                    <td><%= invoice.package_name %></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Kecepatan:</td>
+                                    <td><%= invoice.package_speed %></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Catatan:</td>
+                                    <td><%= invoice.notes || '-' %></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+
+    </div>
+    
+    <% if (invoice.status === 'unpaid') { %>
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Aksi</h5>
+                </div>
+                <div class="card-body">
+                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#markAsPaidModal">
+                                                    <i class="mdi mdi-cash-check"></i> Tandai Sebagai Lunas
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <% } %>
+</div>
+
+<!-- Modal Mark as Paid -->
+<div class="modal fade" id="markAsPaidModal" tabindex="-1" aria-labelledby="markAsPaidModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="markAsPaidModalLabel">Tandai Sebagai Lunas</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="markAsPaidForm">
+                <div class="modal-body">
+                    <input type="hidden" id="paidInvoiceId" name="invoice_id" value="<%= invoice.id %>">
+                    <div class="mb-3">
+                        <label for="paymentMethod" class="form-label">Metode Pembayaran *</label>
+                        <select class="form-select" id="paymentMethod" name="payment_method" required>
+                            <option value="">Pilih Metode Pembayaran</option>
+                            <option value="cash">Tunai</option>
+                            <option value="transfer">Transfer Bank</option>
+                            <option value="qris">QRIS</option>
+                            <option value="ewallet">E-Wallet</option>
+                            <option value="other">Lainnya</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="paymentNotes" class="form-label">Catatan Pembayaran</label>
+                        <textarea class="form-control" id="paymentNotes" name="notes" rows="3" placeholder="Catatan pembayaran (opsional)"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-success">Tandai Lunas</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.avatar-sm {
+    width: 40px;
+    height: 40px;
+}
+</style>
+
+<script>
+document.getElementById('markAsPaidForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const data = Object.fromEntries(formData);
+    const invoiceId = data.invoice_id;
+    const paymentMethod = data.payment_method;
+    const notes = data.notes;
+    
+    // Validate required fields
+    if (!paymentMethod) {
+        showAlert('danger', 'Mohon pilih metode pembayaran');
+        return;
+    }
+    
+    // Disable submit button to prevent double submission
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="mdi mdi-loading mdi-spin"></i> Memproses...';
+    
+    // First record the payment
+    fetch('/admin/billing/payments', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            invoice_id: invoiceId,
+            amount: 0, // Will be filled from invoice
+            payment_method: paymentMethod,
+            notes: notes || '' // Ensure notes is not undefined
+        })
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            // Then update invoice status
+            return fetch(`/admin/billing/invoices/${invoiceId}/status`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    status: 'paid',
+                    payment_method: paymentMethod
+                })
+            });
+        } else {
+            throw new Error(result.message);
+        }
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            // Close modal and reset form
+            $('#markAsPaidModal').modal('hide');
+            document.getElementById('markAsPaidForm').reset();
+            
+            // Show success notification
+            showAlert('success', '✅ Tagihan berhasil ditandai sebagai lunas!');
+            
+            // Reload page after a short delay
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            showAlert('danger', '❌ ' + result.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showAlert('danger', '❌ Terjadi kesalahan saat menandai tagihan sebagai lunas');
+    })
+    .finally(() => {
+        // Re-enable submit button
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+    });
+});
+
+// Alert function
+function showAlert(type, message) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+    alertDiv.style.cssText = `
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        min-width: 300px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        border: none;
+        border-radius: 8px;
+    `;
+    alertDiv.innerHTML = `
+        <div class="d-flex align-items-center">
+            <div class="flex-grow-1">
+                ${message}
+            </div>
+            <button type="button" class="btn-close ms-2" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+    
+    document.body.appendChild(alertDiv);
+    
+    // Auto remove after 4 seconds
+    setTimeout(() => {
+        if (alertDiv.parentNode) {
+            alertDiv.remove();
+        }
+    }, 4000);
+}
+</script>
+
+<%- include('../../partials/footer') %> 
