@@ -1,8 +1,6 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const fs = require('fs');
-const { logger } = require('./logger');
-const { addTagToDevice, findDeviceByPPPoE } = require('./genieacs');
 
 class BillingManager {
     constructor() {
@@ -19,9 +17,9 @@ class BillingManager {
 
         this.db = new sqlite3.Database(this.dbPath, (err) => {
             if (err) {
-                logger.error('Error opening billing database:', err);
+                console.error('Error opening billing database:', err);
             } else {
-                logger.info('Billing database connected');
+                console.log('Billing database connected');
                 this.createTables();
             }
         });
@@ -88,7 +86,7 @@ class BillingManager {
         tables.forEach(table => {
             this.db.run(table, (err) => {
                 if (err) {
-                    logger.error('Error creating table:', err);
+                    console.error('Error creating table:', err);
                 }
             });
         });
@@ -96,9 +94,9 @@ class BillingManager {
         // Tambahkan kolom pppoe_username jika belum ada
         this.db.run("ALTER TABLE customers ADD COLUMN pppoe_username TEXT", (err) => {
             if (err && !err.message.includes('duplicate column name')) {
-                logger.error('Error adding pppoe_username column:', err);
+                console.error('Error adding pppoe_username column:', err);
             } else if (!err) {
-                logger.info('Successfully added pppoe_username column to customers table');
+                console.log('Successfully added pppoe_username column to customers table');
             }
         });
     }
@@ -197,12 +195,12 @@ class BillingManager {
                             if (device) {
                                 // Tambahkan tag nomor telepon ke device
                                 await addTagToDevice(device._id, phone);
-                                logger.info(`Successfully added phone tag ${phone} to device ${device._id} for customer ${username} (PPPoE: ${pppoe_username})`);
+                                console.log(`Successfully added phone tag ${phone} to device ${device._id} for customer ${username} (PPPoE: ${pppoe_username})`);
                             } else {
-                                logger.warn(`No device found with PPPoE Username ${pppoe_username} for customer ${username}`);
+                                console.warn(`No device found with PPPoE Username ${pppoe_username} for customer ${username}`);
                             }
                         } catch (genieacsError) {
-                            logger.error(`Error adding phone tag to GenieACS for customer ${username}:`, genieacsError.message);
+                            console.error(`Error adding phone tag to GenieACS for customer ${username}:`, genieacsError.message);
                             // Jangan reject, karena customer sudah berhasil dibuat di billing
                         }
                     } else if (phone && username) {
@@ -212,12 +210,12 @@ class BillingManager {
                             
                             if (device) {
                                 await addTagToDevice(device._id, phone);
-                                logger.info(`Successfully added phone tag ${phone} to device ${device._id} for customer ${username} (using username as PPPoE)`);
+                                console.log(`Successfully added phone tag ${phone} to device ${device._id} for customer ${username} (using username as PPPoE)`);
                             } else {
-                                logger.warn(`No device found with PPPoE Username ${username} for customer ${username}`);
+                                console.warn(`No device found with PPPoE Username ${username} for customer ${username}`);
                             }
                         } catch (genieacsError) {
-                            logger.error(`Error adding phone tag to GenieACS for customer ${username}:`, genieacsError.message);
+                            console.error(`Error adding phone tag to GenieACS for customer ${username}:`, genieacsError.message);
                         }
                     }
                     
@@ -368,10 +366,10 @@ class BillingManager {
                                         const oldDevice = await findDeviceByPPPoE(oldPPPoE);
                                         if (oldDevice) {
                                             await removeTagFromDevice(oldDevice._id, oldPhone);
-                                            logger.info(`Removed old phone tag ${oldPhone} from device ${oldDevice._id} for customer ${username}`);
+                                            console.log(`Removed old phone tag ${oldPhone} from device ${oldDevice._id} for customer ${username}`);
                                         }
                                     } catch (error) {
-                                        logger.warn(`Error removing old phone tag for customer ${username}:`, error.message);
+                                        console.warn(`Error removing old phone tag for customer ${username}:`, error.message);
                                     }
                                 }
                                 
@@ -381,12 +379,12 @@ class BillingManager {
                                 
                                 if (device) {
                                     await addTagToDevice(device._id, phone);
-                                    logger.info(`Successfully updated phone tag to ${phone} for device ${device._id} and customer ${username} (PPPoE: ${pppoeToUse})`);
+                                    console.log(`Successfully updated phone tag to ${phone} for device ${device._id} and customer ${username} (PPPoE: ${pppoeToUse})`);
                                 } else {
-                                    logger.warn(`No device found with PPPoE Username ${pppoeToUse} for customer ${username}`);
+                                    console.warn(`No device found with PPPoE Username ${pppoeToUse} for customer ${username}`);
                                 }
                             } catch (genieacsError) {
-                                logger.error(`Error updating phone tag in GenieACS for customer ${username}:`, genieacsError.message);
+                                console.error(`Error updating phone tag in GenieACS for customer ${username}:`, genieacsError.message);
                                 // Jangan reject, karena customer sudah berhasil diupdate di billing
                             }
                         }
@@ -425,12 +423,12 @@ class BillingManager {
                                 
                                 if (device) {
                                     await removeTagFromDevice(device._id, customer.phone);
-                                    logger.info(`Removed phone tag ${customer.phone} from device ${device._id} for deleted customer ${username} (PPPoE: ${pppoeToUse})`);
+                                    console.log(`Removed phone tag ${customer.phone} from device ${device._id} for deleted customer ${username} (PPPoE: ${pppoeToUse})`);
                                 } else {
-                                    logger.warn(`No device found with PPPoE Username ${pppoeToUse} for deleted customer ${username}`);
+                                    console.warn(`No device found with PPPoE Username ${pppoeToUse} for deleted customer ${username}`);
                                 }
                             } catch (genieacsError) {
-                                logger.error(`Error removing phone tag from GenieACS for deleted customer ${username}:`, genieacsError.message);
+                                console.error(`Error removing phone tag from GenieACS for deleted customer ${username}:`, genieacsError.message);
                                 // Jangan reject, karena customer sudah berhasil dihapus di billing
                             }
                         }
@@ -753,9 +751,9 @@ class BillingManager {
         if (this.db) {
             this.db.close((err) => {
                 if (err) {
-                    logger.error('Error closing billing database:', err);
+                    console.error('Error closing billing database:', err);
                 } else {
-                    logger.info('Billing database connection closed');
+                    console.log('Billing database connection closed');
                 }
             });
         }
