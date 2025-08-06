@@ -86,6 +86,7 @@ app.use('/api', apiDashboardRouter);
 const VERSION = '1.0.0';
 
 // Variabel global untuk menyimpan status koneksi WhatsApp
+// (Tetap, karena status runtime)
 global.whatsappStatus = {
     connected: false,
     qrCode: null,
@@ -94,50 +95,9 @@ global.whatsappStatus = {
     status: 'disconnected'
 };
 
-// Variabel global untuk menyimpan semua pengaturan dari settings.json
-global.appSettings = {
-  // Server
-  port: getSetting('server_port', 4555),
-  host: getSetting('server_host', 'localhost'),
-  
-  // Admin
-  adminUsername: getSetting('admin_username', 'admin'),
-  adminPassword: getSetting('admin_password', 'admin'),
-  
-  // GenieACS
-  genieacsUrl: getSetting('genieacs_url', 'http://localhost:7557'),
-  genieacsUsername: getSetting('genieacs_username', ''),
-  genieacsPassword: getSetting('genieacs_password', ''),
-  
-  // Mikrotik
-  mikrotikHost: getSetting('mikrotik_host', ''),
-  mikrotikPort: getSetting('mikrotik_port', '8728'),
-  mikrotikUser: getSetting('mikrotik_user', ''),
-  mikrotikPassword: getSetting('mikrotik_password', ''),
-  
-  // WhatsApp
-  adminNumber: getSetting('admins', [''])[0] || '',
-  technicianNumbers: getSetting('technician_numbers', []).join(','),
-  reconnectInterval: 5000,
-  maxReconnectRetries: 5,
-  whatsappSessionPath: getSetting('whatsapp_session_path', './whatsapp-session'),
-  whatsappKeepAlive: getSetting('whatsapp_keep_alive', true),
-  whatsappRestartOnError: getSetting('whatsapp_restart_on_error', true),
-  
-  // Monitoring
-  pppoeMonitorInterval: getSetting('pppoe_monitor_interval', 60000),
-  rxPowerWarning: getSetting('rx_power_warning', -27),
-  rxPowerCritical: getSetting('rx_power_critical', -30),
-  rxPowerNotificationEnable: getSetting('rx_power_notification_enable', true),
-  rxPowerNotificationInterval: getSetting('rx_power_notification_interval', 300000),
-  
-  // Company Info
-  companyHeader: getSetting('company_header', 'ISP Monitor'),
-  footerInfo: getSetting('footer_info', ''),
-};
-
+// HAPUS global.appSettings
 // Pastikan direktori sesi WhatsApp ada
-const sessionDir = global.appSettings.whatsappSessionPath || './whatsapp-session';
+const sessionDir = getSetting('whatsapp_session_path', './whatsapp-session');
 if (!fs.existsSync(sessionDir)) {
     fs.mkdirSync(sessionDir, { recursive: true });
     logger.info(`Direktori sesi WhatsApp dibuat: ${sessionDir}`);
@@ -219,7 +179,7 @@ try {
             logger.info('WhatsApp connected successfully');
 
             // Initialize PPPoE monitoring jika MikroTik dikonfigurasi
-            if (global.appSettings.mikrotikHost && global.appSettings.mikrotikUser && global.appSettings.mikrotikPassword) {
+            if (getSetting('mikrotik_host') && getSetting('mikrotik_user') && getSetting('mikrotik_password')) {
                 pppoeMonitor.initializePPPoEMonitoring().then(() => {
                     logger.info('PPPoE monitoring initialized');
                 }).catch(err => {
@@ -240,7 +200,7 @@ try {
     });
 
     // Mulai monitoring PPPoE lama jika dikonfigurasi (fallback)
-    if (global.appSettings.mikrotikHost && global.appSettings.mikrotikUser && global.appSettings.mikrotikPassword) {
+    if (getSetting('mikrotik_host') && getSetting('mikrotik_user') && getSetting('mikrotik_password')) {
         monitorPPPoEConnections().catch(err => {
             logger.error('Error starting legacy PPPoE monitoring:', err);
         });
@@ -271,7 +231,7 @@ function startServer(portToUse) {
             logger.info(`🌐 Web Portal tersedia di: http://localhost:${port}`);
             logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
             // Update global.appSettings.port dengan port yang berhasil digunakan
-            global.appSettings.port = port.toString();
+            // global.appSettings.port = port.toString(); // Hapus ini
         }).on('error', (err) => {
             if (err.code === 'EADDRINUSE') {
                 logger.error(`❌ ERROR: Port ${port} sudah digunakan oleh aplikasi lain!`);
@@ -289,7 +249,7 @@ function startServer(portToUse) {
 }
 
 // Mulai server dengan port dari settings.json
-const port = global.appSettings.port;
+const port = getSetting('server_port', 4555);
 logger.info(`Attempting to start server on configured port: ${port}`);
 
 // Mulai server dengan port dari konfigurasi
