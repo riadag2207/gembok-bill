@@ -1,67 +1,61 @@
-# Genieacs - Mikrotik - WhatsApp Gateway untuk ISP Management
+# Gembok Bill - Sistem Manajemen ISP Terintegrasi
 
-Rekening Donasi Untuk Pembangunan Masjid
-# 4206 0101 2214 534 BRI an DKM BAITUR ROHMAN <br>
-Info 08194215703 ALIJAYA
-link group tele : https://t.me/alijayaNetAcs
-link chanell tele : https://t.me/alijayaNetwork
+[![GitHub stars](https://img.shields.io/github/stars/alijayanet/gembok-bill)](https://github.com/alijayanet/gembok-bill/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/alijayanet/gembok-bill)](https://github.com/alijayanet/gembok-bill/network)
+[![GitHub issues](https://img.shields.io/github/issues/alijayanet/gembok-bill)](https://github.com/alijayanet/gembok-bill/issues)
+[![GitHub license](https://img.shields.io/github/license/alijayanet/gembok-bill)](https://github.com/alijayanet/gembok-bill/blob/main/LICENSE)
 
-## Deskripsi Aplikasi
+## 📋 Deskripsi Aplikasi
 
-Gembok (GenieAcs Mikrotik dan WA Gateway adalah sistem manajemen ISP terintegrasi yang menggabungkan WhatsApp Gateway dengan portal admin web untuk mengelola:
+**Gembok Bill** adalah sistem manajemen ISP terintegrasi yang menggabungkan WhatsApp Gateway dengan portal admin web untuk mengelola layanan internet secara komprehensif. Aplikasi ini dirancang khusus untuk ISP (Internet Service Provider) yang membutuhkan solusi all-in-one untuk manajemen pelanggan, billing, monitoring, dan notifikasi.
 
-- **GenieACS** - Monitoring dan manajemen perangkat ONU/ONT
-- **Mikrotik PPPoE** - Manajemen user PPPoE dan profile
-- **Mikrotik Hotspot** - Sistem voucher dan user hotspot
-- **WhatsApp Bot** - Interface perintah via WhatsApp
-- **Web Portal** - Dashboard admin dan portal pelanggan
+### 🎯 Fitur Utama
 
-## Fitur Utama
+- **🔧 WhatsApp Bot Gateway** - Interface perintah via WhatsApp
+- **🌐 Web Portal Admin** - Dashboard admin yang lengkap
+- **💳 Sistem Billing Terintegrasi** - Manajemen tagihan dan pembayaran
+- **💳 Payment Gateway** - Integrasi Midtrans, Xendit, Tripay
+- **📊 GenieACS Management** - Monitoring dan manajemen perangkat ONU/ONT
+- **🛠️ Mikrotik Management** - Manajemen PPPoE dan Hotspot
+- **📱 Portal Pelanggan** - Self-service untuk pelanggan
+- **📈 Monitoring Real-time** - PPPoE, RX Power, dan sistem
+- **🔔 Notifikasi Otomatis** - WhatsApp notifications
+- **📋 Trouble Ticket System** - Manajemen gangguan
 
-### 🔧 WhatsApp Bot Commands
-- **GenieACS**: Cek status ONU, edit SSID/password, reboot device
-- **Mikrotik**: Manajemen PPPoE, hotspot, interface, firewall
-- **Admin**: Tambah/hapus user, generate voucher, monitoring
-- **Pelanggan**: Cek status, ganti WiFi, info layanan
+---
 
-### 🌐 Web Portal
-- **Admin Dashboard**: Statistik real-time, grafik bandwidth
-- **GenieACS Management**: Edit device, tag pelanggan
-- **PPPoE Management**: CRUD user, profile management
-- **Hotspot Management**: Generate voucher, user management
-- **Settings**: Logo upload, WhatsApp QR, system config
+## 🚀 Instalasi
 
-### 📊 Monitoring & Notifications
-- Real-time PPPoE connection monitoring
-- RX Power monitoring dengan notifikasi
-- WhatsApp notifications untuk admin/teknisi
-- Auto-restart pada error
-
-## Persyaratan Sistem
+### Persyaratan Sistem
 
 - **Node.js** v18+ (direkomendasikan v20+)
 - **npm** atau yarn
 - **GenieACS** API access
 - **Mikrotik** API access
 - **WhatsApp** number untuk bot
-
-## Instalasi
+- **Database SQLite** (built-in)
 
 ### 1. Clone Repository
+
 ```bash
+# Install git jika belum ada
 apt install git curl -y
-git clone https://github.com/alijayanet/gembok
-cd gembok
+
+# Clone repository
+git clone https://github.com/alijayanet/gembok-bill
+cd gembok-bill
 ```
 
 ### 2. Install Dependencies
+
 ```bash
+# Install semua dependencies
 npm install
 ```
 
 ### 3. Konfigurasi Settings
 
-Aplikasi menggunakan file `settings.json` untuk konfigurasi. Edit file `settings.json` dengan pengaturan yang sesuai:
+Edit file `settings.json` dengan pengaturan yang sesuai:
 
 ```json
 {
@@ -95,7 +89,7 @@ Aplikasi menggunakan file `settings.json` untuk konfigurasi. Edit file `settings
   "customerPortalOtp": "false",
   "otp_length": "4",
   "otp_expiry_minutes": "5",
-  "server_port": "3001",
+  "server_port": "3003",
   "server_host": "localhost",
   "pppoe_notifications.enabled": "true",
   "pppoe_notifications.loginNotifications": "true",
@@ -106,45 +100,52 @@ Aplikasi menggunakan file `settings.json` untuk konfigurasi. Edit file `settings
   "secret_key": "alijaya-digital-network",
   "reconnect_interval": "5000",
   "log_level": "info",
-  "logo_filename": "logo.png"
+  "logo_filename": "logo.png",
+  "payment_gateway": {
+    "active": "midtrans",
+    "midtrans": {
+      "enabled": true,
+      "production": false,
+      "merchant_id": "G123456789",
+      "client_key": "SB-Mid-client-123456789",
+      "server_key": "SB-Mid-server-123456789"
+    },
+    "xendit": {
+      "enabled": false,
+      "production": false,
+      "api_key": "xnd_public_development_123456789",
+      "callback_token": "xnd_callback_token_123456789"
+    },
+    "tripay": {
+      "enabled": false,
+      "production": false,
+      "api_key": "DEV-123456789",
+      "private_key": "private_key_123456789",
+      "merchant_code": "T12345"
+    }
+  },
+  "payment_accounts": {
+    "bank_transfer": {
+      "bank_name": "Bank BRI",
+      "account_number": "1234-5678-9012-3456",
+      "account_name": "ALIJAYA DIGITAL NETWORK"
+    },
+    "cash": {
+      "office_address": "Jl. Contoh No. 123, Kota, Provinsi",
+      "office_hours": "08:00 - 17:00 WIB"
+    }
+  }
 }
 ```
 
-### Penjelasan Konfigurasi Penting:
+### 4. Setup Database
 
-#### Admin Settings
-- `admins.0` - Nomor WhatsApp admin utama
-- `admin_username` / `admin_password` - Login web admin
-- `admin_enabled` - Enable/disable fitur admin
+```bash
+# Jalankan script untuk setup database billing
+node scripts/add-payment-gateway-tables.js
+```
 
-#### GenieACS Settings
-- `genieacs_url` - URL GenieACS server
-- `genieacs_username` / `genieacs_password` - Kredensial GenieACS
-
-#### Mikrotik Settings
-- `mikrotik_host` / `mikrotik_port` - Host dan port Mikrotik
-- `mikrotik_user` / `mikrotik_password` - Kredensial Mikrotik
-- `main_interface` - Interface utama untuk monitoring
-
-#### WhatsApp Settings
-- `technician_numbers.0`, `technician_numbers.1` - Nomor teknisi
-- `technician_group_id` - ID group Telegram untuk notifikasi
-- `whatsapp_session_path` - Path untuk session WhatsApp
-- `whatsapp_keep_alive` - Keep alive WhatsApp connection
-
-#### Monitoring Settings
-- `pppoe_monitor_enable` - Enable PPPoE monitoring
-- `pppoe_monitor_interval` - Interval monitoring (ms)
-- `rx_power_warning` / `rx_power_critical` - Threshold RX power
-- `rx_power_notification_enable` - Enable RX power notifications
-
-#### Server Settings
-- `server_port` - Port web server
-- `server_host` - Host web server
-- `company_header` - Header untuk pesan WhatsApp
-- `footer_info` - Footer untuk web portal
-
-### 4. Menjalankan Aplikasi
+### 5. Menjalankan Aplikasi
 
 **Development Mode:**
 ```bash
@@ -158,10 +159,20 @@ npm start
 
 **Dengan PM2:**
 ```bash
-pm2 start app.js
+# Install PM2 jika belum ada
+npm install -g pm2
+
+# Start aplikasi
+pm2 start app.js --name gembok-bill
+
+# Monitor aplikasi
+pm2 monit
+
+# View logs
+pm2 logs gembok-bill
 ```
 
-### 5. Setup WhatsApp Bot
+### 6. Setup WhatsApp Bot
 
 1. **Siapkan 2 nomor WhatsApp:**
    - 1 nomor untuk bot (akan scan QR code)
@@ -171,13 +182,47 @@ pm2 start app.js
 
 3. **Test dengan perintah**: `status` atau `menu`
 
-## Akses Web Portal
+---
 
-- **Portal Pelanggan**: `http://ipserver:3001`
-- **Admin Dashboard**: `http://ipserver:3001/admin/login`
+## 🌐 Akses Web Portal
+
+- **Portal Pelanggan**: `http://ipserver:3003`
+- **Admin Dashboard**: `http://ipserver:3003/admin/login`
 - **Login Admin**: Username dan password yang dikonfigurasi di `settings.json`
 
-## Perintah WhatsApp Bot
+---
+
+## 💳 Sistem Billing
+
+### Fitur Billing
+
+- **📊 Dashboard Billing** - Statistik real-time
+- **👥 Manajemen Pelanggan** - CRUD pelanggan dengan PPPoE username
+- **📦 Manajemen Paket** - Paket internet dengan harga
+- **📄 Manajemen Invoice** - Buat, edit, hapus tagihan
+- **💰 Manajemen Pembayaran** - Tracking pembayaran
+- **🔄 Auto Invoice** - Generate tagihan otomatis
+- **💳 Payment Gateway** - Integrasi Midtrans, Xendit, Tripay
+- **📱 WhatsApp Notifications** - Notifikasi tagihan dan pembayaran
+
+### Payment Gateway
+
+Aplikasi mendukung 3 payment gateway populer di Indonesia:
+
+1. **Midtrans** - Payment gateway terpopuler
+2. **Xendit** - Payment gateway enterprise
+3. **Tripay** - Payment gateway lokal
+
+**Setup Payment Gateway:**
+1. Akses `/admin/billing/payment-settings`
+2. Pilih gateway yang aktif
+3. Masukkan API keys
+4. Test koneksi
+5. Aktifkan production mode
+
+---
+
+## 🔧 WhatsApp Bot Commands
 
 ### Perintah untuk Pelanggan
 - `menu` - Menampilkan menu bantuan
@@ -230,7 +275,6 @@ pm2 start app.js
 - `reboot` - Restart router
 - `confirm restart` - Konfirmasi restart
 
-
 #### Hotspot & PPPoE Management
 - `vcr [user] [profile] [nomor]` - Buat voucher
 - `hotspot` - User hotspot aktif
@@ -279,7 +323,9 @@ pm2 start app.js
 - `factory reset` - Reset factory (pelanggan)
 - `confirm factory reset` - Konfirmasi factory reset
 
-## Troubleshooting
+---
+
+## 🛠️ Troubleshooting
 
 ### Masalah Group dan Nomor Teknisi
 
@@ -316,160 +362,114 @@ warn: Skipping invalid WhatsApp number: 6283807665111
 - ❌ `120363029715729111`
 - ❌ `group-120363029715729111`
 
-## Struktur Aplikasi
+### Masalah Payment Gateway
+
+1. **Invalid API Key:**
+   - Pastikan API key benar dan aktif
+   - Cek status akun di dashboard payment gateway
+   - Test koneksi di `/admin/billing/payment-settings`
+
+2. **Webhook Error:**
+   - Pastikan URL webhook benar
+   - Cek firewall dan port
+   - Verifikasi signature di webhook handler
+
+---
+
+## 📁 Struktur Aplikasi
 
 ```
-wa-admin-portal/
+gembok-bill/
 ├── app.js                 # File utama aplikasi
 ├── package.json           # Dependencies dan scripts
 ├── settings.json          # Konfigurasi aplikasi
-├── env-example.txt        # Template environment variables (tidak digunakan)
 ├── config/               # Modul konfigurasi
 │   ├── whatsapp.js       # WhatsApp bot handler
 │   ├── genieacs.js       # GenieACS API
 │   ├── mikrotik.js       # Mikrotik API
+│   ├── billing.js        # Billing system
+│   ├── paymentGateway.js # Payment gateway manager
 │   ├── logger.js         # Logging system
 │   └── settingsManager.js # Settings management
 ├── routes/               # Express routes
 │   ├── adminAuth.js      # Admin authentication
 │   ├── adminDashboard.js # Dashboard routes
+│   ├── adminBilling.js   # Billing management
 │   ├── adminGenieacs.js  # GenieACS management
 │   ├── adminMikrotik.js  # Mikrotik management
 │   ├── adminHotspot.js   # Hotspot management
-│   └── adminSetting.js   # Settings management
+│   ├── adminSetting.js   # Settings management
+│   ├── customerPortal.js # Customer portal
+│   ├── payment.js        # Payment gateway routes
+│   └── troubleReport.js  # Trouble ticket system
 ├── views/                # EJS templates
-│   ├── adminDashboard.ejs
-│   ├── adminGenieacs.ejs
-│   ├── adminMikrotik.ejs
-│   ├── adminHotspot.ejs
-│   ├── adminSetting.ejs
-│   └── login.ejs
+│   ├── admin/           # Admin views
+│   │   ├── billing/     # Billing pages
+│   │   └── ...
+│   ├── customer/        # Customer views
+│   └── partials/        # Shared components
 ├── public/               # Static files
 │   ├── css/
 │   ├── js/
 │   └── img/
+├── data/                 # Database files
 ├── logs/                 # Log files
 ├── scripts/              # Utility scripts
 └── whatsapp-session/     # WhatsApp session files
 ```
 
-## Kontribusi
+---
+
+## 🤝 Kontribusi
 
 Untuk berkontribusi pada proyek ini:
 
 1. Fork repository
-2. Buat branch fitur baru
-3. Commit perubahan
-4. Push ke branch
+2. Buat branch fitur baru (`git checkout -b feature/AmazingFeature`)
+3. Commit perubahan (`git commit -m 'Add some AmazingFeature'`)
+4. Push ke branch (`git push origin feature/AmazingFeature`)
 5. Buat Pull Request
 
-## Lisensi
+### Development Guidelines
 
-ISC License
-
-## Support
-
-- **Telegram Group**: https://t.me/alijayaNetAcs
-- **Telegram Channel**: https://t.me/alijayaNetwork
-- **YouTube**: https://www.youtube.com/shorts/qYJFQY7egFw
+- Gunakan ESLint untuk code formatting
+- Tulis unit tests untuk fitur baru
+- Update dokumentasi untuk perubahan
+- Ikuti conventional commits
 
 ---
 
+## 📄 Lisensi
+
+Distributed under the ISC License. See `LICENSE` for more information.
+
+---
+
+## 🆘 Support
+
+- **📱 Telegram Group**: [https://t.me/alijayaNetAcs](https://t.me/alijayaNetAcs)
+- **📢 Telegram Channel**: [https://t.me/alijayaNetwork](https://t.me/alijayaNetwork)
+- **📺 YouTube**: [https://www.youtube.com/shorts/qYJFQY7egFw](https://www.youtube.com/shorts/qYJFQY7egFw)
+- **💬 Issues**: [GitHub Issues](https://github.com/alijayanet/gembok-bill/issues)
+
+---
+
+## 🙏 Donasi
+
+Rekening Donasi Untuk Pembangunan Masjid:
+- **Bank**: BRI
+- **No. Rekening**: 4206 0101 2214 534
+- **Atas Nama**: DKM BAITUR ROHMAN
+- **Info**: 08194215703 ALIJAYA
+
+---
+
+## ⚠️ Disclaimer
+
 **Jangan lupa untuk mengkonfigurasi file `settings.json` terlebih dahulu sebelum menjalankan aplikasi!**
 
-# Gembok - Admin Portal WhatsApp Gateway
+Aplikasi ini dikembangkan untuk keperluan ISP dan membutuhkan konfigurasi yang tepat untuk berfungsi dengan baik. Pastikan semua kredensial API dan pengaturan sudah benar sebelum deployment ke production.
 
-Aplikasi Admin Portal untuk manajemen layanan internet dengan integrasi WhatsApp Gateway, GenieACS, dan MikroTik.
+---
 
-## Fitur Utama
-
-- Manajemen pelanggan dengan GenieACS
-- Monitoring PPPoE dan Hotspot MikroTik
-- Notifikasi WhatsApp otomatis
-- Portal pelanggan self-service
-- Manajemen gangguan (trouble ticket)
-
-## Persyaratan
-
-- Docker dan Docker Compose
-- Node.js 16+ (hanya untuk pengembangan)
-- Akun Docker Hub (untuk publish image)
-
-## Instalasi dengan Docker
-
-### 1. Pull Image dari Docker Hub
-
-```bash
-docker pull username/gembok:latest
-```
-
-### 2. Jalankan dengan Docker Compose
-
-1. Buat direktori untuk data:
-   ```bash
-   mkdir -p gembok/data
-   cd gembok
-   ```
-
-2. Buat file `docker-compose.yml`:
-   ```yaml
-   version: '3.8'
-   
-   services:
-     gembok:
-       image: username/gembok:latest
-       container_name: gembok-app
-       restart: unless-stopped
-       ports:
-         - "4000:4000"
-       volumes:
-         - ./data/img:/usr/src/app/public/img
-         - ./data/settings.json:/usr/src/app/settings.json
-       environment:
-         - NODE_ENV=production
-   ```
-
-3. Buat direktori dan file konfigurasi:
-   ```bash
-   mkdir -p data/img
-   touch data/settings.json
-   chmod -R 777 data  # Pastikan container bisa menulis
-   ```
-
-4. Jalankan aplikasi:
-   ```bash
-   docker-compose up -d
-   ```
-
-5. Buka browser ke `http://localhost:3001`
-
-## Build Image Sendiri
-
-1. Clone repositori:
-   ```bash
-   git clone https://github.com/alijayanet/gembok.git
-   cd gembok
-   ```
-
-2. Build image:
-   ```bash
-   docker build -t alijayanet/gembok:latest .
-   ```
-
-3. Push ke Docker Hub:
-   ```bash
-   docker login
-   docker push username/gembok:latest
-   ```
-
-## Variabel Lingkungan
-
-- `NODE_ENV`: Environment (production/development)
-- `PORT`: Port yang digunakan (default: 4000)
-- `WHATSAPP_SESSION_PATH`: Lokasi penyimpanan session WhatsApp
-- `GENIEACS_URL`: URL GenieACS
-- `MIKROTIK_HOST`, `MIKROTIK_USER`, `MIKROTIK_PASS`: Kredensial MikroTik
-
-## Lisensi
-
-MIT
+**Made with ❤️ by [Ali Jaya](https://github.com/alijayanet)**
