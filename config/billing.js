@@ -1,10 +1,12 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const fs = require('fs');
+const PaymentGatewayManager = require('./paymentGateway');
 
 class BillingManager {
     constructor() {
         this.dbPath = path.join(__dirname, '../data/billing.db');
+        this.paymentGateway = new PaymentGatewayManager();
         this.initDatabase();
     }
 
@@ -756,6 +758,215 @@ class BillingManager {
                     console.log('Billing database connection closed');
                 }
             });
+        }
+    }
+
+    // Payment Gateway Methods
+    async createOnlinePayment(invoiceId, gateway = null) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                // Get invoice details
+                const invoice = await this.getInvoiceById(invoiceId);
+                if (!invoice) {
+                    throw new Error('Invoice not found');
+                }
+
+                // Get customer details
+                const customer = await this.getCustomerById(invoice.customer_id);
+                if (!customer) {
+                    throw new Error('Customer not found');
+                }
+
+                // Prepare invoice data for payment gateway
+                const paymentData = {
+                    id: invoice.id,
+                    invoice_number: invoice.invoice_number,
+                    amount: invoice.amount,
+                    customer_name: customer.name,
+                    customer_phone: customer.phone,
+                    customer_email: customer.email,
+                    package_name: invoice.package_name,
+                    package_id: invoice.package_id
+                };
+
+                // Create payment with selected gateway
+                const paymentResult = await this.paymentGateway.createPayment(paymentData, gateway);
+
+                // Save payment transaction to database
+                const sql = `
+                    INSERT INTO payment_gateway_transactions 
+                    (invoice_id, gateway, order_id, payment_url, token, amount, status) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                `;
+
+                this.db.run(sql, [
+                    invoiceId,
+                    paymentResult.gateway,
+                    paymentResult.order_id,
+                    paymentResult.payment_url,
+                    paymentResult.token,
+                    invoice.amount,
+                    'pending'
+                ], function(err) {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        // Update invoice with payment gateway info
+                        const updateSql = `
+                            UPDATE invoices 
+                            SET payment_gateway = ?, payment_token = ?, payment_url = ?, payment_status = 'pending'
+                            WHERE id = ?
+                        `;
+
+                        this.db.run(updateSql, [
+                            paymentResult.gateway,
+                            paymentResult.token,
+                            paymentResult.payment_url,
+                            invoiceId
+                        ], function(updateErr) {
+                            if (updateErr) {
+                                reject(updateErr);
+                            } else {
+                                resolve(paymentResult);
+                            }
+                        });
+                    }
+                });
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
+    async handlePaymentWebhook(payload, gateway) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                // Process webhook with payment gateway
+                const result = await this.paymentGateway.handleWebhook(payload, gateway);
+
+                // Find transaction by order_id
+                const sql = `
+                    SELECT * FROM payment_gateway_transactions 
+                    WHERE order_id = ? AND gateway = ?
+                `;
+
+                this.db.get(sql, [result.order_id, gateway], async (err, transaction) => {
+                    if (err) {
+                        reject(err);
+                    } else if (!transaction) {
+                        reject(new Error('Transaction not found'));
+                    } else {
+                        // Update transaction status
+                        const updateSql = `
+                            UPDATE payment_gateway_transactions 
+                            SET status = ?, payment_type = ?, fraud_status = ?, updated_at = CURRENT_TIMESTAMP
+                            WHERE id = ?
+                        `;
+
+                        this.db.run(updateSql, [
+                            result.status,
+                            result.payment_type || null,
+                            result.fraud_status || null,
+                            transaction.id
+                        ], async function(updateErr) {
+                            if (updateErr) {
+                                reject(updateErr);
+                            } else {
+                                // If payment is successful, update invoice and customer status
+                                if (result.status === 'settlement' || result.status === 'PAID') {
+                                    try {
+                                        await this.updateInvoiceStatus(transaction.invoice_id, 'paid', 'online');
+                                        
+                                        // Get customer info for notification
+                                        const invoice = await this.getInvoiceById(transaction.invoice_id);
+                                        const customer = await this.getCustomerById(invoice.customer_id);
+                                        
+                                        // Send WhatsApp notification
+                                        await this.sendPaymentSuccessNotification(customer, invoice);
+                                        
+                                        resolve({
+                                            success: true,
+                                            message: 'Payment processed successfully',
+                                            invoice_id: transaction.invoice_id
+                                        });
+                                    } catch (notificationError) {
+                                        console.error('Error sending notification:', notificationError);
+                                        resolve({
+                                            success: true,
+                                            message: 'Payment processed successfully',
+                                            invoice_id: transaction.invoice_id
+                                        });
+                                    }
+                                } else {
+                                    resolve({
+                                        success: true,
+                                        message: 'Payment status updated',
+                                        status: result.status
+                                    });
+                                }
+                            }
+                        });
+                    }
+                });
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
+    async getPaymentTransactions(invoiceId = null) {
+        return new Promise((resolve, reject) => {
+            let sql = `
+                SELECT pgt.*, i.invoice_number, c.name as customer_name
+                FROM payment_gateway_transactions pgt
+                JOIN invoices i ON pgt.invoice_id = i.id
+                JOIN customers c ON i.customer_id = c.id
+            `;
+
+            const params = [];
+            if (invoiceId) {
+                sql += ' WHERE pgt.invoice_id = ?';
+                params.push(invoiceId);
+            }
+
+            sql += ' ORDER BY pgt.created_at DESC';
+
+            this.db.all(sql, params, (err, rows) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(rows);
+                }
+            });
+        });
+    }
+
+    async getGatewayStatus() {
+        return this.paymentGateway.getGatewayStatus();
+    }
+
+    async sendPaymentSuccessNotification(customer, invoice) {
+        try {
+            const whatsapp = require('./whatsapp');
+            const message = `🎉 *Pembayaran Berhasil!*
+
+Halo ${customer.name},
+
+Pembayaran tagihan Anda telah berhasil diproses:
+
+📋 *Detail Pembayaran:*
+• No. Tagihan: ${invoice.invoice_number}
+• Jumlah: Rp ${parseFloat(invoice.amount).toLocaleString('id-ID')}
+• Status: LUNAS ✅
+
+Terima kasih telah mempercayai layanan kami.
+
+*ALIJAYA DIGITAL NETWORK*
+Info: 081947215703`;
+
+            await whatsapp.sendMessage(customer.phone, message);
+        } catch (error) {
+            console.error('Error sending payment success notification:', error);
         }
     }
 }

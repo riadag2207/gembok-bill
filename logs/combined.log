@@ -21452,3 +21452,273 @@
 2025-08-06 06:18:39 info: Found 45 active hotspot users
 2025-08-06 06:19:36 info: Monitoring PPPoE connections: 165 active connections
 2025-08-06 06:20:36 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 07:25:07 info: Invoice scheduler initialized - will run on 1st of every month at 00:01
+2025-08-06 07:25:07 info: Due date reminder scheduler initialized - will run daily at 09:00
+2025-08-06 07:25:07 info: PPPoE monitoring started with interval 60000ms
+2025-08-06 07:25:07 info: Attempting to start server on configured port: 3003
+2025-08-06 07:25:07 info: Memulai server pada port yang dikonfigurasi: 3003
+2025-08-06 07:25:07 info: Port diambil dari settings.json - tidak ada fallback ke port alternatif
+2025-08-06 07:25:07 info: ✅ Server berhasil berjalan pada port 3003
+2025-08-06 07:25:07 info: 🌐 Web Portal tersedia di: http://localhost:3003
+2025-08-06 07:25:07 info: Environment: development
+2025-08-06 07:25:07 info: WhatsApp socket set in pppoe-notifications module
+2025-08-06 07:25:07 info: WhatsApp socket set in pppoe-commands module
+2025-08-06 07:25:07 info: WhatsApp socket set in genieacs-commands module
+2025-08-06 07:25:07 info: WhatsApp connected successfully
+2025-08-06 07:25:07 info: PPPoE monitoring started with interval 60000ms
+2025-08-06 07:25:07 info: RX Power monitoring initialized
+2025-08-06 07:25:07 info: PPPoE monitoring auto-started on initialization
+2025-08-06 07:25:07 info: PPPoE monitoring initialized
+2025-08-06 07:25:53 info: Invoice scheduler initialized - will run on 1st of every month at 00:01
+2025-08-06 07:25:53 info: Due date reminder scheduler initialized - will run daily at 09:00
+2025-08-06 07:25:54 info: PPPoE monitoring started with interval 60000ms
+2025-08-06 07:25:54 info: Attempting to start server on configured port: 3003
+2025-08-06 07:25:54 info: Memulai server pada port yang dikonfigurasi: 3003
+2025-08-06 07:25:54 info: Port diambil dari settings.json - tidak ada fallback ke port alternatif
+2025-08-06 07:25:54 info: ✅ Server berhasil berjalan pada port 3003
+2025-08-06 07:25:54 info: 🌐 Web Portal tersedia di: http://localhost:3003
+2025-08-06 07:25:54 info: Environment: development
+2025-08-06 07:25:54 info: WhatsApp socket set in pppoe-notifications module
+2025-08-06 07:25:54 info: WhatsApp socket set in pppoe-commands module
+2025-08-06 07:25:54 info: WhatsApp socket set in genieacs-commands module
+2025-08-06 07:25:54 info: WhatsApp connected successfully
+2025-08-06 07:25:54 info: PPPoE monitoring started with interval 60000ms
+2025-08-06 07:25:54 info: RX Power monitoring initialized
+2025-08-06 07:25:54 info: PPPoE monitoring auto-started on initialization
+2025-08-06 07:25:54 info: PPPoE monitoring initialized
+2025-08-06 07:26:05 info: Connected to Mikrotik at 192.168.8.1:8700
+2025-08-06 07:26:54 warn: No technician group configured for PPPoE notifications
+2025-08-06 07:26:54 info: PPPoE LOGIN:
+2025-08-06 07:26:54 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 07:26:54 info: PPPoE LOGIN detected: kasdi@rawagunda, jami@sut, wakeng, rudibengkel@tanjungpura, indah@tanjungpura, tester, andi, darim@lor, darim, iman@, junanto@rawagunda, ejun, brohim, RT-KARONI, talita, maktub, hany@tarsiti, sandi@rajan, wiwin@seblak, eka, SDNUG1, Tarci@lor, dedi@aira, sarwan, yudi, winata, server@ilik, muktar@ompong, salsa, nina@kesin, toyinah, nurudin, aang, lussy, rom@lah, server@yayan, ajri, karmanda, rangdu, kama@, Uchi, durta, aqiel, nadiva, nesa, kendo@tanjungpura, damar, gadel, dhea_tile@rawagunda, suliwa, toko@sayur, winata@laut, aldo, antony@ps, kandar, mastobari@, wadi@rawagunda, mardi, @cimun, santo, warung_elisa@laut, alan@pentud, warungyuni@laut, test, codet, adiiman, h.juroh, yuni@rawagunda, handoko, tarci, alam, elvano1, runaeni, nana, atam, koriya, karsih, server@arep, rasta, eva, fajar, nuriyah, kincling, kus, dedy@sarkim, rintem, lisan@banteng, coyih, toax, pandi@tanjungpura, abibah, daruni@rawagunda, yohan@rawagunda, warsana, opang@tanjungpura, raeni, elis@rawagunda, dasta, oland, erni, seka, karban, sanyo, mella, tariman, suminih@rawagunda, bunga, sumi, murba, luwih@, kasmuri, tibil, memble@, tinih, ros_pppoe, icha, erul, aang2, ooh, wendy@tanjungpura, windah, lina@ujungmulya, turidah, leha, setiyadi@genjong, waidah@pegagan, wendy@genjong, nalda@pegagan, novita, intan@ujungmulya, umikulsum@janggar, ety@pegagan, Endra@genjong1, sutara@pegagan, mangasep@janggar, murdani, pabudi@genjong, khofik@janggar, surminih@pegagan, gemblung, soleh@pegagan, sang, opang@pegagan, uung@pegagan, sudini@pegagan, wilda, eva@pegagan, dadang@genjong, denihamdani@pegagan, yusuf, durniyah@pegagan, astri@pegagan, F663, nani, kurnati, sarna@pegagan, anwar@janggar, yuni@ujungmulya, eryanto@pegagan, abas@pegagan, yogi, walong@asep, gunawan, adinesep@ujungmulya, nalda@rawagunda2
+2025-08-06 07:27:24 warn: Error validating WhatsApp number 6281947215703: Timed Out
+2025-08-06 07:27:24 warn: Retry 1/2 failed for 6281947215703: Cannot read properties of undefined (reading 'id')
+2025-08-06 07:27:26 warn: Retry 2/2 failed for 6281947215703: Cannot read properties of undefined (reading 'id')
+2025-08-06 07:27:26 error: Failed to send PPPoE notification to 6281947215703 after 2 retries
+2025-08-06 07:27:54 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 07:27:54 info: PPPoE LOGIN detected: kasdi@rawagunda, jami@sut, wakeng, rudibengkel@tanjungpura, indah@tanjungpura, tester, andi, darim@lor, darim, iman@, junanto@rawagunda, ejun, brohim, RT-KARONI, talita, maktub, hany@tarsiti, sandi@rajan, wiwin@seblak, eka, SDNUG1, Tarci@lor, dedi@aira, sarwan, yudi, winata, server@ilik, muktar@ompong, salsa, nina@kesin, toyinah, nurudin, aang, lussy, rom@lah, server@yayan, ajri, karmanda, rangdu, kama@, Uchi, durta, aqiel, nadiva, nesa, kendo@tanjungpura, damar, gadel, dhea_tile@rawagunda, suliwa, toko@sayur, winata@laut, aldo, antony@ps, kandar, mastobari@, wadi@rawagunda, mardi, @cimun, santo, warung_elisa@laut, alan@pentud, warungyuni@laut, test, codet, adiiman, h.juroh, yuni@rawagunda, handoko, tarci, alam, elvano1, runaeni, nana, atam, koriya, karsih, server@arep, rasta, eva, fajar, nuriyah, kincling, kus, dedy@sarkim, rintem, lisan@banteng, coyih, toax, pandi@tanjungpura, abibah, daruni@rawagunda, yohan@rawagunda, warsana, opang@tanjungpura, raeni, elis@rawagunda, dasta, oland, erni, seka, karban, sanyo, mella, tariman, suminih@rawagunda, bunga, sumi, murba, luwih@, kasmuri, tibil, memble@, tinih, ros_pppoe, icha, erul, aang2, ooh, wendy@tanjungpura, windah, lina@ujungmulya, turidah, leha, setiyadi@genjong, waidah@pegagan, wendy@genjong, nalda@pegagan, novita, intan@ujungmulya, umikulsum@janggar, ety@pegagan, Endra@genjong1, sutara@pegagan, mangasep@janggar, murdani, pabudi@genjong, khofik@janggar, surminih@pegagan, gemblung, soleh@pegagan, sang, opang@pegagan, uung@pegagan, sudini@pegagan, wilda, eva@pegagan, dadang@genjong, denihamdani@pegagan, yusuf, durniyah@pegagan, astri@pegagan, F663, nani, kurnati, sarna@pegagan, anwar@janggar, yuni@ujungmulya, eryanto@pegagan, abas@pegagan, yogi, walong@asep, gunawan, adinesep@ujungmulya, nalda@rawagunda2
+2025-08-06 07:27:57 warn: Error validating WhatsApp number 62838076656: Timed Out
+2025-08-06 07:27:57 warn: Retry 1/2 failed for 62838076656: Cannot read properties of undefined (reading 'id')
+2025-08-06 07:27:59 warn: Retry 2/2 failed for 62838076656: Cannot read properties of undefined (reading 'id')
+2025-08-06 07:27:59 error: Failed to send PPPoE notification to 62838076656 after 2 retries
+2025-08-06 07:28:24 warn: Error validating WhatsApp number 6281947215703: Timed Out
+2025-08-06 07:28:24 warn: Retry 1/2 failed for 6281947215703: Cannot read properties of undefined (reading 'id')
+2025-08-06 07:28:26 warn: Retry 2/2 failed for 6281947215703: Cannot read properties of undefined (reading 'id')
+2025-08-06 07:28:26 error: Failed to send PPPoE notification to 6281947215703 after 2 retries
+2025-08-06 07:28:30 warn: Error validating WhatsApp number 62822180947: Timed Out
+2025-08-06 07:28:30 warn: Retry 1/2 failed for 62822180947: Cannot read properties of undefined (reading 'id')
+2025-08-06 07:28:32 warn: Retry 2/2 failed for 62822180947: Cannot read properties of undefined (reading 'id')
+2025-08-06 07:28:32 error: Failed to send PPPoE notification to 62822180947 after 2 retries
+2025-08-06 07:28:32 info: PPPoE notification sent to 0/3 valid recipients (3 total)
+2025-08-06 07:28:32 info: PPPoE monitoring: 165 active connections, 165 login, 0 logout
+2025-08-06 07:28:54 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 07:28:57 warn: Error validating WhatsApp number 62838076656: Timed Out
+2025-08-06 07:28:57 warn: Retry 1/2 failed for 62838076656: Cannot read properties of undefined (reading 'id')
+2025-08-06 07:28:59 warn: Retry 2/2 failed for 62838076656: Cannot read properties of undefined (reading 'id')
+2025-08-06 07:28:59 error: Failed to send PPPoE notification to 62838076656 after 2 retries
+2025-08-06 07:29:30 warn: Error validating WhatsApp number 62822180947: Timed Out
+2025-08-06 07:29:30 warn: Retry 1/2 failed for 62822180947: Cannot read properties of undefined (reading 'id')
+2025-08-06 07:29:32 warn: Retry 2/2 failed for 62822180947: Cannot read properties of undefined (reading 'id')
+2025-08-06 07:29:32 error: Failed to send PPPoE notification to 62822180947 after 2 retries
+2025-08-06 07:29:32 info: PPPoE notification sent to 0/3 valid recipients (3 total)
+2025-08-06 07:29:32 info: PPPoE monitoring: 165 active connections, 165 login, 0 logout
+2025-08-06 07:29:54 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 07:30:54 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 07:31:26 info: Invoice scheduler initialized - will run on 1st of every month at 00:01
+2025-08-06 07:31:26 info: Due date reminder scheduler initialized - will run daily at 09:00
+2025-08-06 07:31:26 info: PPPoE monitoring started with interval 60000ms
+2025-08-06 07:31:26 info: Attempting to start server on configured port: 3003
+2025-08-06 07:31:26 info: Memulai server pada port yang dikonfigurasi: 3003
+2025-08-06 07:31:26 info: Port diambil dari settings.json - tidak ada fallback ke port alternatif
+2025-08-06 07:31:26 info: ✅ Server berhasil berjalan pada port 3003
+2025-08-06 07:31:26 info: 🌐 Web Portal tersedia di: http://localhost:3003
+2025-08-06 07:31:26 info: Environment: development
+2025-08-06 07:31:26 info: WhatsApp socket set in pppoe-notifications module
+2025-08-06 07:31:26 info: WhatsApp socket set in pppoe-commands module
+2025-08-06 07:31:26 info: WhatsApp socket set in genieacs-commands module
+2025-08-06 07:31:26 info: WhatsApp connected successfully
+2025-08-06 07:31:26 info: PPPoE monitoring started with interval 60000ms
+2025-08-06 07:31:26 info: RX Power monitoring initialized
+2025-08-06 07:31:26 info: PPPoE monitoring auto-started on initialization
+2025-08-06 07:31:26 info: PPPoE monitoring initialized
+2025-08-06 07:32:26 info: Connected to Mikrotik at 192.168.8.1:8700
+2025-08-06 07:32:26 warn: No technician group configured for PPPoE notifications
+2025-08-06 07:32:26 info: PPPoE LOGIN:
+2025-08-06 07:32:26 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 07:32:26 info: PPPoE LOGIN detected: kasdi@rawagunda, jami@sut, wakeng, rudibengkel@tanjungpura, indah@tanjungpura, tester, andi, darim@lor, darim, iman@, junanto@rawagunda, ejun, brohim, RT-KARONI, talita, maktub, hany@tarsiti, sandi@rajan, wiwin@seblak, eka, SDNUG1, Tarci@lor, dedi@aira, sarwan, yudi, winata, server@ilik, muktar@ompong, salsa, nina@kesin, toyinah, nurudin, aang, lussy, rom@lah, server@yayan, ajri, karmanda, rangdu, kama@, Uchi, durta, aqiel, nadiva, nesa, kendo@tanjungpura, damar, gadel, dhea_tile@rawagunda, suliwa, toko@sayur, winata@laut, aldo, antony@ps, kandar, mastobari@, wadi@rawagunda, mardi, @cimun, santo, warung_elisa@laut, alan@pentud, warungyuni@laut, test, codet, adiiman, h.juroh, yuni@rawagunda, handoko, tarci, alam, elvano1, runaeni, nana, atam, koriya, karsih, server@arep, rasta, eva, fajar, nuriyah, kincling, kus, dedy@sarkim, rintem, lisan@banteng, coyih, toax, pandi@tanjungpura, abibah, daruni@rawagunda, yohan@rawagunda, warsana, opang@tanjungpura, raeni, elis@rawagunda, dasta, oland, erni, seka, karban, sanyo, mella, tariman, suminih@rawagunda, bunga, sumi, murba, luwih@, kasmuri, tibil, memble@, tinih, ros_pppoe, icha, erul, aang2, ooh, wendy@tanjungpura, windah, lina@ujungmulya, turidah, leha, setiyadi@genjong, waidah@pegagan, wendy@genjong, nalda@pegagan, novita, intan@ujungmulya, umikulsum@janggar, ety@pegagan, Endra@genjong1, sutara@pegagan, mangasep@janggar, murdani, pabudi@genjong, khofik@janggar, surminih@pegagan, gemblung, soleh@pegagan, sang, opang@pegagan, uung@pegagan, sudini@pegagan, wilda, eva@pegagan, dadang@genjong, denihamdani@pegagan, yusuf, durniyah@pegagan, astri@pegagan, F663, nani, kurnati, sarna@pegagan, anwar@janggar, yuni@ujungmulya, eryanto@pegagan, abas@pegagan, yogi, walong@asep, gunawan, adinesep@ujungmulya, nalda@rawagunda2
+2025-08-06 07:32:56 warn: Error validating WhatsApp number 6281947215703: Timed Out
+2025-08-06 07:32:56 warn: Retry 1/2 failed for 6281947215703: Cannot read properties of undefined (reading 'id')
+2025-08-06 07:32:59 warn: Retry 2/2 failed for 6281947215703: Cannot read properties of undefined (reading 'id')
+2025-08-06 07:32:59 error: Failed to send PPPoE notification to 6281947215703 after 2 retries
+2025-08-06 07:33:26 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 07:33:26 info: PPPoE LOGIN detected: kasdi@rawagunda, jami@sut, wakeng, rudibengkel@tanjungpura, indah@tanjungpura, tester, andi, darim@lor, darim, iman@, junanto@rawagunda, ejun, brohim, RT-KARONI, talita, maktub, hany@tarsiti, sandi@rajan, wiwin@seblak, eka, SDNUG1, Tarci@lor, dedi@aira, sarwan, yudi, winata, server@ilik, muktar@ompong, salsa, nina@kesin, toyinah, nurudin, aang, lussy, rom@lah, server@yayan, ajri, karmanda, rangdu, kama@, Uchi, durta, aqiel, nadiva, nesa, kendo@tanjungpura, damar, gadel, dhea_tile@rawagunda, suliwa, toko@sayur, winata@laut, aldo, antony@ps, kandar, mastobari@, wadi@rawagunda, mardi, @cimun, santo, warung_elisa@laut, alan@pentud, warungyuni@laut, test, codet, adiiman, h.juroh, yuni@rawagunda, handoko, tarci, alam, elvano1, runaeni, nana, atam, koriya, karsih, server@arep, rasta, eva, fajar, nuriyah, kincling, kus, dedy@sarkim, rintem, lisan@banteng, coyih, toax, pandi@tanjungpura, abibah, daruni@rawagunda, yohan@rawagunda, warsana, opang@tanjungpura, raeni, elis@rawagunda, dasta, oland, erni, seka, karban, sanyo, mella, tariman, suminih@rawagunda, bunga, sumi, murba, luwih@, kasmuri, tibil, memble@, tinih, ros_pppoe, icha, erul, aang2, ooh, wendy@tanjungpura, windah, lina@ujungmulya, turidah, leha, setiyadi@genjong, waidah@pegagan, wendy@genjong, nalda@pegagan, novita, intan@ujungmulya, umikulsum@janggar, ety@pegagan, Endra@genjong1, sutara@pegagan, mangasep@janggar, murdani, pabudi@genjong, khofik@janggar, surminih@pegagan, gemblung, soleh@pegagan, sang, opang@pegagan, uung@pegagan, sudini@pegagan, wilda, eva@pegagan, dadang@genjong, denihamdani@pegagan, yusuf, durniyah@pegagan, astri@pegagan, F663, nani, kurnati, sarna@pegagan, anwar@janggar, yuni@ujungmulya, eryanto@pegagan, abas@pegagan, yogi, walong@asep, gunawan, adinesep@ujungmulya, nalda@rawagunda2
+2025-08-06 07:33:30 warn: Error validating WhatsApp number 62838076656: Timed Out
+2025-08-06 07:33:30 warn: Retry 1/2 failed for 62838076656: Cannot read properties of undefined (reading 'id')
+2025-08-06 07:33:32 warn: Retry 2/2 failed for 62838076656: Cannot read properties of undefined (reading 'id')
+2025-08-06 07:33:32 error: Failed to send PPPoE notification to 62838076656 after 2 retries
+2025-08-06 07:33:57 warn: Error validating WhatsApp number 6281947215703: Timed Out
+2025-08-06 07:33:57 warn: Retry 1/2 failed for 6281947215703: Cannot read properties of undefined (reading 'id')
+2025-08-06 07:33:59 warn: Retry 2/2 failed for 6281947215703: Cannot read properties of undefined (reading 'id')
+2025-08-06 07:33:59 error: Failed to send PPPoE notification to 6281947215703 after 2 retries
+2025-08-06 07:34:03 warn: Error validating WhatsApp number 62822180947: Timed Out
+2025-08-06 07:34:03 warn: Retry 1/2 failed for 62822180947: Cannot read properties of undefined (reading 'id')
+2025-08-06 07:34:05 warn: Retry 2/2 failed for 62822180947: Cannot read properties of undefined (reading 'id')
+2025-08-06 07:34:05 error: Failed to send PPPoE notification to 62822180947 after 2 retries
+2025-08-06 07:34:05 info: PPPoE notification sent to 0/3 valid recipients (3 total)
+2025-08-06 07:34:05 info: PPPoE monitoring: 165 active connections, 165 login, 0 logout
+2025-08-06 07:34:26 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 07:34:30 warn: Error validating WhatsApp number 62838076656: Timed Out
+2025-08-06 07:34:30 warn: Retry 1/2 failed for 62838076656: Cannot read properties of undefined (reading 'id')
+2025-08-06 07:34:32 warn: Retry 2/2 failed for 62838076656: Cannot read properties of undefined (reading 'id')
+2025-08-06 07:34:32 error: Failed to send PPPoE notification to 62838076656 after 2 retries
+2025-08-06 07:35:03 warn: Error validating WhatsApp number 62822180947: Timed Out
+2025-08-06 07:35:03 warn: Retry 1/2 failed for 62822180947: Cannot read properties of undefined (reading 'id')
+2025-08-06 07:35:05 warn: Retry 2/2 failed for 62822180947: Cannot read properties of undefined (reading 'id')
+2025-08-06 07:35:05 error: Failed to send PPPoE notification to 62822180947 after 2 retries
+2025-08-06 07:35:05 info: PPPoE notification sent to 0/3 valid recipients (3 total)
+2025-08-06 07:35:05 info: PPPoE monitoring: 165 active connections, 165 login, 0 logout
+2025-08-06 07:35:26 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 07:36:26 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 07:37:26 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 07:38:26 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 07:39:26 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 07:40:26 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 07:41:26 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 07:42:26 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 07:43:26 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 07:44:26 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 07:45:26 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 07:46:26 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 07:47:26 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 07:48:26 warn: No technician group configured for PPPoE notifications
+2025-08-06 07:48:26 info: PPPoE LOGOUT:
+2025-08-06 07:48:26 info: Monitoring PPPoE connections: 164 active connections
+2025-08-06 07:48:27 info: PPPoE LOGOUT detected: SDNUG1
+2025-08-06 07:48:27 warn: Error validating WhatsApp number 6281947215703: Connection Closed
+2025-08-06 07:48:27 warn: Retry 1/2 failed for 6281947215703: Cannot read properties of undefined (reading 'id')
+2025-08-06 07:48:29 warn: Retry 2/2 failed for 6281947215703: Cannot read properties of undefined (reading 'id')
+2025-08-06 07:48:29 error: Failed to send PPPoE notification to 6281947215703 after 2 retries
+2025-08-06 07:48:30 warn: Error validating WhatsApp number 62838076656: Connection Closed
+2025-08-06 07:48:30 warn: Retry 1/2 failed for 62838076656: Cannot read properties of undefined (reading 'id')
+2025-08-06 07:48:32 warn: Retry 2/2 failed for 62838076656: Cannot read properties of undefined (reading 'id')
+2025-08-06 07:48:32 error: Failed to send PPPoE notification to 62838076656 after 2 retries
+2025-08-06 07:48:33 warn: Error validating WhatsApp number 62822180947: Connection Closed
+2025-08-06 07:48:33 warn: Retry 1/2 failed for 62822180947: Cannot read properties of undefined (reading 'id')
+2025-08-06 07:48:35 warn: Retry 2/2 failed for 62822180947: Cannot read properties of undefined (reading 'id')
+2025-08-06 07:48:35 error: Failed to send PPPoE notification to 62822180947 after 2 retries
+2025-08-06 07:48:35 info: PPPoE notification sent to 0/3 valid recipients (3 total)
+2025-08-06 07:48:35 info: PPPoE monitoring: 164 active connections, 0 login, 1 logout
+2025-08-06 07:49:26 warn: No technician group configured for PPPoE notifications
+2025-08-06 07:49:26 info: PPPoE LOGIN:
+2025-08-06 07:49:26 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 07:49:27 info: PPPoE LOGIN detected: SDNUG1
+2025-08-06 07:49:27 warn: Error validating WhatsApp number 6281947215703: Connection Closed
+2025-08-06 07:49:27 warn: Retry 1/2 failed for 6281947215703: Cannot read properties of undefined (reading 'id')
+2025-08-06 07:49:29 warn: Retry 2/2 failed for 6281947215703: Cannot read properties of undefined (reading 'id')
+2025-08-06 07:49:29 error: Failed to send PPPoE notification to 6281947215703 after 2 retries
+2025-08-06 07:49:30 warn: Error validating WhatsApp number 62838076656: Connection Closed
+2025-08-06 07:49:30 warn: Retry 1/2 failed for 62838076656: Cannot read properties of undefined (reading 'id')
+2025-08-06 07:49:32 warn: Retry 2/2 failed for 62838076656: Cannot read properties of undefined (reading 'id')
+2025-08-06 07:49:32 error: Failed to send PPPoE notification to 62838076656 after 2 retries
+2025-08-06 07:49:33 warn: Error validating WhatsApp number 62822180947: Connection Closed
+2025-08-06 07:49:33 warn: Retry 1/2 failed for 62822180947: Cannot read properties of undefined (reading 'id')
+2025-08-06 07:49:35 warn: Retry 2/2 failed for 62822180947: Cannot read properties of undefined (reading 'id')
+2025-08-06 07:49:35 error: Failed to send PPPoE notification to 62822180947 after 2 retries
+2025-08-06 07:49:35 info: PPPoE notification sent to 0/3 valid recipients (3 total)
+2025-08-06 07:49:35 info: PPPoE monitoring: 165 active connections, 1 login, 0 logout
+2025-08-06 07:50:26 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 07:51:26 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 07:52:26 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 07:53:26 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 07:54:26 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 07:55:26 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 07:56:26 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 07:57:26 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 07:58:26 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 07:59:26 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 08:00:26 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 08:01:26 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 08:02:26 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 08:03:26 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 08:04:27 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 08:05:27 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 08:06:27 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 08:07:27 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 08:08:27 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 08:09:27 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 08:10:27 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 08:11:27 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 08:12:27 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 08:13:27 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 08:14:27 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 08:15:27 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 08:16:27 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 08:17:27 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 08:18:27 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 08:19:27 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 08:20:27 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 08:21:27 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 08:22:27 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 08:23:27 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 08:24:27 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 08:25:27 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 08:27:02 info: Invoice scheduler initialized - will run on 1st of every month at 00:01
+2025-08-06 08:27:02 info: Due date reminder scheduler initialized - will run daily at 09:00
+2025-08-06 08:27:02 info: PPPoE monitoring started with interval 60000ms
+2025-08-06 08:27:02 info: Attempting to start server on configured port: 3003
+2025-08-06 08:27:02 info: Memulai server pada port yang dikonfigurasi: 3003
+2025-08-06 08:27:02 info: Port diambil dari settings.json - tidak ada fallback ke port alternatif
+2025-08-06 08:27:02 info: ✅ Server berhasil berjalan pada port 3003
+2025-08-06 08:27:02 info: 🌐 Web Portal tersedia di: http://localhost:3003
+2025-08-06 08:27:02 info: Environment: development
+2025-08-06 08:27:02 info: WhatsApp socket set in pppoe-notifications module
+2025-08-06 08:27:02 info: WhatsApp socket set in pppoe-commands module
+2025-08-06 08:27:02 info: WhatsApp socket set in genieacs-commands module
+2025-08-06 08:27:02 info: WhatsApp connected successfully
+2025-08-06 08:27:02 info: PPPoE monitoring started with interval 60000ms
+2025-08-06 08:27:02 info: RX Power monitoring initialized
+2025-08-06 08:27:02 info: PPPoE monitoring auto-started on initialization
+2025-08-06 08:27:02 info: PPPoE monitoring initialized
+2025-08-06 08:28:02 info: Connected to Mikrotik at 192.168.8.1:8700
+2025-08-06 08:28:02 warn: No technician group configured for PPPoE notifications
+2025-08-06 08:28:02 info: PPPoE LOGIN:
+2025-08-06 08:28:02 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 08:28:02 info: PPPoE LOGIN detected: kasdi@rawagunda, jami@sut, wakeng, rudibengkel@tanjungpura, indah@tanjungpura, tester, andi, darim@lor, darim, iman@, junanto@rawagunda, ejun, brohim, RT-KARONI, talita, maktub, hany@tarsiti, sandi@rajan, wiwin@seblak, eka, Tarci@lor, dedi@aira, sarwan, yudi, winata, server@ilik, muktar@ompong, salsa, nina@kesin, toyinah, nurudin, aang, lussy, rom@lah, server@yayan, ajri, karmanda, rangdu, kama@, Uchi, durta, aqiel, nadiva, nesa, kendo@tanjungpura, damar, gadel, dhea_tile@rawagunda, suliwa, toko@sayur, winata@laut, aldo, antony@ps, kandar, mastobari@, wadi@rawagunda, mardi, @cimun, santo, warung_elisa@laut, alan@pentud, warungyuni@laut, test, codet, adiiman, h.juroh, yuni@rawagunda, handoko, tarci, alam, elvano1, runaeni, nana, atam, koriya, karsih, server@arep, rasta, eva, fajar, nuriyah, kincling, kus, dedy@sarkim, rintem, lisan@banteng, coyih, toax, pandi@tanjungpura, abibah, daruni@rawagunda, yohan@rawagunda, warsana, opang@tanjungpura, raeni, elis@rawagunda, dasta, oland, erni, seka, karban, sanyo, mella, tariman, suminih@rawagunda, bunga, sumi, murba, luwih@, kasmuri, tibil, memble@, tinih, ros_pppoe, icha, erul, aang2, ooh, wendy@tanjungpura, windah, lina@ujungmulya, turidah, leha, setiyadi@genjong, waidah@pegagan, wendy@genjong, nalda@pegagan, novita, intan@ujungmulya, umikulsum@janggar, ety@pegagan, Endra@genjong1, sutara@pegagan, mangasep@janggar, murdani, pabudi@genjong, khofik@janggar, surminih@pegagan, gemblung, soleh@pegagan, sang, opang@pegagan, uung@pegagan, sudini@pegagan, wilda, eva@pegagan, dadang@genjong, denihamdani@pegagan, yusuf, durniyah@pegagan, astri@pegagan, F663, nani, kurnati, sarna@pegagan, anwar@janggar, yuni@ujungmulya, eryanto@pegagan, abas@pegagan, yogi, walong@asep, gunawan, adinesep@ujungmulya, nalda@rawagunda2, SDNUG1
+2025-08-06 08:28:32 warn: Error validating WhatsApp number 6281947215703: Timed Out
+2025-08-06 08:28:32 warn: Retry 1/2 failed for 6281947215703: Cannot read properties of undefined (reading 'id')
+2025-08-06 08:28:34 warn: Retry 2/2 failed for 6281947215703: Cannot read properties of undefined (reading 'id')
+2025-08-06 08:28:34 error: Failed to send PPPoE notification to 6281947215703 after 2 retries
+2025-08-06 08:29:02 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 08:29:02 info: PPPoE LOGIN detected: kasdi@rawagunda, jami@sut, wakeng, rudibengkel@tanjungpura, indah@tanjungpura, tester, andi, darim@lor, darim, iman@, junanto@rawagunda, ejun, brohim, RT-KARONI, talita, maktub, hany@tarsiti, sandi@rajan, wiwin@seblak, eka, Tarci@lor, dedi@aira, sarwan, yudi, winata, server@ilik, muktar@ompong, salsa, nina@kesin, toyinah, nurudin, aang, lussy, rom@lah, server@yayan, ajri, karmanda, rangdu, kama@, Uchi, durta, aqiel, nadiva, nesa, kendo@tanjungpura, damar, gadel, dhea_tile@rawagunda, suliwa, toko@sayur, winata@laut, aldo, antony@ps, kandar, mastobari@, wadi@rawagunda, mardi, @cimun, santo, warung_elisa@laut, alan@pentud, warungyuni@laut, test, codet, adiiman, h.juroh, yuni@rawagunda, handoko, tarci, alam, elvano1, runaeni, nana, atam, koriya, karsih, server@arep, rasta, eva, fajar, nuriyah, kincling, kus, dedy@sarkim, rintem, lisan@banteng, coyih, toax, pandi@tanjungpura, abibah, daruni@rawagunda, yohan@rawagunda, warsana, opang@tanjungpura, raeni, elis@rawagunda, dasta, oland, erni, seka, karban, sanyo, mella, tariman, suminih@rawagunda, bunga, sumi, murba, luwih@, kasmuri, tibil, memble@, tinih, ros_pppoe, icha, erul, aang2, ooh, wendy@tanjungpura, windah, lina@ujungmulya, turidah, leha, setiyadi@genjong, waidah@pegagan, wendy@genjong, nalda@pegagan, novita, intan@ujungmulya, umikulsum@janggar, ety@pegagan, Endra@genjong1, sutara@pegagan, mangasep@janggar, murdani, pabudi@genjong, khofik@janggar, surminih@pegagan, gemblung, soleh@pegagan, sang, opang@pegagan, uung@pegagan, sudini@pegagan, wilda, eva@pegagan, dadang@genjong, denihamdani@pegagan, yusuf, durniyah@pegagan, astri@pegagan, F663, nani, kurnati, sarna@pegagan, anwar@janggar, yuni@ujungmulya, eryanto@pegagan, abas@pegagan, yogi, walong@asep, gunawan, adinesep@ujungmulya, nalda@rawagunda2, SDNUG1
+2025-08-06 08:29:05 warn: Error validating WhatsApp number 62838076656: Timed Out
+2025-08-06 08:29:05 warn: Retry 1/2 failed for 62838076656: Cannot read properties of undefined (reading 'id')
+2025-08-06 08:29:07 warn: Retry 2/2 failed for 62838076656: Cannot read properties of undefined (reading 'id')
+2025-08-06 08:29:07 error: Failed to send PPPoE notification to 62838076656 after 2 retries
+2025-08-06 08:29:32 warn: Error validating WhatsApp number 6281947215703: Timed Out
+2025-08-06 08:29:32 warn: Retry 1/2 failed for 6281947215703: Cannot read properties of undefined (reading 'id')
+2025-08-06 08:29:34 warn: Retry 2/2 failed for 6281947215703: Cannot read properties of undefined (reading 'id')
+2025-08-06 08:29:34 error: Failed to send PPPoE notification to 6281947215703 after 2 retries
+2025-08-06 08:29:38 warn: Error validating WhatsApp number 62822180947: Timed Out
+2025-08-06 08:29:38 warn: Retry 1/2 failed for 62822180947: Cannot read properties of undefined (reading 'id')
+2025-08-06 08:29:40 warn: Retry 2/2 failed for 62822180947: Cannot read properties of undefined (reading 'id')
+2025-08-06 08:29:40 error: Failed to send PPPoE notification to 62822180947 after 2 retries
+2025-08-06 08:29:40 info: PPPoE notification sent to 0/3 valid recipients (3 total)
+2025-08-06 08:29:40 info: PPPoE monitoring: 165 active connections, 165 login, 0 logout
+2025-08-06 08:30:02 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 08:30:05 warn: Error validating WhatsApp number 62838076656: Timed Out
+2025-08-06 08:30:05 warn: Retry 1/2 failed for 62838076656: Cannot read properties of undefined (reading 'id')
+2025-08-06 08:30:07 warn: Retry 2/2 failed for 62838076656: Cannot read properties of undefined (reading 'id')
+2025-08-06 08:30:07 error: Failed to send PPPoE notification to 62838076656 after 2 retries
+2025-08-06 08:30:38 warn: Error validating WhatsApp number 62822180947: Timed Out
+2025-08-06 08:30:38 warn: Retry 1/2 failed for 62822180947: Cannot read properties of undefined (reading 'id')
+2025-08-06 08:30:40 warn: Retry 2/2 failed for 62822180947: Cannot read properties of undefined (reading 'id')
+2025-08-06 08:30:40 error: Failed to send PPPoE notification to 62822180947 after 2 retries
+2025-08-06 08:30:40 info: PPPoE notification sent to 0/3 valid recipients (3 total)
+2025-08-06 08:30:40 info: PPPoE monitoring: 165 active connections, 165 login, 0 logout
+2025-08-06 08:31:02 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 08:32:02 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 08:33:02 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 08:34:02 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 08:35:02 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 08:36:02 info: Monitoring PPPoE connections: 165 active connections
+2025-08-06 08:37:02 info: Monitoring PPPoE connections: 165 active connections
