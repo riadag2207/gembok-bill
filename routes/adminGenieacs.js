@@ -4,6 +4,7 @@ const { adminAuth } = require('./adminAuth');
 const { getDevices, setParameterValues } = require('../config/genieacs');
 const fs = require('fs');
 const path = require('path');
+const axios = require('axios');
 // Helper dan parameterPaths dari customerPortal.js
 const parameterPaths = {
   pppUsername: [
@@ -74,41 +75,223 @@ router.get('/genieacs', adminAuth, async (req, res) => {
   }
 });
 
-// Endpoint edit SSID/Password
+// Endpoint edit SSID/Password - Optimized like WhatsApp (Fast Response)
 router.post('/genieacs/edit', adminAuth, async (req, res) => {
   try {
     const { id, ssid, password } = req.body;
     console.log('Edit request received:', { id, ssid, password });
-    // Implementasi update SSID/Password ke GenieACS
-    let updateResult = null;
+
+    const { getSetting } = require('../config/settingsManager');
+    const genieacsUrl = getSetting('genieacs_url', 'http://localhost:7557');
+    const genieacsUsername = getSetting('genieacs_username', 'admin');
+    const genieacsPassword = getSetting('genieacs_password', 'password');
+
+    // Encode deviceId untuk URL
+    const encodedDeviceId = encodeURIComponent(id);
+
+    // Kirim response cepat ke frontend
     if (typeof ssid !== 'undefined') {
-      try {
-        await setParameterValues(id, { 'InternetGatewayDevice.LANDevice.1.WLANConfiguration.1.SSID': ssid });
-        updateResult = { success: true, field: 'ssid' };
-      } catch (e) {
-        return res.status(500).json({ success: false, message: 'Gagal update SSID' });
-      }
-    }
-    if (typeof password !== 'undefined') {
-      try {
-        console.log('Updating password for device:', id);
-        await setParameterValues(id, { 'InternetGatewayDevice.LANDevice.1.WLANConfiguration.1.KeyPassphrase': password });
-        updateResult = { success: true, field: 'password' };
-        console.log('Password update successful');
-      } catch (e) {
-        console.error('Password update error:', e);
-        return res.status(500).json({ success: false, message: 'Gagal update Password: ' + e.message });
-      }
-    }
-    if (updateResult) {
-      res.json({ success: true, field: updateResult.field });
+      res.json({ 
+        success: true, 
+        field: 'ssid', 
+        message: 'SSID berhasil diupdate!',
+        newSSID: ssid
+      });
+      
+      // Proses update di background (non-blocking)
+      updateSSIDOptimized(id, ssid, genieacsUrl, genieacsUsername, genieacsPassword).then(result => {
+        if (result.success) {
+          console.log(`✅ Admin SSID update completed for device: ${id} to: ${ssid}`);
+        } else {
+          console.error(`❌ Admin SSID update failed for device: ${id}: ${result.message}`);
+        }
+      }).catch(error => {
+        console.error('Error in background admin SSID update:', error);
+      });
+      
+    } else if (typeof password !== 'undefined') {
+      res.json({ 
+        success: true, 
+        field: 'password', 
+        message: 'Password berhasil diupdate!'
+      });
+      
+      // Proses update di background (non-blocking)
+      updatePasswordOptimized(id, password, genieacsUrl, genieacsUsername, genieacsPassword).then(result => {
+        if (result.success) {
+          console.log(`✅ Admin password update completed for device: ${id}`);
+        } else {
+          console.error(`❌ Admin password update failed for device: ${id}: ${result.message}`);
+        }
+      }).catch(error => {
+        console.error('Error in background admin password update:', error);
+      });
+      
     } else {
       res.status(400).json({ success: false, message: 'Tidak ada perubahan' });
     }
+    
   } catch (err) {
-    res.status(500).json({ success: false, message: 'Gagal update SSID/Password' });
+    console.error('General error in edit endpoint:', err);
+    res.status(500).json({ success: false, message: 'Gagal update SSID/Password: ' + err.message });
   }
 });
+
+// Helper: Update SSID Optimized (seperti WhatsApp command) - Fast Response
+async function updateSSIDOptimized(deviceId, newSSID, genieacsUrl, username, password) {
+  try {
+    console.log(`🔄 Optimized SSID update for device: ${deviceId} to: ${newSSID}`);
+    
+    const encodedDeviceId = encodeURIComponent(deviceId);
+    
+    // Buat nama SSID 5G berdasarkan SSID 2.4G (seperti di WhatsApp)
+    const newSSID5G = `${newSSID}-5G`;
+    
+    // Concurrent API calls untuk speed up
+    const axiosConfig = {
+      auth: { username, password },
+      timeout: 10000 // 10 second timeout
+    };
+    
+    // Update SSID 2.4GHz dan 5GHz secara concurrent
+    const tasks = [];
+    
+    // Task 1: Update SSID 2.4GHz
+    tasks.push(
+      axios.post(
+        `${genieacsUrl}/devices/${encodedDeviceId}/tasks`,
+        {
+          name: "setParameterValues",
+          parameterValues: [
+            ["InternetGatewayDevice.LANDevice.1.WLANConfiguration.1.SSID", newSSID, "xsd:string"]
+          ]
+        },
+        axiosConfig
+      )
+    );
+    
+    // Task 2: Update SSID 5GHz (coba index 5 dulu, yang paling umum)
+    tasks.push(
+      axios.post(
+        `${genieacsUrl}/devices/${encodedDeviceId}/tasks`,
+        {
+          name: "setParameterValues",
+          parameterValues: [
+            ["InternetGatewayDevice.LANDevice.1.WLANConfiguration.5.SSID", newSSID5G, "xsd:string"]
+          ]
+        },
+        axiosConfig
+      ).catch(() => null) // Ignore error jika index 5 tidak ada
+    );
+    
+    // Task 3: Refresh object
+    tasks.push(
+      axios.post(
+        `${genieacsUrl}/devices/${encodedDeviceId}/tasks`,
+        {
+          name: "refreshObject",
+          objectName: "InternetGatewayDevice.LANDevice.1.WLANConfiguration"
+        },
+        axiosConfig
+      ).catch(() => null) // Ignore error jika refresh gagal
+    );
+    
+    // Jalankan semua tasks secara concurrent
+    const results = await Promise.allSettled(tasks);
+    
+    // Check results
+    const mainTaskSuccess = results[0].status === 'fulfilled';
+    const wifi5GFound = results[1].status === 'fulfilled';
+    
+    if (mainTaskSuccess) {
+      console.log(`✅ SSID update completed for device: ${deviceId}: ${newSSID}`);
+      return { success: true, wifi5GFound };
+    } else {
+      console.error(`❌ SSID update failed for device: ${deviceId}: ${results[0].reason?.message || 'Unknown error'}`);
+      return { success: false, message: 'Gagal update SSID' };
+    }
+    
+  } catch (error) {
+    console.error('Error in updateSSIDOptimized:', error);
+    return { success: false, message: error.message };
+  }
+}
+
+// Helper: Update Password Optimized (seperti WhatsApp command) - Fast Response
+async function updatePasswordOptimized(deviceId, newPassword, genieacsUrl, username, password) {
+  try {
+    console.log(`🔄 Optimized password update for device: ${deviceId}`);
+    
+    const encodedDeviceId = encodeURIComponent(deviceId);
+    
+    // Concurrent API calls untuk speed up
+    const axiosConfig = {
+      auth: { username, password },
+      timeout: 10000 // 10 second timeout
+    };
+    
+    // Update password 2.4GHz dan 5GHz secara concurrent
+    const tasks = [];
+    
+    // Task 1: Update password 2.4GHz
+    tasks.push(
+      axios.post(
+        `${genieacsUrl}/devices/${encodedDeviceId}/tasks`,
+        {
+          name: "setParameterValues",
+          parameterValues: [
+            ["InternetGatewayDevice.LANDevice.1.WLANConfiguration.1.KeyPassphrase", newPassword, "xsd:string"]
+          ]
+        },
+        axiosConfig
+      )
+    );
+    
+    // Task 2: Update password 5GHz (coba index 5 dulu)
+    tasks.push(
+      axios.post(
+        `${genieacsUrl}/devices/${encodedDeviceId}/tasks`,
+        {
+          name: "setParameterValues",
+          parameterValues: [
+            ["InternetGatewayDevice.LANDevice.1.WLANConfiguration.5.KeyPassphrase", newPassword, "xsd:string"]
+          ]
+        },
+        axiosConfig
+      ).catch(() => null) // Ignore error jika index 5 tidak ada
+    );
+    
+    // Task 3: Refresh object
+    tasks.push(
+      axios.post(
+        `${genieacsUrl}/devices/${encodedDeviceId}/tasks`,
+        {
+          name: "refreshObject",
+          objectName: "InternetGatewayDevice.LANDevice.1.WLANConfiguration"
+        },
+        axiosConfig
+      ).catch(() => null) // Ignore error jika refresh gagal
+    );
+    
+    // Jalankan semua tasks secara concurrent
+    const results = await Promise.allSettled(tasks);
+    
+    // Check results
+    const mainTaskSuccess = results[0].status === 'fulfilled';
+    
+    if (mainTaskSuccess) {
+      console.log(`✅ Password update completed for device: ${deviceId}`);
+      return { success: true };
+    } else {
+      console.error(`❌ Password update failed for device: ${deviceId}: ${results[0].reason?.message || 'Unknown error'}`);
+      return { success: false, message: 'Gagal update password' };
+    }
+    
+  } catch (error) {
+    console.error('Error in updatePasswordOptimized:', error);
+    return { success: false, message: error.message };
+  }
+}
 
 // Endpoint edit tag (nomor pelanggan)
 router.post('/genieacs/edit-tag', adminAuth, async (req, res) => {
@@ -117,7 +300,6 @@ router.post('/genieacs/edit-tag', adminAuth, async (req, res) => {
     if (!id || typeof tag === 'undefined') {
       return res.status(400).json({ success: false, message: 'ID dan tag wajib diisi' });
     }
-    const axios = require('axios');
     const { getSetting } = require('../config/settingsManager');
     const genieacsUrl = getSetting('genieacs_url', 'http://localhost:7557');
     const genieacsUsername = getSetting('genieacs_username', 'admin');
@@ -163,7 +345,6 @@ router.post('/genieacs/restart-onu', adminAuth, async (req, res) => {
       return res.status(400).json({ success: false, message: 'Device ID wajib diisi' });
     }
 
-    const axios = require('axios');
     const { getSetting } = require('../config/settingsManager');
     const genieacsUrl = getSetting('genieacs_url', 'http://localhost:7557');
     const genieacsUsername = getSetting('genieacs_username', 'admin');

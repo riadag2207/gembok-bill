@@ -190,7 +190,7 @@ async function getCustomerDeviceData(phone) {
   };
 }
 
-// Helper: Update SSID (real ke GenieACS)
+// Helper: Update SSID (real ke GenieACS) - Legacy
 async function updateSSID(phone, newSSID) {
   try {
     // Cari device berdasarkan nomor telepon (tag)
@@ -256,6 +256,109 @@ async function updateSSID(phone, newSSID) {
     return false;
   }
 }
+
+// Helper: Update SSID Optimized (seperti WhatsApp command) - Fast Response
+async function updateSSIDOptimized(phone, newSSID) {
+  try {
+    console.log(`🔄 Optimized SSID update for phone: ${phone} to: ${newSSID}`);
+    
+    // Cari device berdasarkan nomor pelanggan
+    let device = await findDeviceByTag(phone);
+    if (!device) {
+      try {
+        const customer = await billingManager.getCustomerByPhone(phone);
+        if (customer && customer.pppoe_username) {
+          const { findDeviceByPPPoE } = require('../config/genieacs');
+          device = await findDeviceByPPPoE(customer.pppoe_username);
+        }
+      } catch (error) {
+        console.error('Error finding device by PPPoE username:', error);
+      }
+    }
+    
+    if (!device) {
+      return { success: false, message: 'Device tidak ditemukan' };
+    }
+    
+    const deviceId = device._id;
+    const encodedDeviceId = encodeURIComponent(deviceId);
+    const settings = getSettingsWithCache();
+    const genieacsUrl = settings.genieacs_url || 'http://localhost:7557';
+    const username = settings.genieacs_username || '';
+    const password = settings.genieacs_password || '';
+    
+    // Buat nama SSID 5G berdasarkan SSID 2.4G (seperti di WhatsApp)
+    const newSSID5G = `${newSSID}-5G`;
+    
+    // Concurrent API calls untuk speed up
+    const axiosConfig = {
+      auth: { username, password },
+      timeout: 10000 // 10 second timeout
+    };
+    
+    // Update SSID 2.4GHz dan 5GHz secara concurrent
+    const tasks = [];
+    
+    // Task 1: Update SSID 2.4GHz
+    tasks.push(
+      axios.post(
+        `${genieacsUrl}/devices/${encodedDeviceId}/tasks`,
+        {
+          name: "setParameterValues",
+          parameterValues: [
+            ["InternetGatewayDevice.LANDevice.1.WLANConfiguration.1.SSID", newSSID, "xsd:string"]
+          ]
+        },
+        axiosConfig
+      )
+    );
+    
+    // Task 2: Update SSID 5GHz (coba index 5 dulu, yang paling umum)
+    tasks.push(
+      axios.post(
+        `${genieacsUrl}/devices/${encodedDeviceId}/tasks`,
+        {
+          name: "setParameterValues",
+          parameterValues: [
+            ["InternetGatewayDevice.LANDevice.1.WLANConfiguration.5.SSID", newSSID5G, "xsd:string"]
+          ]
+        },
+        axiosConfig
+      ).catch(() => null) // Ignore error jika index 5 tidak ada
+    );
+    
+    // Task 3: Refresh object
+    tasks.push(
+      axios.post(
+        `${genieacsUrl}/devices/${encodedDeviceId}/tasks`,
+        {
+          name: "refreshObject",
+          objectName: "InternetGatewayDevice.LANDevice.1.WLANConfiguration"
+        },
+        axiosConfig
+      ).catch(() => null) // Ignore error jika refresh gagal
+    );
+    
+    // Jalankan semua tasks secara concurrent
+    const results = await Promise.allSettled(tasks);
+    
+    // Check results
+    const mainTaskSuccess = results[0].status === 'fulfilled';
+    const wifi5GFound = results[1].status === 'fulfilled';
+    
+    if (mainTaskSuccess) {
+      console.log(`✅ SSID update completed for ${phone}: ${newSSID}`);
+      return { success: true, wifi5GFound };
+    } else {
+      console.error(`❌ SSID update failed for ${phone}: ${results[0].reason?.message || 'Unknown error'}`);
+      return { success: false, message: 'Gagal update SSID' };
+    }
+    
+  } catch (error) {
+    console.error('Error in updateSSIDOptimized:', error);
+    return { success: false, message: error.message };
+  }
+}
 // Helper: Add admin number and company info to customer data
 function addAdminNumber(customerData) {
   const adminNumber = getSetting('admins.0', '6281947215703');
@@ -272,7 +375,7 @@ function addAdminNumber(customerData) {
   return customerData;
 }
 
-// Helper: Update Password (real ke GenieACS)
+// Helper: Update Password (real ke GenieACS) - Legacy
 async function updatePassword(phone, newPassword) {
   try {
     if (newPassword.length < 8) return false;
@@ -328,44 +431,179 @@ async function updatePassword(phone, newPassword) {
   }
 }
 
+// Helper: Update Password Optimized (seperti WhatsApp command) - Fast Response
+async function updatePasswordOptimized(phone, newPassword) {
+  try {
+    console.log(`🔄 Optimized password update for phone: ${phone}`);
+    
+    // Cari device berdasarkan nomor pelanggan
+    let device = await findDeviceByTag(phone);
+    if (!device) {
+      try {
+        const customer = await billingManager.getCustomerByPhone(phone);
+        if (customer && customer.pppoe_username) {
+          const { findDeviceByPPPoE } = require('../config/genieacs');
+          device = await findDeviceByPPPoE(customer.pppoe_username);
+        }
+      } catch (error) {
+        console.error('Error finding device by PPPoE username:', error);
+      }
+    }
+    
+    if (!device) {
+      return { success: false, message: 'Device tidak ditemukan' };
+    }
+    
+    const deviceId = device._id;
+    const encodedDeviceId = encodeURIComponent(deviceId);
+    const settings = getSettingsWithCache();
+    const genieacsUrl = settings.genieacs_url || 'http://localhost:7557';
+    const username = settings.genieacs_username || '';
+    const password = settings.genieacs_password || '';
+    
+    // Concurrent API calls untuk speed up
+    const axiosConfig = {
+      auth: { username, password },
+      timeout: 10000 // 10 second timeout
+    };
+    
+    // Update password 2.4GHz dan 5GHz secara concurrent
+    const tasks = [];
+    
+    // Task 1: Update password 2.4GHz
+    tasks.push(
+      axios.post(
+        `${genieacsUrl}/devices/${encodedDeviceId}/tasks`,
+        {
+          name: "setParameterValues",
+          parameterValues: [
+            ["InternetGatewayDevice.LANDevice.1.WLANConfiguration.1.KeyPassphrase", newPassword, "xsd:string"]
+          ]
+        },
+        axiosConfig
+      )
+    );
+    
+    // Task 2: Update password 5GHz (coba index 5 dulu)
+    tasks.push(
+      axios.post(
+        `${genieacsUrl}/devices/${encodedDeviceId}/tasks`,
+        {
+          name: "setParameterValues",
+          parameterValues: [
+            ["InternetGatewayDevice.LANDevice.1.WLANConfiguration.5.KeyPassphrase", newPassword, "xsd:string"]
+          ]
+        },
+        axiosConfig
+      ).catch(() => null) // Ignore error jika index 5 tidak ada
+    );
+    
+    // Task 3: Refresh object
+    tasks.push(
+      axios.post(
+        `${genieacsUrl}/devices/${encodedDeviceId}/tasks`,
+        {
+          name: "refreshObject",
+          objectName: "InternetGatewayDevice.LANDevice.1.WLANConfiguration"
+        },
+        axiosConfig
+      ).catch(() => null) // Ignore error jika refresh gagal
+    );
+    
+    // Jalankan semua tasks secara concurrent
+    const results = await Promise.allSettled(tasks);
+    
+    // Check results
+    const mainTaskSuccess = results[0].status === 'fulfilled';
+    
+    if (mainTaskSuccess) {
+      console.log(`✅ Password update completed for ${phone}`);
+      return { success: true };
+    } else {
+      console.error(`❌ Password update failed for ${phone}: ${results[0].reason?.message || 'Unknown error'}`);
+      return { success: false, message: 'Gagal update password' };
+    }
+    
+  } catch (error) {
+    console.error('Error in updatePasswordOptimized:', error);
+    return { success: false, message: error.message };
+  }
+}
+
 // GET: Login page
 router.get('/login', (req, res) => {
   const settings = JSON.parse(fs.readFileSync(path.join(__dirname, '../settings.json'), 'utf8'));
   res.render('login', { settings, error: null });
 });
 
-// POST: Proses login
+// POST: Proses login - Optimized dengan AJAX support
 router.post('/login', async (req, res) => {
-  const { phone } = req.body;
-  const settings = getSettingsWithCache();
-  if (!await isValidCustomer(phone)) {
-    return res.render('login', { settings, error: 'Nomor HP tidak valid atau belum terdaftar.' });
-  }
-  if (settings.customerPortalOtp === 'true') {
-    // Generate OTP sesuai jumlah digit di settings
-    const otpLength = settings.otp_length || 6;
-    const min = Math.pow(10, otpLength - 1);
-    const max = Math.pow(10, otpLength) - 1;
-    const otp = Math.floor(min + Math.random() * (max - min)).toString();
-    otpStore[phone] = { otp, expires: Date.now() + 5 * 60 * 1000 };
+  try {
+    const { phone } = req.body;
+    const settings = getSettingsWithCache();
     
-    // Kirim OTP ke WhatsApp pelanggan
-    try {
-      const waJid = phone.replace(/^0/, '62') + '@s.whatsapp.net';
-      const msg = `🔐 *KODE OTP PORTAL PELANGGAN*\n\n` +
-        `Kode OTP Anda adalah: *${otp}*\n\n` +
-        `⏰ Kode ini berlaku selama 5 menit\n` +
-        `🔒 Jangan bagikan kode ini kepada siapapun`;
-      
-      await sendMessage(waJid, msg);
-      console.log(`OTP berhasil dikirim ke ${phone}: ${otp}`);
-    } catch (error) {
-      console.error(`Gagal mengirim OTP ke ${phone}:`, error);
+    // Fast validation
+    if (!phone || !phone.match(/^08[0-9]{8,13}$/)) {
+      if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+        return res.status(400).json({ success: false, message: 'Nomor HP harus valid (08xxxxxxxxxx)' });
+      } else {
+        return res.render('login', { settings, error: 'Nomor HP tidak valid.' });
+      }
     }
-    return res.render('otp', { phone, error: null, otp_length: otpLength, settings });
-  } else {
-    req.session.phone = phone;
-    return res.redirect('/customer/dashboard');
+    
+    // Check customer validity
+    if (!await isValidCustomer(phone)) {
+      if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+        return res.status(401).json({ success: false, message: 'Nomor HP tidak terdaftar.' });
+      } else {
+        return res.render('login', { settings, error: 'Nomor HP tidak valid atau belum terdaftar.' });
+      }
+    }
+    
+    if (settings.customerPortalOtp === 'true') {
+      // Generate OTP sesuai jumlah digit di settings
+      const otpLength = settings.otp_length || 6;
+      const min = Math.pow(10, otpLength - 1);
+      const max = Math.pow(10, otpLength) - 1;
+      const otp = Math.floor(min + Math.random() * (max - min)).toString();
+      otpStore[phone] = { otp, expires: Date.now() + 5 * 60 * 1000 };
+      
+      // Kirim OTP ke WhatsApp pelanggan
+      try {
+        const waJid = phone.replace(/^0/, '62') + '@s.whatsapp.net';
+        const msg = `🔐 *KODE OTP PORTAL PELANGGAN*\n\n` +
+          `Kode OTP Anda adalah: *${otp}*\n\n` +
+          `⏰ Kode ini berlaku selama 5 menit\n` +
+          `🔒 Jangan bagikan kode ini kepada siapapun`;
+        
+        await sendMessage(waJid, msg);
+        console.log(`OTP berhasil dikirim ke ${phone}: ${otp}`);
+      } catch (error) {
+        console.error(`Gagal mengirim OTP ke ${phone}:`, error);
+      }
+      
+      if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+        return res.json({ success: true, message: 'OTP berhasil dikirim', redirect: '/customer/otp' });
+      } else {
+        return res.render('otp', { phone, error: null, otp_length: otpLength, settings });
+      }
+    } else {
+      req.session.phone = phone;
+      
+      if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+        return res.json({ success: true, message: 'Login berhasil', redirect: '/customer/dashboard' });
+      } else {
+        return res.redirect('/customer/dashboard');
+      }
+    }
+  } catch (error) {
+    console.error('Login error:', error);
+    
+    if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+      return res.status(500).json({ success: false, message: 'Terjadi kesalahan saat login' });
+    } else {
+      return res.render('login', { settings: getSettingsWithCache(), error: 'Terjadi kesalahan saat login.' });
+    }
   }
 });
 
@@ -431,12 +669,12 @@ router.get('/dashboard', async (req, res) => {
   }
 });
 
-// POST: Ganti SSID
+// POST: Ganti SSID (Legacy - redirect to homepage with notification)
 router.post('/change-ssid', async (req, res) => {
   const phone = req.session && req.session.phone;
   if (!phone) return res.redirect('/customer/login');
   const { ssid } = req.body;
-  const ok = await updateSSID(phone, ssid);
+  const ok = await updateSSIDOptimized(phone, ssid);
   if (ok) {
     // Kirim notifikasi WhatsApp ke pelanggan
     const waJid = phone.replace(/^0/, '62') + '@s.whatsapp.net';
@@ -453,7 +691,51 @@ router.post('/change-ssid', async (req, res) => {
   });
 });
 
-// POST: Ganti Password
+// API: Ganti SSID (Ajax endpoint - optimized like WhatsApp)
+router.post('/api/change-ssid', async (req, res) => {
+  const phone = req.session && req.session.phone;
+  if (!phone) return res.status(401).json({ success: false, message: 'Session tidak valid' });
+  
+  const { ssid } = req.body;
+  
+  if (!ssid || ssid.length < 3 || ssid.length > 32) {
+    return res.status(400).json({ success: false, message: 'SSID harus berisi 3-32 karakter!' });
+  }
+  
+  try {
+    // Kirim response cepat ke frontend
+    res.json({ 
+      success: true, 
+      message: 'SSID sedang diproses...',
+      newSSID: ssid,
+      processing: true
+    });
+    
+    // Proses update di background (non-blocking)
+    updateSSIDOptimized(phone, ssid).then(result => {
+      if (result.success) {
+        // Kirim notifikasi WhatsApp ke pelanggan (non-blocking)
+        const waJid = phone.replace(/^0/, '62') + '@s.whatsapp.net';
+        const msg = `✅ *PERUBAHAN NAMA WIFI*\n\nNama WiFi Anda telah diubah menjadi:\n• WiFi 2.4GHz: ${ssid}\n• WiFi 5GHz: ${ssid}-5G\n\nSilakan hubungkan ulang perangkat Anda ke WiFi baru.`;
+        sendMessage(waJid, msg).catch(e => {
+          console.error('Error sending WhatsApp notification:', e);
+        });
+        
+        console.log(`✅ SSID update completed for ${phone}: ${ssid}`);
+      } else {
+        console.error(`❌ SSID update failed for ${phone}: ${result.message}`);
+      }
+    }).catch(error => {
+      console.error('Error in background SSID update:', error);
+    });
+    
+  } catch (error) {
+    console.error('Error in change SSID API:', error);
+    res.status(500).json({ success: false, message: 'Terjadi kesalahan server' });
+  }
+});
+
+// POST: Ganti Password (Legacy - untuk backward compatibility)
 router.post('/change-password', async (req, res) => {
   const phone = req.session && req.session.phone;
   if (!phone) return res.redirect('/customer/login');
@@ -473,6 +755,49 @@ router.post('/change-password', async (req, res) => {
     notif: ok ? 'Password WiFi berhasil diubah.' : 'Gagal mengubah password.',
     settings: JSON.parse(fs.readFileSync(path.join(__dirname, '../settings.json'), 'utf8'))
   });
+});
+
+// API: Ganti Password (Ajax endpoint - optimized like WhatsApp)
+router.post('/api/change-password', async (req, res) => {
+  const phone = req.session && req.session.phone;
+  if (!phone) return res.status(401).json({ success: false, message: 'Session tidak valid' });
+  
+  const { password } = req.body;
+  
+  if (!password || password.length < 8 || password.length > 63) {
+    return res.status(400).json({ success: false, message: 'Password harus berisi 8-63 karakter!' });
+  }
+  
+  try {
+    // Kirim response cepat ke frontend
+    res.json({ 
+      success: true, 
+      message: 'Password sedang diproses...',
+      processing: true
+    });
+    
+    // Proses update di background (non-blocking)
+    updatePasswordOptimized(phone, password).then(result => {
+      if (result.success) {
+        // Kirim notifikasi WhatsApp ke pelanggan (non-blocking)
+        const waJid = phone.replace(/^0/, '62') + '@s.whatsapp.net';
+        const msg = `✅ *PERUBAHAN PASSWORD WIFI*\n\nPassword WiFi Anda telah diubah menjadi:\n• Password Baru: ${password}\n\nSilakan hubungkan ulang perangkat Anda dengan password baru.`;
+        sendMessage(waJid, msg).catch(e => {
+          console.error('Error sending WhatsApp notification:', e);
+        });
+        
+        console.log(`✅ Password update completed for ${phone}`);
+      } else {
+        console.error(`❌ Password update failed for ${phone}: ${result.message}`);
+      }
+    }).catch(error => {
+      console.error('Error in background password update:', error);
+    });
+    
+  } catch (error) {
+    console.error('Error in change password API:', error);
+    res.status(500).json({ success: false, message: 'Terjadi kesalahan server' });
+  }
 });
 
 // POST: Restart Device

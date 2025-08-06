@@ -295,3 +295,10 @@ TypeError: this.Xendit is not a constructor
     at Function._load (node:internal/modules/cjs/loader:1123:12)
     at TracingChannel.traceSync (node:diagnostics_channel:322:14)
     at wrapModuleLoad (node:internal/modules/cjs/loader:217:24)
+2025-08-06 15:51:28 error: uncaughtException: (no error message)
+RosException
+    at Connector.onError (E:\gembok-bill\node_modules\node-routeros\dist\connector\Connector.js:176:15)
+    at Socket.emit (node:events:524:28)
+    at emitErrorNT (node:internal/streams/destroy:170:8)
+    at emitErrorCloseNT (node:internal/streams/destroy:129:3)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
