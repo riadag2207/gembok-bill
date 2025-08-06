@@ -20,15 +20,16 @@ const {
 const { kickPPPoEUser } = require('../config/mikrotik2');
 const fs = require('fs');
 const path = require('path');
+const { getSettingsWithCache } = require('../config/settingsManager');
 
 // GET: List User PPPoE
 router.get('/mikrotik', adminAuth, async (req, res) => {
   try {
     const users = await getPPPoEUsers();
-    const settings = JSON.parse(fs.readFileSync(path.join(__dirname, '../settings.json'), 'utf8'));
+    const settings = getSettingsWithCache();
     res.render('adminMikrotik', { users, settings });
   } catch (err) {
-    const settings = JSON.parse(fs.readFileSync(path.join(__dirname, '../settings.json'), 'utf8'));
+    const settings = getSettingsWithCache();
     res.render('adminMikrotik', { users: [], error: 'Gagal mengambil data user PPPoE.', settings });
   }
 });
@@ -70,14 +71,14 @@ router.post('/mikrotik/delete-user', adminAuth, async (req, res) => {
 router.get('/mikrotik/profiles', adminAuth, async (req, res) => {
   try {
     const result = await getPPPoEProfiles();
-    const settings = JSON.parse(fs.readFileSync(path.join(__dirname, '../settings.json'), 'utf8'));
+    const settings = getSettingsWithCache();
     if (result.success) {
       res.render('adminMikrotikProfiles', { profiles: result.data, settings });
     } else {
       res.render('adminMikrotikProfiles', { profiles: [], error: result.message, settings });
     }
   } catch (err) {
-    const settings = JSON.parse(fs.readFileSync(path.join(__dirname, '../settings.json'), 'utf8'));
+    const settings = getSettingsWithCache();
     res.render('adminMikrotikProfiles', { profiles: [], error: 'Gagal mengambil data profile PPPoE.', settings });
   }
 });
@@ -158,14 +159,14 @@ router.post('/mikrotik/delete-profile', adminAuth, async (req, res) => {
 router.get('/mikrotik/hotspot-profiles', adminAuth, async (req, res) => {
   try {
     const result = await getHotspotProfiles();
-    const settings = JSON.parse(fs.readFileSync(path.join(__dirname, '../settings.json'), 'utf8'));
+    const settings = getSettingsWithCache();
     if (result.success) {
       res.render('adminMikrotikHotspotProfiles', { profiles: result.data, settings });
     } else {
       res.render('adminMikrotikHotspotProfiles', { profiles: [], error: result.message, settings });
     }
   } catch (err) {
-    const settings = JSON.parse(fs.readFileSync(path.join(__dirname, '../settings.json'), 'utf8'));
+    const settings = getSettingsWithCache();
     res.render('adminMikrotikHotspotProfiles', { profiles: [], error: 'Gagal mengambil data profile Hotspot.', settings });
   }
 });

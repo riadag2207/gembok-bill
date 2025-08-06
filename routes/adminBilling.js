@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const billingManager = require('../config/billing');
 const { logger } = require('../config/logger');
-const { getSetting } = require('../config/settingsManager');
+const { getSetting, getSettingsWithCache } = require('../config/settingsManager');
 
 // Middleware untuk mendapatkan pengaturan aplikasi
 const getAppSettings = (req, res, next) => {
@@ -1281,7 +1281,7 @@ router.get('/api/overdue', async (req, res) => {
 // Payment Settings Routes
 router.get('/payment-settings', getAppSettings, async (req, res) => {
     try {
-        const settings = require('../settings.json');
+        const settings = getSettingsWithCache();
         res.render('admin/billing/payment-settings', {
             title: 'Payment Gateway Settings',
             settings: settings,
@@ -1301,11 +1301,10 @@ router.get('/payment-settings', getAppSettings, async (req, res) => {
 router.post('/payment-settings/active-gateway', async (req, res) => {
     try {
         const { activeGateway } = req.body;
-        const fs = require('fs');
-        const settings = JSON.parse(fs.readFileSync('settings.json', 'utf8'));
+        const settings = getSettingsWithCache();
         
         settings.payment_gateway.active = activeGateway;
-        fs.writeFileSync('settings.json', JSON.stringify(settings, null, 2));
+        // fs.writeFileSync('settings.json', JSON.stringify(settings, null, 2)); // This line is removed
         
         res.json({
             success: true,
@@ -1326,8 +1325,7 @@ router.post('/payment-settings/:gateway', async (req, res) => {
     try {
         const { gateway } = req.params;
         const config = req.body;
-        const fs = require('fs');
-        const settings = JSON.parse(fs.readFileSync('settings.json', 'utf8'));
+        const settings = getSettingsWithCache();
         
         if (!settings.payment_gateway[gateway]) {
             return res.status(400).json({
@@ -1342,7 +1340,7 @@ router.post('/payment-settings/:gateway', async (req, res) => {
             ...config
         };
         
-        fs.writeFileSync('settings.json', JSON.stringify(settings, null, 2));
+        // fs.writeFileSync('settings.json', JSON.stringify(settings, null, 2)); // This line is removed
         
         res.json({
             success: true,

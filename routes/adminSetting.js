@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const router = express.Router();
 const multer = require('multer');
+const { getSettingsWithCache } = require('../config/settingsManager');
 
 // Konfigurasi penyimpanan file
 const storage = multer.diskStorage({
@@ -35,9 +36,7 @@ const settingsPath = path.join(__dirname, '../settings.json');
 
 // GET: Render halaman Setting
 router.get('/', (req, res) => {
-    const fs = require('fs');
-    const path = require('path');
-    const settings = JSON.parse(fs.readFileSync(path.join(__dirname, '../settings.json'), 'utf8'));
+    const settings = getSettingsWithCache();
     res.render('adminSetting', { settings });
 });
 

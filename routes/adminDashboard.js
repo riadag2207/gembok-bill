@@ -6,6 +6,7 @@ const path = require('path');
 
 const { getDevices } = require('../config/genieacs');
 const { getActivePPPoEConnections, getInactivePPPoEUsers } = require('../config/mikrotik');
+const { getSettingsWithCache } = require('../config/settingsManager');
 
 // GET: Dashboard admin
 router.get('/dashboard', adminAuth, async (req, res) => {
@@ -15,7 +16,7 @@ router.get('/dashboard', adminAuth, async (req, res) => {
   
   try {
     // Baca settings.json
-    settings = JSON.parse(fs.readFileSync(path.join(__dirname, '../settings.json'), 'utf8'));
+    settings = getSettingsWithCache();
     
     // GenieACS
     const devices = await getDevices();

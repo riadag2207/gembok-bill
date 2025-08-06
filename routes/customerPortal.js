@@ -532,7 +532,7 @@ async function updatePasswordOptimized(phone, newPassword) {
 
 // GET: Login page
 router.get('/login', (req, res) => {
-  const settings = JSON.parse(fs.readFileSync(path.join(__dirname, '../settings.json'), 'utf8'));
+  const settings = getSettingsWithCache();
   res.render('login', { settings, error: null });
 });
 
@@ -633,7 +633,7 @@ router.post('/otp', (req, res) => {
 router.get('/dashboard', async (req, res) => {
   const phone = req.session && req.session.phone;
   if (!phone) return res.redirect('/customer/login');
-  const settings = JSON.parse(fs.readFileSync(path.join(__dirname, '../settings.json'), 'utf8'));
+  const settings = getSettingsWithCache();
   
   try {
     const data = await getCustomerDeviceData(phone);
@@ -687,7 +687,7 @@ router.post('/change-ssid', async (req, res) => {
     customer: customerWithAdmin, 
     connectedUsers: data ? data.connectedUsers : [], 
     notif: ok ? 'Nama WiFi (SSID) berhasil diubah.' : 'Gagal mengubah SSID.',
-    settings: JSON.parse(fs.readFileSync(path.join(__dirname, '../settings.json'), 'utf8'))
+    settings: getSettingsWithCache()
   });
 });
 
@@ -753,7 +753,7 @@ router.post('/change-password', async (req, res) => {
     customer: customerWithAdmin, 
     connectedUsers: data ? data.connectedUsers : [], 
     notif: ok ? 'Password WiFi berhasil diubah.' : 'Gagal mengubah password.',
-    settings: JSON.parse(fs.readFileSync(path.join(__dirname, '../settings.json'), 'utf8'))
+    settings: getSettingsWithCache()
   });
 });
 
@@ -941,7 +941,7 @@ router.get('/billing', async (req, res) => {
   
   try {
     const customer = await billingManager.getCustomerByPhone(phone);
-    const settings = JSON.parse(fs.readFileSync(path.join(__dirname, '../settings.json'), 'utf8'));
+    const settings = getSettingsWithCache();
     
     if (!customer) {
       return res.render('customer/billing/dashboard', { 
@@ -961,7 +961,7 @@ router.get('/billing', async (req, res) => {
     });
   } catch (error) {
     console.error('Error loading billing page:', error);
-    const settings = JSON.parse(fs.readFileSync(path.join(__dirname, '../settings.json'), 'utf8'));
+    const settings = getSettingsWithCache();
     res.render('customer/billing/dashboard', { 
       customer: null, 
       invoices: [], 

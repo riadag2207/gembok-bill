@@ -4,6 +4,7 @@ const { addHotspotUser, getActiveHotspotUsers, getHotspotProfiles, deleteHotspot
 const { getMikrotikConnection } = require('../config/mikrotik');
 const fs = require('fs');
 const path = require('path');
+const { getSettingsWithCache } = require('../config/settingsManager');
 
 // GET: Tampilkan form tambah user hotspot dan daftar user hotspot
 router.get('/', async (req, res) => {
@@ -42,9 +43,7 @@ router.get('/', async (req, res) => {
             console.error('Gagal ambil semua user hotspot:', e.message);
             allUsers = [];
         }
-        const fs = require('fs');
-        const path = require('path');
-        const settings = JSON.parse(fs.readFileSync(path.join(__dirname, '../settings.json'), 'utf8'));
+        const settings = getSettingsWithCache();
         const company_header = settings.company_header || 'Voucher Hotspot';
         const adminKontak = settings['admins.0'] || '-';
 
@@ -105,8 +104,7 @@ router.post('/generate', async (req, res) => {
     const generated = [];
 
     // Ambil nama hotspot dan nomor admin dari settings.json
-    const fs = require('fs');
-    const settings = JSON.parse(fs.readFileSync(require('path').join(__dirname, '../settings.json'), 'utf8'));
+    const settings = getSettingsWithCache();
     const namaHotspot = settings.company_header || 'HOTSPOT VOUCHER';
     const adminKontak = settings['admins.0'] || '-';
 
@@ -278,7 +276,7 @@ router.get('/voucher', async (req, res) => {
         console.log(`Loaded ${voucherHistory.length} vouchers for history table`);
         
         // Ambil pengaturan dari settings.json
-        const settings = JSON.parse(fs.readFileSync(path.join(__dirname, '../settings.json'), 'utf8'));
+        const settings = getSettingsWithCache();
         const company_header = settings.company_header || 'Voucher Hotspot';
         const adminKontak = settings['footer_info'] || '-';
         
@@ -337,7 +335,7 @@ router.post('/generate-voucher', async (req, res) => {
         }
         
         // Ambil pengaturan dari settings.json
-        const settings = JSON.parse(fs.readFileSync(path.join(__dirname, '../settings.json'), 'utf8'));
+        const settings = getSettingsWithCache();
         const namaHotspot = settings.company_header || 'HOTSPOT VOUCHER';
         const adminKontak = settings['footer_info'] || '-';
         
@@ -375,7 +373,7 @@ router.post('/generate-voucher', async (req, res) => {
 router.get('/print-vouchers', async (req, res) => {
     try {
         // Ambil pengaturan dari settings.json
-        const settings = JSON.parse(fs.readFileSync(path.join(__dirname, '../settings.json'), 'utf8'));
+        const settings = getSettingsWithCache();
         const namaHotspot = settings.company_header || 'HOTSPOT VOUCHER';
         const adminKontak = settings['admins.0'] || '-';
         

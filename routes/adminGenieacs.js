@@ -5,6 +5,7 @@ const { getDevices, setParameterValues } = require('../config/genieacs');
 const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
+const { getSettingsWithCache } = require('../config/settingsManager');
 // Helper dan parameterPaths dari customerPortal.js
 const parameterPaths = {
   pppUsername: [
@@ -68,7 +69,7 @@ router.get('/genieacs', adminAuth, async (req, res) => {
     const now = Date.now();
     const genieacsOnline = devicesRaw.filter(dev => dev._lastInform && (now - new Date(dev._lastInform).getTime()) < 3600*1000).length;
     const genieacsOffline = genieacsTotal - genieacsOnline;
-    const settings = JSON.parse(fs.readFileSync(path.join(__dirname, '../settings.json'), 'utf8'));
+    const settings = getSettingsWithCache();
     res.render('adminGenieacs', { devices, settings, genieacsTotal, genieacsOnline, genieacsOffline });
   } catch (err) {
     res.render('adminGenieacs', { devices: [], error: 'Gagal mengambil data device.' });
