@@ -300,31 +300,35 @@
 <!-- Modal Edit SSID/Password -->
 <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
   <div class="modal-dialog">
-    <form id="editForm" action="/admin/genieacs/edit" method="POST">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="editModalLabel">Edit SSID & Password</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editModalLabel">Edit SSID & Password</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div id="editAlert" style="display:none;"></div>
+        <input type="hidden" id="deviceId">
+        <div class="mb-3">
+          <label for="ssid" class="form-label">SSID</label>
+          <input type="text" class="form-control" id="ssid">
+          <button type="button" class="btn btn-success mt-2 w-100" id="saveSsidBtn" data-bs-dismiss="modal">Simpan SSID</button>
         </div>
-        <div class="modal-body">
-          <div id="editAlert" style="display:none;"></div>
-          <input type="hidden" name="id" id="deviceId">
-          <div class="mb-3">
-            <label for="ssid" class="form-label">SSID</label>
-            <input type="text" class="form-control" id="ssid" name="ssid">
-            <button type="button" class="btn btn-success mt-2 w-100" id="saveSsidBtn">Simpan SSID</button>
-          </div>
-          <div class="mb-3">
-            <label for="password" class="form-label">Password</label>
-            <input type="text" class="form-control" id="password" name="password">
-            <button type="button" class="btn btn-primary mt-2 w-100" id="savePasswordBtn">Simpan Password</button>
-          </div>
-        </div>
-        <div class="modal-footer d-flex flex-column align-items-stretch gap-2">
-          <button type="button" class="btn btn-secondary w-100" data-bs-dismiss="modal">Batal</button>
+        <div class="mb-3">
+          <label for="password" class="form-label">Password</label>
+          <input type="text" class="form-control" id="password">
+          <button type="button" class="btn btn-primary mt-2 w-100" id="savePasswordBtn" data-bs-dismiss="modal">Simpan Password</button>
         </div>
       </div>
-    </form>
+      <div class="modal-footer d-flex flex-column align-items-stretch gap-2">
+        <div class="alert alert-info" role="alert">
+          <i class="bi bi-info-circle"></i> <strong>Tips:</strong> Setelah mengubah SSID/Password, restart perangkat untuk menerapkan perubahan dengan cepat.
+        </div>
+        <button type="button" class="btn btn-warning w-100" id="rebootAfterEditBtn">
+          <i class="bi bi-arrow-clockwise"></i> Restart Perangkat Setelah Edit
+        </button>
+        <button type="button" class="btn btn-secondary w-100" data-bs-dismiss="modal">Tutup</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -385,40 +389,113 @@ $(document).ready(function(){
         $('#editAlert').removeClass().addClass('alert alert-' + type).html(message).show();
     }
 
-    // Tombol simpan SSID
-    $('#saveSsidBtn').on('click', function(e){
-        e.preventDefault();
+    // Tombol simpan SSID - Versi Final
+    $(document).on('click', '#saveSsidBtn', function(e){
         const id = $('#deviceId').val();
         const ssid = $('#ssid').val();
+        
+        // Validasi
+        if (!ssid || ssid.length < 3 || ssid.length > 32) {
+            e.preventDefault();
+            showEditAlert('danger', 'SSID harus berisi 3-32 karakter!');
+            return;
+        }
+
+        // Tampilkan notifikasi proses setelah modal tertutup
+        setTimeout(function() {
+            showToast('info', 'Memproses SSID...', `WiFi 2.4GHz: ${ssid} sedang diupdate. Mohon tunggu...`);
+        }, 300);
+        
+        // Kirim request
         $.ajax({
             url: '/admin/genieacs/edit',
             method: 'POST',
             data: { id, ssid },
             success: function(res) {
-                showEditAlert('success', 'SSID berhasil diupdate!');
-                setTimeout(function(){ location.reload(); }, 1000);
+                if (res.success) {
+                    showToast('success', 'SSID Berhasil Diubah!', `WiFi 2.4GHz: ${res.newSSID} berhasil diupdate.`);
+                    updateTableRow(id, 'ssid', ssid);
+                } else {
+                    showToast('error', 'Gagal Update SSID', res.message || 'Gagal update SSID!');
+                }
             },
             error: function(err) {
-                showEditAlert('danger', 'Gagal update SSID!');
+                const errorMsg = err.responseJSON?.message || 'Gagal update SSID!';
+                showToast('error', 'Error', errorMsg);
             }
         });
     });
 
-    // Tombol simpan Password
-    $('#savePasswordBtn').on('click', function(e){
-        e.preventDefault();
+    // Tombol simpan Password - Versi Final
+    $(document).on('click', '#savePasswordBtn', function(e){
         const id = $('#deviceId').val();
         const password = $('#password').val();
+        
+        // Validasi
+        if (!password || password.length < 8 || password.length > 63) {
+            e.preventDefault();
+            showEditAlert('danger', 'Password harus berisi 8-63 karakter!');
+            return;
+        }
+
+        // Tampilkan notifikasi proses setelah modal tertutup
+        setTimeout(function() {
+            showToast('info', 'Memproses Password...', 'Password WiFi sedang diupdate. Mohon tunggu...');
+        }, 300);
+        
+        // Kirim request
         $.ajax({
             url: '/admin/genieacs/edit',
             method: 'POST',
             data: { id, password },
             success: function(res) {
-                showEditAlert('success', 'Password berhasil diupdate!');
-                setTimeout(function(){ location.reload(); }, 1000);
+                if (res.success) {
+                    showToast('success', 'Password Berhasil Diubah!', 'Password WiFi berhasil diupdate.');
+                } else {
+                    showToast('error', 'Gagal Update Password', res.message || 'Gagal update password!');
+                }
             },
             error: function(err) {
-                showEditAlert('danger', 'Gagal update Password!');
+                const errorMsg = err.responseJSON?.message || 'Gagal update password!';
+                showToast('error', 'Error', errorMsg);
+            }
+        });
+    });
+
+    // Tombol restart perangkat setelah edit
+    $('#rebootAfterEditBtn').on('click', function(e){
+        e.preventDefault();
+        const id = $('#deviceId').val();
+        
+        if (!id) {
+            showEditAlert('danger', 'Device ID tidak ditemukan!');
+            return;
+        }
+
+        const $btn = $(this);
+        const originalText = $btn.html();
+        $btn.prop('disabled', true).html('<i class="bi bi-hourglass-split"></i> Merestart...');
+        
+        $.ajax({
+            url: '/admin/genieacs/restart-onu',
+            method: 'POST',
+            data: { id },
+            success: function(res) {
+                if (res.success) {
+                    showEditAlert('success', 'Perintah restart berhasil dikirim!');
+                    showToast('success', 'Restart Berhasil', 'Perangkat akan restart dalam beberapa menit untuk menerapkan perubahan.');
+                    setTimeout(function(){ $('#editModal').modal('hide'); }, 2000);
+                } else {
+                    showEditAlert('danger', res.message || 'Gagal restart perangkat!');
+                }
+            },
+            error: function(err) {
+                const errorMsg = err.responseJSON?.message || 'Gagal restart perangkat!';
+                showEditAlert('danger', errorMsg);
+                showToast('error', 'Error Restart', errorMsg);
+            },
+            complete: function() {
+                $btn.prop('disabled', false).html(originalText);
             }
         });
     });
@@ -437,6 +514,8 @@ $(document).ready(function(){
         }
     });
     
+
+    
     // Fungsi notifikasi
     function showAlert(message, type) {
         var alert = $(`<div class="alert alert-${type} alert-dismissible fade show" role="alert">
@@ -445,6 +524,82 @@ $(document).ready(function(){
         </div>`);
         $('#alert-container').append(alert);
         setTimeout(function(){ alert.alert('close'); }, 3000);
+    }
+
+    // Fungsi toast notification yang modern dan reliable
+    function showToast(type, title, message, duration = 5000) {
+        try {
+            const toastId = 'toast-' + Date.now();
+            const iconClass = type === 'success' ? 'bi-check-circle' : type === 'error' ? 'bi-x-circle' : type === 'info' ? 'bi-info-circle' : 'bi-hourglass-split';
+            const bgClass = type === 'success' ? 'bg-success' : type === 'error' ? 'bg-danger' : type === 'info' ? 'bg-primary' : 'bg-warning';
+            
+            const toastHtml = `
+                <div id="${toastId}" class="toast align-items-center text-white ${bgClass} border-0" role="alert" aria-live="assertive" aria-atomic="true" style="position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px;">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            <i class="bi ${iconClass} me-2"></i>
+                            <strong>${title}</strong><br>
+                            <small>${message}</small>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            `;
+            
+            // Append ke body langsung jika alert-container tidak ada
+            const container = $('#alert-container');
+            if (container.length > 0) {
+                container.append(toastHtml);
+            } else {
+                $('body').append(toastHtml);
+            }
+            
+            const toastElement = document.getElementById(toastId);
+            if (toastElement) {
+                const toast = new bootstrap.Toast(toastElement, { delay: duration });
+                toast.show();
+                
+                // Auto remove after hide
+                toastElement.addEventListener('hidden.bs.toast', () => {
+                    toastElement.remove();
+                });
+            }
+            
+            return toastId;
+        } catch (error) {
+            console.error('Error in showToast:', error);
+            // Fallback ke alert jika toast gagal
+            alert(`${title}: ${message}`);
+        }
+    }
+
+
+
+    // Fungsi update row di tabel tanpa reload
+    function updateTableRow(deviceId, field, newValue) {
+        try {
+            // Find the row with the device ID
+            table.rows().every(function(rowIdx, tableLoop, rowLoop) {
+                const data = this.data();
+                if (data && data.length > 0) {
+                    // Check if this row contains the device ID (biasanya di kolom aksi)
+                    const actionCell = data[data.length - 1]; // Last column is action
+                    if (actionCell && actionCell.includes(deviceId)) {
+                        if (field === 'ssid') {
+                            // Update SSID column (index 2)
+                            data[2] = newValue;
+                            // Also update the SSID data attribute in action buttons
+                            const updatedActionCell = actionCell.replace(/data-ssid="[^"]*"/, `data-ssid="${newValue}"`);
+                            data[data.length - 1] = updatedActionCell;
+                        }
+                        this.data(data).draw(false);
+                        return false; // Break the loop
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Error updating table row:', error);
+        }
     }
 });
 </script>

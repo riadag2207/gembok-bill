@@ -17,14 +17,25 @@ const app = express();
 // Import route adminAuth
 const { router: adminAuthRouter } = require('./routes/adminAuth');
 
-// Middleware dasar
+// Middleware dasar - Optimized
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Static files dengan cache
+app.use('/public', express.static(path.join(__dirname, 'public'), {
+  maxAge: '1h', // Cache static files untuk 1 jam
+  etag: true
+}));
 app.use(session({
   secret: 'rahasia-portal-anda', // Ganti dengan string random yang aman
   resave: false,
-  saveUninitialized: true,
-  cookie: { secure: false }
+  saveUninitialized: false, // Optimized: tidak save session kosong
+  cookie: { 
+    secure: false,
+    maxAge: 24 * 60 * 60 * 1000, // 24 jam
+    httpOnly: true
+  },
+  name: 'admin_session' // Custom session name
 }));
 
 // Gunakan route adminAuth untuk /admin

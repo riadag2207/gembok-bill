@@ -127,11 +127,11 @@ Edit file `settings.json` dengan pengaturan yang sesuai:
   "payment_accounts": {
     "bank_transfer": {
       "bank_name": "Bank BRI",
-      "account_number": "4206-01-003953-53-1",
+      "account_number": "1234-5678-9012-3456",
       "account_name": "ALIJAYA DIGITAL NETWORK"
     },
     "cash": {
-      "office_address": "Jl. Pantai Tanjungpura Desa Ujunggebang Kec Sukra - Indramayu - Jawa Barat",
+      "office_address": "Jl. Contoh No. 123, Kota, Provinsi",
       "office_hours": "08:00 - 17:00 WIB"
     }
   }

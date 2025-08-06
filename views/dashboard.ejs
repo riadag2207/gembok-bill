@@ -687,26 +687,30 @@
 
       <div class="form-section">
         <h6><i class="bi bi-wifi"></i>Ganti Nama WiFi (SSID)</h6>
-        <form method="POST" action="/customer/change-ssid">
-          <div class="input-group input-group-responsive">
-            <input type="text" class="form-control w-100" name="ssid" placeholder="Nama WiFi baru" required maxlength="32">
-            <button class="btn btn-action btn-ssid w-100" type="submit">
+        <div class="input-group input-group-responsive">
+          <input type="text" class="form-control w-100" id="newSsid" placeholder="Nama WiFi baru" maxlength="32">
+          <button class="btn btn-action btn-ssid w-100" type="button" id="changeSsidBtn">
               <i class="bi bi-check-lg me-1"></i>Ganti SSID
-            </button>
-          </div>
-        </form>
+          </button>
+        </div>
+        <small class="text-muted mt-2 d-block">
+          <i class="bi bi-info-circle me-1"></i>
+          SSID harus berisi 3-32 karakter. WiFi 5GHz akan otomatis menjadi "NamaWiFi-5G"
+        </small>
       </div>
 
       <div class="form-section">
         <h6><i class="bi bi-shield-lock"></i>Ganti Password WiFi</h6>
-        <form method="POST" action="/customer/change-password">
-          <div class="input-group input-group-responsive">
-            <input type="text" class="form-control w-100" name="password" placeholder="Password baru" required maxlength="32">
-            <button class="btn btn-action btn-password w-100" type="submit">
+        <div class="input-group input-group-responsive">
+          <input type="text" class="form-control w-100" id="newPassword" placeholder="Password baru" maxlength="63">
+          <button class="btn btn-action btn-password w-100" type="button" id="changePasswordBtn">
               <i class="bi bi-check-lg me-1"></i>Ganti Password
-            </button>
-          </div>
-        </form>
+          </button>
+        </div>
+        <small class="text-muted mt-2 d-block">
+          <i class="bi bi-info-circle me-1"></i>
+          Password harus berisi 8-63 karakter untuk keamanan
+        </small>
       </div>
 
       <div class="form-section">
@@ -1026,6 +1030,129 @@
     $('.table-container').each(function(index) {
       $(this).addClass('animate__animated animate__fadeInUp')
              .css('animation-delay', (1.3 + (index * 0.1)) + 's');
+    });
+
+    // Fungsi toast notification yang modern
+    function showToast(type, title, message, duration = 5000) {
+      const toastId = 'toast-' + Date.now();
+      const iconClass = type === 'success' ? 'bi-check-circle' : type === 'error' ? 'bi-x-circle' : 'bi-info-circle';
+      const bgClass = type === 'success' ? 'bg-success' : type === 'error' ? 'bg-danger' : 'bg-primary';
+      
+      const toastHtml = `
+        <div id="${toastId}" class="toast align-items-center text-white ${bgClass} border-0" role="alert" aria-live="assertive" aria-atomic="true" style="position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px;">
+          <div class="d-flex">
+            <div class="toast-body">
+              <i class="bi ${iconClass} me-2"></i>
+              <strong>${title}</strong><br>
+              <small>${message}</small>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+          </div>
+        </div>
+      `;
+      
+      $('body').append(toastHtml);
+      const toastElement = document.getElementById(toastId);
+      const toast = new bootstrap.Toast(toastElement, { delay: duration });
+      toast.show();
+      
+      // Auto remove after hide
+      toastElement.addEventListener('hidden.bs.toast', () => {
+        toastElement.remove();
+      });
+    }
+
+    // Handle Change SSID
+    $('#changeSsidBtn').on('click', function(e) {
+      e.preventDefault();
+      const newSsid = $('#newSsid').val().trim();
+      
+      if (!newSsid || newSsid.length < 3 || newSsid.length > 32) {
+        showToast('error', 'Error', 'SSID harus berisi 3-32 karakter!');
+        return;
+      }
+      
+      const $btn = $(this);
+      const originalText = $btn.html();
+      $btn.prop('disabled', true).html('<i class="bi bi-hourglass-split"></i> Memproses...');
+      
+      $.ajax({
+        url: '/customer/api/change-ssid',
+        method: 'POST',
+        data: { ssid: newSsid },
+        success: function(res) {
+          if (res.success) {
+            // Immediate feedback untuk user
+            showToast('success', 'SSID Sedang Diproses!', 
+              `WiFi 2.4GHz: ${res.newSSID} sedang diupdate. Proses akan selesai dalam beberapa detik.`);
+            $('#newSsid').val('');
+            
+            // Update SSID di stat card immediately
+            $('.stat-card .stat-value').each(function() {
+              if ($(this).text().includes('SSID')) {
+                $(this).text(res.newSSID);
+              }
+            });
+            
+            // Reset button setelah 2 detik
+            setTimeout(() => {
+              $btn.prop('disabled', false).html(originalText);
+            }, 2000);
+            
+          } else {
+            showToast('error', 'Error', res.message || 'Gagal mengubah SSID!');
+            $btn.prop('disabled', false).html(originalText);
+          }
+        },
+        error: function(err) {
+          const errorMsg = err.responseJSON?.message || 'Gagal mengubah SSID!';
+          showToast('error', 'Error', errorMsg);
+          $btn.prop('disabled', false).html(originalText);
+        }
+      });
+    });
+
+    // Handle Change Password
+    $('#changePasswordBtn').on('click', function(e) {
+      e.preventDefault();
+      const newPassword = $('#newPassword').val().trim();
+      
+      if (!newPassword || newPassword.length < 8 || newPassword.length > 63) {
+        showToast('error', 'Error', 'Password harus berisi 8-63 karakter!');
+        return;
+      }
+      
+      const $btn = $(this);
+      const originalText = $btn.html();
+      $btn.prop('disabled', true).html('<i class="bi bi-hourglass-split"></i> Memproses...');
+      
+      $.ajax({
+        url: '/customer/api/change-password',
+        method: 'POST',
+        data: { password: newPassword },
+        success: function(res) {
+          if (res.success) {
+            // Immediate feedback untuk user
+            showToast('success', 'Password Sedang Diproses!', 
+              `Password WiFi sedang diupdate. Proses akan selesai dalam beberapa detik.`);
+            $('#newPassword').val('');
+            
+            // Reset button setelah 2 detik
+            setTimeout(() => {
+              $btn.prop('disabled', false).html(originalText);
+            }, 2000);
+            
+          } else {
+            showToast('error', 'Error', res.message || 'Gagal mengubah password!');
+            $btn.prop('disabled', false).html(originalText);
+          }
+        },
+        error: function(err) {
+          const errorMsg = err.responseJSON?.message || 'Gagal mengubah password!';
+          showToast('error', 'Error', errorMsg);
+          $btn.prop('disabled', false).html(originalText);
+        }
+      });
     });
 
     // Inisialisasi modal restart
