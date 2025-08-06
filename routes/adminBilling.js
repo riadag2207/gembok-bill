@@ -1278,4 +1278,117 @@ router.get('/api/overdue', async (req, res) => {
     }
 });
 
+// Payment Settings Routes
+router.get('/payment-settings', getAppSettings, async (req, res) => {
+    try {
+        const settings = require('../settings.json');
+        res.render('admin/billing/payment-settings', {
+            title: 'Payment Gateway Settings',
+            settings: settings,
+            appSettings: req.appSettings
+        });
+    } catch (error) {
+        logger.error('Error loading payment settings:', error);
+        res.status(500).render('error', { 
+            message: 'Error loading payment settings',
+            error: error.message,
+            appSettings: req.appSettings
+        });
+    }
+});
+
+// Update active gateway
+router.post('/payment-settings/active-gateway', async (req, res) => {
+    try {
+        const { activeGateway } = req.body;
+        const fs = require('fs');
+        const settings = JSON.parse(fs.readFileSync('settings.json', 'utf8'));
+        
+        settings.payment_gateway.active = activeGateway;
+        fs.writeFileSync('settings.json', JSON.stringify(settings, null, 2));
+        
+        res.json({
+            success: true,
+            message: 'Active gateway updated successfully'
+        });
+    } catch (error) {
+        logger.error('Error updating active gateway:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error updating active gateway',
+            error: error.message
+        });
+    }
+});
+
+// Update gateway configuration
+router.post('/payment-settings/:gateway', async (req, res) => {
+    try {
+        const { gateway } = req.params;
+        const config = req.body;
+        const fs = require('fs');
+        const settings = JSON.parse(fs.readFileSync('settings.json', 'utf8'));
+        
+        if (!settings.payment_gateway[gateway]) {
+            return res.status(400).json({
+                success: false,
+                message: `Gateway ${gateway} not found`
+            });
+        }
+        
+        // Update gateway configuration
+        settings.payment_gateway[gateway] = {
+            ...settings.payment_gateway[gateway],
+            ...config
+        };
+        
+        fs.writeFileSync('settings.json', JSON.stringify(settings, null, 2));
+        
+        res.json({
+            success: true,
+            message: `${gateway} configuration updated successfully`
+        });
+    } catch (error) {
+        logger.error(`Error updating ${req.params.gateway} configuration:`, error);
+        res.status(500).json({
+            success: false,
+            message: `Error updating ${req.params.gateway} configuration`,
+            error: error.message
+        });
+    }
+});
+
+// Test gateway connection
+router.post('/payment-settings/test/:gateway', async (req, res) => {
+    try {
+        const { gateway } = req.params;
+        const PaymentGatewayManager = require('../config/paymentGateway');
+        const paymentManager = new PaymentGatewayManager();
+        
+        // Test the gateway by trying to create a test payment
+        const testInvoice = {
+            invoice_number: 'TEST-001',
+            amount: 1000,
+            package_name: 'Test Package',
+            customer_name: 'Test Customer',
+            customer_phone: '08123456789',
+            customer_email: 'test@example.com'
+        };
+        
+        const result = await paymentManager.createPayment(testInvoice, gateway);
+        
+        res.json({
+            success: true,
+            message: `${gateway} connection test successful`,
+            data: result
+        });
+    } catch (error) {
+        logger.error(`Error testing ${req.params.gateway} connection:`, error);
+        res.status(500).json({
+            success: false,
+            message: `${req.params.gateway} connection test failed: ${error.message}`
+        });
+    }
+});
+
 module.exports = router; 
