@@ -8,6 +8,14 @@
     <link href="https://cdn.jsdelivr.net/npm/boxicons@2.0.7/css/boxicons.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <style>
+        .toast-container {
+            z-index: 9999;
+        }
+        .toast {
+            min-width: 300px;
+        }
+    </style>
 </head>
 <body>
     <div class="container-fluid">
@@ -163,9 +171,11 @@
                                     <tr>
                                         <th>Nama</th>
                                         <th>Telepon</th>
-                                        <th>Username</th>
+
                                         <th>PPPoE Username</th>
                                         <th>Paket</th>
+                                        <th>PPPoE Profile</th>
+                                        <th>Auto Suspension</th>
                                         <th>Status Pelanggan</th>
                                         <th>Status Pembayaran</th>
                                         <th>Aksi</th>
@@ -177,9 +187,17 @@
                                             <tr>
                                                 <td><%= customer.name %></td>
                                                 <td><%= customer.phone %></td>
-                                                <td><%= customer.username %></td>
+
                                                 <td><%= customer.pppoe_username || '-' %></td>
                                                 <td><%= customer.package_name || '-' %></td>
+                                                <td><span class="badge bg-info"><%= customer.pppoe_profile || 'default' %></span></td>
+                                                <td>
+                                                    <% if (customer.auto_suspension === 1) { %>
+                                                        <span class="badge bg-success">Ya</span>
+                                                    <% } else { %>
+                                                        <span class="badge bg-secondary">Tidak</span>
+                                                    <% } %>
+                                                </td>
                                                 <td>
                                                     <% if (customer.status === 'active') { %>
                                                         <span class="badge bg-success">Aktif</span>
@@ -202,10 +220,10 @@
                                                 </td>
                                                 <td>
                                                     <div class="btn-group" role="group">
-                                                        <button class="btn btn-sm btn-primary" onclick="editCustomer('<%= customer.username %>')">
+                                                        <button class="btn btn-sm btn-primary" onclick="editCustomer('<%= customer.phone %>')">
                                                             <i class="bx bx-edit"></i>
                                                         </button>
-                                                        <button class="btn btn-sm btn-danger" onclick="deleteCustomer('<%= customer.username %>')">
+                                                        <button class="btn btn-sm btn-danger" onclick="deleteCustomer('<%= customer.phone %>')">
                                                             <i class="bx bx-trash"></i>
                                                         </button>
                                                     </div>
@@ -233,17 +251,14 @@
                 <form id="addCustomerForm">
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label for="name" class="form-label">Nama</label>
+                            <label for="name" class="form-label">Nama *</label>
                             <input type="text" class="form-control" id="name" name="name" required>
                         </div>
                         <div class="mb-3">
-                            <label for="phone" class="form-label">Telepon</label>
+                            <label for="phone" class="form-label">Telepon *</label>
                             <input type="text" class="form-control" id="phone" name="phone" required>
                         </div>
-                        <div class="mb-3">
-                            <label for="username" class="form-label">Username</label>
-                            <input type="text" class="form-control" id="username" name="username" required>
-                        </div>
+
                         <div class="mb-3">
                             <label for="pppoe_username" class="form-label">PPPoE Username</label>
                             <input type="text" class="form-control" id="pppoe_username" name="pppoe_username">
@@ -253,20 +268,33 @@
                             <textarea class="form-control" id="address" name="address" rows="3"></textarea>
                         </div>
                         <div class="mb-3">
-                            <label for="package_id" class="form-label">Paket</label>
-                            <select class="form-control" id="package_id" name="package_id">
+                            <label for="package_id" class="form-label">Paket *</label>
+                            <select class="form-control" id="package_id" name="package_id" onchange="updateProfileField()" required>
                                 <option value="">Pilih Paket</option>
                                 <% if (packages && packages.length > 0) { %>
                                     <% packages.forEach(function(package) { %>
-                                        <option value="<%= package.id %>"><%= package.name %> - Rp <%= parseFloat(package.price).toLocaleString('id-ID') %></option>
+                                        <option value="<%= package.id %>" data-profile="<%= package.pppoe_profile || 'default' %>"><%= package.name %> - Rp <%= parseFloat(package.price).toLocaleString('id-ID') %></option>
                                     <% }); %>
                                 <% } %>
                             </select>
                         </div>
+                        <div class="mb-3">
+                            <label for="pppoe_profile" class="form-label">PPPoE Profile</label>
+                            <input type="text" class="form-control" id="pppoe_profile" name="pppoe_profile" placeholder="Profile akan otomatis terisi sesuai paket">
+                            <small class="form-text text-muted">Profile PPPoE yang akan digunakan untuk pelanggan ini</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="auto_suspension" class="form-label">Auto Suspension</label>
+                            <select class="form-control" id="auto_suspension" name="auto_suspension">
+                                <option value="1">Ya - Isolir otomatis saat telat bayar</option>
+                                <option value="0">Tidak - Tidak diisolir otomatis</option>
+                            </select>
+                            <small class="form-text text-muted">Pilih apakah pelanggan akan diisolir otomatis saat telat bayar</small>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary">Simpan</button>
+                        <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">Simpan</button>
                     </div>
                 </form>
             </div>
@@ -283,14 +311,14 @@
                 </div>
                 <form id="editCustomerForm">
                     <div class="modal-body">
-                        <input type="hidden" id="edit_username" name="username">
                         <div class="mb-3">
-                            <label for="edit_name" class="form-label">Nama</label>
+                            <label for="edit_name" class="form-label">Nama *</label>
                             <input type="text" class="form-control" id="edit_name" name="name" required>
                         </div>
                         <div class="mb-3">
-                            <label for="edit_phone" class="form-label">Telepon</label>
-                            <input type="text" class="form-control" id="edit_phone" name="phone" required>
+                            <label for="edit_phone" class="form-label">Telepon *</label>
+                            <input type="text" class="form-control" id="edit_phone" name="phone" readonly>
+                            <small class="form-text text-muted">Nomor telepon tidak dapat diubah</small>
                         </div>
                         <div class="mb-3">
                             <label for="edit_pppoe_username" class="form-label">PPPoE Username</label>
@@ -301,15 +329,28 @@
                             <textarea class="form-control" id="edit_address" name="address" rows="3"></textarea>
                         </div>
                         <div class="mb-3">
-                            <label for="edit_package_id" class="form-label">Paket</label>
-                            <select class="form-control" id="edit_package_id" name="package_id">
+                            <label for="edit_package_id" class="form-label">Paket *</label>
+                            <select class="form-control" id="edit_package_id" name="package_id" onchange="updateEditProfileField()" required>
                                 <option value="">Pilih Paket</option>
                                 <% if (packages && packages.length > 0) { %>
                                     <% packages.forEach(function(package) { %>
-                                        <option value="<%= package.id %>"><%= package.name %> - Rp <%= parseFloat(package.price).toLocaleString('id-ID') %></option>
+                                        <option value="<%= package.id %>" data-profile="<%= package.pppoe_profile || 'default' %>"><%= package.name %> - Rp <%= parseFloat(package.price).toLocaleString('id-ID') %></option>
                                     <% }); %>
                                 <% } %>
                             </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_pppoe_profile" class="form-label">PPPoE Profile</label>
+                            <input type="text" class="form-control" id="edit_pppoe_profile" name="pppoe_profile" placeholder="Profile akan otomatis terisi sesuai paket">
+                            <small class="form-text text-muted">Profile PPPoE yang akan digunakan untuk pelanggan ini</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_auto_suspension" class="form-label">Auto Suspension</label>
+                            <select class="form-control" id="edit_auto_suspension" name="auto_suspension">
+                                <option value="1">Ya - Isolir otomatis saat telat bayar</option>
+                                <option value="0">Tidak - Tidak diisolir otomatis</option>
+                            </select>
+                            <small class="form-text text-muted">Pilih apakah pelanggan akan diisolir otomatis saat telat bayar</small>
                         </div>
                         <div class="mb-3">
                             <label for="edit_status" class="form-label">Status</label>
@@ -322,7 +363,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary">Update</button>
+                        <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">Update</button>
                     </div>
                 </form>
             </div>
@@ -342,114 +383,232 @@
                 pageLength: 25,
                 lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]]
             });
+            
+            // Reset form when modal is hidden
+            $('#addCustomerModal').on('hidden.bs.modal', function() {
+                $('#addCustomerForm')[0].reset();
+            });
+            
+            $('#editCustomerModal').on('hidden.bs.modal', function() {
+                $('#editCustomerForm')[0].reset();
+            });
         });
+
+        // Function to update profile field when package is selected
+        function updateProfileField() {
+            const packageSelect = document.getElementById('package_id');
+            const profileInput = document.getElementById('pppoe_profile');
+            const selectedOption = packageSelect.options[packageSelect.selectedIndex];
+            
+            if (selectedOption && selectedOption.dataset.profile) {
+                profileInput.value = selectedOption.dataset.profile;
+            }
+        }
+
+        // Function to update profile field in edit modal
+        function updateEditProfileField() {
+            const packageSelect = document.getElementById('edit_package_id');
+            const profileInput = document.getElementById('edit_pppoe_profile');
+            const selectedOption = packageSelect.options[packageSelect.selectedIndex];
+            
+            if (selectedOption && selectedOption.dataset.profile) {
+                profileInput.value = selectedOption.dataset.profile;
+            }
+        }
 
         // Add Customer Form
         $('#addCustomerForm').on('submit', function(e) {
             e.preventDefault();
-            const formData = new FormData(this);
+            
+            // Client-side validation
+            const name = $('#name').val().trim();
+            const phone = $('#phone').val().trim();
+            const package_id = $('#package_id').val();
+            
+            if (!name || !phone || !package_id) {
+                showToast('error', 'Nama, telepon, dan paket wajib diisi');
+                return;
+            }
+            
+            // Show loading state
+            const submitBtn = $(this).find('button[type="submit"]');
+            const originalText = submitBtn.text();
+            submitBtn.prop('disabled', true).text('Menyimpan...');
+            
+            const formData = {
+                name: name,
+                phone: phone,
+                pppoe_username: $('#pppoe_username').val().trim(),
+                address: $('#address').val().trim(),
+                package_id: package_id,
+                pppoe_profile: $('#pppoe_profile').val().trim() || 'default',
+                auto_suspension: $('#auto_suspension').val()
+            };
             
             fetch('/admin/billing/customers', {
                 method: 'POST',
-                body: formData
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    showAlert('success', 'Pelanggan berhasil ditambahkan');
-                    $('#addCustomerModal').modal('hide');
-                    setTimeout(() => location.reload(), 1000);
+                    setTimeout(() => {
+                        showToast('success', 'Pelanggan berhasil ditambahkan');
+                        setTimeout(() => location.reload(), 1000);
+                    }, 300);
                 } else {
-                    showAlert('danger', data.message || 'Gagal menambahkan pelanggan');
+                    showToast('error', data.message || 'Gagal menambahkan pelanggan');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                showAlert('danger', 'Terjadi kesalahan');
+                showToast('error', 'Terjadi kesalahan');
+            })
+            .finally(() => {
+                submitBtn.prop('disabled', false).text(originalText);
             });
         });
 
         // Edit Customer
-        function editCustomer(username) {
-            fetch(`/admin/billing/customers/${username}`)
+        function editCustomer(phone) {
+            fetch(`/admin/billing/api/customers/${phone}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
                         const customer = data.customer;
-                        $('#edit_username').val(customer.username);
                         $('#edit_name').val(customer.name);
                         $('#edit_phone').val(customer.phone);
                         $('#edit_pppoe_username').val(customer.pppoe_username || '');
                         $('#edit_address').val(customer.address || '');
                         $('#edit_package_id').val(customer.package_id || '');
+                        $('#edit_pppoe_profile').val(customer.pppoe_profile || '');
+                        $('#edit_auto_suspension').val(customer.auto_suspension !== undefined ? customer.auto_suspension : 1);
                         $('#edit_status').val(customer.status);
                         $('#editCustomerModal').modal('show');
                     } else {
-                        showAlert('danger', data.message || 'Gagal mengambil data pelanggan');
+                        showToast('error', data.message || 'Gagal mengambil data pelanggan');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    showAlert('danger', 'Terjadi kesalahan');
+                    showToast('error', 'Terjadi kesalahan');
                 });
         }
 
         // Update Customer Form
         $('#editCustomerForm').on('submit', function(e) {
             e.preventDefault();
-            const formData = new FormData(this);
-            const username = $('#edit_username').val();
             
-            fetch(`/admin/billing/customers/${username}`, {
+            // Client-side validation
+            const name = $('#edit_name').val().trim();
+            const package_id = $('#edit_package_id').val();
+            
+            if (!name || !package_id) {
+                showToast('error', 'Nama dan paket wajib diisi');
+                return;
+            }
+            
+            // Show loading state
+            const submitBtn = $(this).find('button[type="submit"]');
+            const originalText = submitBtn.text();
+            submitBtn.prop('disabled', true).text('Mengupdate...');
+            
+            const phone = $('#edit_phone').val();
+            const formData = {
+                name: name,
+                pppoe_username: $('#edit_pppoe_username').val().trim(),
+                address: $('#edit_address').val().trim(),
+                package_id: package_id,
+                pppoe_profile: $('#edit_pppoe_profile').val().trim() || 'default',
+                auto_suspension: $('#edit_auto_suspension').val(),
+                status: $('#edit_status').val()
+            };
+            
+            fetch(`/admin/billing/customers/${phone}`, {
                 method: 'PUT',
-                body: formData
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    showAlert('success', 'Pelanggan berhasil diupdate');
-                    $('#editCustomerModal').modal('hide');
-                    setTimeout(() => location.reload(), 1000);
+                    setTimeout(() => {
+                        showToast('success', 'Pelanggan berhasil diupdate');
+                        setTimeout(() => location.reload(), 1000);
+                    }, 300);
                 } else {
-                    showAlert('danger', data.message || 'Gagal mengupdate pelanggan');
+                    showToast('error', data.message || 'Gagal mengupdate pelanggan');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                showAlert('danger', 'Terjadi kesalahan');
+                showToast('error', 'Terjadi kesalahan');
+            })
+            .finally(() => {
+                submitBtn.prop('disabled', false).text(originalText);
             });
         });
 
         // Delete Customer
-        function deleteCustomer(username) {
+        function deleteCustomer(phone) {
             if (confirm('Apakah Anda yakin ingin menghapus pelanggan ini?')) {
-                fetch(`/admin/billing/customers/${username}`, {
+                fetch(`/admin/billing/customers/${phone}`, {
                     method: 'DELETE'
                 })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        showAlert('success', 'Pelanggan berhasil dihapus');
+                        showToast('success', 'Pelanggan berhasil dihapus');
                         setTimeout(() => location.reload(), 1000);
                     } else {
-                        showAlert('danger', data.message || 'Gagal menghapus pelanggan');
+                        showToast('error', data.message || 'Gagal menghapus pelanggan');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    showAlert('danger', 'Terjadi kesalahan');
+                    showToast('error', 'Terjadi kesalahan');
                 });
             }
         }
 
-        function showAlert(type, message) {
-            const alertHtml = `
-                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
-                    ${message}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        // Toast notification function
+        function showToast(type, message) {
+            const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+            
+            const toastHtml = `
+                <div class="toast align-items-center text-white bg-${type === 'success' ? 'success' : type === 'error' ? 'danger' : 'info'} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            ${message}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
                 </div>
             `;
-            document.querySelector('.main-content').insertAdjacentHTML('afterbegin', alertHtml);
+            
+            toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+            const toastElement = toastContainer.lastElementChild;
+            const toast = new bootstrap.Toast(toastElement);
+            toast.show();
+            
+            // Remove toast element after it's hidden
+            toastElement.addEventListener('hidden.bs.toast', () => {
+                toastElement.remove();
+            });
+        }
+
+        function createToastContainer() {
+            const container = document.createElement('div');
+            container.id = 'toastContainer';
+            container.className = 'toast-container position-fixed top-0 end-0 p-3';
+            container.style.zIndex = '9999';
+            document.body.appendChild(container);
+            return container;
         }
     </script>
 </body>

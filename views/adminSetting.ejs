@@ -724,35 +724,90 @@ $(function() {
     // Submit form settings
     $('#settingsForm').on('submit', function(e) {
         e.preventDefault();
+        
+        // Disable submit button untuk mencegah multiple submission
+        const submitBtn = $(this).find('button[type="submit"]');
+        const originalText = submitBtn.html();
+        submitBtn.prop('disabled', true).html('<i class="bi bi-hourglass-split"></i> Menyimpan...');
+        
         var formData = {};
+        var hasChanges = false;
+        
         // Handle semua input text dan checkbox
         $('#settingsForm').find('input[type=text],input[type=checkbox],input[type=number],input[type=password]').each(function() {
             var name = $(this).attr('name');
             if (!name) return;
+            
+            let value;
             if ($(this).attr('type') === 'checkbox') {
-                formData[name] = $(this).is(':checked');
+                value = $(this).is(':checked');
             } else {
-                formData[name] = $(this).val();
+                value = $(this).val();
             }
+            
+            formData[name] = value;
+            hasChanges = true;
         });
+        
         // Handle radio button (hanya yang checked)
         $('#settingsForm').find('input[type=radio]:checked').each(function() {
             var name = $(this).attr('name');
             if (!name) return;
             formData[name] = $(this).val();
+            hasChanges = true;
         });
+        
+        // Validasi apakah ada perubahan
+        if (!hasChanges || Object.keys(formData).length === 0) {
+            $('#settingsSuccess').removeClass('d-none').addClass('alert-warning').text('Tidak ada perubahan untuk disimpan.');
+            setTimeout(function() {
+                $('#settingsSuccess').addClass('d-none').removeClass('alert-warning');
+            }, 3000);
+            submitBtn.prop('disabled', false).html(originalText);
+            return;
+        }
+        
         $.ajax({
             url: '/admin/setting/save',
             method: 'POST',
             data: formData,
+            timeout: 10000, // 10 detik timeout
             success: function(res) {
-                $('#settingsSuccess').removeClass('d-none').text('Pengaturan berhasil disimpan!');
-                setTimeout(function() {
-                    $('#settingsSuccess').addClass('d-none');
-                }, 3000);
+                if (res.success) {
+                    $('#settingsSuccess').removeClass('d-none').text(res.message || 'Pengaturan berhasil disimpan!');
+                    setTimeout(function() {
+                        $('#settingsSuccess').addClass('d-none');
+                    }, 3000);
+                } else {
+                    $('#settingsSuccess').removeClass('d-none').addClass('alert-danger').text(res.error || 'Gagal menyimpan pengaturan!');
+                    setTimeout(function() {
+                        $('#settingsSuccess').addClass('d-none').removeClass('alert-danger');
+                    }, 5000);
+                }
             },
-            error: function() {
-                alert('Gagal menyimpan pengaturan!');
+            error: function(xhr, status, error) {
+                let errorMsg = 'Gagal menyimpan pengaturan!';
+                
+                if (status === 'timeout') {
+                    errorMsg = 'Request timeout. Silakan coba lagi.';
+                } else if (xhr.responseJSON && xhr.responseJSON.error) {
+                    errorMsg = xhr.responseJSON.error;
+                } else if (xhr.status === 500) {
+                    errorMsg = 'Terjadi kesalahan server. Silakan coba lagi.';
+                } else if (xhr.status === 400) {
+                    errorMsg = 'Data tidak valid. Silakan periksa input Anda.';
+                } else if (xhr.status === 0) {
+                    errorMsg = 'Tidak dapat terhubung ke server. Periksa koneksi Anda.';
+                }
+                
+                $('#settingsSuccess').removeClass('d-none').addClass('alert-danger').text(errorMsg);
+                setTimeout(function() {
+                    $('#settingsSuccess').addClass('d-none').removeClass('alert-danger');
+                }, 5000);
+            },
+            complete: function() {
+                // Re-enable submit button
+                submitBtn.prop('disabled', false).html(originalText);
             }
         });
     });

@@ -8,6 +8,15 @@
     <link href="https://cdn.jsdelivr.net/npm/boxicons@2.0.7/css/boxicons.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <style>
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            min-width: 300px;
+        }
+    </style>
 </head>
 <body>
     <div class="container-fluid">
@@ -43,6 +52,7 @@
                                         <th>Nama Paket</th>
                                         <th>Kecepatan</th>
                                         <th>Harga</th>
+                                        <th>PPPoE Profile</th>
                                         <th>Deskripsi</th>
                                         <th>Status</th>
                                         <th>Aksi</th>
@@ -57,6 +67,7 @@
                                                 </td>
                                                 <td><%= package.speed %></td>
                                                 <td>Rp <%= parseFloat(package.price).toLocaleString('id-ID') %></td>
+                                                <td><span class="badge bg-info"><%= package.pppoe_profile || 'default' %></span></td>
                                                 <td><%= package.description || '-' %></td>
                                                 <td>
                                                     <span class="badge bg-success">Aktif</span>
@@ -112,6 +123,11 @@
                             <label for="description" class="form-label">Deskripsi</label>
                             <textarea class="form-control" id="description" name="description" rows="3"></textarea>
                         </div>
+                        <div class="mb-3">
+                            <label for="pppoe_profile" class="form-label">PPPoE Profile</label>
+                            <input type="text" class="form-control" id="pppoe_profile" name="pppoe_profile" placeholder="Contoh: default, 10mbps, 20mbps" value="default">
+                            <small class="form-text text-muted">Profile PPPoE yang akan digunakan untuk paket ini di Mikrotik</small>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
@@ -148,6 +164,11 @@
                         <div class="mb-3">
                             <label for="edit_description" class="form-label">Deskripsi</label>
                             <textarea class="form-control" id="edit_description" name="description" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_pppoe_profile" class="form-label">PPPoE Profile</label>
+                            <input type="text" class="form-control" id="edit_pppoe_profile" name="pppoe_profile" placeholder="Contoh: default, 10mbps, 20mbps">
+                            <small class="form-text text-muted">Profile PPPoE yang akan digunakan untuk paket ini di Mikrotik</small>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -195,31 +216,60 @@
         // Add Package Form
         $('#addPackageForm').on('submit', function(e) {
             e.preventDefault();
-            const formData = new FormData(this);
+            
+            // Get form data
+            const formData = {
+                name: $('#name').val().trim(),
+                speed: $('#speed').val().trim(),
+                price: parseFloat($('#price').val()),
+                description: $('#description').val().trim(),
+                pppoe_profile: $('#pppoe_profile').val().trim() || 'default'
+            };
+            
+            // Validate required fields
+            if (!formData.name || !formData.speed || !formData.price || formData.price <= 0) {
+                showAlert('danger', 'Nama, kecepatan, dan harga harus diisi dengan benar');
+                return;
+            }
+            
+            // Show loading state
+            const submitBtn = $(this).find('button[type="submit"]');
+            const originalText = submitBtn.text();
+            submitBtn.prop('disabled', true).text('Memproses...');
             
             fetch('/admin/billing/packages', {
                 method: 'POST',
-                body: formData
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
                     showAlert('success', 'Paket berhasil ditambahkan');
-                    $('#addPackageModal').modal('hide');
-                    setTimeout(() => location.reload(), 1000);
+                    // Close modal with a small delay to ensure toast is shown
+                    setTimeout(() => {
+                        $('#addPackageModal').modal('hide');
+                        setTimeout(() => location.reload(), 500);
+                    }, 100);
                 } else {
                     showAlert('danger', data.message || 'Gagal menambahkan paket');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                showAlert('danger', 'Terjadi kesalahan');
+                showAlert('danger', 'Terjadi kesalahan saat menambahkan paket');
+            })
+            .finally(() => {
+                // Restore button state
+                submitBtn.prop('disabled', false).text(originalText);
             });
         });
 
         // Edit Package
         function editPackage(packageId) {
-            fetch(`/admin/billing/packages/${packageId}`)
+            fetch(`/admin/billing/api/packages/${packageId}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
@@ -229,6 +279,7 @@
                         $('#edit_speed').val(package.speed);
                         $('#edit_price').val(package.price);
                         $('#edit_description').val(package.description || '');
+                        $('#edit_pppoe_profile').val(package.pppoe_profile || 'default');
                         $('#editPackageModal').modal('show');
                     } else {
                         showAlert('danger', data.message || 'Gagal mengambil data paket');
@@ -243,32 +294,61 @@
         // Update Package Form
         $('#editPackageForm').on('submit', function(e) {
             e.preventDefault();
-            const formData = new FormData(this);
+            
+            // Get form data
             const packageId = $('#edit_package_id').val();
+            const formData = {
+                name: $('#edit_name').val().trim(),
+                speed: $('#edit_speed').val().trim(),
+                price: parseFloat($('#edit_price').val()),
+                description: $('#edit_description').val().trim(),
+                pppoe_profile: $('#edit_pppoe_profile').val().trim() || 'default'
+            };
+            
+            // Validate required fields
+            if (!formData.name || !formData.speed || !formData.price || formData.price <= 0) {
+                showAlert('danger', 'Nama, kecepatan, dan harga harus diisi dengan benar');
+                return;
+            }
+            
+            // Show loading state
+            const submitBtn = $(this).find('button[type="submit"]');
+            const originalText = submitBtn.text();
+            submitBtn.prop('disabled', true).text('Memproses...');
             
             fetch(`/admin/billing/packages/${packageId}`, {
                 method: 'PUT',
-                body: formData
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
                     showAlert('success', 'Paket berhasil diupdate');
-                    $('#editPackageModal').modal('hide');
-                    setTimeout(() => location.reload(), 1000);
+                    // Close modal with a small delay to ensure toast is shown
+                    setTimeout(() => {
+                        $('#editPackageModal').modal('hide');
+                        setTimeout(() => location.reload(), 500);
+                    }, 100);
                 } else {
                     showAlert('danger', data.message || 'Gagal mengupdate paket');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                showAlert('danger', 'Terjadi kesalahan');
+                showAlert('danger', 'Terjadi kesalahan saat mengupdate paket');
+            })
+            .finally(() => {
+                // Restore button state
+                submitBtn.prop('disabled', false).text(originalText);
             });
         });
 
         // View Package
         function viewPackage(packageId) {
-            fetch(`/admin/billing/packages/${packageId}`)
+            fetch(`/admin/billing/api/packages/${packageId}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
@@ -279,6 +359,7 @@
                                     <p><strong>Nama Paket:</strong> ${package.name}</p>
                                     <p><strong>Kecepatan:</strong> ${package.speed}</p>
                                     <p><strong>Harga:</strong> Rp ${parseFloat(package.price).toLocaleString('id-ID')}</p>
+                                    <p><strong>PPPoE Profile:</strong> ${package.pppoe_profile || 'default'}</p>
                                 </div>
                                 <div class="col-md-6">
                                     <p><strong>Deskripsi:</strong></p>
@@ -321,14 +402,42 @@
             }
         }
 
-        function showAlert(type, message) {
-            const alertHtml = `
-                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
-                    ${message}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        function showToast(type, title, message) {
+            const toastHtml = `
+                <div class="toast align-items-center text-white bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            <strong>${title}</strong><br>
+                            ${message}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
                 </div>
             `;
-            document.querySelector('.main-content').insertAdjacentHTML('afterbegin', alertHtml);
+            
+            // Remove existing toasts
+            document.querySelectorAll('.toast').forEach(toast => toast.remove());
+            
+            // Add new toast
+            document.body.insertAdjacentHTML('beforeend', toastHtml);
+            
+            // Show toast
+            const toastElement = document.querySelector('.toast');
+            const toast = new bootstrap.Toast(toastElement);
+            toast.show();
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (toastElement && toastElement.parentNode) {
+                    toastElement.remove();
+                }
+            }, 5000);
+        }
+
+        function showAlert(type, message) {
+            showToast(type === 'success' ? 'success' : type === 'danger' ? 'danger' : 'info', 
+                     type === 'success' ? 'Berhasil' : type === 'danger' ? 'Error' : 'Info', 
+                     message);
         }
     </script>
 </body>
