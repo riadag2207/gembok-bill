@@ -53,7 +53,7 @@
   "payment_gateway": {
     "active": "midtrans",
     "midtrans": {
-      "enabled": true,
+      "enabled": false,
       "production": false,
       "server_key": "SB-Mid-server-XXXXXXXXXXXXXXXXXXXXXXXX",
       "client_key": "SB-Mid-client-XXXXXXXXXXXXXXXXXXXXXXXX",
