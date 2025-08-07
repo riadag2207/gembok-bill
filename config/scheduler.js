@@ -39,6 +39,38 @@ class InvoiceScheduler {
         });
         
         logger.info('Due date reminder scheduler initialized - will run daily at 09:00');
+
+        // Schedule daily service suspension check at 10:00
+        cron.schedule('0 10 * * *', async () => {
+            try {
+                logger.info('Starting daily service suspension check...');
+                const serviceSuspension = require('./serviceSuspension');
+                await serviceSuspension.checkAndSuspendOverdueCustomers();
+                logger.info('Daily service suspension check completed');
+            } catch (error) {
+                logger.error('Error in daily service suspension check:', error);
+            }
+        }, {
+            scheduled: true,
+            timezone: "Asia/Jakarta"
+        });
+
+        // Schedule daily service restoration check at 11:00
+        cron.schedule('0 11 * * *', async () => {
+            try {
+                logger.info('Starting daily service restoration check...');
+                const serviceSuspension = require('./serviceSuspension');
+                await serviceSuspension.checkAndRestorePaidCustomers();
+                logger.info('Daily service restoration check completed');
+            } catch (error) {
+                logger.error('Error in daily service restoration check:', error);
+            }
+        }, {
+            scheduled: true,
+            timezone: "Asia/Jakarta"
+        });
+
+        logger.info('Service suspension/restoration scheduler initialized - will run daily at 10:00 and 11:00');
     }
 
     async sendDueDateReminders() {

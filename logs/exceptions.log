@@ -302,3 +302,57 @@ RosException
     at emitErrorNT (node:internal/streams/destroy:170:8)
     at emitErrorCloseNT (node:internal/streams/destroy:129:3)
     at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+2025-08-07 07:45:00 error: uncaughtException: Timed out after 10 seconds
+RosException: Timed out after 10 seconds
+    at Connector.onTimeout (E:\gembok-bill\node_modules\node-routeros\dist\connector\Connector.js:188:30)
+    at Object.onceWrapper (node:events:638:28)
+    at Socket.emit (node:events:524:28)
+    at Socket._onTimeout (node:net:609:8)
+    at listOnTimeout (node:internal/timers:594:17)
+    at process.processTimers (node:internal/timers:529:7)
+2025-08-07 07:45:01 error: uncaughtException: (no error message)
+RosException
+    at Connector.onError (E:\gembok-bill\node_modules\node-routeros\dist\connector\Connector.js:176:15)
+    at Socket.emit (node:events:524:28)
+    at emitErrorNT (node:internal/streams/destroy:170:8)
+    at emitErrorCloseNT (node:internal/streams/destroy:129:3)
+    at processTicksAndRejections (node:internal/process/task_queues:90:21)
+    at runNextTicks (node:internal/process/task_queues:69:3)
+    at listOnTimeout (node:internal/timers:555:9)
+    at process.processTimers (node:internal/timers:529:7)
+2025-08-07 08:54:50 error: uncaughtException: username is not defined
+ReferenceError: username is not defined
+    at Statement.<anonymous> (E:\gembok-bill\config\billing.js:458:110)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-08-07 08:55:59 error: uncaughtException: username is not defined
+ReferenceError: username is not defined
+    at Statement.<anonymous> (E:\gembok-bill\config\billing.js:458:110)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-08-07 08:56:44 error: uncaughtException: username is not defined
+ReferenceError: username is not defined
+    at Statement.<anonymous> (E:\gembok-bill\config\billing.js:458:110)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-08-07 10:39:10 error: uncaughtException: logger is not defined
+ReferenceError: logger is not defined
+    at E:\gembok-bill\routes\adminSetting.js:391:9
+    at Layer.handle [as handle_request] (E:\gembok-bill\node_modules\express\lib\router\layer.js:95:5)
+    at next (E:\gembok-bill\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (E:\gembok-bill\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (E:\gembok-bill\node_modules\express\lib\router\layer.js:95:5)
+    at E:\gembok-bill\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (E:\gembok-bill\node_modules\express\lib\router\index.js:346:12)
+    at next (E:\gembok-bill\node_modules\express\lib\router\index.js:280:10)
+    at Layer.handle [as handle_request] (E:\gembok-bill\node_modules\express\lib\router\layer.js:91:12)
+    at trim_prefix (E:\gembok-bill\node_modules\express\lib\router\index.js:328:13)
+2025-08-07 10:48:34 error: uncaughtException: logger is not defined
+ReferenceError: logger is not defined
+    at E:\gembok-bill\routes\adminSetting.js:459:9
+    at Layer.handle [as handle_request] (E:\gembok-bill\node_modules\express\lib\router\layer.js:95:5)
+    at next (E:\gembok-bill\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (E:\gembok-bill\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (E:\gembok-bill\node_modules\express\lib\router\layer.js:95:5)
+    at E:\gembok-bill\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (E:\gembok-bill\node_modules\express\lib\router\index.js:346:12)
+    at next (E:\gembok-bill\node_modules\express\lib\router\index.js:280:10)
+    at Layer.handle [as handle_request] (E:\gembok-bill\node_modules\express\lib\router\layer.js:91:12)
+    at trim_prefix (E:\gembok-bill\node_modules\express\lib\router\index.js:328:13)

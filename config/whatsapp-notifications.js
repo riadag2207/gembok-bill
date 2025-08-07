@@ -83,6 +83,45 @@ Halo Pelanggan Setia,
 {announcement_content}
 
 Terima kasih atas perhatian Anda.`
+            },
+
+            service_suspension: {
+                title: 'Service Suspension',
+                template: `⚠️ *LAYANAN INTERNET DINONAKTIFKAN*
+
+Halo {customer_name},
+
+Layanan internet Anda telah dinonaktifkan karena:
+📋 *Alasan:* {reason}
+
+💡 *Cara Mengaktifkan Kembali:*
+1. Lakukan pembayaran tagihan yang tertunggak
+2. Layanan akan aktif otomatis setelah pembayaran dikonfirmasi
+
+📞 *Butuh Bantuan?*
+Hubungi kami di: 081947215703
+
+*ALIJAYA DIGITAL NETWORK*
+Terima kasih atas perhatian Anda.`
+            },
+
+            service_restoration: {
+                title: 'Service Restoration',
+                template: `✅ *LAYANAN INTERNET DIAKTIFKAN*
+
+Halo {customer_name},
+
+Selamat! Layanan internet Anda telah diaktifkan kembali.
+
+📋 *Informasi:*
+• Status: AKTIF ✅
+• Paket: {package_name}
+• Kecepatan: {package_speed}
+
+Terima kasih telah melakukan pembayaran tepat waktu.
+
+*ALIJAYA DIGITAL NETWORK*
+Info: 081947215703`
             }
         };
     }
@@ -370,6 +409,67 @@ Terima kasih atas perhatian Anda.`
             return await this.sendNotification(phoneNumber, message);
         } catch (error) {
             logger.error('Error sending test notification:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    // Send service suspension notification
+    async sendServiceSuspensionNotification(customer, reason) {
+        try {
+            if (!customer.phone) {
+                logger.warn(`Customer ${customer.username} has no phone number for suspension notification`);
+                return { success: false, error: 'No phone number' };
+            }
+
+            const message = this.replaceTemplateVariables(
+                this.templates.service_suspension.template,
+                {
+                    customer_name: customer.name,
+                    reason: reason
+                }
+            );
+
+            const result = await this.sendNotification(customer.phone, message);
+            if (result.success) {
+                logger.info(`Service suspension notification sent to ${customer.name} (${customer.phone})`);
+            } else {
+                logger.error(`Failed to send service suspension notification to ${customer.name}:`, result.error);
+            }
+            
+            return result;
+        } catch (error) {
+            logger.error(`Error sending service suspension notification to ${customer.name}:`, error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    // Send service restoration notification
+    async sendServiceRestorationNotification(customer) {
+        try {
+            if (!customer.phone) {
+                logger.warn(`Customer ${customer.username} has no phone number for restoration notification`);
+                return { success: false, error: 'No phone number' };
+            }
+
+            const message = this.replaceTemplateVariables(
+                this.templates.service_restoration.template,
+                {
+                    customer_name: customer.name,
+                    package_name: customer.package_name || 'N/A',
+                    package_speed: customer.package_speed || 'N/A'
+                }
+            );
+
+            const result = await this.sendNotification(customer.phone, message);
+            if (result.success) {
+                logger.info(`Service restoration notification sent to ${customer.name} (${customer.phone})`);
+            } else {
+                logger.error(`Failed to send service restoration notification to ${customer.name}:`, result.error);
+            }
+            
+            return result;
+        } catch (error) {
+            logger.error(`Error sending service restoration notification to ${customer.name}:`, error);
             return { success: false, error: error.message };
         }
     }

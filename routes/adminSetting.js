@@ -4,6 +4,7 @@ const path = require('path');
 const router = express.Router();
 const multer = require('multer');
 const { getSettingsWithCache } = require('../config/settingsManager');
+const { logger } = require('../config/logger');
 
 // Konfigurasi penyimpanan file
 const storage = multer.diskStorage({
@@ -54,29 +55,97 @@ router.get('/data', (req, res) => {
 
 // POST: Simpan perubahan setting
 router.post('/save', (req, res) => {
-    const newSettings = req.body;
-    // Baca settings lama
-    let oldSettings = {};
     try {
-        oldSettings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
-    } catch (e) {}
-    // Merge: field baru overwrite field lama, field lama yang tidak ada di form tetap dipertahankan
-    const mergedSettings = { ...oldSettings, ...newSettings };
-    // Pastikan user_auth_mode selalu ada
-    if (!('user_auth_mode' in mergedSettings)) {
-        mergedSettings.user_auth_mode = 'mikrotik';
-    }
-    fs.writeFile(settingsPath, JSON.stringify(mergedSettings, null, 2), 'utf8', err => {
-        if (err) return res.status(500).json({ error: 'Gagal menyimpan settings.json' });
-        // Cek field yang hilang (ada di oldSettings tapi tidak di mergedSettings)
-        const oldKeys = Object.keys(oldSettings);
-        const newKeys = Object.keys(mergedSettings);
-        const missing = oldKeys.filter(k => !newKeys.includes(k));
-        if (missing.length > 0) {
-            console.warn('Field yang hilang dari settings.json setelah simpan:', missing);
+        const newSettings = req.body;
+        
+        // Validasi input
+        if (!newSettings || typeof newSettings !== 'object') {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Data pengaturan tidak valid' 
+            });
         }
-        res.json({ success: true, missingFields: missing });
-    });
+
+        // Baca settings lama
+        let oldSettings = {};
+        try {
+            const settingsData = fs.readFileSync(settingsPath, 'utf8');
+            oldSettings = JSON.parse(settingsData);
+        } catch (e) {
+            console.warn('Gagal membaca settings.json lama, menggunakan default:', e.message);
+            // Jika file tidak ada atau corrupt, gunakan default
+            oldSettings = {
+                user_auth_mode: 'mikrotik',
+                logo_filename: 'logo.png'
+            };
+        }
+
+        // Merge: field baru overwrite field lama, field lama yang tidak ada di form tetap dipertahankan
+        const mergedSettings = { ...oldSettings, ...newSettings };
+        
+        // Pastikan user_auth_mode selalu ada
+        if (!('user_auth_mode' in mergedSettings)) {
+            mergedSettings.user_auth_mode = 'mikrotik';
+        }
+
+        // Validasi dan sanitasi data sebelum simpan
+        const sanitizedSettings = {};
+        for (const [key, value] of Object.entries(mergedSettings)) {
+            // Skip field yang tidak valid
+            if (key === null || key === undefined || key === '') {
+                continue;
+            }
+            
+            // Konversi boolean string ke boolean
+            if (typeof value === 'string') {
+                if (value === 'true') {
+                    sanitizedSettings[key] = true;
+                } else if (value === 'false') {
+                    sanitizedSettings[key] = false;
+                } else {
+                    sanitizedSettings[key] = value;
+                }
+            } else {
+                sanitizedSettings[key] = value;
+            }
+        }
+
+        // Tulis ke file dengan error handling yang proper
+        fs.writeFile(settingsPath, JSON.stringify(sanitizedSettings, null, 2), 'utf8', (err) => {
+            if (err) {
+                console.error('Error menyimpan settings.json:', err);
+                return res.status(500).json({ 
+                    success: false,
+                    error: 'Gagal menyimpan pengaturan: ' + err.message 
+                });
+            }
+
+            // Cek field yang hilang (ada di oldSettings tapi tidak di mergedSettings)
+            const oldKeys = Object.keys(oldSettings);
+            const newKeys = Object.keys(sanitizedSettings);
+            const missing = oldKeys.filter(k => !newKeys.includes(k));
+            
+            if (missing.length > 0) {
+                console.warn('Field yang hilang dari settings.json setelah simpan:', missing);
+            }
+
+            // Log aktivitas
+            console.log('Settings berhasil disimpan:', Object.keys(newSettings));
+
+            res.json({ 
+                success: true, 
+                message: 'Pengaturan berhasil disimpan',
+                missingFields: missing 
+            });
+        });
+
+    } catch (error) {
+        console.error('Error dalam route /save:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Terjadi kesalahan saat menyimpan pengaturan: ' + error.message 
+        });
+    }
 });
 
 // POST: Upload Logo
@@ -253,12 +322,8 @@ router.post('/wa-delete', async (req, res) => {
 // Backup database
 router.post('/backup', async (req, res) => {
     try {
-        const fs = require('fs');
-        const path = require('path');
-        const { logger } = require('../../config/logger');
-        
-        const dbPath = path.join(__dirname, '../../data/billing.db');
-        const backupPath = path.join(__dirname, '../../data/backup');
+        const dbPath = path.join(__dirname, '../data/billing.db');
+        const backupPath = path.join(__dirname, '../data/backup');
         
         // Buat direktori backup jika belum ada
         if (!fs.existsSync(backupPath)) {
@@ -291,10 +356,6 @@ router.post('/backup', async (req, res) => {
 // Restore database
 router.post('/restore', upload.single('backup_file'), async (req, res) => {
     try {
-        const fs = require('fs');
-        const path = require('path');
-        const { logger } = require('../../config/logger');
-        
         if (!req.file) {
             return res.status(400).json({
                 success: false,
@@ -302,12 +363,12 @@ router.post('/restore', upload.single('backup_file'), async (req, res) => {
             });
         }
         
-        const dbPath = path.join(__dirname, '../../data/billing.db');
-        const backupPath = path.join(__dirname, '../../data/backup', req.file.filename);
+        const dbPath = path.join(__dirname, '../data/billing.db');
+        const backupPath = path.join(__dirname, '../data/backup', req.file.filename);
         
         // Backup database saat ini sebelum restore
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-        const currentBackup = path.join(__dirname, '../../data/backup', `pre_restore_${timestamp}.db`);
+        const currentBackup = path.join(__dirname, '../data/backup', `pre_restore_${timestamp}.db`);
         fs.copyFileSync(dbPath, currentBackup);
         
         // Restore database
@@ -333,10 +394,7 @@ router.post('/restore', upload.single('backup_file'), async (req, res) => {
 // Get backup files list
 router.get('/backups', async (req, res) => {
     try {
-        const fs = require('fs');
-        const path = require('path');
-        
-        const backupPath = path.join(__dirname, '../../data/backup');
+        const backupPath = path.join(__dirname, '../data/backup');
         
         if (!fs.existsSync(backupPath)) {
             return res.json({
@@ -374,7 +432,7 @@ router.get('/backups', async (req, res) => {
 // Get activity logs
 router.get('/activity-logs', async (req, res) => {
     try {
-        const { activityLogger } = require('../../config/logger');
+        const { activityLogger } = require('../config/logger');
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 50;
         const offset = (page - 1) * limit;
@@ -400,7 +458,7 @@ router.get('/activity-logs', async (req, res) => {
 // Clear old activity logs
 router.post('/clear-logs', async (req, res) => {
     try {
-        const { activityLogger } = require('../../config/logger');
+        const { activityLogger } = require('../config/logger');
         const { days = 30 } = req.body;
         
         await activityLogger.clearOldLogs(days);

@@ -394,12 +394,13 @@ router.get('/packages', getAppSettings, async (req, res) => {
 
 router.post('/packages', async (req, res) => {
     try {
-        const { name, speed, price, description } = req.body;
+        const { name, speed, price, description, pppoe_profile } = req.body;
         const packageData = {
             name: name.trim(),
             speed: speed.trim(),
             price: parseFloat(price),
-            description: description.trim()
+            description: description.trim(),
+            pppoe_profile: pppoe_profile ? pppoe_profile.trim() : 'default'
         };
 
         if (!packageData.name || !packageData.speed || !packageData.price) {
@@ -430,12 +431,13 @@ router.post('/packages', async (req, res) => {
 router.put('/packages/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, speed, price, description } = req.body;
+        const { name, speed, price, description, pppoe_profile } = req.body;
         const packageData = {
             name: name.trim(),
             speed: speed.trim(),
             price: parseFloat(price),
-            description: description.trim()
+            description: description.trim(),
+            pppoe_profile: pppoe_profile ? pppoe_profile.trim() : 'default'
         };
 
         if (!packageData.name || !packageData.speed || !packageData.price) {
@@ -463,7 +465,7 @@ router.put('/packages/:id', async (req, res) => {
     }
 });
 
-// Get package detail
+// Get package detail (HTML view)
 router.get('/packages/:id', getAppSettings, async (req, res) => {
     try {
         const { id } = req.params;
@@ -491,6 +493,33 @@ router.get('/packages/:id', getAppSettings, async (req, res) => {
             message: 'Error loading package detail',
             error: error.message,
             appSettings: req.appSettings
+        });
+    }
+});
+
+// Get package data for editing (JSON API)
+router.get('/api/packages/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const package = await billingManager.getPackageById(parseInt(id));
+        
+        if (!package) {
+            return res.status(404).json({
+                success: false,
+                message: 'Paket tidak ditemukan'
+            });
+        }
+        
+        res.json({
+            success: true,
+            package: package
+        });
+    } catch (error) {
+        logger.error('Error getting package data:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error getting package data',
+            error: error.message
         });
     }
 });
@@ -539,64 +568,85 @@ router.get('/customers', getAppSettings, async (req, res) => {
 
 router.post('/customers', async (req, res) => {
     try {
-        const { username, name, phone, pppoe_username, email, address, package_id, status } = req.body;
-        const customerData = {
-            username: username.trim(),
-            name: name.trim(),
-            phone: phone ? phone.trim() : null,
-            pppoe_username: pppoe_username ? pppoe_username.trim() : null,
-            email: email ? email.trim() : null,
-            address: address ? address.trim() : null,
-            package_id: package_id ? parseInt(package_id) : null,
-            status: status || 'active'
-        };
-
-        if (!customerData.username || !customerData.name) {
+        const { name, phone, pppoe_username, email, address, package_id, pppoe_profile, auto_suspension } = req.body;
+        
+        // Validate required fields
+        if (!name || !phone || !package_id) {
             return res.status(400).json({
                 success: false,
-                message: 'Username dan nama harus diisi'
+                message: 'Nama, telepon, dan paket harus diisi'
             });
         }
 
-        const newCustomer = await billingManager.createCustomer(customerData);
-        logger.info(`Customer created: ${newCustomer.username}`);
+        // Get package to get default profile if not specified
+        let profileToUse = pppoe_profile;
+        if (!profileToUse) {
+            const packageData = await billingManager.getPackageById(package_id);
+            profileToUse = packageData?.pppoe_profile || 'default';
+        }
+
+        const customerData = {
+            name,
+            phone,
+            pppoe_username,
+            email,
+            address,
+            package_id,
+            pppoe_profile: profileToUse,
+            status: 'active',
+            auto_suspension: auto_suspension !== undefined ? parseInt(auto_suspension) : 1
+        };
+
+        const result = await billingManager.createCustomer(customerData);
         
         res.json({
             success: true,
             message: 'Pelanggan berhasil ditambahkan',
-            customer: newCustomer
+            customer: result
         });
     } catch (error) {
         logger.error('Error creating customer:', error);
-        res.status(500).json({
+        
+        // Handle specific error messages
+        let errorMessage = 'Gagal menambahkan pelanggan';
+        let statusCode = 500;
+        
+        if (error.message.includes('UNIQUE constraint failed')) {
+            if (error.message.includes('phone')) {
+                errorMessage = 'Nomor telepon sudah terdaftar. Silakan gunakan nomor telepon yang berbeda.';
+            } else if (error.message.includes('username')) {
+                errorMessage = 'Username sudah digunakan. Silakan coba lagi.';
+            } else {
+                errorMessage = 'Data sudah ada dalam sistem. Silakan cek kembali.';
+            }
+            statusCode = 400;
+        } else if (error.message.includes('FOREIGN KEY constraint failed')) {
+            errorMessage = 'Paket yang dipilih tidak valid. Silakan pilih paket yang tersedia.';
+            statusCode = 400;
+        } else if (error.message.includes('not null constraint')) {
+            errorMessage = 'Data wajib tidak boleh kosong. Silakan lengkapi semua field yang diperlukan.';
+            statusCode = 400;
+        }
+        
+        res.status(statusCode).json({
             success: false,
-            message: 'Error creating customer',
+            message: errorMessage,
             error: error.message
         });
     }
 });
 
 // Get customer detail
-router.get('/customers/:username', getAppSettings, async (req, res) => {
+router.get('/customers/:phone', getAppSettings, async (req, res) => {
     try {
-        const { username } = req.params;
-        logger.info(`Loading customer detail for username: ${username}`);
+        const { phone } = req.params;
+        logger.info(`Loading customer detail for phone: ${phone}`);
         
-        // Test route - return JSON first
-        if (req.query.test === 'true') {
-            const customer = await billingManager.getCustomerByUsername(username);
-            return res.json({
-                success: true,
-                customer: customer,
-                message: 'Test route working'
-            });
-        }
-        
-        const customer = await billingManager.getCustomerByUsername(username);
+        const customer = await billingManager.getCustomerByPhone(phone);
         logger.info(`Customer found:`, customer);
         
         if (!customer) {
-            logger.warn(`Customer not found for username: ${username}`);
+            logger.warn(`Customer not found for phone: ${phone}`);
             return res.status(404).render('error', {
                 message: 'Pelanggan tidak ditemukan',
                 error: 'Customer not found',
@@ -607,7 +657,7 @@ router.get('/customers/:username', getAppSettings, async (req, res) => {
         const invoices = await billingManager.getInvoicesByCustomer(customer.id);
         const packages = await billingManager.getPackages();
         
-        logger.info(`Rendering customer detail page for: ${username}`);
+        logger.info(`Rendering customer detail page for: ${phone}`);
         
         // Try to render with minimal data first
         try {
@@ -632,6 +682,36 @@ router.get('/customers/:username', getAppSettings, async (req, res) => {
             message: 'Error loading customer detail',
             error: error.message,
             appSettings: req.appSettings
+        });
+    }
+});
+
+// API route for getting customer data (for editing)
+router.get('/api/customers/:phone', async (req, res) => {
+    try {
+        const { phone } = req.params;
+        logger.info(`API: Loading customer data for editing phone: ${phone}`);
+        
+        const customer = await billingManager.getCustomerByPhone(phone);
+        
+        if (!customer) {
+            return res.status(404).json({
+                success: false,
+                message: 'Customer not found'
+            });
+        }
+
+        return res.json({
+            success: true,
+            customer: customer,
+            message: 'Customer data loaded successfully'
+        });
+    } catch (error) {
+        logger.error('API: Error loading customer data:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Error loading customer data',
+            error: error.message
         });
     }
 });
@@ -711,52 +791,98 @@ router.get('/customers/:username/test', async (req, res) => {
     }
 });
 
-router.put('/customers/:username', async (req, res) => {
+router.put('/customers/:phone', async (req, res) => {
     try {
-        const { username } = req.params;
-        const { name, phone, pppoe_username, email, address, package_id, status } = req.body;
-        const customerData = {
-            name: name.trim(),
-            phone: phone ? phone.trim() : null,
-            pppoe_username: pppoe_username ? pppoe_username.trim() : null,
-            email: email ? email.trim() : null,
-            address: address ? address.trim() : null,
-            package_id: package_id ? parseInt(package_id) : null,
-            status: status || 'active'
-        };
-
-        if (!customerData.name) {
+        const { phone } = req.params;
+        const { name, pppoe_username, email, address, package_id, pppoe_profile, status, auto_suspension } = req.body;
+        
+        // Validate required fields
+        if (!name || !package_id) {
             return res.status(400).json({
                 success: false,
-                message: 'Nama harus diisi'
+                message: 'Nama dan paket harus diisi'
+            });
+        }
+        
+        // Get current customer data
+        const currentCustomer = await billingManager.getCustomerByPhone(phone);
+        if (!currentCustomer) {
+            return res.status(404).json({
+                success: false,
+                message: 'Pelanggan tidak ditemukan'
             });
         }
 
-        const updatedCustomer = await billingManager.updateCustomer(username, customerData);
-        logger.info(`Customer updated: ${username}`);
+        // Get package to get default profile if not specified
+        let profileToUse = pppoe_profile;
+        if (!profileToUse && package_id) {
+            const packageData = await billingManager.getPackageById(package_id);
+            profileToUse = packageData?.pppoe_profile || 'default';
+        } else if (!profileToUse) {
+            profileToUse = currentCustomer.pppoe_profile || 'default';
+        }
+
+        const customerData = {
+            name: name,
+            phone: phone,
+            pppoe_username: pppoe_username || currentCustomer.pppoe_username,
+            email: email || currentCustomer.email,
+            address: address || currentCustomer.address,
+            package_id: package_id,
+            pppoe_profile: profileToUse,
+            status: status || currentCustomer.status,
+            auto_suspension: auto_suspension !== undefined ? parseInt(auto_suspension) : currentCustomer.auto_suspension
+        };
+
+        const result = await billingManager.updateCustomer(phone, customerData);
         
         res.json({
             success: true,
             message: 'Pelanggan berhasil diupdate',
-            customer: updatedCustomer
+            customer: result
         });
     } catch (error) {
         logger.error('Error updating customer:', error);
-        res.status(500).json({
+        
+        // Handle specific error messages
+        let errorMessage = 'Gagal mengupdate pelanggan';
+        let statusCode = 500;
+        
+        if (error.message.includes('Pelanggan tidak ditemukan')) {
+            errorMessage = 'Pelanggan tidak ditemukan';
+            statusCode = 404;
+        } else if (error.message.includes('UNIQUE constraint failed')) {
+            if (error.message.includes('phone')) {
+                errorMessage = 'Nomor telepon sudah terdaftar. Silakan gunakan nomor telepon yang berbeda.';
+            } else if (error.message.includes('username')) {
+                errorMessage = 'Username sudah digunakan. Silakan coba lagi.';
+            } else {
+                errorMessage = 'Data sudah ada dalam sistem. Silakan cek kembali.';
+            }
+            statusCode = 400;
+        } else if (error.message.includes('FOREIGN KEY constraint failed')) {
+            errorMessage = 'Paket yang dipilih tidak valid. Silakan pilih paket yang tersedia.';
+            statusCode = 400;
+        } else if (error.message.includes('not null constraint')) {
+            errorMessage = 'Data wajib tidak boleh kosong. Silakan lengkapi semua field yang diperlukan.';
+            statusCode = 400;
+        }
+        
+        res.status(statusCode).json({
             success: false,
-            message: 'Error updating customer',
+            message: errorMessage,
             error: error.message
         });
     }
 });
 
 // Delete customer
-router.delete('/customers/:username', async (req, res) => {
+router.delete('/customers/:phone', async (req, res) => {
     try {
-        const { username } = req.params;
+        const { phone } = req.params;
         
-        const deletedCustomer = await billingManager.deleteCustomer(username);
-        logger.info(`Customer deleted: ${username}`);
+        const deletedCustomer = await billingManager.deleteCustomer(phone);
+        logger.info(`Customer deleted: ${phone}`);
         
         res.json({
             success: true,
@@ -765,9 +891,25 @@ router.delete('/customers/:username', async (req, res) => {
         });
     } catch (error) {
         logger.error('Error deleting customer:', error);
-        res.status(500).json({
+        
+        // Handle specific error messages
+        let errorMessage = 'Gagal menghapus pelanggan';
+        let statusCode = 500;
+        
+        if (error.message.includes('Customer not found')) {
+            errorMessage = 'Pelanggan tidak ditemukan';
+            statusCode = 404;
+        } else if (error.message.includes('invoice(s) still exist')) {
+            errorMessage = 'Tidak dapat menghapus pelanggan karena masih memiliki tagihan. Silakan hapus semua tagihan terlebih dahulu.';
+            statusCode = 400;
+        } else if (error.message.includes('foreign key constraint')) {
+            errorMessage = 'Tidak dapat menghapus pelanggan karena masih memiliki data terkait. Silakan hapus data terkait terlebih dahulu.';
+            statusCode = 400;
+        }
+        
+        res.status(statusCode).json({
             success: false,
-            message: 'Error deleting customer',
+            message: errorMessage,
             error: error.message
         });
     }
@@ -1202,6 +1344,7 @@ router.get('/export/payments', getAppSettings, async (req, res) => {
 });
 
 // API Routes untuk AJAX
+// Get package profiles for customer form
 router.get('/api/packages', async (req, res) => {
     try {
         const packages = await billingManager.getPackages();
@@ -1211,6 +1354,8 @@ router.get('/api/packages', async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
+
+
 
 router.get('/api/customers', async (req, res) => {
     try {
@@ -1275,6 +1420,123 @@ router.get('/api/overdue', async (req, res) => {
     } catch (error) {
         logger.error('Error getting overdue invoices API:', error);
         res.status(500).json({ error: error.message });
+    }
+});
+
+// Service Suspension Management Routes
+router.post('/service-suspension/suspend/:username', async (req, res) => {
+    try {
+        const { username } = req.params;
+        const { reason } = req.body;
+        
+        const customer = await billingManager.getCustomerByUsername(username);
+        if (!customer) {
+            return res.status(404).json({
+                success: false,
+                message: 'Customer not found'
+            });
+        }
+
+        const serviceSuspension = require('../config/serviceSuspension');
+        const result = await serviceSuspension.suspendCustomerService(customer, reason || 'Manual suspension');
+        
+        res.json({
+            success: result.success,
+            message: result.success ? 'Service suspended successfully' : 'Failed to suspend service',
+            results: result.results,
+            customer: result.customer
+        });
+    } catch (error) {
+        logger.error('Error suspending service:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error suspending service: ' + error.message
+        });
+    }
+});
+
+router.post('/service-suspension/restore/:username', async (req, res) => {
+    try {
+        const { username } = req.params;
+        
+        const customer = await billingManager.getCustomerByUsername(username);
+        if (!customer) {
+            return res.status(404).json({
+                success: false,
+                message: 'Customer not found'
+            });
+        }
+
+        const serviceSuspension = require('../config/serviceSuspension');
+        const result = await serviceSuspension.restoreCustomerService(customer);
+        
+        res.json({
+            success: result.success,
+            message: result.success ? 'Service restored successfully' : 'Failed to restore service',
+            results: result.results,
+            customer: result.customer
+        });
+    } catch (error) {
+        logger.error('Error restoring service:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error restoring service: ' + error.message
+        });
+    }
+});
+
+router.post('/service-suspension/check-overdue', async (req, res) => {
+    try {
+        const serviceSuspension = require('../config/serviceSuspension');
+        const result = await serviceSuspension.checkAndSuspendOverdueCustomers();
+        
+        res.json({
+            success: true,
+            message: 'Overdue customers check completed',
+            ...result
+        });
+    } catch (error) {
+        logger.error('Error checking overdue customers:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error checking overdue customers: ' + error.message
+        });
+    }
+});
+
+router.post('/service-suspension/check-paid', async (req, res) => {
+    try {
+        const serviceSuspension = require('../config/serviceSuspension');
+        const result = await serviceSuspension.checkAndRestorePaidCustomers();
+        
+        res.json({
+            success: true,
+            message: 'Paid customers check completed',
+            ...result
+        });
+    } catch (error) {
+        logger.error('Error checking paid customers:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error checking paid customers: ' + error.message
+        });
+    }
+});
+
+// Service Suspension Settings Page
+router.get('/service-suspension', getAppSettings, async (req, res) => {
+    try {
+        res.render('admin/billing/service-suspension', {
+            title: 'Service Suspension',
+            appSettings: req.appSettings
+        });
+    } catch (error) {
+        logger.error('Error loading service suspension page:', error);
+        res.status(500).render('error', { 
+            message: 'Error loading service suspension page',
+            error: error.message,
+            appSettings: req.appSettings
+        });
     }
 });
 
