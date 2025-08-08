@@ -10,11 +10,12 @@ Sistem WhatsApp admin untuk manajemen billing yang terintegrasi dengan sistem bi
 - **Edit Pelanggan**: `editcustomer [phone] [field] [value]`
 - **Hapus Pelanggan**: `delcustomer [phone]`
 - **Daftar Pelanggan**: `listcustomers`
-- **Cari Pelanggan**: `findcustomer [phone/username]`
+- **Cari Pelanggan**: `cari [nomor/nama_pelanggan]`
 
 ### 2. Payment Management
+- **Bayar Tagihan**: `bayar [nomor/nama_pelanggan]`
 - **Bayar Invoice**: `payinvoice [invoice_id] [amount] [method]`
-- **Cek Status Pembayaran**: `tagihan [nomor_pelanggan]`
+- **Cek Status Pembayaran**: `tagihan [nomor/nama_pelanggan]`
 - **Daftar Pelanggan Bayar**: `paidcustomers`
 - **Daftar Pelanggan Terlambat**: `overduecustomers`
 - **Statistik Billing**: `billingstats`
@@ -50,6 +51,22 @@ payinvoice 123 500000 cash
 ### Cek Status Pembayaran
 ```
 tagihan 081234567890
+tagihan Santo
+tagihan "John Doe"
+```
+
+### Bayar Tagihan Pelanggan
+```
+bayar 081234567890
+bayar Santo  
+bayar "John Doe"
+```
+
+### Cari Pelanggan
+```
+cari 081234567890
+cari Santo
+cari "John Doe"
 ```
 
 ### Daftar Pelanggan yang Sudah Bayar
