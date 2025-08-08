@@ -377,6 +377,132 @@ class BillingManager {
         });
     }
 
+    async getCustomerByNameOrPhone(searchTerm) {
+        return new Promise((resolve, reject) => {
+            // Bersihkan nomor telefon (hapus karakter non-digit)
+            const cleanPhone = searchTerm.replace(/\D/g, '');
+            
+            const sql = `
+                SELECT c.*, p.name as package_name, p.price as package_price, p.speed as package_speed,
+                       CASE 
+                           WHEN EXISTS (
+                               SELECT 1 FROM invoices i 
+                               WHERE i.customer_id = c.id 
+                               AND i.status = 'unpaid' 
+                               AND i.due_date < date('now')
+                           ) THEN 'overdue'
+                           WHEN EXISTS (
+                               SELECT 1 FROM invoices i 
+                               WHERE i.customer_id = c.id 
+                               AND i.status = 'unpaid'
+                           ) THEN 'unpaid'
+                           WHEN EXISTS (
+                               SELECT 1 FROM invoices i 
+                               WHERE i.customer_id = c.id 
+                               AND i.status = 'paid'
+                           ) THEN 'paid'
+                           ELSE 'no_invoice'
+                       END as payment_status
+                FROM customers c 
+                LEFT JOIN packages p ON c.package_id = p.id 
+                WHERE c.phone = ? 
+                   OR c.name LIKE ? 
+                   OR c.username LIKE ?
+                ORDER BY 
+                    CASE 
+                        WHEN c.phone = ? THEN 1
+                        WHEN c.name = ? THEN 2
+                        WHEN c.name LIKE ? THEN 3
+                        WHEN c.username LIKE ? THEN 4
+                        ELSE 5
+                    END
+                LIMIT 1
+            `;
+            
+            const likeTerm = `%${searchTerm}%`;
+            const params = [
+                cleanPhone,           // Exact phone match
+                likeTerm,            // Name LIKE
+                likeTerm,            // Username LIKE
+                cleanPhone,          // ORDER BY phone exact
+                searchTerm,          // ORDER BY name exact
+                `${searchTerm}%`,    // ORDER BY name starts with
+                likeTerm             // ORDER BY username LIKE
+            ];
+            
+            this.db.get(sql, params, (err, row) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(row);
+                }
+            });
+        });
+    }
+
+    async findCustomersByNameOrPhone(searchTerm) {
+        return new Promise((resolve, reject) => {
+            // Bersihkan nomor telefon (hapus karakter non-digit) 
+            const cleanPhone = searchTerm.replace(/\D/g, '');
+            
+            const sql = `
+                SELECT c.*, p.name as package_name, p.price as package_price, p.speed as package_speed,
+                       CASE 
+                           WHEN EXISTS (
+                               SELECT 1 FROM invoices i 
+                               WHERE i.customer_id = c.id 
+                               AND i.status = 'unpaid' 
+                               AND i.due_date < date('now')
+                           ) THEN 'overdue'
+                           WHEN EXISTS (
+                               SELECT 1 FROM invoices i 
+                               WHERE i.customer_id = c.id 
+                               AND i.status = 'unpaid'
+                           ) THEN 'unpaid'
+                           WHEN EXISTS (
+                               SELECT 1 FROM invoices i 
+                               WHERE i.customer_id = c.id 
+                               AND i.status = 'paid'
+                           ) THEN 'paid'
+                           ELSE 'no_invoice'
+                       END as payment_status
+                FROM customers c 
+                LEFT JOIN packages p ON c.package_id = p.id 
+                WHERE c.phone = ? 
+                   OR c.name LIKE ? 
+                   OR c.username LIKE ?
+                ORDER BY 
+                    CASE 
+                        WHEN c.phone = ? THEN 1
+                        WHEN c.name = ? THEN 2
+                        WHEN c.name LIKE ? THEN 3
+                        WHEN c.username LIKE ? THEN 4
+                        ELSE 5
+                    END
+                LIMIT 5
+            `;
+            
+            const likeTerm = `%${searchTerm}%`;
+            const params = [
+                cleanPhone,           // Exact phone match
+                likeTerm,            // Name LIKE
+                likeTerm,            // Username LIKE
+                cleanPhone,          // ORDER BY phone exact
+                searchTerm,          // ORDER BY name exact
+                `${searchTerm}%`,    // ORDER BY name starts with
+                likeTerm             // ORDER BY username LIKE
+            ];
+            
+            this.db.all(sql, params, (err, rows) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(rows || []);
+                }
+            });
+        });
+    }
+
     async updateCustomer(phone, customerData) {
         return new Promise(async (resolve, reject) => {
             const { name, pppoe_username, email, address, package_id, pppoe_profile, status, auto_suspension } = customerData;
@@ -683,7 +809,11 @@ class BillingManager {
                 if (err) {
                     reject(err);
                 } else {
-                    resolve({ id: this.lastID, ...paymentData });
+                    resolve({ 
+                        success: true, 
+                        id: this.lastID, 
+                        ...paymentData 
+                    });
                 }
             });
         });

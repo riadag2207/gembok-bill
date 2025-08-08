@@ -45,8 +45,8 @@ class BillingCommands {
             `• 🔍 *cari [nomor/nama]* - Cari pelanggan\n\n` +
             
             `*Perintah Pembayaran:*\n` +
-            `• 💰 *bayar [nomor]* - Bayar tagihan pelanggan\n` +
-            `• 📊 *tagihan [nomor]* - Cek status pembayaran\n` +
+            `• 💰 *bayar [nomor/nama]* - Bayar tagihan pelanggan\n` +
+            `• 📊 *tagihan [nomor/nama]* - Cek status pembayaran\n` +
             `• ✅ *sudahbayar* - Daftar pelanggan yang sudah bayar\n` +
             `• ⏰ *terlambat* - Daftar pelanggan terlambat\n` +
             `• 📈 *statistik* - Statistik billing\n\n` +
@@ -61,8 +61,10 @@ class BillingCommands {
             
             `*Contoh Penggunaan:*\n` +
             `tambah "John Doe" 081234567890 "Paket Premium"\n` +
-            `bayar 081234567890\n` +
-            `tagihan 081234567890\n` +
+            `bayar 081321960111  ← menggunakan nomor\n` +
+            `bayar Santo  ← menggunakan nama\n` +
+            `tagihan "John Doe"  ← nama dengan spasi\n` +
+            `cari John  ← pencarian nama\n` +
             `sudahbayar`;
 
         await this.sendFormattedMessage(remoteJid, menuMessage);
@@ -436,28 +438,52 @@ class BillingCommands {
             if (params.length < 1) {
                 await this.sendFormattedMessage(remoteJid, 
                     '❌ *FORMAT SALAH!*\n\n' +
-                    'Format: cari [nomor/nama]\n' +
-                    'Contoh: cari 081234567890'
+                    'Format: cari [nomor/nama_pelanggan]\n' +
+                    'Contoh: \n' +
+                    '• cari 081234567890\n' +
+                    '• cari "Santo"\n' +
+                    '• cari John'
                 );
                 return;
             }
 
-            const searchTerm = params[0];
-            const customers = await billingManager.getCustomers();
+            const searchTerm = params.join(' '); // Gabungkan semua params untuk nama yang mengandung spasi
             
-            // Cari berdasarkan phone atau username
-            const customer = customers.find(c => 
-                c.phone.includes(searchTerm) || 
-                c.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                c.name.toLowerCase().includes(searchTerm.toLowerCase())
-            );
-
+            // Coba cari berdasarkan nomor atau nama
+            let customer = await billingManager.getCustomerByNameOrPhone(searchTerm);
+            
+            // Jika tidak ditemukan dengan pencarian tunggal, coba cari multiple
             if (!customer) {
-                await this.sendFormattedMessage(remoteJid, 
-                    '❌ *PELANGGAN TIDAK DITEMUKAN!*\n\n' +
-                    `Pencarian: ${searchTerm}`
-                );
-                return;
+                const customers = await billingManager.findCustomersByNameOrPhone(searchTerm);
+                
+                if (customers.length === 0) {
+                    await this.sendFormattedMessage(remoteJid, 
+                        '❌ *PELANGGAN TIDAK DITEMUKAN!*\n\n' +
+                        `Pencarian: "${searchTerm}"\n` +
+                        `Pastikan nomor telepon atau nama pelanggan benar.`
+                    );
+                    return;
+                } else if (customers.length === 1) {
+                    customer = customers[0];
+                } else {
+                    // Multiple customers found, show all
+                    let message = `🔍 *DITEMUKAN ${customers.length} PELANGGAN*\n\n`;
+                    message += `Pencarian: "${searchTerm}"\n\n`;
+                    
+                    customers.forEach((cust, index) => {
+                        message += `${index + 1}. *${cust.name}*\n`;
+                        message += `   📱 ${cust.phone}\n`;
+                        message += `   👤 ${cust.username}\n`;
+                        message += `   📦 ${cust.package_name || 'N/A'}\n`;
+                        message += `   📊 Status: ${cust.status}\n\n`;
+                    });
+                    
+                    message += `Gunakan nomor telepon untuk detail lebih lanjut:\n`;
+                    message += `Contoh: \`cari ${customers[0].phone}\``;
+                    
+                    await this.sendFormattedMessage(remoteJid, message);
+                    return;
+                }
             }
 
             const packages = await billingManager.getPackages();
@@ -470,7 +496,7 @@ class BillingCommands {
             message += `*PPPoE Username:* ${customer.pppoe_username || 'N/A'}\n`;
             message += `*Paket:* ${selectedPackage ? selectedPackage.name : 'N/A'}\n`;
             message += `*Speed:* ${selectedPackage ? selectedPackage.speed : 'N/A'}\n`;
-            message += `*Harga:* ${selectedPackage ? `Rp${selectedPackage.price}` : 'N/A'}\n`;
+            message += `*Harga:* ${selectedPackage ? `Rp${selectedPackage.price.toLocaleString()}` : 'N/A'}\n`;
             message += `*Status:* ${customer.status}\n`;
             message += `*Tanggal Bergabung:* ${customer.join_date}`;
 
@@ -550,32 +576,79 @@ class BillingCommands {
         }
     }
 
-    // Pembayaran sederhana dengan nomor pelanggan
+    // Pembayaran sederhana dengan nomor pelanggan atau nama
     async handleBayar(remoteJid, params) {
         try {
+            logger.info(`[BILLING] handleBayar dipanggil dengan params:`, params);
+            
             if (params.length < 1) {
                 await this.sendFormattedMessage(remoteJid, 
                     '❌ *FORMAT SALAH!*\n\n' +
-                    'Format: bayar [nomor_pelanggan]\n' +
-                    'Contoh: bayar 081234567890'
+                    'Format: bayar [nomor/nama_pelanggan]\n' +
+                    'Contoh: \n' +
+                    '• bayar 081234567890\n' +
+                    '• bayar "Santo"\n' +
+                    '• bayar John'
                 );
                 return;
             }
 
-            const phone = params[0].replace(/\D/g, '');
-            const customer = await billingManager.getCustomerByPhone(phone);
+            const searchTerm = params.join(' '); // Gabungkan semua params untuk nama yang mengandung spasi
+            logger.info(`[BILLING] Mencari pelanggan dengan: ${searchTerm}`);
             
+            // Coba cari berdasarkan nomor atau nama
+            let customer = await billingManager.getCustomerByNameOrPhone(searchTerm);
+            logger.info(`[BILLING] Customer ditemukan:`, customer ? 'Ya' : 'Tidak');
+            
+            // Jika tidak ditemukan dengan pencarian tunggal, coba cari multiple dan tanya konfirmasi
             if (!customer) {
-                await this.sendFormattedMessage(remoteJid, 
-                    '❌ *PELANGGAN TIDAK DITEMUKAN!*\n\n' +
-                    `Nomor: ${phone}`
-                );
-                return;
+                const customers = await billingManager.findCustomersByNameOrPhone(searchTerm);
+                logger.info(`[BILLING] Multiple customers found: ${customers.length}`);
+                
+                if (customers.length === 0) {
+                    await this.sendFormattedMessage(remoteJid, 
+                        '❌ *PELANGGAN TIDAK DITEMUKAN!*\n\n' +
+                        `Pencarian: "${searchTerm}"\n` +
+                        `Pastikan nomor telepon atau nama pelanggan benar.`
+                    );
+                    return;
+                } else if (customers.length === 1) {
+                    customer = customers[0];
+                } else {
+                    // Multiple customers found, ask for clarification
+                    let message = `🔍 *DITEMUKAN ${customers.length} PELANGGAN*\n\n`;
+                    message += `Pencarian: "${searchTerm}"\n\n`;
+                    message += `Silakan gunakan perintah bayar dengan data yang lebih spesifik:\n\n`;
+                    
+                    customers.forEach((cust, index) => {
+                        message += `${index + 1}. *${cust.name}*\n`;
+                        message += `   📱 ${cust.phone}\n`;
+                        message += `   📦 ${cust.package_name || 'N/A'}\n`;
+                        message += `   Gunakan: \`bayar ${cust.phone}\`\n\n`;
+                    });
+                    
+                    await this.sendFormattedMessage(remoteJid, message);
+                    return;
+                }
             }
 
             // Cari invoice yang belum dibayar
+            logger.info(`[BILLING] Mencari invoice untuk customer ID: ${customer.id}`);
             const invoices = await billingManager.getInvoicesByCustomer(customer.id);
+            logger.info(`[BILLING] Total invoice ditemukan: ${invoices ? invoices.length : 0}`);
+            
+            if (!invoices || invoices.length === 0) {
+                await this.sendFormattedMessage(remoteJid, 
+                    '❌ *PELANGGAN TIDAK MEMILIKI TAGIHAN!*\n\n' +
+                    `*Pelanggan:* ${customer.name}\n` +
+                    `*Nomor:* ${customer.phone}\n` +
+                    `*Status:* Belum ada tagihan dibuat`
+                );
+                return;
+            }
+            
             const unpaidInvoices = invoices.filter(inv => inv.status === 'unpaid');
+            logger.info(`[BILLING] Invoice belum dibayar: ${unpaidInvoices.length}`);
             
             if (unpaidInvoices.length === 0) {
                 await this.sendFormattedMessage(remoteJid, 
@@ -589,7 +662,18 @@ class BillingCommands {
 
             // Ambil invoice terlama yang belum dibayar
             const oldestInvoice = unpaidInvoices.sort((a, b) => new Date(a.due_date) - new Date(b.due_date))[0];
+            logger.info(`[BILLING] Invoice terpilih:`, oldestInvoice.id);
+            
             const selectedPackage = await billingManager.getPackageById(oldestInvoice.package_id);
+            logger.info(`[BILLING] Package ditemukan:`, selectedPackage ? 'Ya' : 'Tidak');
+
+            if (!selectedPackage) {
+                await this.sendFormattedMessage(remoteJid, 
+                    '❌ *ERROR PAKET!*\n\n' +
+                    'Paket tidak ditemukan untuk invoice ini.'
+                );
+                return;
+            }
 
             const paymentData = {
                 invoice_id: oldestInvoice.id,
@@ -599,33 +683,47 @@ class BillingCommands {
                 notes: 'Payment via WhatsApp Admin'
             };
 
-            const result = await billingManager.recordPayment(paymentData);
+            logger.info(`[BILLING] Memproses pembayaran:`, paymentData);
             
-            if (result.success) {
-                // Update invoice status
-                await billingManager.updateInvoiceStatus(oldestInvoice.id, 'paid', 'cash');
+            try {
+                const result = await billingManager.recordPayment(paymentData);
+                logger.info(`[BILLING] Hasil record payment:`, result);
+                
+                if (result && result.success) {
+                    // Update invoice status
+                    logger.info(`[BILLING] Mengupdate status invoice: ${oldestInvoice.id}`);
+                    await billingManager.updateInvoiceStatus(oldestInvoice.id, 'paid', 'cash');
 
-                await this.sendFormattedMessage(remoteJid, 
-                    '✅ *PEMBAYARAN BERHASIL!*\n\n' +
-                    `*Pelanggan:* ${customer.name}\n` +
-                    `*Nomor:* ${customer.phone}\n` +
-                    `*Paket:* ${selectedPackage.name}\n` +
-                    `*Tagihan:* ${oldestInvoice.invoice_number}\n` +
-                    `*Jumlah:* Rp${oldestInvoice.amount.toLocaleString()}\n` +
-                    `*Metode:* Cash\n` +
-                    `*Status:* Lunas`
-                );
-            } else {
+                    await this.sendFormattedMessage(remoteJid, 
+                        '✅ *PEMBAYARAN BERHASIL!*\n\n' +
+                        `*Pelanggan:* ${customer.name}\n` +
+                        `*Nomor:* ${customer.phone}\n` +
+                        `*Paket:* ${selectedPackage.name}\n` +
+                        `*Tagihan:* ${oldestInvoice.invoice_number}\n` +
+                        `*Jumlah:* Rp${oldestInvoice.amount.toLocaleString()}\n` +
+                        `*Metode:* Cash\n` +
+                        `*Status:* Lunas`
+                    );
+                } else {
+                    logger.error(`[BILLING] Record payment gagal:`, result);
+                    await this.sendFormattedMessage(remoteJid, 
+                        '❌ *GAGAL MEMPROSES PEMBAYARAN!*\n\n' +
+                        `Error: ${result ? result.error : 'Payment record failed'}`
+                    );
+                }
+            } catch (paymentError) {
+                logger.error(`[BILLING] Error saat record payment:`, paymentError);
                 await this.sendFormattedMessage(remoteJid, 
                     '❌ *GAGAL MEMPROSES PEMBAYARAN!*\n\n' +
-                    `Error: ${result.error}`
+                    `Error: ${paymentError.message || 'Database error'}`
                 );
             }
         } catch (error) {
             logger.error('Error in handleBayar:', error);
+            logger.error('Error stack:', error.stack);
             await this.sendFormattedMessage(remoteJid, 
                 '❌ *ERROR SISTEM!*\n\n' +
-                'Terjadi kesalahan saat memproses pembayaran.'
+                `Terjadi kesalahan: ${error.message || 'Unknown error'}`
             );
         }
     }
@@ -685,27 +783,55 @@ class BillingCommands {
         }
     }
 
-    // Cek status pembayaran dengan nomor pelanggan
+    // Cek status pembayaran dengan nomor pelanggan atau nama
     async handleTagihan(remoteJid, params) {
         try {
             if (params.length < 1) {
                 await this.sendFormattedMessage(remoteJid, 
                     '❌ *FORMAT SALAH!*\n\n' +
-                    'Format: tagihan [nomor_pelanggan]\n' +
-                    'Contoh: tagihan 081234567890'
+                    'Format: tagihan [nomor/nama_pelanggan]\n' +
+                    'Contoh: \n' +
+                    '• tagihan 081234567890\n' +
+                    '• tagihan "Santo"\n' +
+                    '• tagihan John'
                 );
                 return;
             }
 
-            const phone = params[0].replace(/\D/g, '');
-            const customer = await billingManager.getCustomerByPhone(phone);
+            const searchTerm = params.join(' '); // Gabungkan semua params untuk nama yang mengandung spasi
             
+            // Coba cari berdasarkan nomor atau nama
+            let customer = await billingManager.getCustomerByNameOrPhone(searchTerm);
+            
+            // Jika tidak ditemukan dengan pencarian tunggal, coba cari multiple dan tanya konfirmasi
             if (!customer) {
-                await this.sendFormattedMessage(remoteJid, 
-                    '❌ *PELANGGAN TIDAK DITEMUKAN!*\n\n' +
-                    `Nomor: ${phone}`
-                );
-                return;
+                const customers = await billingManager.findCustomersByNameOrPhone(searchTerm);
+                
+                if (customers.length === 0) {
+                    await this.sendFormattedMessage(remoteJid, 
+                        '❌ *PELANGGAN TIDAK DITEMUKAN!*\n\n' +
+                        `Pencarian: "${searchTerm}"\n` +
+                        `Pastikan nomor telepon atau nama pelanggan benar.`
+                    );
+                    return;
+                } else if (customers.length === 1) {
+                    customer = customers[0];
+                } else {
+                    // Multiple customers found, ask for clarification
+                    let message = `🔍 *DITEMUKAN ${customers.length} PELANGGAN*\n\n`;
+                    message += `Pencarian: "${searchTerm}"\n\n`;
+                    message += `Silakan gunakan perintah tagihan dengan data yang lebih spesifik:\n\n`;
+                    
+                    customers.forEach((cust, index) => {
+                        message += `${index + 1}. *${cust.name}*\n`;
+                        message += `   📱 ${cust.phone}\n`;
+                        message += `   📦 ${cust.package_name || 'N/A'}\n`;
+                        message += `   Gunakan: \`tagihan ${cust.phone}\`\n\n`;
+                    });
+                    
+                    await this.sendFormattedMessage(remoteJid, message);
+                    return;
+                }
             }
 
             const invoices = await billingManager.getInvoicesByCustomer(customer.id);

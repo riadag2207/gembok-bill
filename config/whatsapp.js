@@ -5162,7 +5162,12 @@ Pesan GenieACS telah diaktifkan kembali.`);
                     return;
                 }
                 const params = messageText.split(' ').slice(1);
-                console.log(`Menjalankan perintah bayar dengan parameter:`, params);
+                console.log(`[WHATSAPP] Menjalankan perintah bayar dengan:`, {
+                    command: command,
+                    messageText: messageText,
+                    params: params,
+                    sender: remoteJid
+                });
                 await billingCommands.handleBayar(remoteJid, params);
                 return;
             }
