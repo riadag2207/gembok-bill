@@ -33,6 +33,9 @@ const { handleAddWAN } = require('./addWAN');
 // Import modul customerTag
 const { addCustomerTag, addTagByPPPoE } = require('./customerTag');
 
+// Import billing commands
+const billingCommands = require('./billing-commands');
+
 // Import admin number dari environment
 const { ADMIN_NUMBER } = process.env;
 
@@ -4895,6 +4898,341 @@ Pesan GenieACS telah diaktifkan kembali.`);
                 }
             }
 
+            // ===== BILLING COMMANDS =====
+            // Set sock untuk billing commands
+            billingCommands.setSock(sock);
+
+            // Perintah menu billing
+            if (command === 'billing' || command === '!billing' || command === '/billing') {
+                if (!isAdmin) {
+                    await sock.sendMessage(remoteJid, { 
+                        text: '❌ *AKSES DITOLAK*\n\nHanya admin yang dapat menggunakan perintah billing.'
+                    });
+                    return;
+                }
+                console.log(`Menjalankan menu billing`);
+                await billingCommands.handleBillingMenu(remoteJid);
+                return;
+            }
+
+            // Customer Management Commands
+            if (command.startsWith('addcustomer ') || command.startsWith('!addcustomer ') || command.startsWith('/addcustomer ')) {
+                if (!isAdmin) {
+                    await sock.sendMessage(remoteJid, { 
+                        text: '❌ *AKSES DITOLAK*\n\nHanya admin yang dapat menggunakan perintah ini.'
+                    });
+                    return;
+                }
+                const params = messageText.split(' ').slice(1);
+                console.log(`Menjalankan perintah addcustomer dengan parameter:`, params);
+                await billingCommands.handleAddCustomer(remoteJid, params);
+                return;
+            }
+
+            if (command.startsWith('editcustomer ') || command.startsWith('!editcustomer ') || command.startsWith('/editcustomer ')) {
+                if (!isAdmin) {
+                    await sock.sendMessage(remoteJid, { 
+                        text: '❌ *AKSES DITOLAK*\n\nHanya admin yang dapat menggunakan perintah ini.'
+                    });
+                    return;
+                }
+                const params = messageText.split(' ').slice(1);
+                console.log(`Menjalankan perintah editcustomer dengan parameter:`, params);
+                await billingCommands.handleEditCustomer(remoteJid, params);
+                return;
+            }
+
+            if (command.startsWith('delcustomer ') || command.startsWith('!delcustomer ') || command.startsWith('/delcustomer ')) {
+                if (!isAdmin) {
+                    await sock.sendMessage(remoteJid, { 
+                        text: '❌ *AKSES DITOLAK*\n\nHanya admin yang dapat menggunakan perintah ini.'
+                    });
+                    return;
+                }
+                const params = messageText.split(' ').slice(1);
+                console.log(`Menjalankan perintah delcustomer dengan parameter:`, params);
+                await billingCommands.handleDeleteCustomer(remoteJid, params);
+                return;
+            }
+
+            if (command === 'listcustomers' || command === '!listcustomers' || command === '/listcustomers') {
+                if (!isAdmin) {
+                    await sock.sendMessage(remoteJid, { 
+                        text: '❌ *AKSES DITOLAK*\n\nHanya admin yang dapat menggunakan perintah ini.'
+                    });
+                    return;
+                }
+                console.log(`Menjalankan perintah listcustomers`);
+                await billingCommands.handleListCustomers(remoteJid);
+                return;
+            }
+
+            if (command.startsWith('findcustomer ') || command.startsWith('!findcustomer ') || command.startsWith('/findcustomer ')) {
+                if (!isAdmin) {
+                    await sock.sendMessage(remoteJid, { 
+                        text: '❌ *AKSES DITOLAK*\n\nHanya admin yang dapat menggunakan perintah ini.'
+                    });
+                    return;
+                }
+                const params = messageText.split(' ').slice(1);
+                console.log(`Menjalankan perintah findcustomer dengan parameter:`, params);
+                await billingCommands.handleFindCustomer(remoteJid, params);
+                return;
+            }
+
+            // Payment Management Commands
+            if (command.startsWith('payinvoice ') || command.startsWith('!payinvoice ') || command.startsWith('/payinvoice ')) {
+                if (!isAdmin) {
+                    await sock.sendMessage(remoteJid, { 
+                        text: '❌ *AKSES DITOLAK*\n\nHanya admin yang dapat menggunakan perintah ini.'
+                    });
+                    return;
+                }
+                const params = messageText.split(' ').slice(1);
+                console.log(`Menjalankan perintah payinvoice dengan parameter:`, params);
+                await billingCommands.handlePayInvoice(remoteJid, params);
+                return;
+            }
+
+            if (command.startsWith('checkpayment ') || command.startsWith('!checkpayment ') || command.startsWith('/checkpayment ')) {
+                if (!isAdmin) {
+                    await sock.sendMessage(remoteJid, { 
+                        text: '❌ *AKSES DITOLAK*\n\nHanya admin yang dapat menggunakan perintah ini.'
+                    });
+                    return;
+                }
+                const params = messageText.split(' ').slice(1);
+                console.log(`Menjalankan perintah checkpayment dengan parameter:`, params);
+                await billingCommands.handleCheckPayment(remoteJid, params);
+                return;
+            }
+
+            if (command === 'paidcustomers' || command === '!paidcustomers' || command === '/paidcustomers') {
+                if (!isAdmin) {
+                    await sock.sendMessage(remoteJid, { 
+                        text: '❌ *AKSES DITOLAK*\n\nHanya admin yang dapat menggunakan perintah ini.'
+                    });
+                    return;
+                }
+                console.log(`Menjalankan perintah paidcustomers`);
+                await billingCommands.handlePaidCustomers(remoteJid);
+                return;
+            }
+
+            if (command === 'overduecustomers' || command === '!overduecustomers' || command === '/overduecustomers') {
+                if (!isAdmin) {
+                    await sock.sendMessage(remoteJid, { 
+                        text: '❌ *AKSES DITOLAK*\n\nHanya admin yang dapat menggunakan perintah ini.'
+                    });
+                    return;
+                }
+                console.log(`Menjalankan perintah overduecustomers`);
+                await billingCommands.handleOverdueCustomers(remoteJid);
+                return;
+            }
+
+            if (command === 'billingstats' || command === '!billingstats' || command === '/billingstats') {
+                if (!isAdmin) {
+                    await sock.sendMessage(remoteJid, { 
+                        text: '❌ *AKSES DITOLAK*\n\nHanya admin yang dapat menggunakan perintah ini.'
+                    });
+                    return;
+                }
+                console.log(`Menjalankan perintah billingstats`);
+                await billingCommands.handleBillingStats(remoteJid);
+                return;
+            }
+
+            // Package Management Commands
+            if (command.startsWith('addpackage ') || command.startsWith('!addpackage ') || command.startsWith('/addpackage ')) {
+                if (!isAdmin) {
+                    await sock.sendMessage(remoteJid, { 
+                        text: '❌ *AKSES DITOLAK*\n\nHanya admin yang dapat menggunakan perintah ini.'
+                    });
+                    return;
+                }
+                const params = messageText.split(' ').slice(1);
+                console.log(`Menjalankan perintah addpackage dengan parameter:`, params);
+                await billingCommands.handleAddPackage(remoteJid, params);
+                return;
+            }
+
+            if (command === 'listpackages' || command === '!listpackages' || command === '/listpackages') {
+                if (!isAdmin) {
+                    await sock.sendMessage(remoteJid, { 
+                        text: '❌ *AKSES DITOLAK*\n\nHanya admin yang dapat menggunakan perintah ini.'
+                    });
+                    return;
+                }
+                console.log(`Menjalankan perintah listpackages`);
+                await billingCommands.handleListPackages(remoteJid);
+                return;
+            }
+
+            // Invoice Management Commands
+            if (command.startsWith('createinvoice ') || command.startsWith('!createinvoice ') || command.startsWith('/createinvoice ')) {
+                if (!isAdmin) {
+                    await sock.sendMessage(remoteJid, { 
+                        text: '❌ *AKSES DITOLAK*\n\nHanya admin yang dapat menggunakan perintah ini.'
+                    });
+                    return;
+                }
+                const params = messageText.split(' ').slice(1);
+                console.log(`Menjalankan perintah createinvoice dengan parameter:`, params);
+                await billingCommands.handleCreateInvoice(remoteJid, params);
+                return;
+            }
+
+            if (command.startsWith('listinvoices ') || command.startsWith('!listinvoices ') || command.startsWith('/listinvoices ') || 
+                command === 'listinvoices' || command === '!listinvoices' || command === '/listinvoices') {
+                if (!isAdmin) {
+                    await sock.sendMessage(remoteJid, { 
+                        text: '❌ *AKSES DITOLAK*\n\nHanya admin yang dapat menggunakan perintah ini.'
+                    });
+                    return;
+                }
+                const params = messageText.split(' ').slice(1);
+                console.log(`Menjalankan perintah listinvoices dengan parameter:`, params);
+                await billingCommands.handleListInvoices(remoteJid, params);
+                return;
+            }
+
+            // Perintah help billing
+            if (command === 'help billing' || command === '!help billing' || command === '/help billing') {
+                if (!isAdmin) {
+                    await sock.sendMessage(remoteJid, { 
+                        text: '❌ *AKSES DITOLAK*\n\nHanya admin yang dapat menggunakan perintah ini.'
+                    });
+                    return;
+                }
+                console.log(`Menjalankan perintah help billing`);
+                const { getBillingHelpMessage } = require('./help-messages');
+                await sock.sendMessage(remoteJid, { text: getBillingHelpMessage() });
+                return;
+            }
+
+            // ===== PERINTAH BAHASA INDONESIA =====
+            // Perintah tambah pelanggan
+            if (command.startsWith('tambah ') || command.startsWith('!tambah ') || command.startsWith('/tambah ')) {
+                if (!isAdmin) {
+                    await sock.sendMessage(remoteJid, { 
+                        text: '❌ *AKSES DITOLAK*\n\nHanya admin yang dapat menggunakan perintah ini.'
+                    });
+                    return;
+                }
+                const params = messageText.split(' ').slice(1);
+                console.log(`Menjalankan perintah tambah dengan parameter:`, params);
+                await billingCommands.handleTambah(remoteJid, params);
+                return;
+            }
+
+            // Perintah daftar pelanggan
+            if (command === 'daftar' || command === '!daftar' || command === '/daftar') {
+                if (!isAdmin) {
+                    await sock.sendMessage(remoteJid, { 
+                        text: '❌ *AKSES DITOLAK*\n\nHanya admin yang dapat menggunakan perintah ini.'
+                    });
+                    return;
+                }
+                console.log(`Menjalankan perintah daftar`);
+                await billingCommands.handleDaftar(remoteJid);
+                return;
+            }
+
+            // Perintah cari pelanggan
+            if (command.startsWith('cari ') || command.startsWith('!cari ') || command.startsWith('/cari ')) {
+                if (!isAdmin) {
+                    await sock.sendMessage(remoteJid, { 
+                        text: '❌ *AKSES DITOLAK*\n\nHanya admin yang dapat menggunakan perintah ini.'
+                    });
+                    return;
+                }
+                const params = messageText.split(' ').slice(1);
+                console.log(`Menjalankan perintah cari dengan parameter:`, params);
+                await billingCommands.handleCari(remoteJid, params);
+                return;
+            }
+
+            // Perintah bayar
+            if (command.startsWith('bayar ') || command.startsWith('!bayar ') || command.startsWith('/bayar ')) {
+                if (!isAdmin) {
+                    await sock.sendMessage(remoteJid, { 
+                        text: '❌ *AKSES DITOLAK*\n\nHanya admin yang dapat menggunakan perintah ini.'
+                    });
+                    return;
+                }
+                const params = messageText.split(' ').slice(1);
+                console.log(`Menjalankan perintah bayar dengan parameter:`, params);
+                await billingCommands.handleBayar(remoteJid, params);
+                return;
+            }
+
+            // Perintah tagihan status
+            if (command.startsWith('tagihan ') || command.startsWith('!tagihan ') || command.startsWith('/tagihan ')) {
+                if (!isAdmin) {
+                    await sock.sendMessage(remoteJid, { 
+                        text: '❌ *AKSES DITOLAK*\n\nHanya admin yang dapat menggunakan perintah ini.'
+                    });
+                    return;
+                }
+                const params = messageText.split(' ').slice(1);
+                console.log(`Menjalankan perintah tagihan dengan parameter:`, params);
+                await billingCommands.handleTagihan(remoteJid, params);
+                return;
+            }
+
+            // Perintah sudah bayar
+            if (command === 'sudahbayar' || command === '!sudahbayar' || command === '/sudahbayar') {
+                if (!isAdmin) {
+                    await sock.sendMessage(remoteJid, { 
+                        text: '❌ *AKSES DITOLAK*\n\nHanya admin yang dapat menggunakan perintah ini.'
+                    });
+                    return;
+                }
+                console.log(`Menjalankan perintah sudahbayar`);
+                await billingCommands.handleSudahBayar(remoteJid);
+                return;
+            }
+
+            // Perintah terlambat
+            if (command === 'terlambat' || command === '!terlambat' || command === '/terlambat') {
+                if (!isAdmin) {
+                    await sock.sendMessage(remoteJid, { 
+                        text: '❌ *AKSES DITOLAK*\n\nHanya admin yang dapat menggunakan perintah ini.'
+                    });
+                    return;
+                }
+                console.log(`Menjalankan perintah terlambat`);
+                await billingCommands.handleTerlambat(remoteJid);
+                return;
+            }
+
+            // Perintah statistik
+            if (command === 'statistik' || command === '!statistik' || command === '/statistik') {
+                if (!isAdmin) {
+                    await sock.sendMessage(remoteJid, { 
+                        text: '❌ *AKSES DITOLAK*\n\nHanya admin yang dapat menggunakan perintah ini.'
+                    });
+                    return;
+                }
+                console.log(`Menjalankan perintah statistik`);
+                await billingCommands.handleStatistik(remoteJid);
+                return;
+            }
+
+            // Perintah daftar paket
+            if (command === 'daftarpaket' || command === '!daftarpaket' || command === '/daftarpaket') {
+                if (!isAdmin) {
+                    await sock.sendMessage(remoteJid, { 
+                        text: '❌ *AKSES DITOLAK*\n\nHanya admin yang dapat menggunakan perintah ini.'
+                    });
+                    return;
+                }
+                console.log(`Menjalankan perintah daftarpaket`);
+                await billingCommands.handleDaftarPaket(remoteJid);
+                return;
+            }
+
             // Perintah system logs
             if (command === 'logs' || command === '!logs' || command === '/logs' ||
                 command.startsWith('logs ') || command.startsWith('!logs ') || command.startsWith('/logs ')) {
@@ -5178,7 +5516,8 @@ async function handleAdminMenu(remoteJid) {
         adminMessage += `• 🔍 *cek [nomor]* * Cek status ONU pelanggan\n`;
         adminMessage += `• 🔧 *editssid [nomor] [ssid]* * Edit SSID pelanggan\n`;
         adminMessage += `• 🔧 *editpass [nomor] [password]* * Edit password WiFi pelanggan\n`;
-        adminMessage += `• 🔐 *otp [on/off/status]* * Kelola sistem OTP\n\n`;
+        adminMessage += `• 🔐 *otp [on/off/status]* * Kelola sistem OTP\n`;
+        adminMessage += `• 📊 *billing* * Menu billing admin\n\n`;
         
         // Status GenieACS (tanpa menampilkan perintah)
         adminMessage += `*Status Sistem:*\n`;

@@ -2706,3 +2706,31 @@
 2025-08-07 10:55:03 error: Failed to send PPPoE notification to 62822180947 after 2 retries
 2025-08-07 10:55:30 error: Failed to send PPPoE notification to 62838076656 after 2 retries
 2025-08-07 10:56:03 error: Failed to send PPPoE notification to 62822180947 after 2 retries
+2025-08-07 11:10:34 error: Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+2025-08-07 11:12:06 error: Failed to send PPPoE notification to 6281947215703 after 2 retries
+2025-08-07 11:12:39 error: Failed to send PPPoE notification to 62838076656 after 2 retries
+2025-08-07 11:13:06 error: Failed to send PPPoE notification to 6281947215703 after 2 retries
+2025-08-07 11:13:12 error: Failed to send PPPoE notification to 62822180947 after 2 retries
+2025-08-07 11:13:39 error: Failed to send PPPoE notification to 62838076656 after 2 retries
+2025-08-07 11:14:12 error: Failed to send PPPoE notification to 62822180947 after 2 retries
+2025-08-07 11:18:16 error: Error creating invoice: Cannot read properties of undefined (reading 'trim')
+2025-08-07 11:18:23 error: Error creating invoice: Cannot read properties of undefined (reading 'trim')
+2025-08-07 11:27:36 error: Failed to send PPPoE notification to 6281947215703 after 2 retries
+2025-08-07 11:27:39 error: Failed to send PPPoE notification to 62838076656 after 2 retries
+2025-08-07 11:27:42 error: Failed to send PPPoE notification to 62822180947 after 2 retries
+2025-08-07 11:28:36 error: Failed to send PPPoE notification to 6281947215703 after 2 retries
+2025-08-07 11:28:39 error: Failed to send PPPoE notification to 62838076656 after 2 retries
+2025-08-07 11:28:42 error: Failed to send PPPoE notification to 62822180947 after 2 retries
+2025-08-08 07:55:23 error: Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+2025-08-08 07:56:57 error: Failed to send PPPoE notification to 6281947215703 after 2 retries
+2025-08-08 08:05:02 error: Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+2025-08-08 08:32:47 error: Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+2025-08-08 08:34:19 error: Failed to send PPPoE notification to 6281947215703 after 2 retries
+2025-08-08 08:34:52 error: Failed to send PPPoE notification to 62838076656 after 2 retries
+2025-08-08 08:35:19 error: Failed to send PPPoE notification to 6281947215703 after 2 retries
+2025-08-08 08:35:25 error: Failed to send PPPoE notification to 62822180947 after 2 retries
+2025-08-08 08:35:52 error: Failed to send PPPoE notification to 62838076656 after 2 retries
+2025-08-08 08:36:25 error: Failed to send PPPoE notification to 62822180947 after 2 retries
+2025-08-08 08:41:49 error: Failed to send PPPoE notification to 6281947215703 after 2 retries
+2025-08-08 08:41:52 error: Failed to send PPPoE notification to 62838076656 after 2 retries
+2025-08-08 08:41:55 error: Failed to send PPPoE notification to 62822180947 after 2 retries

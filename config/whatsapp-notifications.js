@@ -22,7 +22,8 @@ Tagihan bulanan Anda telah dibuat:
 
 Silakan lakukan pembayaran sebelum tanggal jatuh tempo untuk menghindari denda keterlambatan.
 
-Terima kasih atas kepercayaan Anda.`
+Terima kasih atas kepercayaan Anda.`,
+                enabled: true
             },
             due_date_reminder: {
                 title: 'Peringatan Jatuh Tempo',
@@ -39,7 +40,8 @@ Tagihan Anda akan jatuh tempo dalam {days_remaining} hari:
 
 Silakan lakukan pembayaran segera untuk menghindari denda keterlambatan.
 
-Terima kasih.`
+Terima kasih.`,
+                enabled: true
             },
             payment_received: {
                 title: 'Pembayaran Diterima',
@@ -55,7 +57,8 @@ Terima kasih! Pembayaran Anda telah kami terima:
 📅 *Tanggal Pembayaran:* {payment_date}
 🔢 *No. Referensi:* {reference_number}
 
-Layanan internet Anda akan tetap aktif. Terima kasih atas kepercayaan Anda.`
+Layanan internet Anda akan tetap aktif. Terima kasih atas kepercayaan Anda.`,
+                enabled: true
             },
             service_disruption: {
                 title: 'Gangguan Layanan',
@@ -72,7 +75,8 @@ Kami informasikan bahwa sedang terjadi gangguan pada jaringan internet:
 
 Kami sedang bekerja untuk mengatasi masalah ini secepat mungkin. Mohon maaf atas ketidaknyamanannya.
 
-Terima kasih atas pengertian Anda.`
+Terima kasih atas pengertian Anda.`,
+                enabled: true
             },
             service_announcement: {
                 title: 'Pengumuman Layanan',
@@ -82,7 +86,8 @@ Halo Pelanggan Setia,
 
 {announcement_content}
 
-Terima kasih atas perhatian Anda.`
+Terima kasih atas perhatian Anda.`,
+                enabled: true
             },
 
             service_suspension: {
@@ -102,7 +107,8 @@ Layanan internet Anda telah dinonaktifkan karena:
 Hubungi kami di: 081947215703
 
 *ALIJAYA DIGITAL NETWORK*
-Terima kasih atas perhatian Anda.`
+Terima kasih atas perhatian Anda.`,
+                enabled: true
             },
 
             service_restoration: {
@@ -121,7 +127,23 @@ Selamat! Layanan internet Anda telah diaktifkan kembali.
 Terima kasih telah melakukan pembayaran tepat waktu.
 
 *ALIJAYA DIGITAL NETWORK*
-Info: 081947215703`
+Info: 081947215703`,
+                enabled: true
+            },
+            welcome_message: {
+                title: 'Welcome Message',
+                template: `👋 *SELAMAT DATANG*
+
+Halo {customer_name},
+
+Selamat datang di layanan internet kami!
+
+📦 *Paket:* {package_name} ({package_speed})
+🔑 *Password WiFi:* {wifi_password}
+📞 *Support:* {support_phone}
+
+Terima kasih telah memilih layanan kami.`,
+                enabled: true
             }
         };
     }
@@ -197,24 +219,30 @@ Info: 081947215703`
     // Send invoice created notification
     async sendInvoiceCreatedNotification(customerId, invoiceId) {
         try {
-                    const customer = await billingManager.getCustomerById(customerId);
-        const invoice = await billingManager.getInvoiceById(invoiceId);
-        const packageData = await billingManager.getPackageById(invoice.package_id);
+            // Check if template is enabled
+            if (!this.isTemplateEnabled('invoice_created')) {
+                logger.info('Invoice created notification is disabled, skipping...');
+                return { success: true, skipped: true, reason: 'Template disabled' };
+            }
 
-        if (!customer || !invoice || !packageData) {
-            logger.error('Missing data for invoice notification');
-            return { success: false, error: 'Missing data' };
-        }
+            const customer = await billingManager.getCustomerById(customerId);
+            const invoice = await billingManager.getInvoiceById(invoiceId);
+            const packageData = await billingManager.getPackageById(invoice.package_id);
 
-        const data = {
-            customer_name: customer.name,
-            invoice_number: invoice.invoice_number,
-            amount: this.formatCurrency(invoice.amount),
-            due_date: this.formatDate(invoice.due_date),
-            package_name: packageData.name,
-            package_speed: packageData.speed,
-            notes: invoice.notes || 'Tagihan bulanan'
-        };
+            if (!customer || !invoice || !packageData) {
+                logger.error('Missing data for invoice notification');
+                return { success: false, error: 'Missing data' };
+            }
+
+            const data = {
+                customer_name: customer.name,
+                invoice_number: invoice.invoice_number,
+                amount: this.formatCurrency(invoice.amount),
+                due_date: this.formatDate(invoice.due_date),
+                package_name: packageData.name,
+                package_speed: packageData.speed,
+                notes: invoice.notes || 'Tagihan bulanan'
+            };
 
             const message = this.replaceTemplateVariables(
                 this.templates.invoice_created.template,
@@ -231,28 +259,34 @@ Info: 081947215703`
     // Send due date reminder
     async sendDueDateReminder(invoiceId) {
         try {
-                    const invoice = await billingManager.getInvoiceById(invoiceId);
-        const customer = await billingManager.getCustomerById(invoice.customer_id);
-        const packageData = await billingManager.getPackageById(invoice.package_id);
+            // Check if template is enabled
+            if (!this.isTemplateEnabled('due_date_reminder')) {
+                logger.info('Due date reminder notification is disabled, skipping...');
+                return { success: true, skipped: true, reason: 'Template disabled' };
+            }
 
-        if (!customer || !invoice || !packageData) {
-            logger.error('Missing data for due date reminder');
-            return { success: false, error: 'Missing data' };
-        }
+            const invoice = await billingManager.getInvoiceById(invoiceId);
+            const customer = await billingManager.getCustomerById(invoice.customer_id);
+            const packageData = await billingManager.getPackageById(invoice.package_id);
 
-        const dueDate = new Date(invoice.due_date);
-        const today = new Date();
-        const daysRemaining = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+            if (!customer || !invoice || !packageData) {
+                logger.error('Missing data for due date reminder');
+                return { success: false, error: 'Missing data' };
+            }
 
-        const data = {
-            customer_name: customer.name,
-            invoice_number: invoice.invoice_number,
-            amount: this.formatCurrency(invoice.amount),
-            due_date: this.formatDate(invoice.due_date),
-            days_remaining: daysRemaining,
-            package_name: packageData.name,
-            package_speed: packageData.speed
-        };
+            const dueDate = new Date(invoice.due_date);
+            const today = new Date();
+            const daysRemaining = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+
+            const data = {
+                customer_name: customer.name,
+                invoice_number: invoice.invoice_number,
+                amount: this.formatCurrency(invoice.amount),
+                due_date: this.formatDate(invoice.due_date),
+                days_remaining: daysRemaining,
+                package_name: packageData.name,
+                package_speed: packageData.speed
+            };
 
             const message = this.replaceTemplateVariables(
                 this.templates.due_date_reminder.template,
@@ -269,6 +303,12 @@ Info: 081947215703`
     // Send payment received notification
     async sendPaymentReceivedNotification(paymentId) {
         try {
+            // Check if template is enabled
+            if (!this.isTemplateEnabled('payment_received')) {
+                logger.info('Payment received notification is disabled, skipping...');
+                return { success: true, skipped: true, reason: 'Template disabled' };
+            }
+
             const payment = await billingManager.getPaymentById(paymentId);
             const invoice = await billingManager.getInvoiceById(payment.invoice_id);
             const customer = await billingManager.getCustomerById(invoice.customer_id);
@@ -302,6 +342,12 @@ Info: 081947215703`
     // Send service disruption notification
     async sendServiceDisruptionNotification(disruptionData) {
         try {
+            // Check if template is enabled
+            if (!this.isTemplateEnabled('service_disruption')) {
+                logger.info('Service disruption notification is disabled, skipping...');
+                return { success: true, skipped: true, reason: 'Template disabled' };
+            }
+
             const customers = await billingManager.getCustomers();
             const activeCustomers = customers.filter(c => c.status === 'active' && c.phone);
 
@@ -344,6 +390,12 @@ Info: 081947215703`
     // Send service announcement
     async sendServiceAnnouncement(announcementData) {
         try {
+            // Check if template is enabled
+            if (!this.isTemplateEnabled('service_announcement')) {
+                logger.info('Service announcement notification is disabled, skipping...');
+                return { success: true, skipped: true, reason: 'Template disabled' };
+            }
+
             const customers = await billingManager.getCustomers();
             const activeCustomers = customers.filter(c => c.status === 'active' && c.phone);
 
@@ -394,6 +446,11 @@ Info: 081947215703`
         return false;
     }
 
+    // Check if template is enabled
+    isTemplateEnabled(templateKey) {
+        return this.templates[templateKey] && this.templates[templateKey].enabled !== false;
+    }
+
     // Test notification to specific number
     async testNotification(phoneNumber, templateKey, testData = {}) {
         try {
@@ -416,6 +473,12 @@ Info: 081947215703`
     // Send service suspension notification
     async sendServiceSuspensionNotification(customer, reason) {
         try {
+            // Check if template is enabled
+            if (!this.isTemplateEnabled('service_suspension')) {
+                logger.info('Service suspension notification is disabled, skipping...');
+                return { success: true, skipped: true, reason: 'Template disabled' };
+            }
+
             if (!customer.phone) {
                 logger.warn(`Customer ${customer.username} has no phone number for suspension notification`);
                 return { success: false, error: 'No phone number' };
@@ -446,6 +509,12 @@ Info: 081947215703`
     // Send service restoration notification
     async sendServiceRestorationNotification(customer) {
         try {
+            // Check if template is enabled
+            if (!this.isTemplateEnabled('service_restoration')) {
+                logger.info('Service restoration notification is disabled, skipping...');
+                return { success: true, skipped: true, reason: 'Template disabled' };
+            }
+
             if (!customer.phone) {
                 logger.warn(`Customer ${customer.username} has no phone number for restoration notification`);
                 return { success: false, error: 'No phone number' };
@@ -470,6 +539,45 @@ Info: 081947215703`
             return result;
         } catch (error) {
             logger.error(`Error sending service restoration notification to ${customer.name}:`, error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    // Send welcome message notification
+    async sendWelcomeMessage(customer) {
+        try {
+            // Check if template is enabled
+            if (!this.isTemplateEnabled('welcome_message')) {
+                logger.info('Welcome message notification is disabled, skipping...');
+                return { success: true, skipped: true, reason: 'Template disabled' };
+            }
+
+            if (!customer.phone) {
+                logger.warn(`Customer ${customer.username} has no phone number for welcome message`);
+                return { success: false, error: 'No phone number' };
+            }
+
+            const message = this.replaceTemplateVariables(
+                this.templates.welcome_message.template,
+                {
+                    customer_name: customer.name,
+                    package_name: customer.package_name || 'N/A',
+                    package_speed: customer.package_speed || 'N/A',
+                    wifi_password: customer.wifi_password || 'N/A',
+                    support_phone: getSetting('support_phone', '081947215703')
+                }
+            );
+
+            const result = await this.sendNotification(customer.phone, message);
+            if (result.success) {
+                logger.info(`Welcome message sent to ${customer.name} (${customer.phone})`);
+            } else {
+                logger.error(`Failed to send welcome message to ${customer.name}:`, result.error);
+            }
+            
+            return result;
+        } catch (error) {
+            logger.error(`Error sending welcome message to ${customer.name}:`, error);
             return { success: false, error: error.message };
         }
     }

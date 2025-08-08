@@ -356,3 +356,19 @@ ReferenceError: logger is not defined
     at next (E:\gembok-bill\node_modules\express\lib\router\index.js:280:10)
     at Layer.handle [as handle_request] (E:\gembok-bill\node_modules\express\lib\router\layer.js:91:12)
     at trim_prefix (E:\gembok-bill\node_modules\express\lib\router\index.js:328:13)
+2025-08-08 08:20:29 error: uncaughtException: Unexpected strict mode reserved word
+E:\gembok-bill\config\billing-commands.js:92
+            const package = packages.find(p => p.name.toLowerCase().includes(packageName.toLowerCase()));
+                  ^^^^^^^
+
+SyntaxError: Unexpected strict mode reserved word
+    at wrapSafe (node:internal/modules/cjs/loader:1512:18)
+    at Module._compile (node:internal/modules/cjs/loader:1534:20)
+    at Object..js (node:internal/modules/cjs/loader:1699:10)
+    at Module.load (node:internal/modules/cjs/loader:1313:32)
+    at Function._load (node:internal/modules/cjs/loader:1123:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:217:24)
+    at Module.require (node:internal/modules/cjs/loader:1335:12)
+    at require (node:internal/modules/helpers:136:16)
+    at Object.<anonymous> (E:\gembok-bill\config\whatsapp.js:37:25)

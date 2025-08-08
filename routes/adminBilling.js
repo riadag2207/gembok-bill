@@ -300,6 +300,22 @@ router.post('/whatsapp-settings/test', async (req, res) => {
             },
             service_announcement: {
                 announcement_content: 'Pengumuman penting untuk semua pelanggan.'
+            },
+            service_suspension: {
+                customer_name: 'Test Customer',
+                reason: 'Tagihan terlambat lebih dari 7 hari'
+            },
+            service_restoration: {
+                customer_name: 'Test Customer',
+                package_name: 'Paket Premium',
+                package_speed: '50 Mbps'
+            },
+            welcome_message: {
+                customer_name: 'Test Customer',
+                package_name: 'Paket Premium',
+                package_speed: '50 Mbps',
+                wifi_password: 'test123456',
+                support_phone: '081947215703'
             }
         };
         

@@ -136,8 +136,41 @@ function getGeneralHelpMessage() {
     return message;
 }
 
+// Billing help messages
+function getBillingHelpMessage() {
+    return `📊 *BANTUAN MENU BILLING*\n\n` +
+        `*Customer Management:*\n` +
+        `• addcustomer [nama] [phone] [paket] - Tambah pelanggan baru\n` +
+        `• editcustomer [phone] [field] [value] - Edit data pelanggan\n` +
+        `• delcustomer [phone] - Hapus pelanggan\n` +
+        `• listcustomers - Daftar semua pelanggan\n` +
+        `• findcustomer [phone/username] - Cari pelanggan\n\n` +
+        
+        `*Payment Management:*\n` +
+        `• payinvoice [invoice_id] [amount] [method] - Bayar invoice\n` +
+        `• tagihan [nomor_pelanggan] - Cek status pembayaran\n` +
+        `• paidcustomers - Daftar pelanggan yang sudah bayar\n` +
+        `• overduecustomers - Daftar pelanggan terlambat\n` +
+        `• billingstats - Statistik billing\n\n` +
+        
+        `*Package Management:*\n` +
+        `• addpackage [nama] [speed] [harga] - Tambah paket\n` +
+        `• listpackages - Daftar semua paket\n\n` +
+        
+        `*Invoice Management:*\n` +
+        `• createinvoice [phone] [amount] [due_date] - Buat invoice\n` +
+        `• listinvoices [phone] - Daftar invoice pelanggan\n\n` +
+        
+        `*Contoh Penggunaan:*\n` +
+        `addcustomer "John Doe" 081234567890 "Paket Premium"\n` +
+        `payinvoice 123 500000 cash\n` +
+        `tagihan 081234567890\n` +
+        `paidcustomers`;
+}
+
 module.exports = {
     getAdminHelpMessage,
     getCustomerHelpMessage,
-    getGeneralHelpMessage
+    getGeneralHelpMessage,
+    getBillingHelpMessage
 }; 
