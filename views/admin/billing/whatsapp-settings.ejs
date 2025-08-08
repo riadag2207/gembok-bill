@@ -92,6 +92,43 @@
             border-radius: 10px;
             border: none;
         }
+        
+        .form-check-input:checked {
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+        
+        .form-check-input:not(:checked) {
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+        
+        .template-disabled {
+            opacity: 0.6;
+            background-color: #f8f9fa !important;
+        }
+        
+        .template-enabled {
+            opacity: 1;
+            background-color: #fff !important;
+        }
+        
+        .variable-item {
+            display: inline-block;
+            background: #e9ecef;
+            padding: 2px 8px;
+            margin: 2px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            color: #495057;
+        }
+        
+        .variable-list {
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
@@ -144,9 +181,17 @@
                                 <h4 class="template-title">
                                     <i class="bi bi-chat-text"></i> Message Templates
                                 </h4>
-                                <button class="btn btn-primary" onclick="saveAllTemplates()">
-                                    <i class="bi bi-save"></i> Save All Templates
-                                </button>
+                                <div>
+                                    <button class="btn btn-success btn-sm me-2" onclick="enableAllTemplates()">
+                                        <i class="bi bi-check-all"></i> Enable All
+                                    </button>
+                                    <button class="btn btn-danger btn-sm me-2" onclick="disableAllTemplates()">
+                                        <i class="bi bi-x-all"></i> Disable All
+                                    </button>
+                                    <button class="btn btn-primary" onclick="saveAllTemplates()">
+                                        <i class="bi bi-save"></i> Save All Templates
+                                    </button>
+                                </div>
                             </div>
                             
                             <div class="template-description">
@@ -157,7 +202,15 @@
                             <div id="templateForms">
                                 <!-- Invoice Created Template -->
                                 <div class="mb-4">
-                                    <h5>📋 Invoice Created Notification</h5>
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <h5>📋 Invoice Created Notification</h5>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="invoice_created_enabled" checked>
+                                            <label class="form-check-label" for="invoice_created_enabled">
+                                                <strong>Enable Notification</strong>
+                                            </label>
+                                        </div>
+                                    </div>
                                     <div class="variable-list">
                                         <strong>Available Variables:</strong>
                                         <span class="variable-item">{customer_name}</span>
@@ -178,7 +231,15 @@
                                 
                                 <!-- Due Date Reminder Template -->
                                 <div class="mb-4">
-                                    <h5>⚠️ Due Date Reminder</h5>
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <h5>⚠️ Due Date Reminder</h5>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="due_date_reminder_enabled" checked>
+                                            <label class="form-check-label" for="due_date_reminder_enabled">
+                                                <strong>Enable Notification</strong>
+                                            </label>
+                                        </div>
+                                    </div>
                                     <div class="variable-list">
                                         <strong>Available Variables:</strong>
                                         <span class="variable-item">{customer_name}</span>
@@ -199,7 +260,15 @@
                                 
                                 <!-- Payment Received Template -->
                                 <div class="mb-4">
-                                    <h5>✅ Payment Received Notification</h5>
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <h5>✅ Payment Received Notification</h5>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="payment_received_enabled" checked>
+                                            <label class="form-check-label" for="payment_received_enabled">
+                                                <strong>Enable Notification</strong>
+                                            </label>
+                                        </div>
+                                    </div>
                                     <div class="variable-list">
                                         <strong>Available Variables:</strong>
                                         <span class="variable-item">{customer_name}</span>
@@ -219,7 +288,15 @@
                                 
                                 <!-- Service Disruption Template -->
                                 <div class="mb-4">
-                                    <h5>🚨 Service Disruption Notification</h5>
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <h5>🚨 Service Disruption Notification</h5>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="service_disruption_enabled" checked>
+                                            <label class="form-check-label" for="service_disruption_enabled">
+                                                <strong>Enable Notification</strong>
+                                            </label>
+                                        </div>
+                                    </div>
                                     <div class="variable-list">
                                         <strong>Available Variables:</strong>
                                         <span class="variable-item">{disruption_type}</span>
@@ -237,7 +314,15 @@
                                 
                                 <!-- Service Announcement Template -->
                                 <div class="mb-4">
-                                    <h5>📢 Service Announcement</h5>
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <h5>📢 Service Announcement</h5>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="service_announcement_enabled" checked>
+                                            <label class="form-check-label" for="service_announcement_enabled">
+                                                <strong>Enable Notification</strong>
+                                            </label>
+                                        </div>
+                                    </div>
                                     <div class="variable-list">
                                         <strong>Available Variables:</strong>
                                         <span class="variable-item">{announcement_content}</span>
@@ -245,6 +330,90 @@
                                     <textarea class="form-control" id="service_announcement_template" rows="8" placeholder="Enter template message..."></textarea>
                                     <div class="mt-2">
                                         <button class="btn btn-warning btn-sm" onclick="testTemplate('service_announcement')">
+                                            <i class="bi bi-send"></i> Test Template
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Service Suspension Template -->
+                                <div class="mb-4">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <h5>⏸️ Service Suspension Notification</h5>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="service_suspension_enabled" checked>
+                                            <label class="form-check-label" for="service_suspension_enabled">
+                                                <strong>Enable Notification</strong>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="variable-list">
+                                        <strong>Available Variables:</strong>
+                                        <span class="variable-item">{customer_name}</span>
+                                        <span class="variable-item">{username}</span>
+                                        <span class="variable-item">{package_name}</span>
+                                        <span class="variable-item">{due_date}</span>
+                                        <span class="variable-item">{amount}</span>
+                                        <span class="variable-item">{days_overdue}</span>
+                                    </div>
+                                    <textarea class="form-control" id="service_suspension_template" rows="8" placeholder="Enter template message..."></textarea>
+                                    <div class="mt-2">
+                                        <button class="btn btn-warning btn-sm" onclick="testTemplate('service_suspension')">
+                                            <i class="bi bi-send"></i> Test Template
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Service Restoration Template -->
+                                <div class="mb-4">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <h5>✅ Service Restoration Notification</h5>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="service_restoration_enabled" checked>
+                                            <label class="form-check-label" for="service_restoration_enabled">
+                                                <strong>Enable Notification</strong>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="variable-list">
+                                        <strong>Available Variables:</strong>
+                                        <span class="variable-item">{customer_name}</span>
+                                        <span class="variable-item">{username}</span>
+                                        <span class="variable-item">{package_name}</span>
+                                        <span class="variable-item">{payment_date}</span>
+                                        <span class="variable-item">{amount}</span>
+                                        <span class="variable-item">{payment_method}</span>
+                                    </div>
+                                    <textarea class="form-control" id="service_restoration_template" rows="8" placeholder="Enter template message..."></textarea>
+                                    <div class="mt-2">
+                                        <button class="btn btn-warning btn-sm" onclick="testTemplate('service_restoration')">
+                                            <i class="bi bi-send"></i> Test Template
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Welcome Message Template -->
+                                <div class="mb-4">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <h5>👋 Welcome Message</h5>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="welcome_message_enabled" checked>
+                                            <label class="form-check-label" for="welcome_message_enabled">
+                                                <strong>Enable Notification</strong>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="variable-list">
+                                        <strong>Available Variables:</strong>
+                                        <span class="variable-item">{customer_name}</span>
+                                        <span class="variable-item">{username}</span>
+                                        <span class="variable-item">{package_name}</span>
+                                        <span class="variable-item">{package_speed}</span>
+                                        <span class="variable-item">{wifi_password}</span>
+                                        <span class="variable-item">{support_phone}</span>
+                                    </div>
+                                    <textarea class="form-control" id="welcome_message_template" rows="8" placeholder="Enter template message..."></textarea>
+                                    <div class="mt-2">
+                                        <button class="btn btn-warning btn-sm" onclick="testTemplate('welcome_message')">
                                             <i class="bi bi-send"></i> Test Template
                                         </button>
                                     </div>
@@ -273,6 +442,9 @@
                                             <option value="payment_received">Payment Received</option>
                                             <option value="service_disruption">Service Disruption</option>
                                             <option value="service_announcement">Service Announcement</option>
+                                            <option value="service_suspension">Service Suspension</option>
+                                            <option value="service_restoration">Service Restoration</option>
+                                            <option value="welcome_message">Welcome Message</option>
                                         </select>
                                     </div>
                                 </div>
@@ -355,8 +527,14 @@
                 // Populate form fields
                 Object.keys(templates).forEach(key => {
                     const textarea = document.getElementById(`${key}_template`);
+                    const toggle = document.getElementById(`${key}_enabled`);
+                    
                     if (textarea) {
-                        textarea.value = templates[key].template;
+                        textarea.value = templates[key].template || '';
+                    }
+                    
+                    if (toggle) {
+                        toggle.checked = templates[key].enabled !== false; // Default to true if not specified
                     }
                 });
             }
@@ -390,10 +568,13 @@
             const templateData = {};
             Object.keys(templates).forEach(key => {
                 const textarea = document.getElementById(`${key}_template`);
+                const toggle = document.getElementById(`${key}_enabled`);
+                
                 if (textarea) {
                     templateData[key] = {
                         title: templates[key].title,
-                        template: textarea.value
+                        template: textarea.value,
+                        enabled: toggle ? toggle.checked : true
                     };
                 }
             });
@@ -555,6 +736,64 @@
             }, 5000);
         }
     }
+    
+    // Function to update template status display
+    function updateTemplateStatus() {
+        const templateKeys = [
+            'invoice_created', 'due_date_reminder', 'payment_received', 
+            'service_disruption', 'service_announcement', 'service_suspension',
+            'service_restoration', 'welcome_message'
+        ];
+        
+        templateKeys.forEach(key => {
+            const toggle = document.getElementById(`${key}_enabled`);
+            const textarea = document.getElementById(`${key}_template`);
+            
+            if (toggle && textarea) {
+                // Update textarea style based on toggle state
+                if (toggle.checked) {
+                    textarea.classList.remove('template-disabled');
+                    textarea.classList.add('template-enabled');
+                    textarea.disabled = false;
+                } else {
+                    textarea.classList.remove('template-enabled');
+                    textarea.classList.add('template-disabled');
+                    textarea.disabled = true;
+                }
+            }
+        });
+    }
+    
+    // Function to enable all templates
+    function enableAllTemplates() {
+        const toggles = document.querySelectorAll('input[type="checkbox"][id$="_enabled"]');
+        toggles.forEach(toggle => {
+            toggle.checked = true;
+        });
+        updateTemplateStatus();
+        showAlert('All templates enabled!', 'success');
+    }
+    
+    // Function to disable all templates
+    function disableAllTemplates() {
+        const toggles = document.querySelectorAll('input[type="checkbox"][id$="_enabled"]');
+        toggles.forEach(toggle => {
+            toggle.checked = false;
+        });
+        updateTemplateStatus();
+        showAlert('All templates disabled!', 'warning');
+    }
+    
+    // Add event listeners for toggles
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggles = document.querySelectorAll('input[type="checkbox"][id$="_enabled"]');
+        toggles.forEach(toggle => {
+            toggle.addEventListener('change', updateTemplateStatus);
+        });
+        
+        // Initial status update
+        updateTemplateStatus();
+    });
     </script>
 </body>
 </html> 
