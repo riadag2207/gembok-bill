@@ -579,7 +579,7 @@
         <span class="navbar-text">
           <i class="bi bi-person-circle me-1"></i>
           <%= customer.phone %>
-        </span>
+      </span>
       </div>
     </div>
   </nav>
@@ -604,154 +604,154 @@
         <div class="col-12">
 
           <!-- INFORMASI TAGIHAN - PRIORITAS TERTINGGI -->
-          <% if (typeof billingData !== 'undefined' && billingData && billingData.customer) { %>
+      <% if (typeof billingData !== 'undefined' && billingData && billingData.customer) { %>
           <div class="form-section" style="order: -1;">
-            <h6><i class="bi bi-receipt"></i>Informasi Tagihan</h6>
-            <div class="row">
-              <div class="col-md-6">
-                <div class="card border-0 bg-light">
-                  <div class="card-body">
-                    <h6 class="card-title text-primary">
-                      <i class="bi bi-person-circle me-2"></i>Data Pelanggan
-                    </h6>
-                    <div class="mb-2">
-                      <strong>Nama:</strong> <%= billingData.customer.name %>
-                    </div>
-                    <div class="mb-2">
-                      <strong>Username:</strong> <%= billingData.customer.username %>
-                    </div>
-                    <div class="mb-2">
-                      <strong>Paket:</strong> 
-                      <% if (billingData.customer.package_name) { %>
-                        <span class="badge bg-info">
-                          <%= billingData.customer.package_name %> - Rp <%= parseFloat(billingData.customer.package_price).toLocaleString('id-ID') %>
-                        </span>
-                      <% } else { %>
-                        <span class="text-muted">Belum ada paket</span>
-                      <% } %>
-                    </div>
-                    <div class="mb-2">
-                      <strong>Status Pembayaran:</strong>
-                      <% if (billingData.customer.payment_status === 'paid') { %>
-                        <span class="badge bg-success">Lunas</span>
-                      <% } else if (billingData.customer.payment_status === 'unpaid') { %>
-                        <span class="badge bg-warning">Belum Lunas</span>
-                      <% } else if (billingData.customer.payment_status === 'overdue') { %>
-                        <span class="badge bg-danger">Terlambat</span>
-                      <% } else { %>
-                        <span class="badge bg-secondary">Belum Ada Tagihan</span>
-                      <% } %>
-                    </div>
-                  </div>
+        <h6><i class="bi bi-receipt"></i>Informasi Tagihan</h6>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="card border-0 bg-light">
+              <div class="card-body">
+                <h6 class="card-title text-primary">
+                  <i class="bi bi-person-circle me-2"></i>Data Pelanggan
+                </h6>
+                <div class="mb-2">
+                  <strong>Nama:</strong> <%= billingData.customer.name %>
+                </div>
+                <div class="mb-2">
+                  <strong>Username:</strong> <%= billingData.customer.username %>
+                </div>
+                <div class="mb-2">
+                  <strong>Paket:</strong> 
+                  <% if (billingData.customer.package_name) { %>
+                    <span class="badge bg-info">
+                      <%= billingData.customer.package_name %> - Rp <%= parseFloat(billingData.customer.package_price).toLocaleString('id-ID') %>
+                    </span>
+                  <% } else { %>
+                    <span class="text-muted">Belum ada paket</span>
+                  <% } %>
+                </div>
+                <div class="mb-2">
+                  <strong>Status Pembayaran:</strong>
+                  <% if (billingData.customer.payment_status === 'paid') { %>
+                    <span class="badge bg-success">Lunas</span>
+                  <% } else if (billingData.customer.payment_status === 'unpaid') { %>
+                    <span class="badge bg-warning">Belum Lunas</span>
+                  <% } else if (billingData.customer.payment_status === 'overdue') { %>
+                    <span class="badge bg-danger">Terlambat</span>
+                  <% } else { %>
+                    <span class="badge bg-secondary">Belum Ada Tagihan</span>
+                  <% } %>
                 </div>
               </div>
-              <div class="col-md-6">
-                <div class="card border-0 bg-light">
-                  <div class="card-body">
-                    <h6 class="card-title text-primary">
-                      <i class="bi bi-calculator me-2"></i>Ringkasan Tagihan
-                    </h6>
-                    <div class="mb-2">
-                      <strong>Total Tagihan:</strong> <%= billingData.invoices.length %>
-                    </div>
-                    <div class="mb-2">
-                      <strong>Tagihan Lunas:</strong> 
-                      <span class="badge bg-success">
-                        <%= billingData.invoices.filter(inv => inv.status === 'paid').length %>
-                      </span>
-                    </div>
-                    <div class="mb-2">
-                      <strong>Tagihan Belum Lunas:</strong> 
-                      <span class="badge bg-warning">
-                        <%= billingData.invoices.filter(inv => inv.status === 'unpaid').length %>
-                      </span>
-                    </div>
-                    <div class="mb-2">
-                      <strong>Total Tagihan Belum Lunas:</strong> 
-                      <span class="text-danger fw-bold">
-                        Rp <%= billingData.invoices.filter(inv => inv.status === 'unpaid').reduce((sum, inv) => sum + parseFloat(inv.amount), 0).toLocaleString('id-ID') %>
-                      </span>
-                    </div>
-                    <div class="mt-3">
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card border-0 bg-light">
+              <div class="card-body">
+                <h6 class="card-title text-primary">
+                  <i class="bi bi-calculator me-2"></i>Ringkasan Tagihan
+                </h6>
+                <div class="mb-2">
+                  <strong>Total Tagihan:</strong> <%= billingData.invoices.length %>
+                </div>
+                <div class="mb-2">
+                  <strong>Tagihan Lunas:</strong> 
+                  <span class="badge bg-success">
+                    <%= billingData.invoices.filter(inv => inv.status === 'paid').length %>
+                  </span>
+                </div>
+                <div class="mb-2">
+                  <strong>Tagihan Belum Lunas:</strong> 
+                  <span class="badge bg-warning">
+                    <%= billingData.invoices.filter(inv => inv.status === 'unpaid').length %>
+                  </span>
+                </div>
+                <div class="mb-2">
+                  <strong>Total Tagihan Belum Lunas:</strong> 
+                  <span class="text-danger fw-bold">
+                    Rp <%= billingData.invoices.filter(inv => inv.status === 'unpaid').reduce((sum, inv) => sum + parseFloat(inv.amount), 0).toLocaleString('id-ID') %>
+                  </span>
+                </div>
+                <div class="mt-3">
                       <a href="/customer/billing" class="btn btn-primary btn-sm me-2">
-                        <i class="bi bi-eye me-1"></i>Lihat Detail Tagihan
-                      </a>
+                    <i class="bi bi-eye me-1"></i>Lihat Detail Tagihan
+                  </a>
                       <% if (billingData.invoices.filter(inv => inv.status === 'unpaid').length > 0) { %>
                         <button class="btn btn-success btn-sm quick-pay-btn" data-bs-toggle="modal" data-bs-target="#quickPayModal">
                           <i class="bi bi-credit-card me-1"></i>Bayar Cepat
                         </button>
                       <% } %>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
           </div>
+        </div>
+      </div>
 
-          <% if (billingData.invoices && billingData.invoices.length > 0) { %>
+      <% if (billingData.invoices && billingData.invoices.length > 0) { %>
           <div class="table-container" style="order: -1;">
-            <h6><i class="bi bi-receipt-cutoff"></i>Riwayat Tagihan</h6>
-            <div class="table-responsive">
-              <table class="table table-hover" id="invoicesTable" style="width:100%">
-                <thead>
-                  <tr>
-                    <th>No. Tagihan</th>
-                    <th>Jumlah</th>
-                    <th>Jatuh Tempo</th>
-                    <th>Status</th>
-                    <th>Tanggal Dibuat</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <% billingData.invoices.forEach(function(invoice) { %>
-                    <tr>
-                      <td>
-                        <span class="fw-bold"><%= invoice.invoice_number %></span>
-                      </td>
-                      <td>
-                        <span class="fw-bold text-primary">
-                          Rp <%= parseFloat(invoice.amount).toLocaleString('id-ID') %>
-                        </span>
-                      </td>
-                      <td>
-                        <% if (new Date(invoice.due_date) < new Date() && invoice.status === 'unpaid') { %>
-                          <span class="text-danger fw-bold">
-                            <%= new Date(invoice.due_date).toLocaleDateString('id-ID') %>
-                          </span>
-                        <% } else { %>
-                          <%= new Date(invoice.due_date).toLocaleDateString('id-ID') %>
-                        <% } %>
-                      </td>
-                      <td>
-                        <% if (invoice.status === 'paid') { %>
-                          <span class="badge bg-success">Lunas</span>
-                        <% } else if (invoice.status === 'unpaid') { %>
-                          <% if (new Date(invoice.due_date) < new Date()) { %>
-                            <span class="badge bg-danger">Terlambat</span>
-                          <% } else { %>
-                            <span class="badge bg-warning">Belum Lunas</span>
-                          <% } %>
-                        <% } %>
-                      </td>
-                      <td>
-                        <%= new Date(invoice.created_at).toLocaleDateString('id-ID') %>
-                      </td>
-                    </tr>
-                  <% }); %>
-                </tbody>
-              </table>
-            </div>
-          </div>
-          <% } %>
-          <% } else { %>
+        <h6><i class="bi bi-receipt-cutoff"></i>Riwayat Tagihan</h6>
+        <div class="table-responsive">
+          <table class="table table-hover" id="invoicesTable" style="width:100%">
+            <thead>
+              <tr>
+                <th>No. Tagihan</th>
+                <th>Jumlah</th>
+                <th>Jatuh Tempo</th>
+                <th>Status</th>
+                <th>Tanggal Dibuat</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% billingData.invoices.forEach(function(invoice) { %>
+                <tr>
+                  <td>
+                    <span class="fw-bold"><%= invoice.invoice_number %></span>
+                  </td>
+                  <td>
+                    <span class="fw-bold text-primary">
+                      Rp <%= parseFloat(invoice.amount).toLocaleString('id-ID') %>
+                    </span>
+                  </td>
+                  <td>
+                    <% if (new Date(invoice.due_date) < new Date() && invoice.status === 'unpaid') { %>
+                      <span class="text-danger fw-bold">
+                        <%= new Date(invoice.due_date).toLocaleDateString('id-ID') %>
+                      </span>
+                    <% } else { %>
+                      <%= new Date(invoice.due_date).toLocaleDateString('id-ID') %>
+                    <% } %>
+                  </td>
+                  <td>
+                    <% if (invoice.status === 'paid') { %>
+                      <span class="badge bg-success">Lunas</span>
+                    <% } else if (invoice.status === 'unpaid') { %>
+                      <% if (new Date(invoice.due_date) < new Date()) { %>
+                        <span class="badge bg-danger">Terlambat</span>
+                      <% } else { %>
+                        <span class="badge bg-warning">Belum Lunas</span>
+                      <% } %>
+                    <% } %>
+                  </td>
+                  <td>
+                    <%= new Date(invoice.created_at).toLocaleDateString('id-ID') %>
+                  </td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <% } %>
+      <% } else { %>
           <div class="form-section" style="order: -1;">
-            <h6><i class="bi bi-receipt"></i>Informasi Tagihan</h6>
-            <div class="alert alert-info">
-              <i class="bi bi-info-circle me-2"></i>
-              Data tagihan belum tersedia. Silakan hubungi admin untuk mendaftarkan nomor telepon Anda ke sistem billing.
-            </div>
-          </div>
-          <% } %>
+        <h6><i class="bi bi-receipt"></i>Informasi Tagihan</h6>
+        <div class="alert alert-info">
+          <i class="bi bi-info-circle me-2"></i>
+          Data tagihan belum tersedia. Silakan hubungi admin untuk mendaftarkan nomor telepon Anda ke sistem billing.
+        </div>
+      </div>
+      <% } %>
 
           <!-- INFORMASI PERANGKAT GENIEACS -->
           <div class="form-section">
@@ -938,50 +938,50 @@
             </small>
           </div>
 
-          <div class="table-container">
-            <h6><i class="bi bi-devices"></i>Perangkat Terhubung</h6>
-            <% if (connectedUsers && connectedUsers.length > 0) { %>
-              <div class="table-responsive">
-                <table class="table table-hover" id="connectedDevicesTable" style="width:100%">
-                  <thead>
-                    <tr>
-                      <th>Hostname</th>
-                      <th>IP</th>
-                      <th>MAC</th>
-                      <th>Interface</th>
-                      <th>Waktu</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <% connectedUsers.forEach(function(user) { %>
-                      <tr>
-                        <td><%= user.hostname %></td>
-                        <td><%= user.ip %></td>
-                        <td><%= user.mac %></td>
-                        <td><%= user.iface %></td>
-                        <td><%= user.waktu %></td>
-                      </tr>
-                    <% }) %>
-                  </tbody>
-                </table>
-              </div>
-            <% } else { %>
-              <div class="alert alert-warning mb-0">
-                <i class="bi bi-exclamation-triangle me-2"></i>
-                Tidak ada perangkat yang sedang terhubung.
-              </div>
-            <% } %>
+      <div class="table-container">
+        <h6><i class="bi bi-devices"></i>Perangkat Terhubung</h6>
+        <% if (connectedUsers && connectedUsers.length > 0) { %>
+          <div class="table-responsive">
+            <table class="table table-hover" id="connectedDevicesTable" style="width:100%">
+              <thead>
+                <tr>
+                  <th>Hostname</th>
+                  <th>IP</th>
+                  <th>MAC</th>
+                  <th>Interface</th>
+                  <th>Waktu</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% connectedUsers.forEach(function(user) { %>
+                  <tr>
+                    <td><%= user.hostname %></td>
+                    <td><%= user.ip %></td>
+                    <td><%= user.mac %></td>
+                    <td><%= user.iface %></td>
+                    <td><%= user.waktu %></td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
           </div>
-
-          <div class="alert alert-info">
-            <i class="bi bi-info-circle me-2"></i>
-            Jika mengalami kendala, silakan hubungi admin melalui WhatsApp: 
-            <a href="https://wa.me/<%= customer.adminNumberWA || '6281947215703' %>" target="_blank" class="alert-link">
-              <i class="bi bi-whatsapp me-1"></i><%= customer.adminNumber || '081947215703' %>
-            </a>
+        <% } else { %>
+          <div class="alert alert-warning mb-0">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            Tidak ada perangkat yang sedang terhubung.
           </div>
-        </div>
+        <% } %>
       </div>
+
+      <div class="alert alert-info">
+        <i class="bi bi-info-circle me-2"></i>
+        Jika mengalami kendala, silakan hubungi admin melalui WhatsApp: 
+        <a href="https://wa.me/<%= customer.adminNumberWA || '6281947215703' %>" target="_blank" class="alert-link">
+          <i class="bi bi-whatsapp me-1"></i><%= customer.adminNumber || '081947215703' %>
+        </a>
+      </div>
+    </div>
+  </div>
 
       <!-- Modal Bayar Cepat -->
       <% if (typeof billingData !== 'undefined' && billingData && billingData.invoices) { %>
@@ -1021,237 +1021,237 @@
       </div>
       <% } %>
 
-      <!-- Modal Restart Konfirmasi -->
-      <div class="modal fade" id="restartModal" tabindex="-1" aria-labelledby="restartModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="restartModalLabel">Konfirmasi Restart Perangkat</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-              <div class="alert alert-warning" role="alert">
-                <i class="bi bi-exclamation-triangle"></i> <strong>Peringatan!</strong>
-              </div>
-              <p>Apakah Anda yakin ingin restart perangkat Anda?</p>
-              <ul class="text-muted small">
-                <li>Koneksi internet akan terputus sementara</li>
-                <li>Proses restart memakan waktu sekitar 1-2 menit</li>
-                <li>Semua perangkat yang terhubung akan terputus</li>
-              </ul>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-              <button type="button" class="btn btn-danger" id="confirmRestart">
-                <i class="bi bi-arrow-clockwise"></i> Ya, Restart
-              </button>
-            </div>
+  <!-- Modal Restart Konfirmasi -->
+  <div class="modal fade" id="restartModal" tabindex="-1" aria-labelledby="restartModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="restartModalLabel">Konfirmasi Restart Perangkat</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="alert alert-warning" role="alert">
+            <i class="bi bi-exclamation-triangle"></i> <strong>Peringatan!</strong>
           </div>
+          <p>Apakah Anda yakin ingin restart perangkat Anda?</p>
+          <ul class="text-muted small">
+            <li>Koneksi internet akan terputus sementara</li>
+            <li>Proses restart memakan waktu sekitar 1-2 menit</li>
+            <li>Semua perangkat yang terhubung akan terputus</li>
+          </ul>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+          <button type="button" class="btn btn-danger" id="confirmRestart">
+            <i class="bi bi-arrow-clockwise"></i> Ya, Restart
+          </button>
         </div>
       </div>
+    </div>
+  </div>
 
-      <footer class="footer">
-        &copy; <%= new Date().getFullYear() %> <%= customer.companyHeader || 'ALIJAYA DIGITAL NETWORK' %>
-      </footer>
+  <footer class="footer">
+    &copy; <%= new Date().getFullYear() %> <%= customer.companyHeader || 'ALIJAYA DIGITAL NETWORK' %>
+  </footer>
 
-      <!-- DataTables JS -->
-      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-      <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-      <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-      <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
-      <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+  <!-- DataTables JS -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+  <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+  <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
 
-      <script>
-      $(document).ready(function() {
-        // Initialize DataTable for connected devices if table exists
-        if ($('#connectedDevicesTable').length) {
-          $('#connectedDevicesTable').DataTable({
-            responsive: true,
-            language: {
-              url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/id.json'
-            },
-            dom: '<"top"f>rt<"bottom"lip><"clear">',
-            ordering: true,
-            info: true,
-            paging: true,
-            pageLength: 5,
-            lengthMenu: [[5, 10, 25, -1], [5, 10, 25, "Semua"]],
-            columnDefs: [{
-              targets: '_all',
-              className: 'align-middle'
-            }]
-          });
-        }
+  <script>
+  $(document).ready(function() {
+    // Initialize DataTable for connected devices if table exists
+    if ($('#connectedDevicesTable').length) {
+      $('#connectedDevicesTable').DataTable({
+        responsive: true,
+        language: {
+          url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/id.json'
+        },
+        dom: '<"top"f>rt<"bottom"lip><"clear">',
+        ordering: true,
+        info: true,
+        paging: true,
+        pageLength: 5,
+        lengthMenu: [[5, 10, 25, -1], [5, 10, 25, "Semua"]],
+        columnDefs: [{
+          targets: '_all',
+          className: 'align-middle'
+        }]
+      });
+    }
 
-        // Initialize DataTable for invoices if table exists
-        if ($('#invoicesTable').length) {
-          $('#invoicesTable').DataTable({
-            responsive: true,
-            language: {
-              url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/id.json'
-            },
-            dom: '<"top"f>rt<"bottom"lip><"clear">',
-            ordering: true,
-            info: true,
-            paging: true,
-            pageLength: 5,
-            lengthMenu: [[5, 10, 25, -1], [5, 10, 25, "Semua"]],
-            columnDefs: [{
-              targets: '_all',
-              className: 'align-middle'
-            }]
-          });
-        }
+    // Initialize DataTable for invoices if table exists
+    if ($('#invoicesTable').length) {
+      $('#invoicesTable').DataTable({
+        responsive: true,
+        language: {
+          url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/id.json'
+        },
+        dom: '<"top"f>rt<"bottom"lip><"clear">',
+        ordering: true,
+        info: true,
+        paging: true,
+        pageLength: 5,
+        lengthMenu: [[5, 10, 25, -1], [5, 10, 25, "Semua"]],
+        columnDefs: [{
+          targets: '_all',
+          className: 'align-middle'
+        }]
+      });
+    }
 
-        // Tambahkan animasi pada card stats
-        $('.stat-card').each(function(index) {
-          $(this).addClass('animate__animated animate__fadeInUp')
-                .css('animation-delay', (index * 0.1) + 's');
-        });
-        
-        // Tambahkan animasi pada form sections
-        $('.form-section').each(function(index) {
-          $(this).addClass('animate__animated animate__fadeInUp')
-                .css('animation-delay', ((index + 8) * 0.1) + 's');
-        });
-        
-        // Tambahkan animasi pada table container
-        $('.table-container').each(function(index) {
-          $(this).addClass('animate__animated animate__fadeInUp')
-                 .css('animation-delay', (1.3 + (index * 0.1)) + 's');
-        });
+    // Tambahkan animasi pada card stats
+    $('.stat-card').each(function(index) {
+      $(this).addClass('animate__animated animate__fadeInUp')
+            .css('animation-delay', (index * 0.1) + 's');
+    });
+    
+    // Tambahkan animasi pada form sections
+    $('.form-section').each(function(index) {
+      $(this).addClass('animate__animated animate__fadeInUp')
+            .css('animation-delay', ((index + 8) * 0.1) + 's');
+    });
+    
+    // Tambahkan animasi pada table container
+    $('.table-container').each(function(index) {
+      $(this).addClass('animate__animated animate__fadeInUp')
+             .css('animation-delay', (1.3 + (index * 0.1)) + 's');
+    });
 
-        // Fungsi toast notification yang modern
-        function showToast(type, title, message, duration = 5000) {
-          const toastId = 'toast-' + Date.now();
-          const iconClass = type === 'success' ? 'bi-check-circle' : type === 'error' ? 'bi-x-circle' : 'bi-info-circle';
-          const bgClass = type === 'success' ? 'bg-success' : type === 'error' ? 'bg-danger' : 'bg-primary';
-          
-          const toastHtml = `
-            <div id="${toastId}" class="toast align-items-center text-white ${bgClass} border-0" role="alert" aria-live="assertive" aria-atomic="true" style="position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px;">
-              <div class="d-flex">
-                <div class="toast-body">
-                  <i class="bi ${iconClass} me-2"></i>
-                  <strong>${title}</strong><br>
-                  <small>${message}</small>
-                </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-              </div>
+    // Fungsi toast notification yang modern
+    function showToast(type, title, message, duration = 5000) {
+      const toastId = 'toast-' + Date.now();
+      const iconClass = type === 'success' ? 'bi-check-circle' : type === 'error' ? 'bi-x-circle' : 'bi-info-circle';
+      const bgClass = type === 'success' ? 'bg-success' : type === 'error' ? 'bg-danger' : 'bg-primary';
+      
+      const toastHtml = `
+        <div id="${toastId}" class="toast align-items-center text-white ${bgClass} border-0" role="alert" aria-live="assertive" aria-atomic="true" style="position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px;">
+          <div class="d-flex">
+            <div class="toast-body">
+              <i class="bi ${iconClass} me-2"></i>
+              <strong>${title}</strong><br>
+              <small>${message}</small>
             </div>
-          `;
-          
-          $('body').append(toastHtml);
-          const toastElement = document.getElementById(toastId);
-          const toast = new bootstrap.Toast(toastElement, { delay: duration });
-          toast.show();
-          
-          // Auto remove after hide
-          toastElement.addEventListener('hidden.bs.toast', () => {
-            toastElement.remove();
-          });
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+          </div>
+        </div>
+      `;
+      
+      $('body').append(toastHtml);
+      const toastElement = document.getElementById(toastId);
+      const toast = new bootstrap.Toast(toastElement, { delay: duration });
+      toast.show();
+      
+      // Auto remove after hide
+      toastElement.addEventListener('hidden.bs.toast', () => {
+        toastElement.remove();
+      });
+    }
+
+    // Handle Change SSID
+    $('#changeSsidBtn').on('click', function(e) {
+      e.preventDefault();
+      const newSsid = $('#newSsid').val().trim();
+      
+      if (!newSsid || newSsid.length < 3 || newSsid.length > 32) {
+        showToast('error', 'Error', 'SSID harus berisi 3-32 karakter!');
+        return;
+      }
+      
+      const $btn = $(this);
+      const originalText = $btn.html();
+      $btn.prop('disabled', true).html('<i class="bi bi-hourglass-split"></i> Memproses...');
+      
+      $.ajax({
+        url: '/customer/api/change-ssid',
+        method: 'POST',
+        data: { ssid: newSsid },
+        success: function(res) {
+          if (res.success) {
+            // Immediate feedback untuk user
+            showToast('success', 'SSID Sedang Diproses!', 
+              `WiFi 2.4GHz: ${res.newSSID} sedang diupdate. Proses akan selesai dalam beberapa detik.`);
+            $('#newSsid').val('');
+            
+            // Update SSID di stat card immediately
+            $('.stat-card .stat-value').each(function() {
+              if ($(this).text().includes('SSID')) {
+                $(this).text(res.newSSID);
+              }
+            });
+            
+            // Reset button setelah 2 detik
+            setTimeout(() => {
+              $btn.prop('disabled', false).html(originalText);
+            }, 2000);
+            
+          } else {
+            showToast('error', 'Error', res.message || 'Gagal mengubah SSID!');
+            $btn.prop('disabled', false).html(originalText);
+          }
+        },
+        error: function(err) {
+          const errorMsg = err.responseJSON?.message || 'Gagal mengubah SSID!';
+          showToast('error', 'Error', errorMsg);
+          $btn.prop('disabled', false).html(originalText);
         }
+      });
+    });
 
-        // Handle Change SSID
-        $('#changeSsidBtn').on('click', function(e) {
-          e.preventDefault();
-          const newSsid = $('#newSsid').val().trim();
-          
-          if (!newSsid || newSsid.length < 3 || newSsid.length > 32) {
-            showToast('error', 'Error', 'SSID harus berisi 3-32 karakter!');
-            return;
-          }
-          
-          const $btn = $(this);
-          const originalText = $btn.html();
-          $btn.prop('disabled', true).html('<i class="bi bi-hourglass-split"></i> Memproses...');
-          
-          $.ajax({
-            url: '/customer/api/change-ssid',
-            method: 'POST',
-            data: { ssid: newSsid },
-            success: function(res) {
-              if (res.success) {
-                // Immediate feedback untuk user
-                showToast('success', 'SSID Sedang Diproses!', 
-                  `WiFi 2.4GHz: ${res.newSSID} sedang diupdate. Proses akan selesai dalam beberapa detik.`);
-                $('#newSsid').val('');
-                
-                // Update SSID di stat card immediately
-                $('.stat-card .stat-value').each(function() {
-                  if ($(this).text().includes('SSID')) {
-                    $(this).text(res.newSSID);
-                  }
-                });
-                
-                // Reset button setelah 2 detik
-                setTimeout(() => {
-                  $btn.prop('disabled', false).html(originalText);
-                }, 2000);
-                
-              } else {
-                showToast('error', 'Error', res.message || 'Gagal mengubah SSID!');
-                $btn.prop('disabled', false).html(originalText);
-              }
-            },
-            error: function(err) {
-              const errorMsg = err.responseJSON?.message || 'Gagal mengubah SSID!';
-              showToast('error', 'Error', errorMsg);
+    // Handle Change Password
+    $('#changePasswordBtn').on('click', function(e) {
+      e.preventDefault();
+      const newPassword = $('#newPassword').val().trim();
+      
+      if (!newPassword || newPassword.length < 8 || newPassword.length > 63) {
+        showToast('error', 'Error', 'Password harus berisi 8-63 karakter!');
+        return;
+      }
+      
+      const $btn = $(this);
+      const originalText = $btn.html();
+      $btn.prop('disabled', true).html('<i class="bi bi-hourglass-split"></i> Memproses...');
+      
+      $.ajax({
+        url: '/customer/api/change-password',
+        method: 'POST',
+        data: { password: newPassword },
+        success: function(res) {
+          if (res.success) {
+            // Immediate feedback untuk user
+            showToast('success', 'Password Sedang Diproses!', 
+              `Password WiFi sedang diupdate. Proses akan selesai dalam beberapa detik.`);
+            $('#newPassword').val('');
+            
+            // Reset button setelah 2 detik
+            setTimeout(() => {
               $btn.prop('disabled', false).html(originalText);
-            }
-          });
-        });
-
-        // Handle Change Password
-        $('#changePasswordBtn').on('click', function(e) {
-          e.preventDefault();
-          const newPassword = $('#newPassword').val().trim();
-          
-          if (!newPassword || newPassword.length < 8 || newPassword.length > 63) {
-            showToast('error', 'Error', 'Password harus berisi 8-63 karakter!');
-            return;
+            }, 2000);
+            
+          } else {
+            showToast('error', 'Error', res.message || 'Gagal mengubah password!');
+            $btn.prop('disabled', false).html(originalText);
           }
-          
-          const $btn = $(this);
-          const originalText = $btn.html();
-          $btn.prop('disabled', true).html('<i class="bi bi-hourglass-split"></i> Memproses...');
-          
-          $.ajax({
-            url: '/customer/api/change-password',
-            method: 'POST',
-            data: { password: newPassword },
-            success: function(res) {
-              if (res.success) {
-                // Immediate feedback untuk user
-                showToast('success', 'Password Sedang Diproses!', 
-                  `Password WiFi sedang diupdate. Proses akan selesai dalam beberapa detik.`);
-                $('#newPassword').val('');
-                
-                // Reset button setelah 2 detik
-                setTimeout(() => {
-                  $btn.prop('disabled', false).html(originalText);
-                }, 2000);
-                
-              } else {
-                showToast('error', 'Error', res.message || 'Gagal mengubah password!');
-                $btn.prop('disabled', false).html(originalText);
-              }
-            },
-            error: function(err) {
-              const errorMsg = err.responseJSON?.message || 'Gagal mengubah password!';
-              showToast('error', 'Error', errorMsg);
-              $btn.prop('disabled', false).html(originalText);
-            }
-          });
-        });
+        },
+        error: function(err) {
+          const errorMsg = err.responseJSON?.message || 'Gagal mengubah password!';
+          showToast('error', 'Error', errorMsg);
+          $btn.prop('disabled', false).html(originalText);
+        }
+      });
+    });
 
-        // Inisialisasi modal restart
-        const restartModal = new bootstrap.Modal(document.getElementById('restartModal'));
-        
-        // Handle tombol yang membuka modal restart
-        $('#restartDeviceBtn').on('click', function() {
-          restartModal.show();
-        });
+    // Inisialisasi modal restart
+    const restartModal = new bootstrap.Modal(document.getElementById('restartModal'));
+    
+    // Handle tombol yang membuka modal restart
+    $('#restartDeviceBtn').on('click', function() {
+      restartModal.show();
+    });
         
         // Handle radio button selection untuk quick pay
         $('input[name="selectedInvoice"]').on('change', function() {
@@ -1273,92 +1273,92 @@
           // Redirect to billing page with specific invoice
           window.location.href = `/customer/billing?invoice=${invoiceId}`;
         });
-
-        // Handle tombol konfirmasi restart di dalam modal
-        $('#confirmRestart').on('click', function() {
-          const btn = $(this);
-          const originalText = btn.html();
-          
-          // Tutup modal segera setelah konfirmasi
-          restartModal.hide();
-          
-          // Tampilkan notifikasi proses sedang berjalan
-          const notifContainer = $('<div class="position-fixed top-0 end-0 p-3" style="z-index: 1080"></div>');
-          const notifToast = $(`
-            <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
-              <div class="toast-header bg-primary text-white">
-                <i class="bi bi-arrow-clockwise me-2"></i>
-                <strong class="me-auto">Restart Perangkat</strong>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
-              </div>
-              <div class="toast-body d-flex align-items-center">
-                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                <span>Sedang memproses perintah restart...</span>
-              </div>
-            </div>
-          `);
-          
-          notifContainer.append(notifToast);
-          $('body').append(notifContainer);
-          
-          // Kirim permintaan restart ke server
-          $.post('/customer/restart-device', function(response) {
-            // Update notifikasi dengan status sukses
-            notifToast.find('.toast-header')
-              .removeClass('bg-primary')
-              .addClass('bg-success');
-            notifToast.find('.toast-header i')
-              .removeClass('bi-arrow-clockwise')
-              .addClass('bi-check-circle');
-            notifToast.find('.toast-body')
-              .html(`<i class="bi bi-check-circle-fill me-2"></i>${response.message}`);
-            
-            // Hapus notifikasi setelah beberapa detik
-            setTimeout(function() {
-              notifToast.fadeOut('slow', function() {
-                notifContainer.remove();
-              });
-            }, 5000);
-          }).fail(function(error) {
-            // Update notifikasi dengan status error
-            notifToast.find('.toast-header')
-              .removeClass('bg-primary')
-              .addClass('bg-danger');
-            notifToast.find('.toast-header i')
-              .removeClass('bi-arrow-clockwise')
-              .addClass('bi-exclamation-triangle');
-            notifToast.find('.toast-body')
-              .html(`<i class="bi bi-exclamation-triangle-fill me-2"></i>Gagal me-restart perangkat: ${error.responseJSON ? error.responseJSON.message : 'Terjadi kesalahan'}`);
-            
-            // Hapus notifikasi setelah beberapa detik
-            setTimeout(function() {
-              notifToast.fadeOut('slow', function() {
-                notifContainer.remove();
-              });
-            }, 5000);
-          });
-        });
-      });
+    
+    // Handle tombol konfirmasi restart di dalam modal
+    $('#confirmRestart').on('click', function() {
+      const btn = $(this);
+      const originalText = btn.html();
       
-      // Fungsi untuk me-refresh logo dengan timestamp baru
-      function refreshLogo() {
-          const logo = document.getElementById('logoImage');
-          if (logo) {
-              // Tambahkan parameter timestamp baru untuk memaksa reload gambar
-              const timestamp = new Date().getTime();
-              const src = logo.src.split('?')[0]; // Hapus parameter yang ada
-              logo.src = `${src}?v=${timestamp}`;
-          }
-      }
-
-      // Refresh logo setiap 5 detik
-      setInterval(refreshLogo, 5000);
-
-      // Refresh logo saat halaman dimuat
-      document.addEventListener('DOMContentLoaded', function() {
-          refreshLogo();
+      // Tutup modal segera setelah konfirmasi
+      restartModal.hide();
+      
+      // Tampilkan notifikasi proses sedang berjalan
+      const notifContainer = $('<div class="position-fixed top-0 end-0 p-3" style="z-index: 1080"></div>');
+      const notifToast = $(`
+        <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+          <div class="toast-header bg-primary text-white">
+            <i class="bi bi-arrow-clockwise me-2"></i>
+            <strong class="me-auto">Restart Perangkat</strong>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+          </div>
+          <div class="toast-body d-flex align-items-center">
+            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            <span>Sedang memproses perintah restart...</span>
+          </div>
+        </div>
+      `);
+      
+      notifContainer.append(notifToast);
+      $('body').append(notifContainer);
+      
+      // Kirim permintaan restart ke server
+      $.post('/customer/restart-device', function(response) {
+        // Update notifikasi dengan status sukses
+        notifToast.find('.toast-header')
+          .removeClass('bg-primary')
+          .addClass('bg-success');
+        notifToast.find('.toast-header i')
+          .removeClass('bi-arrow-clockwise')
+          .addClass('bi-check-circle');
+        notifToast.find('.toast-body')
+          .html(`<i class="bi bi-check-circle-fill me-2"></i>${response.message}`);
+        
+        // Hapus notifikasi setelah beberapa detik
+        setTimeout(function() {
+          notifToast.fadeOut('slow', function() {
+            notifContainer.remove();
+          });
+        }, 5000);
+      }).fail(function(error) {
+        // Update notifikasi dengan status error
+        notifToast.find('.toast-header')
+          .removeClass('bg-primary')
+          .addClass('bg-danger');
+        notifToast.find('.toast-header i')
+          .removeClass('bi-arrow-clockwise')
+          .addClass('bi-exclamation-triangle');
+        notifToast.find('.toast-body')
+          .html(`<i class="bi bi-exclamation-triangle-fill me-2"></i>Gagal me-restart perangkat: ${error.responseJSON ? error.responseJSON.message : 'Terjadi kesalahan'}`);
+        
+        // Hapus notifikasi setelah beberapa detik
+        setTimeout(function() {
+          notifToast.fadeOut('slow', function() {
+            notifContainer.remove();
+          });
+        }, 5000);
       });
-      </script>
+    });
+  });
+  
+  // Fungsi untuk me-refresh logo dengan timestamp baru
+  function refreshLogo() {
+      const logo = document.getElementById('logoImage');
+      if (logo) {
+          // Tambahkan parameter timestamp baru untuk memaksa reload gambar
+          const timestamp = new Date().getTime();
+          const src = logo.src.split('?')[0]; // Hapus parameter yang ada
+          logo.src = `${src}?v=${timestamp}`;
+      }
+  }
+
+  // Refresh logo setiap 5 detik
+  setInterval(refreshLogo, 5000);
+
+  // Refresh logo saat halaman dimuat
+  document.addEventListener('DOMContentLoaded', function() {
+      refreshLogo();
+  });
+  </script>
         </div>
       </div>
     </div>

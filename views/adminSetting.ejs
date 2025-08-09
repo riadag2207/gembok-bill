@@ -361,19 +361,16 @@
                             <label class="form-label">Logo Saat Ini:</label>
                             <img id="logoPreview" src="/img/<%= typeof settings !== 'undefined' && settings.logo_filename ? settings.logo_filename : 'logo.png' %>?ts=<%= Date.now() %>" alt="Logo" style="max-width:200px;max-height:120px;">
                         </div>
-                        <!-- Keterangan Donasi Masjid (di dalam section logo) -->
-                        <div class="alert alert-info mt-3" style="border-radius: 10px; font-size: 1rem;">
-                            <strong>Rekening Donasi Pembangunan Masjid</strong><br>
-                            <span style="font-size:1.2em; letter-spacing:2px; font-weight:bold;">4206 0101 2214 534</span><br>
-                            <span>BRI a.n. DKM BAITUR ROHMAN</span><br>
-                            <hr class="my-2">
-                            <span class="d-block">Desa Ujunggebang Kecamatan Sukra Kabupaten Indramayu Jawa Barat</span>
-                            <span class="d-block mt-2"><strong>Konfirmasi donasi:</strong><br>
-                                081947215703 (Ust. WARJAYA)<br>
-                                085210939803 (Ust. FIKI)<br>
-                                082130257144 (Ust. KARONI)
-                            </span>
-                            <span class="d-block mt-2">Terima kasih atas partisipasi dan dukungan Anda 🙏</span>
+                        <!-- QR Code Donasi (di dalam section logo) -->
+                        <div class="mt-3 text-center">
+                            <label class="form-label"><strong>QR Code Donasi untuk Pengembangan Aplikasi</strong></label>
+                            <div class="mt-2">
+                                <img src="/img/qr-donasi.jpg" alt="QR Code Donasi" style="max-width: 300px; max-height: 500px; height: auto; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                            </div>
+                            <div class="mt-2">
+                                <small class="text-muted">Scan QR Code untuk donasi pengembangan aplikasi</small><br>
+                                <small class="text-muted">Terima kasih atas dukungan Anda 🙏</small>
+                            </div>
                         </div>
 
                         <!-- Kalkulator Burst Limit -->
