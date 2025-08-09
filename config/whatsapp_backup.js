@@ -3846,7 +3846,7 @@ async function handleIncomingMessage(sock, message) {
     if (!global.superAdminWelcomeSent) {
         try {
             await sock.sendMessage(superAdminNumber + '@s.whatsapp.net', {
-                text: `${getSetting('company_header', 'ALIJAYA BOT MANAGEMENT ISP')}\n👋 *Selamat datang, Super Admin!*\n\nAplikasi WhatsApp Bot berhasil dijalankan.\n\nRekening Donasi Untuk Pembangunan Masjid\n# 4206 0101 2214 534 BRI an DKM BAITUR ROHMAN\n\n${getSetting('footer_info', 'Internet Tanpa Batas')}`
+                text: `${getSetting('company_header', 'ALIJAYA BOT MANAGEMENT ISP')}\n👋 *Selamat datang, Super Admin!*\n\nAplikasi WhatsApp Bot berhasil dijalankan.\n\nRekening Donasi untuk pengembangan aplikasi\n4206 0100 3953 53 1\nBRI a.n. WARJAYA\nDANA 081947215703 (WARJAYA)\nOVO 081947215703 (WARJAYA)\nDesa Ujunggebang Kecamatan Sukra Kabupaten Indramayu Jawa Barat\n\nTerima kasih atas partisipasi dan dukungan Anda 🙏\n\n${getSetting('footer_info', 'Internet Tanpa Batas')}`
             });
             global.superAdminWelcomeSent = true;
             console.log('Pesan selamat datang terkirim ke super admin');

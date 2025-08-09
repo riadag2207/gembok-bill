@@ -19,21 +19,21 @@ async function isValidCustomer(phone) {
     }
     
     // 2. Jika tidak ada di billing, cek di GenieACS sebagai fallback
-    let device = await findDeviceByTag(phone);
-    
+  let device = await findDeviceByTag(phone);
+  
     // Jika tidak ditemukan di GenieACS, coba cari berdasarkan PPPoE username dari billing
-    if (!device) {
-      try {
-        const customer = await billingManager.getCustomerByPhone(phone);
-        if (customer && customer.pppoe_username) {
-          const { findDeviceByPPPoE } = require('../config/genieacs');
-          device = await findDeviceByPPPoE(customer.pppoe_username);
-        }
-      } catch (error) {
-        console.error('Error finding device by PPPoE username:', error);
+  if (!device) {
+    try {
+      const customer = await billingManager.getCustomerByPhone(phone);
+      if (customer && customer.pppoe_username) {
+        const { findDeviceByPPPoE } = require('../config/genieacs');
+        device = await findDeviceByPPPoE(customer.pppoe_username);
       }
+    } catch (error) {
+      console.error('Error finding device by PPPoE username:', error);
     }
-    
+  }
+  
     if (device) {
       console.log(`✅ Customer found in GenieACS: ${phone}`);
       return true;
@@ -107,8 +107,8 @@ async function getCustomerDeviceData(phone) {
       
       // 2. Coba ambil data device dari GenieACS jika ada
       device = await findDeviceByTag(phone);
-      
-      // Jika tidak ditemukan, coba cari berdasarkan PPPoE username dari billing
+  
+  // Jika tidak ditemukan, coba cari berdasarkan PPPoE username dari billing
       if (!device && customer.pppoe_username) {
         try {
           const { findDeviceByPPPoE } = require('../config/genieacs');
@@ -136,15 +136,15 @@ async function getCustomerDeviceData(phone) {
       // Fallback: coba cari di GenieACS saja
       device = await findDeviceByTag(phone);
       
-      if (!device) {
-        try {
-          const customer = await billingManager.getCustomerByPhone(phone);
-          if (customer && customer.pppoe_username) {
-            const { findDeviceByPPPoE } = require('../config/genieacs');
-            device = await findDeviceByPPPoE(customer.pppoe_username);
-          }
-        } catch (error) {
-          console.error('Error finding device by PPPoE username:', error);
+  if (!device) {
+    try {
+      const customer = await billingManager.getCustomerByPhone(phone);
+      if (customer && customer.pppoe_username) {
+        const { findDeviceByPPPoE } = require('../config/genieacs');
+        device = await findDeviceByPPPoE(customer.pppoe_username);
+      }
+    } catch (error) {
+      console.error('Error finding device by PPPoE username:', error);
         }
       }
     }
@@ -172,20 +172,20 @@ async function getCustomerDeviceData(phone) {
     }
     
     // 5. Jika ada device di GenieACS, ambil data lengkap
-    const ssid = device?.InternetGatewayDevice?.LANDevice?.['1']?.WLANConfiguration?.['1']?.SSID?._value || '-';
-    const lastInform =
-      device?._lastInform
-        ? new Date(device._lastInform).toLocaleString('id-ID')
-        : device?.Events?.Inform
-          ? new Date(device.Events.Inform).toLocaleString('id-ID')
-          : device?.InternetGatewayDevice?.DeviceInfo?.['1']?.LastInform?._value
-            ? new Date(device.InternetGatewayDevice.DeviceInfo['1'].LastInform._value).toLocaleString('id-ID')
-            : '-';
-    const status = lastInform !== '-' ? 'Online' : 'Unknown';
+  const ssid = device?.InternetGatewayDevice?.LANDevice?.['1']?.WLANConfiguration?.['1']?.SSID?._value || '-';
+  const lastInform =
+    device?._lastInform
+      ? new Date(device._lastInform).toLocaleString('id-ID')
+      : device?.Events?.Inform
+        ? new Date(device.Events.Inform).toLocaleString('id-ID')
+        : device?.InternetGatewayDevice?.DeviceInfo?.['1']?.LastInform?._value
+          ? new Date(device.InternetGatewayDevice.DeviceInfo['1'].LastInform._value).toLocaleString('id-ID')
+          : '-';
+  const status = lastInform !== '-' ? 'Online' : 'Unknown';
     
-    // User terhubung (WiFi)
-    let connectedUsers = [];
-    try {
+  // User terhubung (WiFi)
+  let connectedUsers = [];
+  try {
       const totalAssociations = getParameterWithPaths(device, parameterPaths.userConnected);
       if (totalAssociations && totalAssociations !== 'N/A' && totalAssociations > 0) {
         connectedUsers = Array.from({ length: parseInt(totalAssociations) }, (_, i) => ({
@@ -202,11 +202,11 @@ async function getCustomerDeviceData(phone) {
     
     // Ambil data lainnya
     const softwareVersion = device?.InternetGatewayDevice?.DeviceInfo?.['1']?.SoftwareVersion?._value || '-';
-    const rxPower = getParameterWithPaths(device, parameterPaths.rxPower);
-    const pppoeIP = getParameterWithPaths(device, parameterPaths.pppoeIP);
-    const pppoeUsername = getParameterWithPaths(device, parameterPaths.pppUsername);
-    const totalAssociations = getParameterWithPaths(device, parameterPaths.userConnected);
-    
+  const rxPower = getParameterWithPaths(device, parameterPaths.rxPower);
+  const pppoeIP = getParameterWithPaths(device, parameterPaths.pppoeIP);
+  const pppoeUsername = getParameterWithPaths(device, parameterPaths.pppUsername);
+  const totalAssociations = getParameterWithPaths(device, parameterPaths.userConnected);
+  
     return {
       phone: phone,
       ssid: ssid,
@@ -223,9 +223,9 @@ async function getCustomerDeviceData(phone) {
     
   } catch (error) {
     console.error('Error in getCustomerDeviceData:', error);
-    
+  
     // Return data minimal jika terjadi error
-    return {
+  return {
       phone: phone,
       ssid: '-',
       status: 'Error',

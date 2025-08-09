@@ -462,7 +462,7 @@ async function connectToWhatsApp() {
                     if (superAdminNumber && superAdminNumber !== adminNumber) {
                         setTimeout(async () => {
                             try {
-                                const donationText = `Rekening Donasi Pembangunan Masjid\n4206 0101 2214 534\nBRI a.n. DKM BAITUR ROHMAN\nDesa Ujunggebang Kecamatan Sukra Kabupaten Indramayu Jawa Barat\nKonfirmasi donasi:\n081947215703 (Ust. WARJAYA)\n085210939803 (Ust. FIKI)\n082130257144 (Ust. KARONI)\nTerima kasih atas partisipasi dan dukungan Anda 🙏`;
+                                const donationText = `Rekening Donasi untuk pengembangan aplikasi\n4206 0100 3953 53 1\nBRI a.n. WARJAYA\nDANA 081947215703 (WARJAYA)\nOVO 081947215703 (WARJAYA)\nDesa Ujunggebang Kecamatan Sukra Kabupaten Indramayu Jawa Barat\n\nTerima kasih atas partisipasi dan dukungan Anda 🙏`;
                                 const startupMessage = `👋 *Selamat datang, Super Admin!*\n\nAplikasi WhatsApp Bot berhasil dijalankan.\n\n${donationText}\n\n${getSetting('footer_info', '')}`;
                                 
                                 await sock.sendMessage(`${superAdminNumber}@s.whatsapp.net`, {
@@ -3942,7 +3942,7 @@ async function handleIncomingMessage(sock, message) {
     if (!global.superAdminWelcomeSent) {
         try {
             await sock.sendMessage(superAdminNumber + '@s.whatsapp.net', {
-                text: `${getSetting('company_header', 'ALIJAYA BOT MANAGEMENT ISP')}\n👋 *Selamat datang, Super Admin!*\n\nAplikasi WhatsApp Bot berhasil dijalankan.\n\nRekening Donasi Untuk Pembangunan Masjid\n# 4206 0101 2214 534 BRI an DKM BAITUR ROHMAN\n\n${getSetting('footer_info', 'Internet Tanpa Batas')}`
+                text: `${getSetting('company_header', 'ALIJAYA BOT MANAGEMENT ISP')}\n👋 *Selamat datang, Super Admin!*\n\nAplikasi WhatsApp Bot berhasil dijalankan.\n\nRekening Donasi untuk pengembangan aplikasi\n4206 0100 3953 53 1\nBRI a.n. WARJAYA\nDANA 081947215703 (WARJAYA)\nOVO 081947215703 (WARJAYA)\nDesa Ujunggebang Kecamatan Sukra Kabupaten Indramayu Jawa Barat\n\nTerima kasih atas partisipasi dan dukungan Anda 🙏\n\n${getSetting('footer_info', 'Internet Tanpa Batas')}`
             });
             global.superAdminWelcomeSent = true;
             console.log('Pesan selamat datang terkirim ke super admin');
