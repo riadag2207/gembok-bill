@@ -458,8 +458,8 @@ Distributed under the ISC License. See `LICENSE` for more information.
 
 Rekening Donasi Untuk Pembangunan Masjid:
 - **Bank**: BRI
-- **No. Rekening**: 4206 0101 2214 534
-- **Atas Nama**: DKM BAITUR ROHMAN
+- **No. Rekening**: 4206 01 003953 531
+- **Atas Nama**: WARJAYA
 - **Info**: 08194215703 ALIJAYA
 
 ---
