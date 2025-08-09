@@ -72,7 +72,7 @@ app.use('/admin/billing', adminAuth, adminBillingRouter);
 
 // Import dan gunakan route payment
 const paymentRouter = require('./routes/payment');
-app.use('/api/payment', paymentRouter);
+app.use('/payment', paymentRouter);
 
 // Import dan gunakan route testTroubleReport untuk debugging
 const testTroubleReportRouter = require('./routes/testTroubleReport');
