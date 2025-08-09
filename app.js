@@ -8,6 +8,9 @@ const fs = require('fs');
 const session = require('express-session');
 const { getSetting } = require('./config/settingsManager');
 
+// Import comprehensive error handler
+const { errorHandler, AppError } = require('./config/errorHandler');
+
 // Import invoice scheduler
 const invoiceScheduler = require('./config/scheduler');
 
@@ -247,6 +250,18 @@ function startServer(portToUse) {
         process.exit(1);
     }
 }
+
+// Setup global error handlers
+errorHandler.setupGlobalHandlers();
+
+// 404 handler - must be after all routes
+app.use('*', (req, res, next) => {
+    const error = new AppError(`Route ${req.originalUrl} not found`, 404, 'NOT_FOUND');
+    next(error);
+});
+
+// Global error middleware - must be last
+app.use(errorHandler.expressErrorHandler());
 
 // Mulai server dengan port dari settings.json
 const port = getSetting('server_port', 4555);
