@@ -6,6 +6,8 @@ const { findDeviceByTag } = require('../config/addWAN');
 const { sendMessage } = require('../config/sendMessage');
 const { getSettingsWithCache, getSetting } = require('../config/settingsManager');
 const billingManager = require('../config/billing');
+const { logger } = require('../config/logger');
+const { errorHandler, ValidationError, AuthenticationError } = require('../config/errorHandler');
 const router = express.Router();
 
 // Validasi nomor pelanggan - PRIORITAS KE BILLING SYSTEM
@@ -14,7 +16,7 @@ async function isValidCustomer(phone) {
     // 1. Cek di database billing terlebih dahulu
     const customer = await billingManager.getCustomerByPhone(phone);
     if (customer) {
-      console.log(`✅ Customer found in billing database: ${phone}`);
+      logger.info('Customer found in billing database', { phone });
       return true; // Pelanggan valid jika ada di billing
     }
     
@@ -30,20 +32,20 @@ async function isValidCustomer(phone) {
         device = await findDeviceByPPPoE(customer.pppoe_username);
       }
     } catch (error) {
-      console.error('Error finding device by PPPoE username:', error);
+      logger.error('Error finding device by PPPoE username', { error: error.message });
     }
   }
   
     if (device) {
-      console.log(`✅ Customer found in GenieACS: ${phone}`);
+      logger.info('Customer found in GenieACS', { phone });
       return true;
     }
     
-    console.log(`❌ Customer not found in billing or GenieACS: ${phone}`);
+    logger.warn('Customer not found in billing or GenieACS', { phone });
     return false;
     
   } catch (error) {
-    console.error('Error in isValidCustomer:', error);
+    logger.error('Error in isValidCustomer', { error: error.message });
     return false;
   }
 }
@@ -197,7 +199,7 @@ async function getCustomerDeviceData(phone) {
         }));
       }
     } catch (error) {
-      console.error('Error getting connected users:', error);
+      logger.error('Error getting connected users', { error: error.message });
     }
     
     // Ambil data lainnya
@@ -222,7 +224,7 @@ async function getCustomerDeviceData(phone) {
     };
     
   } catch (error) {
-    console.error('Error in getCustomerDeviceData:', error);
+    logger.error('Error in getCustomerDeviceData', { error: error.message, phone });
   
     // Return data minimal jika terjadi error
   return {
@@ -588,27 +590,19 @@ router.get('/login', (req, res) => {
 });
 
 // POST: Proses login - Optimized dengan AJAX support
-router.post('/login', async (req, res) => {
+router.post('/login', errorHandler.asyncHandler(async (req, res) => {
   try {
     const { phone } = req.body;
     const settings = getSettingsWithCache();
     
     // Fast validation
     if (!phone || !phone.match(/^08[0-9]{8,13}$/)) {
-      if (req.xhr || req.headers.accept.indexOf('json') > -1) {
-        return res.status(400).json({ success: false, message: 'Nomor HP harus valid (08xxxxxxxxxx)' });
-      } else {
-        return res.render('login', { settings, error: 'Nomor HP tidak valid.' });
-      }
+      throw new ValidationError('Nomor HP harus valid (08xxxxxxxxxx)', 'phone');
     }
     
     // Check customer validity
     if (!await isValidCustomer(phone)) {
-      if (req.xhr || req.headers.accept.indexOf('json') > -1) {
-        return res.status(401).json({ success: false, message: 'Nomor HP tidak terdaftar.' });
-      } else {
-        return res.render('login', { settings, error: 'Nomor HP tidak valid atau belum terdaftar.' });
-      }
+      throw new AuthenticationError('Nomor HP tidak terdaftar dalam sistem kami');
     }
     
     if (settings.customerPortalOtp === 'true') {
@@ -648,7 +642,7 @@ router.post('/login', async (req, res) => {
       }
     }
   } catch (error) {
-    console.error('Login error:', error);
+    logger.error('Login error', { error: error.message });
     
     if (req.xhr || req.headers.accept.indexOf('json') > -1) {
       return res.status(500).json({ success: false, message: 'Terjadi kesalahan saat login' });
@@ -656,7 +650,7 @@ router.post('/login', async (req, res) => {
       return res.render('login', { settings: getSettingsWithCache(), error: 'Terjadi kesalahan saat login.' });
     }
   }
-});
+}));
 
 // GET: Halaman OTP
 router.get('/otp', (req, res) => {

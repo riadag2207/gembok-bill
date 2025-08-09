@@ -2779,3 +2779,539 @@
 2025-08-09 09:48:00 error: Failed to send PPPoE notification to 62822180947xxx after 2 retries
 2025-08-09 09:48:26 error: Failed to send PPPoE notification to 62838076656xxx after 2 retries
 2025-08-09 09:49:00 error: Failed to send PPPoE notification to 62822180947xxx after 2 retries
+2025-08-09 03:06:31 error: Error connecting to Mikrotik: 
+2025-08-09 03:06:31 error: No Mikrotik connection available
+2025-08-09 03:06:31 error: Error connecting to Mikrotik: 
+2025-08-09 03:06:31 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:07:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:07:45 error: No Mikrotik connection available
+2025-08-09 03:07:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:07:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:08:40 error: Error finding device by tag: connect EHOSTUNREACH 192.168.8.29:7557
+2025-08-09 03:08:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:08:45 error: No Mikrotik connection available
+2025-08-09 03:08:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:08:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:09:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:09:45 error: No Mikrotik connection available
+2025-08-09 03:09:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:09:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:10:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:10:45 error: No Mikrotik connection available
+2025-08-09 03:10:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:10:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:11:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:11:45 error: No Mikrotik connection available
+2025-08-09 03:11:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:11:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:12:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:12:45 error: No Mikrotik connection available
+2025-08-09 03:12:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:12:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:13:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:13:45 error: No Mikrotik connection available
+2025-08-09 03:13:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:13:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:14:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:14:45 error: No Mikrotik connection available
+2025-08-09 03:14:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:14:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:15:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:15:45 error: No Mikrotik connection available
+2025-08-09 03:15:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:15:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:16:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:16:45 error: No Mikrotik connection available
+2025-08-09 03:16:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:16:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:17:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:17:45 error: No Mikrotik connection available
+2025-08-09 03:17:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:17:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:18:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:18:45 error: No Mikrotik connection available
+2025-08-09 03:18:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:18:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:19:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:19:45 error: No Mikrotik connection available
+2025-08-09 03:19:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:19:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:20:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:20:45 error: No Mikrotik connection available
+2025-08-09 03:20:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:20:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:21:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:21:45 error: No Mikrotik connection available
+2025-08-09 03:21:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:21:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:22:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:22:45 error: No Mikrotik connection available
+2025-08-09 03:22:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:22:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:23:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:23:45 error: No Mikrotik connection available
+2025-08-09 03:23:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:23:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:24:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:24:45 error: No Mikrotik connection available
+2025-08-09 03:24:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:24:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:25:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:25:45 error: No Mikrotik connection available
+2025-08-09 03:25:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:25:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:26:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:26:45 error: No Mikrotik connection available
+2025-08-09 03:26:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:26:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:27:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:27:45 error: No Mikrotik connection available
+2025-08-09 03:27:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:27:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:28:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:28:45 error: No Mikrotik connection available
+2025-08-09 03:28:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:28:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:29:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:29:45 error: No Mikrotik connection available
+2025-08-09 03:29:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:29:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:30:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:30:45 error: No Mikrotik connection available
+2025-08-09 03:30:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:30:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:31:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:31:45 error: No Mikrotik connection available
+2025-08-09 03:31:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:31:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:32:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:32:45 error: No Mikrotik connection available
+2025-08-09 03:32:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:32:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:33:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:33:45 error: No Mikrotik connection available
+2025-08-09 03:33:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:33:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:34:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:34:45 error: No Mikrotik connection available
+2025-08-09 03:34:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:34:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:35:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:35:45 error: No Mikrotik connection available
+2025-08-09 03:35:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:35:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:36:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:36:45 error: No Mikrotik connection available
+2025-08-09 03:36:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:36:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:37:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:37:45 error: No Mikrotik connection available
+2025-08-09 03:37:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:37:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:38:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:38:45 error: No Mikrotik connection available
+2025-08-09 03:38:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:38:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:39:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:39:45 error: No Mikrotik connection available
+2025-08-09 03:39:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:39:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:40:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:40:45 error: No Mikrotik connection available
+2025-08-09 03:40:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:40:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:41:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:41:45 error: No Mikrotik connection available
+2025-08-09 03:41:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:41:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:42:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:42:45 error: No Mikrotik connection available
+2025-08-09 03:42:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:42:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:43:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:43:45 error: No Mikrotik connection available
+2025-08-09 03:43:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:43:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:44:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:44:45 error: No Mikrotik connection available
+2025-08-09 03:44:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:44:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:45:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:45:45 error: No Mikrotik connection available
+2025-08-09 03:45:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:45:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:46:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:46:45 error: No Mikrotik connection available
+2025-08-09 03:46:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:46:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:47:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:47:45 error: No Mikrotik connection available
+2025-08-09 03:47:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:47:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:48:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:48:45 error: No Mikrotik connection available
+2025-08-09 03:48:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:48:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:49:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:49:45 error: No Mikrotik connection available
+2025-08-09 03:49:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:49:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:50:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:50:45 error: No Mikrotik connection available
+2025-08-09 03:50:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:50:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:51:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:51:45 error: No Mikrotik connection available
+2025-08-09 03:51:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:51:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:52:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:52:45 error: No Mikrotik connection available
+2025-08-09 03:52:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:52:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:53:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:53:45 error: No Mikrotik connection available
+2025-08-09 03:53:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:53:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:54:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:54:45 error: No Mikrotik connection available
+2025-08-09 03:54:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:54:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:55:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:55:45 error: No Mikrotik connection available
+2025-08-09 03:55:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:55:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:56:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:56:45 error: No Mikrotik connection available
+2025-08-09 03:56:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:56:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:57:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:57:45 error: No Mikrotik connection available
+2025-08-09 03:57:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:57:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:58:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:58:45 error: No Mikrotik connection available
+2025-08-09 03:58:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:58:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 03:59:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:59:45 error: No Mikrotik connection available
+2025-08-09 03:59:45 error: Error connecting to Mikrotik: 
+2025-08-09 03:59:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:00:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:00:45 error: No Mikrotik connection available
+2025-08-09 04:00:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:00:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:01:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:01:45 error: No Mikrotik connection available
+2025-08-09 04:01:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:01:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:02:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:02:45 error: No Mikrotik connection available
+2025-08-09 04:02:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:02:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:03:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:03:45 error: No Mikrotik connection available
+2025-08-09 04:03:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:03:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:04:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:04:45 error: No Mikrotik connection available
+2025-08-09 04:04:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:04:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:05:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:05:45 error: No Mikrotik connection available
+2025-08-09 04:05:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:05:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:06:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:06:45 error: No Mikrotik connection available
+2025-08-09 04:06:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:06:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:07:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:07:45 error: No Mikrotik connection available
+2025-08-09 04:07:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:07:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:08:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:08:45 error: No Mikrotik connection available
+2025-08-09 04:08:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:08:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:09:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:09:45 error: No Mikrotik connection available
+2025-08-09 04:09:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:09:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:10:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:10:45 error: No Mikrotik connection available
+2025-08-09 04:10:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:10:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:11:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:11:45 error: No Mikrotik connection available
+2025-08-09 04:11:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:11:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:12:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:12:45 error: No Mikrotik connection available
+2025-08-09 04:12:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:12:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:13:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:13:45 error: No Mikrotik connection available
+2025-08-09 04:13:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:13:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:14:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:14:45 error: No Mikrotik connection available
+2025-08-09 04:14:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:14:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:15:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:15:45 error: No Mikrotik connection available
+2025-08-09 04:15:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:15:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:16:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:16:45 error: No Mikrotik connection available
+2025-08-09 04:16:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:16:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:17:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:17:45 error: No Mikrotik connection available
+2025-08-09 04:17:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:17:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:18:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:18:45 error: No Mikrotik connection available
+2025-08-09 04:18:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:18:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:19:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:19:45 error: No Mikrotik connection available
+2025-08-09 04:19:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:19:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:20:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:20:45 error: No Mikrotik connection available
+2025-08-09 04:20:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:20:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:21:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:21:45 error: No Mikrotik connection available
+2025-08-09 04:21:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:21:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:22:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:22:45 error: No Mikrotik connection available
+2025-08-09 04:22:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:22:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:23:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:23:45 error: No Mikrotik connection available
+2025-08-09 04:23:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:23:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:24:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:24:45 error: No Mikrotik connection available
+2025-08-09 04:24:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:24:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:25:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:25:45 error: No Mikrotik connection available
+2025-08-09 04:25:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:25:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:26:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:26:45 error: No Mikrotik connection available
+2025-08-09 04:26:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:26:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:27:44 error: Error connecting to Mikrotik: 
+2025-08-09 04:27:44 error: No Mikrotik connection available
+2025-08-09 04:27:44 error: Error connecting to Mikrotik: 
+2025-08-09 04:27:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:27:45 error: No Mikrotik connection available
+2025-08-09 04:27:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:27:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:27:46 error: Error connecting to Mikrotik: 
+2025-08-09 04:27:48 error: Error connecting to Mikrotik: 
+2025-08-09 04:27:50 error: Error connecting to Mikrotik: 
+2025-08-09 04:27:52 error: Error connecting to Mikrotik: 
+2025-08-09 04:27:54 error: Error connecting to Mikrotik: 
+2025-08-09 04:27:56 error: Error connecting to Mikrotik: 
+2025-08-09 04:27:58 error: Error connecting to Mikrotik: 
+2025-08-09 04:28:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:28:45 error: No Mikrotik connection available
+2025-08-09 04:28:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:28:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:29:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:29:45 error: No Mikrotik connection available
+2025-08-09 04:29:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:29:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:30:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:30:45 error: No Mikrotik connection available
+2025-08-09 04:30:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:30:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:31:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:31:45 error: No Mikrotik connection available
+2025-08-09 04:31:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:31:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:32:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:32:45 error: No Mikrotik connection available
+2025-08-09 04:32:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:32:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:33:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:33:45 error: No Mikrotik connection available
+2025-08-09 04:33:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:33:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:34:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:34:45 error: No Mikrotik connection available
+2025-08-09 04:34:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:34:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:35:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:35:45 error: No Mikrotik connection available
+2025-08-09 04:35:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:35:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:36:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:36:45 error: No Mikrotik connection available
+2025-08-09 04:36:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:36:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:36:55 error: Error connecting to Mikrotik: 
+2025-08-09 04:36:57 error: Error connecting to Mikrotik: 
+2025-08-09 04:36:59 error: Error connecting to Mikrotik: 
+2025-08-09 04:37:01 error: Error connecting to Mikrotik: 
+2025-08-09 04:37:03 error: Error connecting to Mikrotik: 
+2025-08-09 04:37:05 error: Error connecting to Mikrotik: 
+2025-08-09 04:37:07 error: Error connecting to Mikrotik: 
+2025-08-09 04:37:09 error: Error connecting to Mikrotik: 
+2025-08-09 04:37:11 error: Error connecting to Mikrotik: 
+2025-08-09 04:37:13 error: Error connecting to Mikrotik: 
+2025-08-09 04:37:15 error: Error connecting to Mikrotik: 
+2025-08-09 04:37:17 error: Error connecting to Mikrotik: 
+2025-08-09 04:37:19 error: Error connecting to Mikrotik: 
+2025-08-09 04:37:19 error: No Mikrotik connection available
+2025-08-09 04:37:19 error: Error connecting to Mikrotik: 
+2025-08-09 04:37:19 error: No Mikrotik connection available
+2025-08-09 04:37:19 error: Error connecting to Mikrotik: 
+2025-08-09 04:37:20 error: Error connecting to Mikrotik: 
+2025-08-09 04:37:20 error: No Mikrotik connection available
+2025-08-09 04:37:25 error: Error connecting to Mikrotik: 
+2025-08-09 04:37:25 error: No Mikrotik connection available
+2025-08-09 04:37:25 error: Error connecting to Mikrotik: 
+2025-08-09 04:37:25 error: No Mikrotik connection available
+2025-08-09 04:37:25 error: Error connecting to Mikrotik: 
+2025-08-09 04:37:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:37:45 error: No Mikrotik connection available
+2025-08-09 04:37:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:37:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:38:28 error: Error connecting to Mikrotik: 
+2025-08-09 04:38:28 error: Error connecting to Mikrotik: 
+2025-08-09 04:38:28 error: No Mikrotik connection available
+2025-08-09 04:38:30 error: Error connecting to Mikrotik: 
+2025-08-09 04:38:32 error: Error connecting to Mikrotik: 
+2025-08-09 04:38:34 error: Error connecting to Mikrotik: 
+2025-08-09 04:38:36 error: Error connecting to Mikrotik: 
+2025-08-09 04:38:38 error: Error connecting to Mikrotik: 
+2025-08-09 04:38:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:38:45 error: No Mikrotik connection available
+2025-08-09 04:38:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:38:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:38:48 error: Error connecting to Mikrotik: 
+2025-08-09 04:38:48 error: No Mikrotik connection available
+2025-08-09 04:38:48 error: Error connecting to Mikrotik: 
+2025-08-09 04:38:50 error: Error connecting to Mikrotik: 
+2025-08-09 04:38:52 error: Error connecting to Mikrotik: 
+2025-08-09 04:38:55 error: Error connecting to Mikrotik: 
+2025-08-09 04:38:57 error: Error connecting to Mikrotik: 
+2025-08-09 04:38:59 error: Error connecting to Mikrotik: 
+2025-08-09 04:39:01 error: Error connecting to Mikrotik: 
+2025-08-09 04:39:03 error: Error connecting to Mikrotik: 
+2025-08-09 04:39:05 error: Error connecting to Mikrotik: 
+2025-08-09 04:39:07 error: Error connecting to Mikrotik: 
+2025-08-09 04:39:09 error: Error connecting to Mikrotik: 
+2025-08-09 04:39:11 error: Error connecting to Mikrotik: 
+2025-08-09 04:39:13 error: Error connecting to Mikrotik: 
+2025-08-09 04:39:15 error: Error connecting to Mikrotik: 
+2025-08-09 04:39:17 error: Error connecting to Mikrotik: 
+2025-08-09 04:39:19 error: Error connecting to Mikrotik: 
+2025-08-09 04:39:21 error: Error connecting to Mikrotik: 
+2025-08-09 04:39:23 error: Error connecting to Mikrotik: 
+2025-08-09 04:39:25 error: Error connecting to Mikrotik: 
+2025-08-09 04:39:27 error: Error connecting to Mikrotik: 
+2025-08-09 04:39:29 error: Error connecting to Mikrotik: 
+2025-08-09 04:39:31 error: Error connecting to Mikrotik: 
+2025-08-09 04:39:33 error: Error connecting to Mikrotik: 
+2025-08-09 04:39:35 error: Error connecting to Mikrotik: 
+2025-08-09 04:39:37 error: Error connecting to Mikrotik: 
+2025-08-09 04:39:39 error: Error connecting to Mikrotik: 
+2025-08-09 04:39:41 error: Error connecting to Mikrotik: 
+2025-08-09 04:39:43 error: Error connecting to Mikrotik: 
+2025-08-09 04:39:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:39:45 error: No Mikrotik connection available
+2025-08-09 04:39:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:39:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:39:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:39:47 error: Error connecting to Mikrotik: 
+2025-08-09 04:39:49 error: Error connecting to Mikrotik: 
+2025-08-09 04:39:51 error: Error connecting to Mikrotik: 
+2025-08-09 04:39:53 error: Error connecting to Mikrotik: 
+2025-08-09 04:40:22 error: Error connecting to Mikrotik: 
+2025-08-09 04:40:36 error: Error connecting to Mikrotik: 
+2025-08-09 04:40:36 error: Error connecting to Mikrotik: 
+2025-08-09 04:40:38 error: Error connecting to Mikrotik: 
+2025-08-09 04:40:40 error: Error connecting to Mikrotik: 
+2025-08-09 04:40:42 error: Error connecting to Mikrotik: 
+2025-08-09 04:40:44 error: Error connecting to Mikrotik: 
+2025-08-09 04:40:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:40:45 error: No Mikrotik connection available
+2025-08-09 04:40:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:40:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:40:46 error: Error connecting to Mikrotik: 
+2025-08-09 04:40:48 error: Error connecting to Mikrotik: 
+2025-08-09 04:40:50 error: Error connecting to Mikrotik: 
+2025-08-09 04:40:52 error: Error connecting to Mikrotik: 
+2025-08-09 04:40:54 error: Error connecting to Mikrotik: 
+2025-08-09 04:40:56 error: Error connecting to Mikrotik: 
+2025-08-09 04:40:58 error: Error connecting to Mikrotik: 
+2025-08-09 04:41:00 error: Error connecting to Mikrotik: 
+2025-08-09 04:41:02 error: Error connecting to Mikrotik: 
+2025-08-09 04:41:04 error: Error connecting to Mikrotik: 
+2025-08-09 04:41:06 error: Error connecting to Mikrotik: 
+2025-08-09 04:41:08 error: Error connecting to Mikrotik: 
+2025-08-09 04:41:10 error: Error connecting to Mikrotik: 
+2025-08-09 04:41:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:41:45 error: No Mikrotik connection available
+2025-08-09 04:41:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:41:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:42:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:42:45 error: No Mikrotik connection available
+2025-08-09 04:42:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:42:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:43:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:43:45 error: No Mikrotik connection available
+2025-08-09 04:43:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:43:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:44:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:44:45 error: No Mikrotik connection available
+2025-08-09 04:44:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:44:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:45:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:45:45 error: No Mikrotik connection available
+2025-08-09 04:45:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:45:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:46:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:46:45 error: No Mikrotik connection available
+2025-08-09 04:46:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:46:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:47:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:47:45 error: No Mikrotik connection available
+2025-08-09 04:47:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:47:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:48:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:48:45 error: No Mikrotik connection available
+2025-08-09 04:48:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:48:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:49:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:49:45 error: No Mikrotik connection available
+2025-08-09 04:49:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:49:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:50:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:50:45 error: No Mikrotik connection available
+2025-08-09 04:50:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:50:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 04:51:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:51:45 error: No Mikrotik connection available
+2025-08-09 04:51:45 error: Error connecting to Mikrotik: 
+2025-08-09 04:51:45 error: No Mikrotik connection available for PPPoE monitoring
+2025-08-09 11:54:44 error: Failed to send PPPoE notification to 6281947215703 after 2 retries
+2025-08-09 11:55:17 error: Failed to send PPPoE notification to 62838076656xxx after 2 retries
+2025-08-09 11:55:44 error: Failed to send PPPoE notification to 6281947215703 after 2 retries
+2025-08-09 11:55:50 error: Failed to send PPPoE notification to 62822180947xxx after 2 retries
+2025-08-09 11:56:17 error: Failed to send PPPoE notification to 62838076656xxx after 2 retries
+2025-08-09 11:56:50 error: Failed to send PPPoE notification to 62822180947xxx after 2 retries
+2025-08-09 16:20:08 error: Failed to send PPPoE notification to 6281947215703 after 2 retries
+2025-08-09 16:20:41 error: Failed to send PPPoE notification to 62838076656xxx after 2 retries
+2025-08-09 16:21:08 error: Failed to send PPPoE notification to 6281947215703 after 2 retries
+2025-08-09 16:21:14 error: Failed to send PPPoE notification to 62822180947xxx after 2 retries
+2025-08-09 16:21:41 error: Failed to send PPPoE notification to 62838076656xxx after 2 retries
+2025-08-09 16:22:14 error: Failed to send PPPoE notification to 62822180947xxx after 2 retries
+2025-08-09 17:11:44 error: Failed to send PPPoE notification to 6281947215703 after 2 retries
+2025-08-09 17:12:17 error: Failed to send PPPoE notification to 62838076656xxx after 2 retries

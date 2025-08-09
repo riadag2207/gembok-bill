@@ -110,9 +110,14 @@ class LanguageHelper {
         } else if (req.session && req.session.lang && this.supportedLanguages.includes(req.session.lang)) {
           userLanguage = req.session.lang;
         } else if (req.session && req.session.customer && req.session.customer.phone) {
-          userLanguage = await this.getUserLanguage(req.session.customer.phone);
-          if (req.session) {
-            req.session.lang = userLanguage;
+          try {
+            userLanguage = await this.getUserLanguage(req.session.customer.phone);
+            if (req.session) {
+              req.session.lang = userLanguage;
+            }
+          } catch (error) {
+            // Silently fallback to default language to avoid spam logs
+            userLanguage = this.defaultLanguage;
           }
         }
 

@@ -60,7 +60,7 @@ function decryptAdminNumber(encryptedNumber) {
         }
         return result;
     } catch (error) {
-        console.error('Error decrypting admin number:', error);
+        logger.error('Error decrypting admin number', { error: error.message });
         return null;
     }
 }
@@ -99,15 +99,15 @@ function isAdminNumber(number) {
             }
         });
         // Log debug
-        console.log('DEBUG Admins from settings.json:', admins);
-        console.log('DEBUG Nomor Masuk:', cleanNumber);
+        logger.debug('Admins from settings.json:', { admins });
+        logger.debug('Nomor masuk:', { cleanNumber });
         // Cek super admin
         if (cleanNumber === superAdminNumber) return true;
         // Cek di daftar admin
         if (admins.includes(cleanNumber)) return true;
         return false;
     } catch (error) {
-        console.error('Error in isAdminNumber:', error);
+        logger.error('Error in isAdminNumber', { error: error.message });
         return false;
     }
 }
@@ -294,30 +294,30 @@ function addWatermarkToMessage(message) {
 // Update fungsi koneksi WhatsApp dengan penanganan error yang lebih baik
 async function connectToWhatsApp() {
     try {
-        console.log('Memulai koneksi WhatsApp...');
+        logger.info('Memulai koneksi WhatsApp...');
         
         // Pastikan direktori sesi ada
         const sessionDir = getSetting('whatsapp_session_path', './whatsapp-session');
         if (!fs.existsSync(sessionDir)) {
             try {
                 fs.mkdirSync(sessionDir, { recursive: true });
-                console.log(`Direktori sesi WhatsApp dibuat: ${sessionDir}`);
+                logger.info('Direktori sesi WhatsApp dibuat', { sessionDir });
             } catch (dirError) {
-                console.error(`Error membuat direktori sesi: ${dirError.message}`);
+                logger.error('Error membuat direktori sesi', { error: dirError.message });
                 throw new Error(`Gagal membuat direktori sesi WhatsApp: ${dirError.message}`);
             }
         }
         
         // Gunakan logger dengan level yang dapat dikonfigurasi
         const logLevel = getSetting('whatsapp_log_level', 'silent');
-        const logger = pino({ level: logLevel });
+        const pinoLogger = pino({ level: logLevel });
         
         // Buat socket dengan konfigurasi yang lebih baik dan penanganan error
         let authState;
         try {
             authState = await useMultiFileAuthState(sessionDir);
         } catch (authError) {
-            console.error(`Error loading WhatsApp auth state: ${authError.message}`);
+            logger.error('Error loading WhatsApp auth state', { error: authError.message });
             throw new Error(`Gagal memuat state autentikasi WhatsApp: ${authError.message}`);
         }
         
@@ -325,7 +325,7 @@ async function connectToWhatsApp() {
         
         sock = makeWASocket({
             auth: state,
-            logger,
+            logger: pinoLogger,
             browser: ['ALIJAYA Genieacs Bot Mikrotik', 'Chrome', '1.0.0'],
             connectTimeoutMs: 60000,
             qrTimeout: 40000,
@@ -340,7 +340,7 @@ async function connectToWhatsApp() {
             const { connection, lastDisconnect, qr } = update;
             
             // Log update koneksi
-            console.log('Connection update:', update);
+            logger.info('Connection update', { update });
             
             // Tangani QR code
             if (qr) {
@@ -358,13 +358,13 @@ async function connectToWhatsApp() {
 
                 
                 // Tampilkan QR code di terminal
-                console.log('QR Code tersedia, siap untuk dipindai');
+                logger.info('QR Code tersedia, siap untuk dipindai');
                 qrcode.generate(qr, { small: true });
             }
             
             // Tangani koneksi
             if (connection === 'open') {
-                console.log('WhatsApp terhubung!');
+                logger.info('WhatsApp connected successfully');
                 const connectedSince = new Date();
                 
                 // Update status global
