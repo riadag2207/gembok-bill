@@ -408,16 +408,13 @@ async function connectToWhatsApp() {
                     const activePort = global.appSettings?.port || getSetting('server_port', '3001');
                     const serverHost = global.appSettings?.host || getSetting('server_host', 'localhost');
                     
-                    // Ambil header dan footer dari settings.json
-                    const companyHeader = getSetting('company_header', 'ALIJAYA DIGITAL NETWORK');
-                    const footerInfo = getSetting('footer_info', 'Info Hubungi : 081947215703');
+                    // Ambil header pendek untuk template sambutan
+                    const companyHeaderShort = getSetting('company_header_short', 'ALIJAYA NETWORK');
                     
-                    // Pesan notifikasi
-                    const notificationMessage = `📋 *BOT WHATSAPP ${companyHeader}*\n\n` +
+                    // Pesan notifikasi (sesuai template permintaan)
+                    const notificationMessage = `📋 *BOT WHATSAPP ${companyHeaderShort}*\n\n` +
                     `✅ *Status:* Bot telah berhasil terhubung\n` +
-                    `⏰ *Waktu:* ${connectedSince.toLocaleString()}\n` +
-                    `🌐 *Web Portal:* http://${serverHost}:${activePort}\n` +
-                    `🔑 *Admin Login:* http://${serverHost}:${activePort}/admin/login\n\n` +
+                    `⏰ *Waktu:* ${connectedSince.toLocaleString()}\n\n` +
                     `📝 *Perintah Tersedia:*\n` +
                     `• Ketik *menu* untuk melihat daftar perintah\n` +
                     `• Ketik *admin* untuk menu khusus admin\n\n` +
@@ -425,8 +422,7 @@ async function connectToWhatsApp() {
                     `• E-WALLET: 081947215703\n` +
                     `• BRI: 420601003953531 a.n WARJAYA\n\n` +
                     `🙏 Terima kasih telah menggunakan Aplikasi kami.\n` +
-                    `🏢 *${companyHeader}*\n\n` +
-                    `📞 ${footerInfo}`;
+                    `🏢 *ALIJAYA DIGITAL NETWORK*`;
                     
                     // Kirim ke admin dari environment variable
                     const adminNumber = getSetting('admins.0', '');
@@ -437,6 +433,23 @@ async function connectToWhatsApp() {
                                     text: notificationMessage
                                 });
                                 console.log(`Pesan notifikasi terkirim ke admin ${adminNumber}`);
+                                // Kirim gambar QR donasi (jika tersedia)
+                                try {
+                                    const fs = require('fs');
+                                    const qrPath = './public/img/qr-donasi.jpg';
+                                    if (fs.existsSync(qrPath)) {
+                                        const qrBuffer = fs.readFileSync(qrPath);
+                                        await sock.sendMessage(`${adminNumber}@s.whatsapp.net`, {
+                                            image: qrBuffer,
+                                            caption: 'QR Donasi Aplikasi'
+                                        });
+                                        console.log('Gambar QR donasi terkirim ke admin');
+                                    } else {
+                                        console.warn('QR donasi tidak ditemukan di', qrPath);
+                                    }
+                                } catch (e) {
+                                    console.error('Gagal mengirim QR donasi ke admin:', e);
+                                }
                             } catch (error) {
                                 console.error('Error sending connection notification to admin:', error);
                             }
@@ -462,14 +475,41 @@ async function connectToWhatsApp() {
                     if (superAdminNumber && superAdminNumber !== adminNumber) {
                         setTimeout(async () => {
                             try {
-                                const donationText = `Rekening Donasi Pembangunan Masjid\n4206 0101 2214 534\nBRI a.n. DKM BAITUR ROHMAN\nDesa Ujunggebang Kecamatan Sukra Kabupaten Indramayu Jawa Barat\nKonfirmasi donasi:\n081947215703 (Ust. WARJAYA)\n085210939803 (Ust. FIKI)\n082130257144 (Ust. KARONI)\nTerima kasih atas partisipasi dan dukungan Anda 🙏`;
-                                const startupMessage = `👋 *Selamat datang, Super Admin!*\n\nAplikasi WhatsApp Bot berhasil dijalankan.\n\n${donationText}\n\n${getSetting('footer_info', '')}`;
+                                // Pesan startup untuk super admin menggunakan template yang sama
+                                const startupMessage = `📋 *BOT WHATSAPP ${companyHeaderShort}*\n\n` +
+                                `✅ *Status:* Bot telah berhasil terhubung\n` +
+                                `⏰ *Waktu:* ${connectedSince.toLocaleString()}\n\n` +
+                                `📝 *Perintah Tersedia:*\n` +
+                                `• Ketik *menu* untuk melihat daftar perintah\n` +
+                                `• Ketik *admin* untuk menu khusus admin\n\n` +
+                                `📞 *Dukungan Pengembang:*\n` +
+                                `• E-WALLET: 081947215703\n` +
+                                `• BRI: 420601003953531 a.n WARJAYA\n\n` +
+                                `🙏 Terima kasih telah menggunakan Aplikasi kami.\n` +
+                                `🏢 *ALIJAYA DIGITAL NETWORK*`;
                                 
                                 await sock.sendMessage(`${superAdminNumber}@s.whatsapp.net`, {
                                     text: startupMessage
                                 });
                                 const maskedNumber = superAdminNumber.substring(0, 4) + '****' + superAdminNumber.substring(superAdminNumber.length - 4);
                                 console.log(`Pesan notifikasi terkirim ke super admin ${maskedNumber}`);
+                                // Kirim gambar QR donasi (jika tersedia)
+                                try {
+                                    const fs = require('fs');
+                                    const qrPath = './public/img/qr-donasi.jpg';
+                                    if (fs.existsSync(qrPath)) {
+                                        const qrBuffer = fs.readFileSync(qrPath);
+                                        await sock.sendMessage(`${superAdminNumber}@s.whatsapp.net`, {
+                                            image: qrBuffer,
+                                            caption: 'QR Donasi Aplikasi'
+                                        });
+                                        console.log('Gambar QR donasi terkirim ke super admin');
+                                    } else {
+                                        console.warn('QR donasi tidak ditemukan di', qrPath);
+                                    }
+                                } catch (e) {
+                                    console.error('Gagal mengirim QR donasi ke super admin:', e);
+                                }
                             } catch (error) {
                                 console.error(`Error sending connection notification to super admin:`, error);
                             }
