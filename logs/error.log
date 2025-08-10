@@ -3299,3 +3299,217 @@
 [2025-08-10T06:35:42.522Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
 [2025-08-10T06:35:43.387Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
 [2025-08-10T06:35:45.534Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-10T06:56:39.672Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-10T06:56:42.685Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-10T06:56:45.699Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-10T06:58:39.699Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-10T06:58:42.713Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-10T06:58:45.726Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-10T07:01:43.508Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-10T07:02:16.539Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-10T07:02:43.354Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-10T07:02:49.579Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-10T07:03:16.378Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-10T07:03:49.400Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-10T07:17:39.635Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:17:39.636Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:17:39.728Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:17:39.730Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-10T07:18:39.641Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:18:39.642Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:18:39.733Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:18:39.735Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-10T07:19:39.656Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:19:39.658Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:19:39.747Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:19:39.749Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-10T07:20:39.662Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:20:39.663Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:20:39.753Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:20:39.756Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-10T07:21:39.672Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:21:39.673Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:21:39.779Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:21:39.780Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-10T07:22:39.677Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:22:39.678Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:22:39.768Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:22:39.769Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-10T07:23:39.702Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:23:39.703Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:23:39.777Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:23:39.779Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-10T07:24:39.691Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:24:39.692Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:24:39.782Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:24:39.783Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-10T07:25:39.691Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:25:39.692Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:25:39.812Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:25:39.813Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-10T07:26:39.707Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:26:39.708Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:26:39.798Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:26:39.799Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-10T07:27:39.694Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:27:39.695Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:27:39.816Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:27:39.818Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-10T07:28:39.734Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:28:39.735Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:28:39.854Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:28:39.855Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-10T07:29:39.731Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:29:39.732Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:29:39.821Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:29:39.822Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-10T07:30:39.744Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:30:39.746Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:30:39.850Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:30:39.851Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-10T07:31:39.735Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:31:39.736Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:31:39.856Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:31:39.857Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-10T07:32:39.751Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:32:39.753Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:32:39.857Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:32:39.859Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-10T07:33:10.155Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:33:10.156Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:33:12.184Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:33:14.239Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:33:14.241Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:33:16.597Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:33:16.598Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:33:16.603Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:33:18.663Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:33:20.713Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:33:39.770Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:33:39.771Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:33:39.870Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:33:39.871Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-10T07:33:48.821Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:33:48.823Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:33:49.005Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:33:49.006Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-10T07:34:39.774Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:34:39.776Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:34:39.864Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:34:39.865Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-10T07:34:48.825Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:34:48.827Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:34:48.993Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:34:48.994Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-10T07:35:39.770Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:35:39.772Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:35:39.877Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:35:39.878Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-10T07:35:48.883Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:35:48.885Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:35:49.006Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:35:49.007Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-10T07:36:39.785Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:36:39.786Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:36:39.892Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:36:39.893Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-10T07:36:48.866Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:36:48.868Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:36:49.048Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:36:49.049Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-10T07:37:39.795Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:37:39.796Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:37:39.891Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:37:39.893Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-10T07:37:48.892Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:37:48.893Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:37:49.082Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:37:49.083Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-10T07:37:49.803Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:38:39.801Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:38:39.802Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:38:39.907Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:38:39.907Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-10T07:38:48.884Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:38:48.885Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:38:49.038Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:38:49.039Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-10T07:39:39.819Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:39:39.820Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:39:39.947Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:39:39.948Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-10T07:39:48.899Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:39:48.900Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:39:49.036Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:39:49.037Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-10T07:40:37.970Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:40:37.971Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:40:39.834Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:40:39.836Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:40:39.957Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:40:39.958Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-10T07:40:40.033Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:40:42.103Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:40:42.104Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:40:44.238Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:40:44.272Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:40:44.275Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:40:46.273Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:40:48.302Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:41:30.500Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:41:30.501Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:41:30.667Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:41:30.667Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-10T07:41:39.833Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:41:39.834Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:41:39.925Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:41:39.926Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-10T07:42:30.491Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:42:30.492Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:42:30.658Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:42:30.659Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-10T07:42:39.843Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:42:39.845Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:42:39.962Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:42:39.964Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-10T07:43:30.525Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:43:30.526Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:43:30.677Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:43:30.678Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-10T07:43:39.835Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:43:39.837Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:43:39.939Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:43:39.940Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-10T07:44:30.538Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:44:30.539Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:44:30.719Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:44:30.721Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-10T07:44:39.852Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:44:39.854Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:44:39.957Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:44:39.958Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-10T07:45:30.102Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:45:30.539Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:45:30.541Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:45:30.713Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:45:30.714Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-10T07:45:39.848Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:45:39.849Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:45:39.954Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:45:39.955Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-10T07:46:30.559Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:46:30.561Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:46:30.726Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:46:30.728Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-10T07:46:39.857Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:46:39.858Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:46:39.964Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:46:39.966Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-10T07:47:30.541Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:47:30.543Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:47:30.708Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:47:30.709Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-10T07:47:39.873Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:47:39.874Z] [ERROR] No Mikrotik connection available
+[2025-08-10T07:47:39.979Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-10T07:47:39.982Z] [ERROR] No Mikrotik connection available for PPPoE monitoring

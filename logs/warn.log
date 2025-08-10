@@ -269,3 +269,132 @@
 [2025-08-10T06:35:43.525Z] [WARN] Error validating WhatsApp number 62822180947xxx: Connection Closed
 [2025-08-10T06:35:43.527Z] [WARN] Retry 1/2 failed for 62822180947xxx: Cannot read properties of undefined (reading 'id')
 [2025-08-10T06:35:45.533Z] [WARN] Retry 2/2 failed for 62822180947xxx: Cannot read properties of undefined (reading 'id')
+[2025-08-10T06:56:37.567Z] [WARN] No technician group configured for PPPoE notifications
+[2025-08-10T06:56:37.664Z] [WARN] Error validating WhatsApp number 6281947215703: Connection Closed
+[2025-08-10T06:56:37.665Z] [WARN] Retry 1/2 failed for 6281947215703: Cannot read properties of undefined (reading 'id')
+[2025-08-10T06:56:39.671Z] [WARN] Retry 2/2 failed for 6281947215703: Cannot read properties of undefined (reading 'id')
+[2025-08-10T06:56:40.677Z] [WARN] Error validating WhatsApp number 62838076656xxx: Connection Closed
+[2025-08-10T06:56:40.679Z] [WARN] Retry 1/2 failed for 62838076656xxx: Cannot read properties of undefined (reading 'id')
+[2025-08-10T06:56:42.684Z] [WARN] Retry 2/2 failed for 62838076656xxx: Cannot read properties of undefined (reading 'id')
+[2025-08-10T06:56:43.690Z] [WARN] Error validating WhatsApp number 62822180947xxx: Connection Closed
+[2025-08-10T06:56:43.691Z] [WARN] Retry 1/2 failed for 62822180947xxx: Cannot read properties of undefined (reading 'id')
+[2025-08-10T06:56:45.698Z] [WARN] Retry 2/2 failed for 62822180947xxx: Cannot read properties of undefined (reading 'id')
+[2025-08-10T06:58:37.566Z] [WARN] No technician group configured for PPPoE notifications
+[2025-08-10T06:58:37.693Z] [WARN] Error validating WhatsApp number 6281947215703: Connection Closed
+[2025-08-10T06:58:37.694Z] [WARN] Retry 1/2 failed for 6281947215703: Cannot read properties of undefined (reading 'id')
+[2025-08-10T06:58:39.698Z] [WARN] Retry 2/2 failed for 6281947215703: Cannot read properties of undefined (reading 'id')
+[2025-08-10T06:58:40.705Z] [WARN] Error validating WhatsApp number 62838076656xxx: Connection Closed
+[2025-08-10T06:58:40.707Z] [WARN] Retry 1/2 failed for 62838076656xxx: Cannot read properties of undefined (reading 'id')
+[2025-08-10T06:58:42.712Z] [WARN] Retry 2/2 failed for 62838076656xxx: Cannot read properties of undefined (reading 'id')
+[2025-08-10T06:58:43.720Z] [WARN] Error validating WhatsApp number 62822180947xxx: Connection Closed
+[2025-08-10T06:58:43.722Z] [WARN] Retry 1/2 failed for 62822180947xxx: Cannot read properties of undefined (reading 'id')
+[2025-08-10T06:58:45.725Z] [WARN] Retry 2/2 failed for 62822180947xxx: Cannot read properties of undefined (reading 'id')
+[2025-08-10T07:01:11.114Z] [WARN] No technician group configured for PPPoE notifications
+[2025-08-10T07:01:41.385Z] [WARN] Error validating WhatsApp number 6281947215703: Timed Out
+[2025-08-10T07:01:41.497Z] [WARN] Retry 1/2 failed for 6281947215703: Cannot read properties of undefined (reading 'id')
+[2025-08-10T07:01:43.506Z] [WARN] Retry 2/2 failed for 6281947215703: Cannot read properties of undefined (reading 'id')
+[2025-08-10T07:02:14.532Z] [WARN] Error validating WhatsApp number 62838076656xxx: Timed Out
+[2025-08-10T07:02:14.534Z] [WARN] Retry 1/2 failed for 62838076656xxx: Cannot read properties of undefined (reading 'id')
+[2025-08-10T07:02:16.537Z] [WARN] Retry 2/2 failed for 62838076656xxx: Cannot read properties of undefined (reading 'id')
+[2025-08-10T07:02:41.344Z] [WARN] Error validating WhatsApp number 6281947215703: Timed Out
+[2025-08-10T07:02:41.346Z] [WARN] Retry 1/2 failed for 6281947215703: Cannot read properties of undefined (reading 'id')
+[2025-08-10T07:02:43.352Z] [WARN] Retry 2/2 failed for 6281947215703: Cannot read properties of undefined (reading 'id')
+[2025-08-10T07:02:47.563Z] [WARN] Error validating WhatsApp number 62822180947xxx: Timed Out
+[2025-08-10T07:02:47.565Z] [WARN] Retry 1/2 failed for 62822180947xxx: Cannot read properties of undefined (reading 'id')
+[2025-08-10T07:02:49.578Z] [WARN] Retry 2/2 failed for 62822180947xxx: Cannot read properties of undefined (reading 'id')
+[2025-08-10T07:03:14.368Z] [WARN] Error validating WhatsApp number 62838076656xxx: Timed Out
+[2025-08-10T07:03:14.369Z] [WARN] Retry 1/2 failed for 62838076656xxx: Cannot read properties of undefined (reading 'id')
+[2025-08-10T07:03:16.377Z] [WARN] Retry 2/2 failed for 62838076656xxx: Cannot read properties of undefined (reading 'id')
+[2025-08-10T07:03:47.388Z] [WARN] Error validating WhatsApp number 62822180947xxx: Timed Out
+[2025-08-10T07:03:47.389Z] [WARN] Retry 1/2 failed for 62822180947xxx: Cannot read properties of undefined (reading 'id')
+[2025-08-10T07:03:49.399Z] [WARN] Retry 2/2 failed for 62822180947xxx: Cannot read properties of undefined (reading 'id')
+[2025-08-10T07:17:39.638Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-10T07:17:39.731Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-10T07:18:39.643Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-10T07:18:39.736Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-10T07:19:39.659Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-10T07:19:39.750Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-10T07:20:39.665Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-10T07:20:39.758Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-10T07:21:39.674Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-10T07:21:39.781Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-10T07:22:39.678Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-10T07:22:39.769Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-10T07:23:39.703Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-10T07:23:39.780Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-10T07:24:39.694Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-10T07:24:39.784Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-10T07:25:39.694Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-10T07:25:39.814Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-10T07:26:39.710Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-10T07:26:39.800Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-10T07:27:39.696Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-10T07:27:39.818Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-10T07:28:39.736Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-10T07:28:39.856Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-10T07:29:39.734Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-10T07:29:39.823Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-10T07:30:39.750Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-10T07:30:39.852Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-10T07:31:39.737Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-10T07:31:39.858Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-10T07:32:39.754Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-10T07:32:39.861Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-10T07:33:39.772Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-10T07:33:39.871Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-10T07:33:48.824Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-10T07:33:49.007Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-10T07:34:39.777Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-10T07:34:39.866Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-10T07:34:48.828Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-10T07:34:48.995Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-10T07:35:39.772Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-10T07:35:39.879Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-10T07:35:48.892Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-10T07:35:49.013Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-10T07:36:39.786Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-10T07:36:39.895Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-10T07:36:48.900Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-10T07:36:49.049Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-10T07:37:39.797Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-10T07:37:39.894Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-10T07:37:48.894Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-10T07:37:49.085Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-10T07:38:39.803Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-10T07:38:39.908Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-10T07:38:48.886Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-10T07:38:49.040Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-10T07:39:39.822Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-10T07:39:39.948Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-10T07:39:48.900Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-10T07:39:49.038Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-10T07:40:39.837Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-10T07:40:39.958Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-10T07:41:30.506Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-10T07:41:30.668Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-10T07:41:39.835Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-10T07:41:39.927Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-10T07:42:30.493Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-10T07:42:30.660Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-10T07:42:39.846Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-10T07:42:39.966Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-10T07:43:30.527Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-10T07:43:30.679Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-10T07:43:39.838Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-10T07:43:39.941Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-10T07:44:30.541Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-10T07:44:30.722Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-10T07:44:39.855Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-10T07:44:39.959Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-10T07:45:30.542Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-10T07:45:30.715Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-10T07:45:39.851Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-10T07:45:39.955Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-10T07:46:30.562Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-10T07:46:30.729Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-10T07:46:39.860Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-10T07:46:39.967Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-10T07:47:30.546Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-10T07:47:30.710Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-10T07:47:39.883Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-10T07:47:39.987Z] [WARN] Failed to get PPPoE connections: Unknown error

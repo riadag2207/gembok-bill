@@ -5,6 +5,7 @@ const logger = require('../config/logger');
 const { getSetting, getSettingsWithCache } = require('../config/settingsManager');
 const multer = require('multer');
 const upload = multer();
+const ExcelJS = require('exceljs');
 
 // Middleware untuk mendapatkan pengaturan aplikasi
 const getAppSettings = (req, res, next) => {
@@ -30,12 +31,235 @@ router.get('/dashboard', getAppSettings, async (req, res) => {
             recentInvoices: recentInvoices.slice(0, 10),
             appSettings: req.appSettings
         });
+
+// Export customers to XLSX
+router.get('/export/customers.xlsx', async (req, res) => {
+    try {
+        const customers = await billingManager.getCustomers();
+
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Customers');
+
+        const headers = [
+            'name', 'phone', 'pppoe_username', 'email', 'address',
+            'package_id', 'pppoe_profile', 'status', 'auto_suspension'
+        ];
+        worksheet.addRow(headers);
+
+        customers.forEach(c => {
+            worksheet.addRow([
+                c.name || '',
+                c.phone || '',
+                c.pppoe_username || '',
+                c.email || '',
+                c.address || '',
+                c.package_id || '',
+                c.pppoe_profile || 'default',
+                c.status || 'active',
+                typeof c.auto_suspension !== 'undefined' ? c.auto_suspension : 1
+            ]);
+        });
+
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', 'attachment; filename="customers.xlsx"');
+        await workbook.xlsx.write(res);
+        res.end();
+    } catch (error) {
+        logger.error('Error exporting customers (XLSX):', error);
+        res.status(500).json({ success: false, message: 'Error exporting customers (XLSX)', error: error.message });
+    }
+});
+
+// Import customers from XLSX file
+router.post('/import/customers/xlsx', upload.single('file'), async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ success: false, message: 'File XLSX tidak ditemukan' });
+        }
+
+        const workbook = new ExcelJS.Workbook();
+        await workbook.xlsx.load(req.file.buffer);
+        const worksheet = workbook.worksheets[0];
+        if (!worksheet) {
+            return res.status(400).json({ success: false, message: 'Worksheet tidak ditemukan dalam file' });
+        }
+
+        // Build header map from first row
+        const headerRow = worksheet.getRow(1);
+        const headerMap = {};
+        headerRow.eachCell((cell, colNumber) => {
+            const key = String(cell.value || '').toLowerCase().trim();
+            if (key) headerMap[key] = colNumber;
+        });
+
+        const getVal = (row, key) => {
+            const col = headerMap[key];
+            return col ? (row.getCell(col).value ?? '') : '';
+        };
+
+        let created = 0, updated = 0, failed = 0;
+        const errors = [];
+
+        worksheet.eachRow((row, rowNumber) => {
+            if (rowNumber === 1) return; // skip header
+            try {
+                const name = String(getVal(row, 'name') || '').trim();
+                const phone = String(getVal(row, 'phone') || '').trim();
+                if (!name || !phone) {
+                    failed++; errors.push({ row: rowNumber, error: 'Nama/Phone wajib' }); return;
+                }
+
+                const raw = {
+                    name,
+                    phone,
+                    pppoe_username: String(getVal(row, 'pppoe_username') || '').trim(),
+                    email: String(getVal(row, 'email') || '').trim(),
+                    address: String(getVal(row, 'address') || '').trim(),
+                    package_id: getVal(row, 'package_id') ? Number(getVal(row, 'package_id')) : null,
+                    pppoe_profile: String(getVal(row, 'pppoe_profile') || 'default').trim(),
+                    status: String(getVal(row, 'status') || 'active').trim(),
+                    auto_suspension: getVal(row, 'auto_suspension') === '' || getVal(row, 'auto_suspension') === null ? 1 : Number(getVal(row, 'auto_suspension'))
+                };
+
+                // Process upsert
+                // Wrap in async using IIFE pattern not available here; queue in array then Promise.all is complex.
+                // For simplicity, push to pending array.
+                row._pending = raw; // temp store
+            } catch (e) {
+                failed++;
+                errors.push({ row: rowNumber, error: e.message });
+            }
+        });
+
+        // Now sequentially process rows for DB ops
+        for (let r = 2; r <= worksheet.rowCount; r++) {
+            const row = worksheet.getRow(r);
+            const raw = row._pending;
+            if (!raw) continue;
+            try {
+                const existing = await billingManager.getCustomerByPhone(raw.phone);
+                const customerData = {
+                    name: raw.name,
+                    phone: raw.phone,
+                    pppoe_username: raw.pppoe_username,
+                    email: raw.email,
+                    address: raw.address,
+                    package_id: raw.package_id,
+                    pppoe_profile: raw.pppoe_profile || 'default',
+                    status: raw.status || 'active',
+                    auto_suspension: typeof raw.auto_suspension !== 'undefined' ? raw.auto_suspension : 1
+                };
+
+                if (existing) {
+                    await billingManager.updateCustomer(raw.phone, customerData);
+                    updated++;
+                } else {
+                    await billingManager.createCustomer(customerData);
+                    created++;
+                }
+            } catch (e) {
+                failed++;
+                errors.push({ row: r, error: e.message });
+            }
+        }
+
+        res.json({ success: true, summary: { created, updated, failed }, errors });
+    } catch (error) {
+        logger.error('Error importing customers (XLSX):', error);
+        res.status(500).json({ success: false, message: 'Error importing customers (XLSX)', error: error.message });
+    }
+});
     } catch (error) {
         logger.error('Error loading billing dashboard:', error);
         res.status(500).render('error', { 
             message: 'Error loading billing dashboard',
             error: error.message,
             appSettings: req.appSettings
+        });
+    }
+});
+
+// Export customers to JSON
+router.get('/export/customers.json', async (req, res) => {
+    try {
+        const customers = await billingManager.getCustomers();
+        res.setHeader('Content-Type', 'application/json');
+        res.setHeader('Content-Disposition', 'attachment; filename=customers.json');
+        res.json({ success: true, customers });
+    } catch (error) {
+        logger.error('Error exporting customers (JSON):', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error exporting customers (JSON)',
+            error: error.message
+        });
+    }
+});
+
+// Import customers from JSON file
+router.post('/import/customers/json', upload.single('file'), async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ success: false, message: 'File JSON tidak ditemukan' });
+        }
+
+        const content = req.file.buffer.toString('utf8');
+        let payload;
+        try {
+            payload = JSON.parse(content);
+        } catch (e) {
+            return res.status(400).json({ success: false, message: 'Format JSON tidak valid' });
+        }
+
+        const items = Array.isArray(payload) ? payload : (payload.customers || []);
+        if (!Array.isArray(items) || items.length === 0) {
+            return res.status(400).json({ success: false, message: 'Tidak ada data pelanggan pada file' });
+        }
+
+        let created = 0, updated = 0, failed = 0;
+        const errors = [];
+
+        for (const raw of items) {
+            try {
+                const name = (raw.name || '').toString().trim();
+                const phone = (raw.phone || '').toString().trim();
+                if (!name || !phone) {
+                    failed++; errors.push({ phone, error: 'Nama/Phone wajib' }); continue;
+                }
+
+                const existing = await billingManager.getCustomerByPhone(phone);
+                const customerData = {
+                    name,
+                    phone,
+                    pppoe_username: raw.pppoe_username || '',
+                    email: raw.email || '',
+                    address: raw.address || '',
+                    package_id: raw.package_id || null,
+                    pppoe_profile: raw.pppoe_profile || 'default',
+                    status: raw.status || 'active',
+                    auto_suspension: typeof raw.auto_suspension !== 'undefined' ? raw.auto_suspension : 1
+                };
+
+                if (existing) {
+                    await billingManager.updateCustomer(phone, customerData);
+                    updated++;
+                } else {
+                    await billingManager.createCustomer(customerData);
+                    created++;
+                }
+            } catch (e) {
+                failed++;
+                errors.push({ phone: raw && raw.phone, error: e.message });
+            }
+        }
+
+        res.json({ success: true, summary: { created, updated, failed }, errors });
+    } catch (error) {
+        logger.error('Error importing customers (JSON):', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error importing customers (JSON)',
+            error: error.message
         });
     }
 });
