@@ -33,6 +33,47 @@
                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCustomerModal">
                             <i class="bx bx-plus"></i> Tambah Pelanggan
                         </button>
+                        <div class="btn-group ms-2" role="group" aria-label="Backup Restore Pelanggan">
+                            <button id="exportCustomersJsonBtn" type="button" class="btn btn-outline-success">
+                                <i class="bi bi-cloud-download"></i> Backup Pelanggan (JSON)
+                            </button>
+                            <button id="exportCustomersXlsxBtn" type="button" class="btn btn-outline-success">
+                                <i class="bi bi-file-earmark-spreadsheet"></i> Backup Pelanggan (XLSX)
+                            </button>
+                            <button id="openImportCustomersModalBtn" type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#importCustomersModal">
+                                <i class="bi bi-cloud-upload"></i> Restore Pelanggan
+                            </button>
+                        </div>
+
+    <!-- Import Customers Modal -->
+    <div class="modal fade" id="importCustomersModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Restore Data Pelanggan (Import JSON)</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="importCustomersForm">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Pilih File (JSON atau XLSX)</label>
+                            <input type="file" id="customersFile" name="file" accept="application/json,.json,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.xlsx" class="form-control" required>
+                            <small class="form-text text-muted">Dukungan: JSON (disarankan) atau Excel XLSX. JSON bisa berupa array atau { customers: [...] }.</small>
+                        </div>
+                        <div class="alert alert-info" role="alert">
+                            Catatan: Data dengan nomor telepon yang sama akan diupdate. Data baru akan dibuat otomatis.
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-warning">
+                            <i class="bi bi-cloud-upload"></i> Import
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
                     </div>
                 </div>
 
@@ -370,6 +411,30 @@
         </div>
     </div>
 
+    <!-- Import Customers Modal -->
+    <div class="modal fade" id="importCustomersModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Import Pelanggan</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="importCustomersForm">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="customersJsonFile" class="form-label">Pilih file JSON</label>
+                            <input type="file" class="form-control" id="customersJsonFile" name="file" accept=".json" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">Import</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
@@ -391,6 +456,58 @@
             
             $('#editCustomerModal').on('hidden.bs.modal', function() {
                 $('#editCustomerForm')[0].reset();
+            });
+
+            // Export customers JSON
+            $('#exportCustomersJsonBtn').on('click', function() {
+                window.location.href = '/admin/billing/export/customers.json';
+            });
+
+            // Export customers XLSX
+            $('#exportCustomersXlsxBtn').on('click', function() {
+                window.location.href = '/admin/billing/export/customers.xlsx';
+            });
+
+            // Import customers JSON
+            $('#importCustomersForm').on('submit', function(e) {
+                e.preventDefault();
+                const fileInput = document.getElementById('customersFile');
+                if (!fileInput.files || fileInput.files.length === 0) {
+                    showToast('error', 'Silakan pilih file JSON terlebih dahulu');
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('file', fileInput.files[0]);
+
+                const submitBtn = $(this).find('button[type="submit"]');
+                const originalText = submitBtn.html();
+                submitBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Mengunggah...');
+
+                const isXlsx = /\.xlsx$/i.test(fileInput.files[0].name);
+                const url = isXlsx ? '/admin/billing/import/customers/xlsx' : '/admin/billing/import/customers/json';
+                fetch(url, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        const s = data.summary || {};
+                        showToast('success', `Import selesai. Dibuat: ${s.created||0}, Diupdate: ${s.updated||0}, Gagal: ${s.failed||0}`);
+                        $('#importCustomersModal').modal('hide');
+                        setTimeout(() => location.reload(), 1200);
+                    } else {
+                        showToast('error', data.message || 'Gagal import data pelanggan');
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    showToast('error', 'Terjadi kesalahan saat import');
+                })
+                .finally(() => {
+                    submitBtn.prop('disabled', false).html(originalText);
+                });
             });
         });
 
