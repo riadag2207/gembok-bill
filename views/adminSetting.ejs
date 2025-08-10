@@ -362,18 +362,16 @@
                             <img id="logoPreview" src="/img/<%= typeof settings !== 'undefined' && settings.logo_filename ? settings.logo_filename : 'logo.png' %>?ts=<%= Date.now() %>" alt="Logo" style="max-width:200px;max-height:120px;">
                         </div>
                         <!-- Keterangan Donasi Masjid (di dalam section logo) -->
-                        <div class="alert alert-info mt-3" style="border-radius: 10px; font-size: 1rem;">
-                            <strong>Rekening Donasi Pembangunan Masjid</strong><br>
-                            <span style="font-size:1.2em; letter-spacing:2px; font-weight:bold;">4206 0101 2214 534</span><br>
-                            <span>BRI a.n. DKM BAITUR ROHMAN</span><br>
-                            <hr class="my-2">
-                            <span class="d-block">Desa Ujunggebang Kecamatan Sukra Kabupaten Indramayu Jawa Barat</span>
-                            <span class="d-block mt-2"><strong>Konfirmasi donasi:</strong><br>
-                                081947215703 (Ust. WARJAYA)<br>
-                                085210939803 (Ust. FIKI)<br>
-                                082130257144 (Ust. KARONI)
-                            </span>
-                            <span class="d-block mt-2">Terima kasih atas partisipasi dan dukungan Anda 🙏</span>
+                        <div class="alert alert-info mt-3" style="border-radius: 10px;">
+                            <div class="text-center">
+                                <img src="/img/qr-donasi.jpg" alt="QR Donasi Masjid" style="max-width:260px;width:100%;height:auto;border-radius:8px;">
+                                <div class="mt-1" style="font-size:0.95rem;">Donasi Untuk Pengembangan Aplikasi</div>
+                                <div class="mt-2">
+                                    <a href="/img/qr-donasi.jpg" target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary">
+                                        Buka QR ukuran penuh
+                                    </a>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Kalkulator Burst Limit -->
