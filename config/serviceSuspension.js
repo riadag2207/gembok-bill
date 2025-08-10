@@ -1,4 +1,4 @@
-const { logger } = require('./logger');
+const logger = require('./logger');
 const billingManager = require('./billing');
 const { getMikrotikConnection } = require('./mikrotik');
 const { findDeviceByPhoneNumber, findDeviceByPPPoE, setParameterValues } = require('./genieacs');

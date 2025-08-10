@@ -4,7 +4,7 @@ const path = require('path');
 const router = express.Router();
 const multer = require('multer');
 const { getSettingsWithCache } = require('../config/settingsManager');
-const { logger } = require('../config/logger');
+const logger = require('../config/logger');
 
 // Konfigurasi penyimpanan file
 const storage = multer.diskStorage({
@@ -429,52 +429,20 @@ router.get('/backups', async (req, res) => {
     }
 });
 
-// Get activity logs
+// Get activity logs - Temporarily disabled due to logger refactoring
 router.get('/activity-logs', async (req, res) => {
-    try {
-        const { activityLogger } = require('../config/logger');
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 50;
-        const offset = (page - 1) * limit;
-        
-        const logs = await activityLogger.getLogs(limit, offset);
-        
-        res.json({
-            success: true,
-            logs: logs,
-            page: page,
-            limit: limit
-        });
-    } catch (error) {
-        logger.error('Error getting activity logs:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Error getting activity logs',
-            error: error.message
-        });
-    }
+    res.status(501).json({
+        success: false,
+        message: 'Activity logs feature temporarily disabled'
+    });
 });
 
-// Clear old activity logs
+// Clear old activity logs - Temporarily disabled due to logger refactoring
 router.post('/clear-logs', async (req, res) => {
-    try {
-        const { activityLogger } = require('../config/logger');
-        const { days = 30 } = req.body;
-        
-        await activityLogger.clearOldLogs(days);
-        
-        res.json({
-            success: true,
-            message: `Activity logs older than ${days} days have been cleared`
-        });
-    } catch (error) {
-        logger.error('Error clearing activity logs:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Error clearing activity logs',
-            error: error.message
-        });
-    }
+    res.status(501).json({
+        success: false,
+        message: 'Clear logs feature temporarily disabled'
+    });
 });
 
 // GET: Test endpoint untuk upload logo (tanpa auth)
@@ -598,5 +566,160 @@ router.get('/test-svg', (req, res) => {
         `);
     }
 });
+
+// GET: Halaman test notifikasi pembayaran
+router.get('/test-payment-notification', (req, res) => {
+    res.send(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Test Notifikasi Pembayaran</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+                .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+                h2 { color: #333; text-align: center; margin-bottom: 30px; }
+                .form-group { margin: 20px 0; }
+                label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+                input[type="text"], input[type="number"] { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; box-sizing: border-box; }
+                button { width: 100%; padding: 15px; background: #007bff; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; margin-top: 20px; }
+                button:hover { background: #0056b3; }
+                .result { margin: 20px 0; padding: 15px; border-radius: 5px; font-weight: bold; }
+                .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+                .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+                .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h2>🧪 Test Notifikasi Pembayaran WhatsApp</h2>
+                <div class="info">
+                    <strong>Info:</strong> Halaman ini untuk testing apakah notifikasi pembayaran berhasil dikirim ke pelanggan via WhatsApp.
+                </div>
+                
+                <form id="testForm">
+                    <div class="form-group">
+                        <label>Nomor WhatsApp Pelanggan:</label>
+                        <input type="text" name="customer_phone" placeholder="6281234567890" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Nama Pelanggan:</label>
+                        <input type="text" name="customer_name" placeholder="Nama Lengkap" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Nomor Tagihan:</label>
+                        <input type="text" name="invoice_number" placeholder="INV-2024-001" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Jumlah Pembayaran:</label>
+                        <input type="number" name="amount" placeholder="50000" required>
+                    </div>
+                    
+                    <button type="submit">📱 Kirim Test Notifikasi</button>
+                </form>
+                
+                <div id="result"></div>
+            </div>
+            
+            <script>
+                document.getElementById('testForm').addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const formData = new FormData(this);
+                    const resultDiv = document.getElementById('result');
+                    const submitBtn = document.querySelector('button[type="submit"]');
+                    
+                    // Disable button dan show loading
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = '⏳ Mengirim...';
+                    resultDiv.innerHTML = '<div class="info">⏳ Mengirim notifikasi test...</div>';
+                    
+                    // Convert FormData to JSON
+                    const data = {};
+                    formData.forEach((value, key) => data[key] = value);
+                    
+                    fetch('/admin/setting/test-payment-notification', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            resultDiv.innerHTML = '<div class="success">✅ ' + data.message + '</div>';
+                        } else {
+                            resultDiv.innerHTML = '<div class="error">❌ ' + data.message + '</div>';
+                        }
+                    })
+                    .catch(error => {
+                        resultDiv.innerHTML = '<div class="error">❌ Error: ' + error.message + '</div>';
+                    })
+                    .finally(() => {
+                        // Re-enable button
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = '📱 Kirim Test Notifikasi';
+                    });
+                });
+            </script>
+        </body>
+        </html>
+    `);
+});
+
+// POST: Test notifikasi pembayaran
+router.post('/test-payment-notification', async (req, res) => {
+    try {
+        const { customer_phone, customer_name, invoice_number, amount } = req.body;
+        
+        if (!customer_phone || !customer_name || !invoice_number || !amount) {
+            return res.status(400).json({
+                success: false,
+                message: 'Semua field harus diisi: customer_phone, customer_name, invoice_number, amount'
+            });
+        }
+
+        // Simulasi data customer dan invoice untuk testing
+        const mockCustomer = {
+            name: customer_name,
+            phone: customer_phone
+        };
+        
+        const mockInvoice = {
+            invoice_number: invoice_number,
+            amount: parseFloat(amount)
+        };
+
+        // Import billing manager untuk testing notifikasi
+        const billingManager = require('../config/billing');
+        
+        // Test kirim notifikasi
+        await billingManager.sendPaymentSuccessNotification(mockCustomer, mockInvoice);
+        
+        res.json({
+            success: true,
+            message: `Notifikasi pembayaran berhasil dikirim ke ${customer_phone}`,
+            data: {
+                customer: mockCustomer,
+                invoice: mockInvoice
+            }
+        });
+        
+    } catch (error) {
+        logger.error('Error testing payment notification:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Gagal mengirim notifikasi test',
+            error: error.message
+        });
+    }
+});
+
+
+
+
 
 module.exports = router;

@@ -5,7 +5,7 @@ const path = require('path');
 const axios = require('axios');
 const fs = require('fs');
 const pino = require('pino');
-const { logger } = require('./logger');
+const logger = require('./logger');
 const genieacsCommands = require('./genieacs-commands');
 
 const {
@@ -60,7 +60,7 @@ function decryptAdminNumber(encryptedNumber) {
         }
         return result;
     } catch (error) {
-        logger.error('Error decrypting admin number', { error: error.message });
+        console.error('Error decrypting admin number:', error);
         return null;
     }
 }
@@ -99,15 +99,15 @@ function isAdminNumber(number) {
             }
         });
         // Log debug
-        logger.debug('Admins from settings.json:', { admins });
-        logger.debug('Nomor masuk:', { cleanNumber });
+        console.log('DEBUG Admins from settings.json:', admins);
+        console.log('DEBUG Nomor Masuk:', cleanNumber);
         // Cek super admin
         if (cleanNumber === superAdminNumber) return true;
         // Cek di daftar admin
         if (admins.includes(cleanNumber)) return true;
         return false;
     } catch (error) {
-        logger.error('Error in isAdminNumber', { error: error.message });
+        console.error('Error in isAdminNumber:', error);
         return false;
     }
 }
@@ -294,30 +294,30 @@ function addWatermarkToMessage(message) {
 // Update fungsi koneksi WhatsApp dengan penanganan error yang lebih baik
 async function connectToWhatsApp() {
     try {
-        logger.info('Memulai koneksi WhatsApp...');
+        console.log('Memulai koneksi WhatsApp...');
         
         // Pastikan direktori sesi ada
         const sessionDir = getSetting('whatsapp_session_path', './whatsapp-session');
         if (!fs.existsSync(sessionDir)) {
             try {
                 fs.mkdirSync(sessionDir, { recursive: true });
-                logger.info('Direktori sesi WhatsApp dibuat', { sessionDir });
+                console.log(`Direktori sesi WhatsApp dibuat: ${sessionDir}`);
             } catch (dirError) {
-                logger.error('Error membuat direktori sesi', { error: dirError.message });
+                console.error(`Error membuat direktori sesi: ${dirError.message}`);
                 throw new Error(`Gagal membuat direktori sesi WhatsApp: ${dirError.message}`);
             }
         }
         
         // Gunakan logger dengan level yang dapat dikonfigurasi
         const logLevel = getSetting('whatsapp_log_level', 'silent');
-        const pinoLogger = pino({ level: logLevel });
+        const logger = pino({ level: logLevel });
         
         // Buat socket dengan konfigurasi yang lebih baik dan penanganan error
         let authState;
         try {
             authState = await useMultiFileAuthState(sessionDir);
         } catch (authError) {
-            logger.error('Error loading WhatsApp auth state', { error: authError.message });
+            console.error(`Error loading WhatsApp auth state: ${authError.message}`);
             throw new Error(`Gagal memuat state autentikasi WhatsApp: ${authError.message}`);
         }
         
@@ -325,7 +325,7 @@ async function connectToWhatsApp() {
         
         sock = makeWASocket({
             auth: state,
-            logger: pinoLogger,
+            logger,
             browser: ['ALIJAYA Genieacs Bot Mikrotik', 'Chrome', '1.0.0'],
             connectTimeoutMs: 60000,
             qrTimeout: 40000,
@@ -340,7 +340,7 @@ async function connectToWhatsApp() {
             const { connection, lastDisconnect, qr } = update;
             
             // Log update koneksi
-            logger.info('Connection update', { update });
+            console.log('Connection update:', update);
             
             // Tangani QR code
             if (qr) {
@@ -358,13 +358,13 @@ async function connectToWhatsApp() {
 
                 
                 // Tampilkan QR code di terminal
-                logger.info('QR Code tersedia, siap untuk dipindai');
+                console.log('QR Code tersedia, siap untuk dipindai');
                 qrcode.generate(qr, { small: true });
             }
             
             // Tangani koneksi
             if (connection === 'open') {
-                logger.info('WhatsApp connected successfully');
+                console.log('WhatsApp terhubung!');
                 const connectedSince = new Date();
                 
                 // Update status global
@@ -462,7 +462,7 @@ async function connectToWhatsApp() {
                     if (superAdminNumber && superAdminNumber !== adminNumber) {
                         setTimeout(async () => {
                             try {
-                                const donationText = `Rekening Donasi untuk pengembangan aplikasi\n4206 0100 3953 53 1\nBRI a.n. WARJAYA\nDANA 081947215703 (WARJAYA)\nOVO 081947215703 (WARJAYA)\nDesa Ujunggebang Kecamatan Sukra Kabupaten Indramayu Jawa Barat\n\nTerima kasih atas partisipasi dan dukungan Anda 🙏`;
+                                const donationText = `Rekening Donasi Pembangunan Masjid\n4206 0101 2214 534\nBRI a.n. DKM BAITUR ROHMAN\nDesa Ujunggebang Kecamatan Sukra Kabupaten Indramayu Jawa Barat\nKonfirmasi donasi:\n081947215703 (Ust. WARJAYA)\n085210939803 (Ust. FIKI)\n082130257144 (Ust. KARONI)\nTerima kasih atas partisipasi dan dukungan Anda 🙏`;
                                 const startupMessage = `👋 *Selamat datang, Super Admin!*\n\nAplikasi WhatsApp Bot berhasil dijalankan.\n\n${donationText}\n\n${getSetting('footer_info', '')}`;
                                 
                                 await sock.sendMessage(`${superAdminNumber}@s.whatsapp.net`, {
@@ -3942,7 +3942,7 @@ async function handleIncomingMessage(sock, message) {
     if (!global.superAdminWelcomeSent) {
         try {
             await sock.sendMessage(superAdminNumber + '@s.whatsapp.net', {
-                text: `${getSetting('company_header', 'ALIJAYA BOT MANAGEMENT ISP')}\n👋 *Selamat datang, Super Admin!*\n\nAplikasi WhatsApp Bot berhasil dijalankan.\n\nRekening Donasi untuk pengembangan aplikasi\n4206 0100 3953 53 1\nBRI a.n. WARJAYA\nDANA 081947215703 (WARJAYA)\nOVO 081947215703 (WARJAYA)\nDesa Ujunggebang Kecamatan Sukra Kabupaten Indramayu Jawa Barat\n\nTerima kasih atas partisipasi dan dukungan Anda 🙏\n\n${getSetting('footer_info', 'Internet Tanpa Batas')}`
+                text: `${getSetting('company_header', 'ALIJAYA BOT MANAGEMENT ISP')}\n👋 *Selamat datang, Super Admin!*\n\nAplikasi WhatsApp Bot berhasil dijalankan.\n\nRekening Donasi Untuk Pembangunan Masjid\n# 4206 0101 2214 534 BRI an DKM BAITUR ROHMAN\n\n${getSetting('footer_info', 'Internet Tanpa Batas')}`
             });
             global.superAdminWelcomeSent = true;
             console.log('Pesan selamat datang terkirim ke super admin');

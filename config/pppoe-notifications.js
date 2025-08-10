@@ -1,7 +1,7 @@
 // pppoe-notifications.js - Module for managing PPPoE login/logout notifications
 const fs = require('fs');
 const path = require('path');
-const { logger } = require('./logger');
+const logger = require('./logger');
 const { getMikrotikConnection } = require('./mikrotik');
 const { getSetting, setSetting } = require('./settingsManager');
 

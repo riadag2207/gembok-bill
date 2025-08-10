@@ -1,6 +1,6 @@
 const { getSetting } = require('./settingsManager');
 const billingManager = require('./billing');
-const { logger } = require('./logger');
+const logger = require('./logger');
 
 class WhatsAppNotificationManager {
     constructor() {

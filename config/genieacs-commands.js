@@ -1,5 +1,5 @@
 // genieacs-commands.js - Module for handling GenieACS commands via WhatsApp
-const { logger } = require('./logger');
+const logger = require('./logger');
 const genieacsApi = require('./genieacs');
 const responses = require('./responses');
 

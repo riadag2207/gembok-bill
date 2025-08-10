@@ -1,6 +1,6 @@
 // Modul untuk menambahkan nomor pelanggan ke tag GenieACS
 const axios = require('axios');
-const { logger } = require('./logger');
+const logger = require('./logger');
 const { getSetting } = require('./settingsManager');
 
 let sock = null;

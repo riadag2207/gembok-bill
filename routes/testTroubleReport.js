@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { createTroubleReport, updateTroubleReportStatus } = require('../config/troubleReport');
-const { logger } = require('../config/logger');
+const logger = require('../config/logger');
 
 // Test endpoint GET sederhana
 router.get('/test-simple', async (req, res) => {

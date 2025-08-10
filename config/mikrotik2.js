@@ -1,6 +1,6 @@
 // Modul untuk koneksi dan operasi Mikrotik
 const { RouterOSAPI } = require('node-routeros');
-const { logger } = require('./logger');
+const logger = require('./logger');
 const { getSetting } = require('./settingsManager');
 
 let sock = null;

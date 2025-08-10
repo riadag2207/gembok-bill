@@ -1,5 +1,5 @@
 // pppoe-commands.js - WhatsApp commands for PPPoE notification management
-const { logger } = require('./logger');
+const logger = require('./logger');
 const pppoeNotifications = require('./pppoe-notifications');
 const pppoeMonitor = require('./pppoe-monitor');
 

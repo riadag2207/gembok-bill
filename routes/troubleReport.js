@@ -50,6 +50,11 @@ router.get('/report', customerAuth, async (req, res) => {
     companyHeader: getSetting('company_header', 'ISP Monitor'),
     footerInfo: getSetting('footer_info', '')
   });
+
+// Alias: /customer/trouble/simple -> redirect ke /customer/trouble/report
+router.get('/simple', (req, res) => {
+  return res.redirect('/customer/trouble/report');
+});
 });
 
 // POST: Submit laporan gangguan

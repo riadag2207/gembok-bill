@@ -1,5 +1,5 @@
 // mikrotik-commands.js - Module for handling Mikrotik commands via WhatsApp
-const { logger } = require('./logger');
+const logger = require('./logger');
 const { getSetting } = require('./settingsManager');
 const {
     addHotspotUser,

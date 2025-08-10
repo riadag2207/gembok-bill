@@ -81,6 +81,128 @@ router.post('/webhook/tripay', async (req, res) => {
     }
 });
 
+// Manual payment processing (fallback for failed webhooks)
+router.post('/manual-process', async (req, res) => {
+    try {
+        const { invoice_id, payment_method, reference_number, notes } = req.body;
+        
+        if (!invoice_id) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invoice ID is required'
+            });
+        }
+
+        // Get invoice details
+        const invoice = await billingManager.getInvoiceById(invoice_id);
+        if (!invoice) {
+            return res.status(404).json({
+                success: false,
+                message: 'Invoice not found'
+            });
+        }
+
+        // Check if invoice is already paid
+        if (invoice.status === 'paid') {
+            return res.status(400).json({
+                success: false,
+                message: 'Invoice is already paid'
+            });
+        }
+
+        // Process payment like WhatsApp admin
+        const paymentData = {
+            invoice_id: parseInt(invoice_id),
+            amount: invoice.amount,
+            payment_method: payment_method || 'manual',
+            reference_number: reference_number || `MANUAL_${Date.now()}`,
+            notes: notes || 'Manual payment processing via web'
+        };
+
+        // Record payment
+        const paymentResult = await billingManager.recordPayment(paymentData);
+        
+        if (paymentResult && paymentResult.success) {
+            // Update invoice status
+            await billingManager.updateInvoiceStatus(invoice_id, 'paid', payment_method || 'manual');
+            
+            // Get customer info for notification
+            const customer = await billingManager.getCustomerById(invoice.customer_id);
+            
+            // Send WhatsApp notification
+            try {
+                await billingManager.sendPaymentSuccessNotification(customer, invoice);
+            } catch (notificationError) {
+                console.error('Error sending notification:', notificationError);
+            }
+            
+            res.json({
+                success: true,
+                message: 'Payment processed successfully',
+                data: {
+                    payment_id: paymentResult.id,
+                    invoice_id: invoice_id,
+                    status: 'paid',
+                    payment_method: payment_method || 'manual'
+                }
+            });
+        } else {
+            res.status(500).json({
+                success: false,
+                message: 'Failed to process payment'
+            });
+        }
+    } catch (error) {
+        console.error('Error in manual payment processing:', error);
+        res.status(500).json({
+            success: false,
+            message: error.message || 'Failed to process payment'
+        });
+    }
+});
+
+// Check payment status
+router.get('/status/:invoice_id', async (req, res) => {
+    try {
+        const { invoice_id } = req.params;
+        
+        const invoice = await billingManager.getInvoiceById(invoice_id);
+        if (!invoice) {
+            return res.status(404).json({
+                success: false,
+                message: 'Invoice not found'
+            });
+        }
+
+        // Get payment transactions
+        const transactions = await billingManager.getPaymentTransactions(invoice_id);
+        
+        res.json({
+            success: true,
+            data: {
+                invoice: {
+                    id: invoice.id,
+                    invoice_number: invoice.invoice_number,
+                    amount: invoice.amount,
+                    status: invoice.status,
+                    due_date: invoice.due_date,
+                    payment_method: invoice.payment_method,
+                    payment_gateway: invoice.payment_gateway,
+                    payment_status: invoice.payment_status
+                },
+                transactions: transactions,
+                is_paid: invoice.status === 'paid'
+            }
+        });
+    } catch (error) {
+        console.error('Error checking payment status:', error);
+        res.status(500).json({
+            success: false,
+            message: error.message || 'Failed to check payment status'
+        });
+    }
+});
+
 // Payment callback pages
 router.get('/finish', (req, res) => {
     const settings = loadSettings();

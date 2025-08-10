@@ -4,12 +4,34 @@ const crypto = require('crypto');
 class PaymentGatewayManager {
     constructor() {
         this.settings = this.loadSettings();
-        this.gateways = {
-            midtrans: new MidtransGateway(this.settings.payment_gateway.midtrans),
-            xendit: new XenditGateway(this.settings.payment_gateway.xendit),
-            tripay: new TripayGateway(this.settings.payment_gateway.tripay)
-        };
-        this.activeGateway = this.settings.payment_gateway.active;
+        this.gateways = {};
+        
+        // Only initialize enabled gateways
+        if (this.settings.payment_gateway && this.settings.payment_gateway.midtrans && this.settings.payment_gateway.midtrans.enabled) {
+            try {
+                this.gateways.midtrans = new MidtransGateway(this.settings.payment_gateway.midtrans);
+            } catch (error) {
+                console.error('Failed to initialize Midtrans gateway:', error);
+            }
+        }
+        
+        if (this.settings.payment_gateway && this.settings.payment_gateway.xendit && this.settings.payment_gateway.xendit.enabled) {
+            try {
+                this.gateways.xendit = new XenditGateway(this.settings.payment_gateway.xendit);
+            } catch (error) {
+                console.error('Failed to initialize Xendit gateway:', error);
+            }
+        }
+        
+        if (this.settings.payment_gateway && this.settings.payment_gateway.tripay && this.settings.payment_gateway.tripay.enabled) {
+            try {
+                this.gateways.tripay = new TripayGateway(this.settings.payment_gateway.tripay);
+            } catch (error) {
+                console.error('Failed to initialize Tripay gateway:', error);
+            }
+        }
+        
+        this.activeGateway = this.settings.payment_gateway ? this.settings.payment_gateway.active : null;
     }
 
     loadSettings() {
@@ -28,11 +50,15 @@ class PaymentGatewayManager {
     async createPayment(invoice, gateway = null) {
         const selectedGateway = gateway || this.activeGateway;
         
+        if (!selectedGateway) {
+            throw new Error('No payment gateway is active');
+        }
+        
         if (!this.gateways[selectedGateway]) {
-            throw new Error(`Gateway ${selectedGateway} not found`);
+            throw new Error(`Gateway ${selectedGateway} is not initialized or not available`);
         }
 
-        if (!this.settings.payment_gateway[selectedGateway].enabled) {
+        if (!this.settings.payment_gateway || !this.settings.payment_gateway[selectedGateway] || !this.settings.payment_gateway[selectedGateway].enabled) {
             throw new Error(`Gateway ${selectedGateway} is not enabled`);
         }
 
@@ -50,35 +76,82 @@ class PaymentGatewayManager {
 
     async handleWebhook(payload, gateway) {
         if (!this.gateways[gateway]) {
-            throw new Error(`Gateway ${gateway} not found`);
+            throw new Error(`Gateway ${gateway} is not initialized or not available`);
         }
 
         try {
+            console.log(`[PAYMENT_GATEWAY] Processing webhook from ${gateway}:`, JSON.stringify(payload, null, 2));
+            
             const result = await this.gateways[gateway].handleWebhook(payload);
-            return {
-                ...result,
-                gateway: gateway
+            console.log(`[PAYMENT_GATEWAY] Raw result from ${gateway}:`, JSON.stringify(result, null, 2));
+            
+            // Normalize the result to ensure consistent format
+            const normalizedResult = {
+                order_id: result.order_id || result.merchant_ref || result.external_id || payload.order_id,
+                status: result.status || payload.status || 'pending',
+                amount: result.amount || payload.amount || payload.gross_amount,
+                payment_type: result.payment_type || payload.payment_type || payload.payment_method,
+                fraud_status: result.fraud_status || payload.fraud_status || 'accept',
+                reference: result.reference || result.invoice_id || null
             };
+            
+            console.log(`[PAYMENT_GATEWAY] Normalized webhook result for ${gateway}:`, normalizedResult);
+            
+            // Log additional info for debugging
+            if (normalizedResult.status) {
+                console.log(`[PAYMENT_GATEWAY] Payment status: ${normalizedResult.status}`);
+            }
+            if (normalizedResult.order_id) {
+                console.log(`[PAYMENT_GATEWAY] Order ID: ${normalizedResult.order_id}`);
+            }
+            
+            return normalizedResult;
         } catch (error) {
-            console.error(`Error handling webhook from ${gateway}:`, error);
+            console.error(`[PAYMENT_GATEWAY] Error handling webhook from ${gateway}:`, error);
             throw error;
         }
     }
 
     getGatewayStatus() {
         const status = {};
-        Object.keys(this.gateways).forEach(gateway => {
-            status[gateway] = {
-                enabled: this.settings.payment_gateway[gateway].enabled,
-                active: gateway === this.activeGateway
-            };
-        });
+        
+        // Check all configured gateways
+        if (this.settings.payment_gateway) {
+            if (this.settings.payment_gateway.midtrans) {
+                status.midtrans = {
+                    enabled: this.settings.payment_gateway.midtrans.enabled,
+                    active: 'midtrans' === this.activeGateway,
+                    initialized: !!this.gateways.midtrans
+                };
+            }
+            
+            if (this.settings.payment_gateway.xendit) {
+                status.xendit = {
+                    enabled: this.settings.payment_gateway.xendit.enabled,
+                    active: 'xendit' === this.activeGateway,
+                    initialized: !!this.gateways.xendit
+                };
+            }
+            
+            if (this.settings.payment_gateway.tripay) {
+                status.tripay = {
+                    enabled: this.settings.payment_gateway.tripay.enabled,
+                    active: 'tripay' === this.activeGateway,
+                    initialized: !!this.gateways.tripay
+                };
+            }
+        }
+        
         return status;
     }
 }
 
 class MidtransGateway {
     constructor(config) {
+        if (!config || !config.server_key || !config.client_key) {
+            throw new Error('Midtrans configuration is incomplete. Missing server_key or client_key.');
+        }
+        
         this.config = config;
         this.midtransClient = require('midtrans-client');
         this.snap = new this.midtransClient.Snap({
@@ -122,28 +195,54 @@ class MidtransGateway {
     }
 
     async handleWebhook(payload) {
-        // Verify signature
-        const expectedSignature = crypto
-            .createHash('sha512')
-            .update(payload.order_id + payload.status_code + payload.gross_amount + this.config.server_key)
-            .digest('hex');
+        try {
+            // Verify signature
+            const expectedSignature = crypto
+                .createHash('sha512')
+                .update(payload.order_id + payload.status_code + payload.gross_amount + this.config.server_key)
+                .digest('hex');
 
-        if (payload.signature_key !== expectedSignature) {
-            throw new Error('Invalid signature');
+            if (payload.signature_key !== expectedSignature) {
+                throw new Error('Invalid signature');
+            }
+
+            // Map Midtrans status to our standard status
+            let status = payload.transaction_status;
+            if (payload.transaction_status === 'settlement' || payload.transaction_status === 'capture') {
+                status = 'settlement';
+            } else if (payload.transaction_status === 'pending') {
+                status = 'pending';
+            } else if (payload.transaction_status === 'deny' || payload.transaction_status === 'expire' || payload.transaction_status === 'cancel') {
+                status = 'failed';
+            }
+
+            const result = {
+                order_id: payload.order_id,
+                status: status,
+                amount: payload.gross_amount,
+                payment_type: payload.payment_type,
+                fraud_status: payload.fraud_status || 'accept'
+            };
+
+            console.log(`[MIDTRANS] Webhook processed:`, result);
+            return result;
+        } catch (error) {
+            console.error(`[MIDTRANS] Webhook error:`, error);
+            throw error;
         }
-
-        return {
-            order_id: payload.order_id,
-            status: payload.transaction_status,
-            amount: payload.gross_amount,
-            payment_type: payload.payment_type,
-            fraud_status: payload.fraud_status
-        };
     }
 }
 
 class XenditGateway {
     constructor(config) {
+        if (!config || !config.api_key) {
+            throw new Error('Xendit configuration is incomplete. Missing api_key.');
+        }
+        
+        if (!config.api_key.startsWith('xnd_')) {
+            throw new Error('Invalid Xendit API key. API key must start with "xnd_".');
+        }
+        
         this.config = config;
         const { Xendit } = require('xendit-node');
         this.xenditClient = new Xendit({
@@ -175,28 +274,50 @@ class XenditGateway {
     }
 
     async handleWebhook(payload) {
-        // Verify webhook signature
-        const signature = crypto
-            .createHmac('sha256', this.config.callback_token)
-            .update(JSON.stringify(payload))
-            .digest('hex');
+        try {
+            // Verify webhook signature
+            const signature = crypto
+                .createHmac('sha256', this.config.callback_token)
+                .update(JSON.stringify(payload))
+                .digest('hex');
 
-        if (payload.signature !== signature) {
-            throw new Error('Invalid signature');
+            if (payload.signature !== signature) {
+                throw new Error('Invalid signature');
+            }
+
+            // Map Xendit status to our standard status
+            let status = payload.status;
+            if (payload.status === 'PAID') {
+                status = 'PAID';
+            } else if (payload.status === 'PENDING') {
+                status = 'pending';
+            } else if (payload.status === 'EXPIRED' || payload.status === 'FAILED') {
+                status = 'failed';
+            }
+
+            const result = {
+                order_id: payload.external_id,
+                status: status,
+                amount: payload.amount,
+                payment_type: payload.payment_channel,
+                invoice_id: payload.id
+            };
+
+            console.log(`[XENDIT] Webhook processed:`, result);
+            return result;
+        } catch (error) {
+            console.error(`[XENDIT] Webhook error:`, error);
+            throw error;
         }
-
-        return {
-            order_id: payload.external_id,
-            status: payload.status,
-            amount: payload.amount,
-            payment_type: payload.payment_channel,
-            invoice_id: payload.id
-        };
     }
 }
 
 class TripayGateway {
     constructor(config) {
+        if (!config || !config.api_key || !config.private_key || !config.merchant_code) {
+            throw new Error('Tripay configuration is incomplete. Missing api_key, private_key, or merchant_code.');
+        }
+        
         this.config = config;
         this.baseUrl = config.production ? 'https://tripay.co.id' : 'https://tripay.co.id/api-sandbox';
     }
@@ -249,23 +370,39 @@ class TripayGateway {
     }
 
     async handleWebhook(payload) {
-        // Verify signature
-        const signature = crypto
-            .createHmac('sha256', this.config.private_key)
-            .update(JSON.stringify(payload))
-            .digest('hex');
+        try {
+            // Verify signature
+            const signature = crypto
+                .createHmac('sha256', this.config.private_key)
+                .update(JSON.stringify(payload))
+                .digest('hex');
 
-        if (payload.signature !== signature) {
-            throw new Error('Invalid signature');
+            if (payload.signature !== signature) {
+                throw new Error('Invalid signature');
+            }
+
+            // Map Tripay status to our standard status
+            let status = payload.status;
+            if (payload.status === 'PAID' || payload.status === 'UNPAID') {
+                status = payload.status;
+            } else if (payload.status === 'EXPIRED' || payload.status === 'FAILED') {
+                status = 'failed';
+            }
+
+            const result = {
+                order_id: payload.merchant_ref,
+                status: status,
+                amount: payload.amount,
+                payment_type: payload.payment_method,
+                reference: payload.reference
+            };
+
+            console.log(`[TRIPAY] Webhook processed:`, result);
+            return result;
+        } catch (error) {
+            console.error(`[TRIPAY] Webhook error:`, error);
+            throw error;
         }
-
-        return {
-            order_id: payload.merchant_ref,
-            status: payload.status,
-            amount: payload.amount,
-            payment_type: payload.payment_method,
-            reference: payload.reference
-        };
     }
 }
 

@@ -1,5 +1,5 @@
 // pppoe-monitor.js - Enhanced PPPoE monitoring with notification control
-const { logger } = require('./logger');
+const logger = require('./logger');
 const pppoeNotifications = require('./pppoe-notifications');
 
 let monitorInterval = null;

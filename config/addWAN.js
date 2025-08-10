@@ -1,6 +1,6 @@
 // Fungsi untuk menambahkan konfigurasi WAN pada perangkat ONU
 const axios = require('axios');
-const { logger } = require('./logger');
+const logger = require('./logger');
 const { getSetting } = require('./settingsManager');
 
 // Fungsi untuk menambahkan konfigurasi WAN pada perangkat ONU

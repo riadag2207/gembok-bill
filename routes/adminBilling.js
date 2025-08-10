@@ -1,8 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const billingManager = require('../config/billing');
-const { logger } = require('../config/logger');
+const logger = require('../config/logger');
 const { getSetting, getSettingsWithCache } = require('../config/settingsManager');
+const multer = require('multer');
+const upload = multer();
 
 // Middleware untuk mendapatkan pengaturan aplikasi
 const getAppSettings = (req, res, next) => {
@@ -1550,6 +1552,23 @@ router.get('/service-suspension', getAppSettings, async (req, res) => {
         logger.error('Error loading service suspension page:', error);
         res.status(500).render('error', { 
             message: 'Error loading service suspension page',
+            error: error.message,
+            appSettings: req.appSettings
+        });
+    }
+});
+
+// Payment Monitor
+router.get('/payment-monitor', getAppSettings, async (req, res) => {
+    try {
+        res.render('admin/billing/payment-monitor', {
+            title: 'Payment Monitor',
+            appSettings: req.appSettings
+        });
+    } catch (error) {
+        logger.error('Error loading payment monitor:', error);
+        res.status(500).render('error', { 
+            message: 'Error loading payment monitor',
             error: error.message,
             appSettings: req.appSettings
         });

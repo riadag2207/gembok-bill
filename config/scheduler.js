@@ -1,6 +1,6 @@
 const cron = require('node-cron');
 const billingManager = require('./billing');
-const { logger } = require('./logger');
+const logger = require('./logger');
 
 class InvoiceScheduler {
     constructor() {
@@ -71,6 +71,8 @@ class InvoiceScheduler {
         });
 
         logger.info('Service suspension/restoration scheduler initialized - will run daily at 10:00 and 11:00');
+        
+
     }
 
     async sendDueDateReminders() {
@@ -169,9 +171,18 @@ class InvoiceScheduler {
 
     // Manual trigger for testing
     async triggerMonthlyInvoices() {
-        logger.info('Manual trigger for monthly invoice generation');
-        await this.generateMonthlyInvoices();
+        try {
+            logger.info('Triggering monthly invoice generation manually...');
+            await this.generateMonthlyInvoices();
+            logger.info('Manual monthly invoice generation completed');
+            return { success: true, message: 'Monthly invoices generated successfully' };
+        } catch (error) {
+            logger.error('Error in manual monthly invoice generation:', error);
+            throw error;
+        }
     }
+
+
 }
 
 module.exports = new InvoiceScheduler(); 

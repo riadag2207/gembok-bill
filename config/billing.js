@@ -2,6 +2,7 @@ const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const fs = require('fs');
 const PaymentGatewayManager = require('./paymentGateway');
+const logger = require('./logger'); // Added logger import
 
 class BillingManager {
     constructor() {
@@ -68,6 +69,10 @@ class BillingManager {
                 status TEXT DEFAULT 'unpaid',
                 payment_date DATETIME,
                 payment_method TEXT,
+                payment_gateway TEXT,
+                payment_token TEXT,
+                payment_url TEXT,
+                payment_status TEXT DEFAULT 'pending',
                 notes TEXT,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (customer_id) REFERENCES customers (id),
@@ -84,6 +89,23 @@ class BillingManager {
                 reference_number TEXT,
                 notes TEXT,
                 FOREIGN KEY (invoice_id) REFERENCES invoices (id)
+            )`,
+
+            // Tabel transaksi payment gateway
+            `CREATE TABLE IF NOT EXISTS payment_gateway_transactions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                invoice_id INTEGER NOT NULL,
+                gateway TEXT NOT NULL,
+                order_id TEXT NOT NULL,
+                payment_url TEXT,
+                token TEXT,
+                amount DECIMAL(10,2) NOT NULL,
+                status TEXT DEFAULT 'pending',
+                payment_type TEXT,
+                fraud_status TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (invoice_id) REFERENCES invoices (id)
             )`
         ];
 
@@ -99,8 +121,34 @@ class BillingManager {
         this.db.run("ALTER TABLE customers ADD COLUMN pppoe_username TEXT", (err) => {
             if (err && !err.message.includes('duplicate column name')) {
                 console.error('Error adding pppoe_username column:', err);
-            } else if (!err) {
-                console.log('Successfully added pppoe_username column to customers table');
+            }
+        });
+
+        // Tambahkan kolom payment_gateway jika belum ada
+        this.db.run("ALTER TABLE invoices ADD COLUMN payment_gateway TEXT", (err) => {
+            if (err && !err.message.includes('duplicate column name')) {
+                console.error('Error adding payment_gateway column:', err);
+            }
+        });
+
+        // Tambahkan kolom payment_token jika belum ada
+        this.db.run("ALTER TABLE invoices ADD COLUMN payment_token TEXT", (err) => {
+            if (err && !err.message.includes('duplicate column name')) {
+                console.error('Error adding payment_token column:', err);
+            }
+        });
+
+        // Tambahkan kolom payment_url jika belum ada
+        this.db.run("ALTER TABLE invoices ADD COLUMN payment_url TEXT", (err) => {
+            if (err && !err.message.includes('duplicate column name')) {
+                console.error('Error adding payment_url column:', err);
+            }
+        });
+
+        // Tambahkan kolom payment_status jika belum ada
+        this.db.run("ALTER TABLE invoices ADD COLUMN payment_status TEXT DEFAULT 'pending'", (err) => {
+            if (err && !err.message.includes('duplicate column name')) {
+                console.error('Error adding payment_status column:', err);
             }
         });
 
@@ -130,6 +178,8 @@ class BillingManager {
                 console.log('Added auto_suspension column to customers table');
             }
         });
+
+
     }
 
     // Paket Management
@@ -866,6 +916,37 @@ class BillingManager {
         });
     }
 
+    async updatePayment(id, paymentData) {
+        return new Promise((resolve, reject) => {
+            const { amount, payment_method, reference_number, notes } = paymentData;
+            const sql = `UPDATE payments SET amount = ?, payment_method = ?, reference_number = ?, notes = ? WHERE id = ?`;
+            this.db.run(sql, [amount, payment_method, reference_number, notes, id], (err) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    this.getPaymentById(id).then(resolve).catch(reject);
+                }
+            });
+        });
+    }
+
+    async deletePayment(id) {
+        return new Promise((resolve, reject) => {
+            // Ambil payment terlebih dahulu untuk reference
+            this.getPaymentById(id).then(payment => {
+                if (!payment) return reject(new Error('Payment not found'));
+                const sql = `DELETE FROM payments WHERE id = ?`;
+                this.db.run(sql, [id], (err) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(payment);
+                    }
+                });
+            }).catch(reject);
+        });
+    }
+
     // Utility functions
     generateInvoiceNumber() {
         const date = new Date();
@@ -1030,8 +1111,11 @@ class BillingManager {
     async handlePaymentWebhook(payload, gateway) {
         return new Promise(async (resolve, reject) => {
             try {
+                logger.info(`[WEBHOOK] Processing ${gateway} webhook:`, payload);
+                
                 // Process webhook with payment gateway
                 const result = await this.paymentGateway.handleWebhook(payload, gateway);
+                logger.info(`[WEBHOOK] Gateway result:`, result);
 
                 // Find transaction by order_id
                 const sql = `
@@ -1041,9 +1125,33 @@ class BillingManager {
 
                 this.db.get(sql, [result.order_id, gateway], async (err, transaction) => {
                     if (err) {
+                        logger.error(`[WEBHOOK] Database error:`, err);
                         reject(err);
                     } else if (!transaction) {
-                        reject(new Error('Transaction not found'));
+                        logger.warn(`[WEBHOOK] Transaction not found for order_id: ${result.order_id}`);
+                        // Try to find by invoice number if order_id format is different
+                        const invoiceNumber = result.order_id.replace('INV-', '');
+                        const fallbackSql = `
+                            SELECT i.*, c.name as customer_name, c.phone as customer_phone
+                            FROM invoices i
+                            JOIN customers c ON i.customer_id = c.id
+                            WHERE i.invoice_number = ?
+                        `;
+                        
+                        this.db.get(fallbackSql, [invoiceNumber], async (fallbackErr, invoice) => {
+                            if (fallbackErr || !invoice) {
+                                logger.error(`[WEBHOOK] Fallback search failed:`, fallbackErr);
+                                reject(new Error('Transaction and invoice not found'));
+                            } else {
+                                // Process payment directly like WhatsApp admin
+                                await this.processDirectPayment(invoice, result, gateway);
+                                resolve({
+                                    success: true,
+                                    message: 'Payment processed via fallback method',
+                                    invoice_id: invoice.id
+                                });
+                            }
+                        });
                     } else {
                         // Update transaction status
                         const updateSql = `
@@ -1059,27 +1167,53 @@ class BillingManager {
                             transaction.id
                         ], async function(updateErr) {
                             if (updateErr) {
+                                logger.error(`[WEBHOOK] Update transaction error:`, updateErr);
                                 reject(updateErr);
                             } else {
                                 // If payment is successful, update invoice and customer status
-                                if (result.status === 'settlement' || result.status === 'PAID') {
+                                if (this.isPaymentSuccessful(result.status)) {
                                     try {
+                                        logger.info(`[WEBHOOK] Processing successful payment for invoice: ${transaction.invoice_id}`);
+                                        
+                                        // Update invoice status
                                         await this.updateInvoiceStatus(transaction.invoice_id, 'paid', 'online');
+                                        
+                                        // Record payment in payments table
+                                        const paymentData = {
+                                            invoice_id: transaction.invoice_id,
+                                            amount: result.amount || transaction.amount,
+                                            payment_method: 'online',
+                                            reference_number: result.order_id,
+                                            notes: `Payment via ${gateway} - ${result.payment_type || 'online'}`
+                                        };
+                                        
+                                        await this.recordPayment(paymentData);
+                                        logger.info(`[WEBHOOK] Payment recorded successfully`);
                                         
                                         // Get customer info for notification
                                         const invoice = await this.getInvoiceById(transaction.invoice_id);
                                         const customer = await this.getCustomerById(invoice.customer_id);
                                         
-                                        // Send WhatsApp notification
-                                        await this.sendPaymentSuccessNotification(customer, invoice);
+                                        if (!customer) {
+                                            logger.error(`[WEBHOOK] Customer not found for invoice: ${transaction.invoice_id}`);
+                                        } else {
+                                            // Send WhatsApp notification
+                                            try {
+                                                await this.sendPaymentSuccessNotification(customer, invoice);
+                                                logger.info(`[WEBHOOK] Payment success notification sent to ${customer.phone}`);
+                                            } catch (notificationError) {
+                                                logger.error(`[WEBHOOK] Failed to send notification to ${customer.phone}:`, notificationError);
+                                                // Don't fail the payment process - notification is secondary
+                                            }
+                                        }
                                         
                                         resolve({
                                             success: true,
                                             message: 'Payment processed successfully',
                                             invoice_id: transaction.invoice_id
                                         });
-                                    } catch (notificationError) {
-                                        console.error('Error sending notification:', notificationError);
+                                    } catch (processingError) {
+                                        logger.error(`[WEBHOOK] Error in payment processing:`, processingError);
                                         resolve({
                                             success: true,
                                             message: 'Payment processed successfully',
@@ -1087,6 +1221,7 @@ class BillingManager {
                                         });
                                     }
                                 } else {
+                                    logger.info(`[WEBHOOK] Payment status updated: ${result.status}`);
                                     resolve({
                                         success: true,
                                         message: 'Payment status updated',
@@ -1094,13 +1229,65 @@ class BillingManager {
                                     });
                                 }
                             }
-                        });
+                        }.bind(this));
                     }
                 });
             } catch (error) {
+                logger.error(`[WEBHOOK] Webhook processing error:`, error);
                 reject(error);
             }
         });
+    }
+
+    // Helper method to check if payment is successful
+    isPaymentSuccessful(status) {
+        const successfulStatuses = [
+            'settlement', 'PAID', 'success', 'completed', 'settled',
+            'capture', 'authorize', 'pending', 'processing'
+        ];
+        return successfulStatuses.includes(status?.toLowerCase());
+    }
+
+    // Process payment directly like WhatsApp admin (fallback method)
+    async processDirectPayment(invoice, result, gateway) {
+        try {
+            logger.info(`[WEBHOOK] Processing direct payment for invoice: ${invoice.id}`);
+            
+            // Update invoice status
+            await this.updateInvoiceStatus(invoice.id, 'paid', 'online');
+            
+            // Record payment in payments table
+            const paymentData = {
+                invoice_id: invoice.id,
+                amount: result.amount || invoice.amount,
+                payment_method: 'online',
+                reference_number: result.order_id || `WEB_${Date.now()}`,
+                notes: `Payment via ${gateway} webhook - ${result.payment_type || 'online'}`
+            };
+            
+            await this.recordPayment(paymentData);
+            logger.info(`[WEBHOOK] Direct payment processed successfully`);
+            
+            // Get customer info for notification
+            const customer = await this.getCustomerById(invoice.customer_id);
+            if (!customer) {
+                logger.error(`[WEBHOOK] Customer not found for invoice: ${invoice.id}`);
+                return;
+            }
+            
+            // Send WhatsApp notification
+            try {
+                await this.sendPaymentSuccessNotification(customer, invoice);
+                logger.info(`[WEBHOOK] Payment success notification sent to ${customer.phone}`);
+            } catch (notificationError) {
+                logger.error(`[WEBHOOK] Failed to send notification to ${customer.phone}:`, notificationError);
+                // Don't throw error - payment is already processed
+            }
+            
+        } catch (error) {
+            logger.error(`[WEBHOOK] Error in direct payment processing:`, error);
+            throw error;
+        }
     }
 
     async getPaymentTransactions(invoiceId = null) {
@@ -1134,9 +1321,20 @@ class BillingManager {
         return this.paymentGateway.getGatewayStatus();
     }
 
+    // Send payment success notification
     async sendPaymentSuccessNotification(customer, invoice) {
         try {
+            logger.info(`[NOTIFICATION] Sending payment success notification to ${customer.phone} for invoice ${invoice.invoice_number}`);
+            
             const whatsapp = require('./whatsapp');
+            
+            // Cek apakah WhatsApp sudah terhubung
+            const whatsappStatus = whatsapp.getWhatsAppStatus();
+            if (!whatsappStatus || !whatsappStatus.connected) {
+                logger.warn(`[NOTIFICATION] WhatsApp not connected, status: ${JSON.stringify(whatsappStatus)}`);
+                return false;
+            }
+            
             const message = `🎉 *Pembayaran Berhasil!*
 
 Halo ${customer.name},
@@ -1153,9 +1351,12 @@ Terima kasih telah mempercayai layanan kami.
 *ALIJAYA DIGITAL NETWORK*
 Info: 081947215703`;
 
-            await whatsapp.sendMessage(customer.phone, message);
+            const result = await whatsapp.sendMessage(customer.phone, message);
+            logger.info(`[NOTIFICATION] WhatsApp message sent successfully to ${customer.phone}`);
+            return result;
         } catch (error) {
-            console.error('Error sending payment success notification:', error);
+            logger.error(`[NOTIFICATION] Error sending payment success notification to ${customer.phone}:`, error);
+            return false;
         }
     }
 }

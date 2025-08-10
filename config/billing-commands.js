@@ -1,5 +1,5 @@
 const billingManager = require('./billing');
-const { logger } = require('./logger');
+const logger = require('./logger');
 const { getSetting } = require('./settingsManager');
 
 class BillingCommands {

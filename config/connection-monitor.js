@@ -1,5 +1,5 @@
 // Modul monitoring koneksi untuk WhatsApp dan Mikrotik
-const { logger } = require('./logger');
+const logger = require('./logger');
 const whatsapp = require('./whatsapp');
 const mikrotik = require('./mikrotik');
 
