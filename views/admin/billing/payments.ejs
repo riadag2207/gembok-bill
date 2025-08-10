@@ -123,7 +123,6 @@
                                         <th>Metode Pembayaran</th>
                                         <th>Referensi</th>
                                         <th>Catatan</th>
-                                        <th>Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -157,19 +156,6 @@
                                                 </td>
                                                 <td><%= payment.reference_number || '-' %></td>
                                                 <td><%= payment.notes || '-' %></td>
-                                                <td>
-                                                    <div class="btn-group" role="group">
-                                                        <button class="btn btn-sm btn-info" onclick="viewPayment('<%= payment.id %>')">
-                                                            <i class="bx bx-show"></i>
-                                                        </button>
-                                                        <button class="btn btn-sm btn-warning" onclick="editPayment('<%= payment.id %>')">
-                                                            <i class="bx bx-edit"></i>
-                                                        </button>
-                                                        <button class="btn btn-sm btn-danger" onclick="deletePayment('<%= payment.id %>')">
-                                                            <i class="bx bx-trash"></i>
-                                                        </button>
-                                                    </div>
-                                                </td>
                                             </tr>
                                         <% }); %>
                                     <% } %>
@@ -179,67 +165,6 @@
                     </div>
                 </div>
             </main>
-        </div>
-    </div>
-
-    <!-- View Payment Modal -->
-    <div class="modal fade" id="viewPaymentModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Detail Pembayaran</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body" id="paymentDetails">
-                    <!-- Payment details will be loaded here -->
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Edit Payment Modal -->
-    <div class="modal fade" id="editPaymentModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Edit Pembayaran</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <form id="editPaymentForm">
-                    <div class="modal-body">
-                        <input type="hidden" id="edit_payment_id" name="payment_id">
-                        <div class="mb-3">
-                            <label for="edit_amount" class="form-label">Jumlah</label>
-                            <input type="number" class="form-control" id="edit_amount" name="amount" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="edit_payment_method" class="form-label">Metode Pembayaran</label>
-                            <select class="form-control" id="edit_payment_method" name="payment_method" required>
-                                <option value="cash">Tunai</option>
-                                <option value="transfer">Transfer Bank</option>
-                                <option value="qris">QRIS</option>
-                                <option value="ewallet">E-Wallet</option>
-                                <option value="other">Lainnya</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="edit_reference_number" class="form-label">Nomor Referensi</label>
-                            <input type="text" class="form-control" id="edit_reference_number" name="reference_number">
-                        </div>
-                        <div class="mb-3">
-                            <label for="edit_notes" class="form-label">Catatan</label>
-                            <textarea class="form-control" id="edit_notes" name="notes" rows="3"></textarea>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary">Update Pembayaran</button>
-                    </div>
-                </form>
-            </div>
         </div>
     </div>
 
@@ -258,130 +183,7 @@
                 order: [[0, 'desc']] // Sort by date descending
             });
         });
-
-        // View Payment
-        function viewPayment(paymentId) {
-            fetch(`/admin/billing/payments/${paymentId}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        const payment = data.payment;
-                        const paymentMethodText = {
-                            'cash': 'Tunai',
-                            'transfer': 'Transfer Bank',
-                            'qris': 'QRIS',
-                            'ewallet': 'E-Wallet',
-                            'other': 'Lainnya'
-                        };
-
-                        const detailsHtml = `
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <p><strong>Tanggal:</strong> ${new Date(payment.payment_date).toLocaleDateString('id-ID')}</p>
-                                    <p><strong>No. Tagihan:</strong> ${payment.invoice_number}</p>
-                                    <p><strong>Pelanggan:</strong> ${payment.customer_name}</p>
-                                    <p><strong>Jumlah:</strong> Rp ${parseFloat(payment.amount).toLocaleString('id-ID')}</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <p><strong>Metode Pembayaran:</strong> ${paymentMethodText[payment.payment_method] || payment.payment_method}</p>
-                                    <p><strong>Referensi:</strong> ${payment.reference_number || '-'}</p>
-                                    <p><strong>Catatan:</strong> ${payment.notes || '-'}</p>
-                                </div>
-                            </div>
-                        `;
-                        
-                        $('#paymentDetails').html(detailsHtml);
-                        $('#viewPaymentModal').modal('show');
-                    } else {
-                        showAlert('danger', data.message || 'Gagal mengambil data pembayaran');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showAlert('danger', 'Terjadi kesalahan');
-                });
-        }
-
-        // Edit Payment
-        function editPayment(paymentId) {
-            fetch(`/admin/billing/payments/${paymentId}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        const payment = data.payment;
-                        $('#edit_payment_id').val(payment.id);
-                        $('#edit_amount').val(payment.amount);
-                        $('#edit_payment_method').val(payment.payment_method);
-                        $('#edit_reference_number').val(payment.reference_number || '');
-                        $('#edit_notes').val(payment.notes || '');
-                        $('#editPaymentModal').modal('show');
-                    } else {
-                        showAlert('danger', data.message || 'Gagal mengambil data pembayaran');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showAlert('danger', 'Terjadi kesalahan');
-                });
-        }
-
-        // Update Payment Form
-        $('#editPaymentForm').on('submit', function(e) {
-            e.preventDefault();
-            const formData = new FormData(this);
-            const paymentId = $('#edit_payment_id').val();
-            
-            fetch(`/admin/billing/payments/${paymentId}`, {
-                method: 'PUT',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showAlert('success', 'Pembayaran berhasil diupdate');
-                    $('#editPaymentModal').modal('hide');
-                    setTimeout(() => location.reload(), 1000);
-                } else {
-                    showAlert('danger', data.message || 'Gagal mengupdate pembayaran');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showAlert('danger', 'Terjadi kesalahan');
-            });
-        });
-
-        // Delete Payment
-        function deletePayment(paymentId) {
-            if (confirm('Apakah Anda yakin ingin menghapus pembayaran ini?')) {
-                fetch(`/admin/billing/payments/${paymentId}`, {
-                    method: 'DELETE'
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        showAlert('success', 'Pembayaran berhasil dihapus');
-                        setTimeout(() => location.reload(), 1000);
-                    } else {
-                        showAlert('danger', data.message || 'Gagal menghapus pembayaran');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showAlert('danger', 'Terjadi kesalahan');
-                });
-            }
-        }
-
-        function showAlert(type, message) {
-            const alertHtml = `
-                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
-                    ${message}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            `;
-            document.querySelector('.main-content').insertAdjacentHTML('afterbegin', alertHtml);
-        }
     </script>
+
 </body>
-</html> 
+</html>

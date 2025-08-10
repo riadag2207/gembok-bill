@@ -332,29 +332,12 @@
                     reference_number: '',
                     notes: notes || ''
                 })
-            });
-        })
-        .then(response => response.json())
-        .then(result => {
-            if (result.success) {
-                // Then update invoice status
-                return fetch(`/admin/billing/invoices/${invoiceId}/status`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        status: 'paid',
-                        payment_method: paymentMethod
-                    })
-                });
-            } else {
-                throw new Error(result.message);
-            }
-        })
-        .then(response => response.json())
-        .then(result => {
-            if (result.success) {
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (!result.success) {
+                    throw new Error(result.message || 'Gagal mencatat pembayaran');
+                }
                 // Close modal and reset form
                 $('#markAsPaidModal').modal('hide');
                 document.getElementById('markAsPaidForm').reset();
@@ -364,9 +347,16 @@
                 
                 // Reload page after a short delay
                 setTimeout(() => location.reload(), 1500);
-            } else {
-                alert('❌ ' + result.message);
-            }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('❌ Terjadi kesalahan saat menandai tagihan sebagai lunas');
+            })
+            .finally(() => {
+                // Re-enable submit button
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            });
         })
         .catch(error => {
             console.error('Error:', error);

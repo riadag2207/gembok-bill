@@ -257,24 +257,38 @@
             if (confirm('Tandai tagihan ini sebagai lunas?')) {
                 showToast('info', 'Memproses...', 'Menandai tagihan sebagai lunas');
                 
-                fetch(`/admin/billing/invoices/${invoiceId}/mark-paid`, {
-                    method: 'POST'
+                // 1) Get invoice amount
+                fetch(`/admin/billing/api/invoices/${invoiceId}`)
+                .then(response => response.json())
+                .then(inv => {
+                    if (!inv || !inv.success || !inv.invoice) {
+                        throw new Error(inv?.message || 'Gagal mengambil data tagihan');
+                    }
+                    const amount = parseFloat(inv.invoice.amount);
+                    // 2) Record payment (this will also update invoice status server-side)
+                    return fetch('/admin/billing/payments', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            invoice_id: invoiceId,
+                            amount: amount,
+                            payment_method: 'manual_admin',
+                            reference_number: '',
+                            notes: ''
+                        })
+                    });
                 })
                 .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        showToast('success', 'Tagihan Lunas', 'Tagihan berhasil ditandai lunas');
-                        // Update row tanpa reload
-                        setTimeout(() => {
-                            location.reload();
-                        }, 1500);
-                    } else {
-                        showToast('error', 'Gagal Menandai', data.message || 'Gagal menandai tagihan');
+                .then(result => {
+                    if (!result || !result.success) {
+                        throw new Error(result?.message || 'Gagal menandai tagihan');
                     }
+                    showToast('success', 'Tagihan Lunas', 'Tagihan berhasil ditandai lunas');
+                    setTimeout(() => { location.reload(); }, 1500);
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    showToast('error', 'Error', 'Terjadi kesalahan saat menandai tagihan');
+                    showToast('error', 'Error', error?.message || 'Terjadi kesalahan saat menandai tagihan');
                 });
             }
         }
