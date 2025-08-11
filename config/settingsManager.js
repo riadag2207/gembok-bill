@@ -18,4 +18,15 @@ function getSetting(key, defaultValue) {
   return settings[key] !== undefined ? settings[key] : defaultValue;
 }
 
-module.exports = { getSettingsWithCache, getSetting }; 
+function setSetting(key, value) {
+  try {
+    const settings = getSettingsWithCache();
+    settings[key] = value;
+    fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2), 'utf-8');
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+module.exports = { getSettingsWithCache, getSetting, setSetting };

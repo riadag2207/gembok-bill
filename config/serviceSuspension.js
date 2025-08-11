@@ -10,23 +10,31 @@ class ServiceSuspensionManager {
     }
 
     /**
-     * Buat atau dapatkan profile isolir di Mikrotik
+     * Pastikan profile isolir (berdasarkan setting) tersedia di Mikrotik jika perlu
+     * Hanya auto-create bila nama profil = 'isolir'
      */
     async ensureIsolirProfile() {
         try {
             const mikrotik = await getMikrotikConnection();
             
+            const selectedProfile = getSetting('isolir_profile', 'isolir');
             // Cek apakah profile isolir sudah ada
             const profiles = await mikrotik.write('/ppp/profile/print', [
-                '?name=isolir'
+                `?name=${selectedProfile}`
             ]);
             
             if (profiles && profiles.length > 0) {
-                logger.info('Isolir profile already exists in Mikrotik');
+                logger.info(`Isolir profile '${selectedProfile}' already exists in Mikrotik`);
                 return profiles[0]['.id'];
             }
             
-            // Buat profile isolir jika belum ada
+            // Jika user memilih nama lain selain 'isolir', jangan auto-create, biarkan admin pilih profil yang sudah ada
+            if (selectedProfile !== 'isolir') {
+                logger.warn(`Isolir profile '${selectedProfile}' not found in Mikrotik. Please create it on Mikrotik or choose another profile.`);
+                return null;
+            }
+
+            // Buat profile 'isolir' jika belum ada
             const newProfile = await mikrotik.write('/ppp/profile/add', [
                 '=name=isolir',
                 '=local-address=0.0.0.0',
@@ -59,18 +67,20 @@ class ServiceSuspensionManager {
                 billing: false
             };
 
-            // 1. Suspend via Mikrotik (gunakan profile isolir)
+            // 1. Suspend via Mikrotik (gunakan profile isolir yang dipilih)
             if (customer.pppoe_username) {
                 try {
                     const mikrotik = await getMikrotikConnection();
                     
-                    // Pastikan profile isolir ada
+                    // Tentukan profile isolir dari setting
+                    const selectedProfile = getSetting('isolir_profile', 'isolir');
+                    // Pastikan profile isolir ada (auto-create hanya jika 'isolir')
                     await this.ensureIsolirProfile();
                     
                     // Update PPPoE user dengan profile isolir
                     await mikrotik.write('/ppp/secret/set', [
                         `=.id=${customer.pppoe_username}`,
-                        '=profile=isolir',
+                        `=profile=${selectedProfile}`,
                         '=comment=SUSPENDED - ' + reason
                     ]);
                     
@@ -201,6 +211,20 @@ class ServiceSuspensionManager {
                         '=comment=ACTIVE'
                     ]);
                     
+                    // Disconnect active session agar client reconnect dengan profile baru
+                    const activeSessions = await mikrotik.write('/ppp/active/print', [
+                        `?name=${customer.pppoe_username}`
+                    ]);
+                    
+                    if (activeSessions && activeSessions.length > 0) {
+                        for (const session of activeSessions) {
+                            await mikrotik.write('/ppp/active/remove', [
+                                `=.id=${session['.id']}`
+                            ]);
+                        }
+                        logger.info(`Mikrotik: Disconnected ${activeSessions.length} active session(s) for ${customer.pppoe_username} to apply new profile`);
+                    }
+
                     results.mikrotik = true;
                     logger.info(`Mikrotik: Successfully restored PPPoE user ${customer.pppoe_username} with ${profileToUse} profile`);
                 } catch (mikrotikError) {

@@ -8,10 +8,10 @@ class InvoiceScheduler {
     }
 
     initScheduler() {
-        // Schedule monthly invoice generation on 1st of every month at 00:01
-        cron.schedule('1 0 1 * *', async () => {
+        // Schedule monthly invoice generation on 1st of every month at 08:00
+        cron.schedule('0 8 1 * *', async () => {
             try {
-                logger.info('Starting automatic monthly invoice generation...');
+                logger.info('Starting automatic monthly invoice generation (08:00)...');
                 await this.generateMonthlyInvoices();
                 logger.info('Automatic monthly invoice generation completed');
             } catch (error) {
@@ -22,7 +22,7 @@ class InvoiceScheduler {
             timezone: "Asia/Jakarta"
         });
 
-        logger.info('Invoice scheduler initialized - will run on 1st of every month at 00:01');
+        logger.info('Invoice scheduler initialized - will run on 1st of every month at 08:00');
         
         // Schedule daily due date reminders at 09:00
         cron.schedule('0 9 * * *', async () => {
@@ -142,8 +142,15 @@ class InvoiceScheduler {
                         continue;
                     }
 
-                    // Set due date to 15th of current month
-                    const dueDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 15);
+                    // Set due date based on customer's billing_day (1-28), capped to month's last day
+                    const billingDay = (() => {
+                        const v = parseInt(customer.billing_day, 10);
+                        if (Number.isFinite(v)) return Math.min(Math.max(v, 1), 28);
+                        return 15;
+                    })();
+                    const lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
+                    const targetDay = Math.min(billingDay, lastDayOfMonth);
+                    const dueDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), targetDay);
 
                                             // Create invoice data
                         const invoiceData = {

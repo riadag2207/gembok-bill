@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const billingManager = require('../config/billing');
+const serviceSuspension = require('../config/serviceSuspension');
 const fs = require('fs');
 
 // Load settings
@@ -146,6 +147,18 @@ router.post('/manual-process', async (req, res) => {
                     payment_method: payment_method || 'manual'
                 }
             });
+
+            // Attempt immediate restore if eligible
+            try {
+                const refreshedCustomer = await billingManager.getCustomerById(invoice.customer_id);
+                const customerInvoices = await billingManager.getInvoicesByCustomer(invoice.customer_id);
+                const unpaid = customerInvoices.filter(i => i.status === 'unpaid');
+                if (refreshedCustomer && refreshedCustomer.status === 'suspended' && unpaid.length === 0) {
+                    await serviceSuspension.restoreCustomerService(refreshedCustomer);
+                }
+            } catch (restoreErr) {
+                console.error('Immediate restore check failed:', restoreErr);
+            }
         } else {
             res.status(500).json({
                 success: false,

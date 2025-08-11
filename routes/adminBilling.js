@@ -2,7 +2,8 @@ const express = require('express');
 const router = express.Router();
 const billingManager = require('../config/billing');
 const logger = require('../config/logger');
-const { getSetting, getSettingsWithCache } = require('../config/settingsManager');
+const serviceSuspension = require('../config/serviceSuspension');
+const { getSetting, getSettingsWithCache, setSetting } = require('../config/settingsManager');
 const multer = require('multer');
 const upload = multer();
 const ExcelJS = require('exceljs');
@@ -31,6 +32,52 @@ router.get('/dashboard', getAppSettings, async (req, res) => {
             recentInvoices: recentInvoices.slice(0, 10),
             appSettings: req.appSettings
         });
+    } catch (error) {
+        logger.error('Error loading billing dashboard:', error);
+        res.status(500).render('error', { 
+            message: 'Error loading billing dashboard',
+            error: error.message,
+            appSettings: req.appSettings
+        });
+    }
+});
+
+// Bulk delete customers
+router.post('/customers/bulk-delete', async (req, res) => {
+    try {
+        const { phones } = req.body || {};
+        if (!Array.isArray(phones) || phones.length === 0) {
+            return res.status(400).json({ success: false, message: 'Daftar pelanggan (phones) kosong atau tidak valid' });
+        }
+
+        const results = [];
+        let success = 0;
+        let failed = 0;
+
+        for (const phone of phones) {
+            try {
+                const deleted = await billingManager.deleteCustomer(String(phone));
+                results.push({ phone, success: true });
+                success++;
+            } catch (e) {
+                // Map known errors to friendly messages
+                let msg = e.message || 'Gagal menghapus';
+                if (msg.includes('invoice(s) still exist')) {
+                    msg = 'Masih memiliki tagihan, hapus tagihan terlebih dahulu';
+                } else if (msg.includes('Customer not found')) {
+                    msg = 'Pelanggan tidak ditemukan';
+                }
+                results.push({ phone, success: false, message: msg });
+                failed++;
+            }
+        }
+
+        return res.json({ success: true, summary: { success, failed, total: phones.length }, results });
+    } catch (error) {
+        logger.error('Error bulk deleting customers:', error);
+        return res.status(500).json({ success: false, message: 'Gagal melakukan hapus massal pelanggan', error: error.message });
+    }
+});
 
 // Export customers to XLSX
 router.get('/export/customers.xlsx', async (req, res) => {
@@ -42,7 +89,7 @@ router.get('/export/customers.xlsx', async (req, res) => {
 
         const headers = [
             'name', 'phone', 'pppoe_username', 'email', 'address',
-            'package_id', 'pppoe_profile', 'status', 'auto_suspension'
+            'package_id', 'pppoe_profile', 'status', 'auto_suspension', 'billing_day'
         ];
         worksheet.addRow(headers);
 
@@ -56,7 +103,8 @@ router.get('/export/customers.xlsx', async (req, res) => {
                 c.package_id || '',
                 c.pppoe_profile || 'default',
                 c.status || 'active',
-                typeof c.auto_suspension !== 'undefined' ? c.auto_suspension : 1
+                typeof c.auto_suspension !== 'undefined' ? c.auto_suspension : 1,
+                c.billing_day || 15
             ]);
         });
 
@@ -118,7 +166,16 @@ router.post('/import/customers/xlsx', upload.single('file'), async (req, res) =>
                     package_id: getVal(row, 'package_id') ? Number(getVal(row, 'package_id')) : null,
                     pppoe_profile: String(getVal(row, 'pppoe_profile') || 'default').trim(),
                     status: String(getVal(row, 'status') || 'active').trim(),
-                    auto_suspension: getVal(row, 'auto_suspension') === '' || getVal(row, 'auto_suspension') === null ? 1 : Number(getVal(row, 'auto_suspension'))
+                    auto_suspension: (() => {
+                        const v = getVal(row, 'auto_suspension');
+                        const n = parseInt(String(v), 10);
+                        return Number.isFinite(n) ? n : 1;
+                    })(),
+                    billing_day: (() => {
+                        const v = Number(getVal(row, 'billing_day'));
+                        const n = Number.isFinite(v) ? Math.min(Math.max(Math.trunc(v), 1), 28) : 15;
+                        return n;
+                    })()
                 };
 
                 // Process upsert
@@ -145,9 +202,10 @@ router.post('/import/customers/xlsx', upload.single('file'), async (req, res) =>
                     email: raw.email,
                     address: raw.address,
                     package_id: raw.package_id,
-                    pppoe_profile: raw.pppoe_profile || 'default',
-                    status: raw.status || 'active',
-                    auto_suspension: typeof raw.auto_suspension !== 'undefined' ? raw.auto_suspension : 1
+                    pppoe_profile: raw.pppoe_profile,
+                    status: raw.status,
+                    auto_suspension: typeof raw.auto_suspension !== 'undefined' ? raw.auto_suspension : 1,
+                    billing_day: raw.billing_day
                 };
 
                 if (existing) {
@@ -167,15 +225,6 @@ router.post('/import/customers/xlsx', upload.single('file'), async (req, res) =>
     } catch (error) {
         logger.error('Error importing customers (XLSX):', error);
         res.status(500).json({ success: false, message: 'Error importing customers (XLSX)', error: error.message });
-    }
-});
-    } catch (error) {
-        logger.error('Error loading billing dashboard:', error);
-        res.status(500).render('error', { 
-            message: 'Error loading billing dashboard',
-            error: error.message,
-            appSettings: req.appSettings
-        });
     }
 });
 
@@ -237,7 +286,8 @@ router.post('/import/customers/json', upload.single('file'), async (req, res) =>
                     package_id: raw.package_id || null,
                     pppoe_profile: raw.pppoe_profile || 'default',
                     status: raw.status || 'active',
-                    auto_suspension: typeof raw.auto_suspension !== 'undefined' ? raw.auto_suspension : 1
+                    auto_suspension: raw.auto_suspension !== undefined ? parseInt(raw.auto_suspension, 10) : 1,
+                    billing_day: raw.billing_day ? Math.min(Math.max(parseInt(raw.billing_day), 1), 28) : 15
                 };
 
                 if (existing) {
@@ -810,7 +860,7 @@ router.get('/customers', getAppSettings, async (req, res) => {
 
 router.post('/customers', async (req, res) => {
     try {
-        const { name, phone, pppoe_username, email, address, package_id, pppoe_profile, auto_suspension } = req.body;
+        const { name, phone, pppoe_username, email, address, package_id, pppoe_profile, auto_suspension, billing_day, create_pppoe_user, pppoe_password } = req.body;
         
         // Validate required fields
         if (!name || !phone || !package_id) {
@@ -836,15 +886,48 @@ router.post('/customers', async (req, res) => {
             package_id,
             pppoe_profile: profileToUse,
             status: 'active',
-            auto_suspension: auto_suspension !== undefined ? parseInt(auto_suspension) : 1
+            auto_suspension: auto_suspension !== undefined ? parseInt(auto_suspension) : 1,
+            billing_day: (() => {
+                const v = parseInt(billing_day, 10);
+                if (Number.isFinite(v)) return Math.min(Math.max(v, 1), 28);
+                return 15;
+            })()
         };
 
         const result = await billingManager.createCustomer(customerData);
-        
+
+        // Optional: create PPPoE user in Mikrotik
+        let pppoeCreate = { attempted: false, created: false, message: '' };
+        try {
+            const shouldCreate = create_pppoe_user === 1 || create_pppoe_user === '1' || create_pppoe_user === true || create_pppoe_user === 'true';
+            if (shouldCreate && pppoe_username) {
+                pppoeCreate.attempted = true;
+                // determine profile (already computed as profileToUse)
+                const passwordToUse = (pppoe_password && String(pppoe_password).trim())
+                    ? String(pppoe_password).trim()
+                    : (Math.random().toString(36).slice(-8) + Math.floor(Math.random()*10));
+
+                const { addPPPoEUser } = require('../config/mikrotik');
+                const addRes = await addPPPoEUser({ username: pppoe_username, password: passwordToUse, profile: profileToUse });
+                if (addRes && addRes.success) {
+                    pppoeCreate.created = true;
+                    pppoeCreate.message = 'User PPPoE berhasil dibuat di Mikrotik';
+                } else {
+                    pppoeCreate.created = false;
+                    pppoeCreate.message = (addRes && addRes.message) ? addRes.message : 'Gagal membuat user PPPoE';
+                }
+            }
+        } catch (e) {
+            logger.warn('Gagal membuat user PPPoE di Mikrotik (opsional): ' + e.message);
+            pppoeCreate.created = false;
+            pppoeCreate.message = e.message;
+        }
+
         res.json({
             success: true,
             message: 'Pelanggan berhasil ditambahkan',
-            customer: result
+            customer: result,
+            pppoeCreate
         });
     } catch (error) {
         logger.error('Error creating customer:', error);
@@ -1036,7 +1119,7 @@ router.get('/customers/:username/test', async (req, res) => {
 router.put('/customers/:phone', async (req, res) => {
     try {
         const { phone } = req.params;
-        const { name, pppoe_username, email, address, package_id, pppoe_profile, status, auto_suspension } = req.body;
+        const { name, pppoe_username, email, address, package_id, pppoe_profile, status, auto_suspension, billing_day } = req.body;
         
         // Validate required fields
         if (!name || !package_id) {
@@ -1458,6 +1541,23 @@ router.post('/payments', async (req, res) => {
             // Don't fail the payment recording if notification fails
         }
         
+        // Attempt immediate restore if eligible
+        try {
+            const paidInvoice = await billingManager.getInvoiceById(paymentData.invoice_id);
+            if (paidInvoice && paidInvoice.customer_id) {
+                const customer = await billingManager.getCustomerById(paidInvoice.customer_id);
+                if (customer && customer.status === 'suspended') {
+                    const invoices = await billingManager.getInvoicesByCustomer(customer.id);
+                    const unpaid = invoices.filter(i => i.status === 'unpaid');
+                    if (unpaid.length === 0) {
+                        await serviceSuspension.restoreCustomerService(customer);
+                    }
+                }
+            }
+        } catch (restoreErr) {
+            logger.error('Immediate restore check failed:', restoreErr);
+        }
+        
         res.json({
             success: true,
             message: 'Pembayaran berhasil dicatat',
@@ -1779,6 +1879,32 @@ router.get('/service-suspension', getAppSettings, async (req, res) => {
             error: error.message,
             appSettings: req.appSettings
         });
+    }
+});
+
+// Service Suspension: Isolir Profile Setting API
+router.get('/service-suspension/isolir-profile', async (req, res) => {
+    try {
+        const value = getSetting('isolir_profile', 'isolir');
+        res.json({ success: true, isolir_profile: value });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+router.post('/service-suspension/isolir-profile', async (req, res) => {
+    try {
+        const { isolir_profile } = req.body || {};
+        if (!isolir_profile || typeof isolir_profile !== 'string') {
+            return res.status(400).json({ success: false, message: 'isolir_profile tidak valid' });
+        }
+        const ok = setSetting('isolir_profile', isolir_profile.trim());
+        if (!ok) {
+            return res.status(500).json({ success: false, message: 'Gagal menyimpan ke settings.json' });
+        }
+        res.json({ success: true, isolir_profile: isolir_profile.trim() });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
     }
 });
 

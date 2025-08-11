@@ -2,6 +2,7 @@ const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const fs = require('fs');
 const PaymentGatewayManager = require('./paymentGateway');
+const serviceSuspension = require('./serviceSuspension');
 const logger = require('./logger'); // Added logger import
 
 class BillingManager {
@@ -179,7 +180,14 @@ class BillingManager {
             }
         });
 
-
+        // Tambahkan kolom billing_day ke customers jika belum ada
+        this.db.run("ALTER TABLE customers ADD COLUMN billing_day INTEGER DEFAULT 15", (err) => {
+            if (err && !err.message.includes('duplicate column name')) {
+                console.error('Error adding billing_day column:', err);
+            } else if (!err) {
+                console.log('Added billing_day column to customers table');
+            }
+        });
     }
 
     // Paket Management
@@ -258,15 +266,18 @@ class BillingManager {
     // Customer Management
     async createCustomer(customerData) {
         return new Promise(async (resolve, reject) => {
-            const { name, phone, pppoe_username, email, address, package_id, pppoe_profile, status, auto_suspension } = customerData;
+            const { name, phone, pppoe_username, email, address, package_id, pppoe_profile, status, auto_suspension, billing_day } = customerData;
             
             // Generate username dan PPPoE username otomatis
             const username = this.generateUsername(phone);
             const autoPPPoEUsername = pppoe_username || this.generatePPPoEUsername(phone);
             
-            const sql = `INSERT INTO customers (username, name, phone, pppoe_username, email, address, package_id, pppoe_profile, status, auto_suspension) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+            // Normalisasi billing_day (1-28)
+            const normBillingDay = Math.min(Math.max(parseInt(billing_day ?? 15, 10) || 15, 1), 28);
             
-            this.db.run(sql, [username, name, phone, autoPPPoEUsername, email, address, package_id, pppoe_profile, status || 'active', auto_suspension !== undefined ? auto_suspension : 1], async function(err) {
+            const sql = `INSERT INTO customers (username, name, phone, pppoe_username, email, address, package_id, pppoe_profile, status, auto_suspension, billing_day) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+            
+            this.db.run(sql, [username, name, phone, autoPPPoEUsername, email, address, package_id, pppoe_profile, status || 'active', auto_suspension !== undefined ? auto_suspension : 1, normBillingDay], async function(err) {
                 if (err) {
                     reject(err);
                 } else {
@@ -555,7 +566,7 @@ class BillingManager {
 
     async updateCustomer(phone, customerData) {
         return new Promise(async (resolve, reject) => {
-            const { name, pppoe_username, email, address, package_id, pppoe_profile, status, auto_suspension } = customerData;
+            const { name, pppoe_username, email, address, package_id, pppoe_profile, status, auto_suspension, billing_day } = customerData;
             
             // Dapatkan data customer lama untuk membandingkan nomor telepon
             try {
@@ -563,9 +574,12 @@ class BillingManager {
                 const oldPhone = oldCustomer ? oldCustomer.phone : null;
                 const oldPPPoE = oldCustomer ? oldCustomer.pppoe_username : null;
                 
-                const sql = `UPDATE customers SET name = ?, pppoe_username = ?, email = ?, address = ?, package_id = ?, pppoe_profile = ?, status = ?, auto_suspension = ? WHERE phone = ?`;
+                // Normalisasi billing_day (1-28) dengan fallback ke nilai lama atau 15
+                const normBillingDay = Math.min(Math.max(parseInt(billing_day !== undefined ? billing_day : (oldCustomer?.billing_day ?? 15), 10) || 15, 1), 28);
                 
-                this.db.run(sql, [name, pppoe_username, email, address, package_id, pppoe_profile, status, auto_suspension !== undefined ? auto_suspension : oldCustomer.auto_suspension, phone], async function(err) {
+                const sql = `UPDATE customers SET name = ?, pppoe_username = ?, email = ?, address = ?, package_id = ?, pppoe_profile = ?, status = ?, auto_suspension = ?, billing_day = ? WHERE phone = ?`;
+                
+                this.db.run(sql, [name, pppoe_username, email, address, package_id, pppoe_profile, status, auto_suspension !== undefined ? auto_suspension : oldCustomer.auto_suspension, normBillingDay, phone], async function(err) {
                     if (err) {
                         reject(err);
                     } else {
@@ -822,7 +836,8 @@ class BillingManager {
             const { customer_id, package_id, amount, due_date, notes } = invoiceData;
             const sql = `UPDATE invoices SET customer_id = ?, package_id = ?, amount = ?, due_date = ?, notes = ? WHERE id = ?`;
             
-            this.db.run(sql, [customer_id, package_id, amount, due_date, notes, id], function(err) {
+            // Use arrow function to preserve class context (this)
+            this.db.run(sql, [customer_id, package_id, amount, due_date, notes, id], (err) => {
                 if (err) {
                     reject(err);
                 } else {
@@ -1108,186 +1123,129 @@ class BillingManager {
         });
     }
 
-    async handlePaymentWebhook(payload, gateway) {
-        return new Promise(async (resolve, reject) => {
-            try {
-                logger.info(`[WEBHOOK] Processing ${gateway} webhook:`, payload);
-                
-                // Process webhook with payment gateway
-                const result = await this.paymentGateway.handleWebhook(payload, gateway);
-                logger.info(`[WEBHOOK] Gateway result:`, result);
-
-                // Find transaction by order_id
-                const sql = `
-                    SELECT * FROM payment_gateway_transactions 
-                    WHERE order_id = ? AND gateway = ?
-                `;
-
-                this.db.get(sql, [result.order_id, gateway], async (err, transaction) => {
-                    if (err) {
-                        logger.error(`[WEBHOOK] Database error:`, err);
-                        reject(err);
-                    } else if (!transaction) {
-                        logger.warn(`[WEBHOOK] Transaction not found for order_id: ${result.order_id}`);
-                        // Try to find by invoice number if order_id format is different
-                        const invoiceNumber = result.order_id.replace('INV-', '');
-                        const fallbackSql = `
-                            SELECT i.*, c.name as customer_name, c.phone as customer_phone
-                            FROM invoices i
-                            JOIN customers c ON i.customer_id = c.id
-                            WHERE i.invoice_number = ?
-                        `;
-                        
-                        this.db.get(fallbackSql, [invoiceNumber], async (fallbackErr, invoice) => {
-                            if (fallbackErr || !invoice) {
-                                logger.error(`[WEBHOOK] Fallback search failed:`, fallbackErr);
-                                reject(new Error('Transaction and invoice not found'));
-                            } else {
-                                // Process payment directly like WhatsApp admin
-                                await this.processDirectPayment(invoice, result, gateway);
-                                resolve({
-                                    success: true,
-                                    message: 'Payment processed via fallback method',
-                                    invoice_id: invoice.id
-                                });
-                            }
-                        });
-                    } else {
-                        // Update transaction status
-                        const updateSql = `
-                            UPDATE payment_gateway_transactions 
-                            SET status = ?, payment_type = ?, fraud_status = ?, updated_at = CURRENT_TIMESTAMP
-                            WHERE id = ?
-                        `;
-
-                        this.db.run(updateSql, [
-                            result.status,
-                            result.payment_type || null,
-                            result.fraud_status || null,
-                            transaction.id
-                        ], async function(updateErr) {
-                            if (updateErr) {
-                                logger.error(`[WEBHOOK] Update transaction error:`, updateErr);
-                                reject(updateErr);
-                            } else {
-                                // If payment is successful, update invoice and customer status
-                                if (this.isPaymentSuccessful(result.status)) {
-                                    try {
-                                        logger.info(`[WEBHOOK] Processing successful payment for invoice: ${transaction.invoice_id}`);
-                                        
-                                        // Update invoice status
-                                        await this.updateInvoiceStatus(transaction.invoice_id, 'paid', 'online');
-                                        
-                                        // Record payment in payments table
-                                        const paymentData = {
-                                            invoice_id: transaction.invoice_id,
-                                            amount: result.amount || transaction.amount,
-                                            payment_method: 'online',
-                                            reference_number: result.order_id,
-                                            notes: `Payment via ${gateway} - ${result.payment_type || 'online'}`
-                                        };
-                                        
-                                        await this.recordPayment(paymentData);
-                                        logger.info(`[WEBHOOK] Payment recorded successfully`);
-                                        
-                                        // Get customer info for notification
-                                        const invoice = await this.getInvoiceById(transaction.invoice_id);
-                                        const customer = await this.getCustomerById(invoice.customer_id);
-                                        
-                                        if (!customer) {
-                                            logger.error(`[WEBHOOK] Customer not found for invoice: ${transaction.invoice_id}`);
-                                        } else {
-                                            // Send WhatsApp notification
-                                            try {
-                                                await this.sendPaymentSuccessNotification(customer, invoice);
-                                                logger.info(`[WEBHOOK] Payment success notification sent to ${customer.phone}`);
-                                            } catch (notificationError) {
-                                                logger.error(`[WEBHOOK] Failed to send notification to ${customer.phone}:`, notificationError);
-                                                // Don't fail the payment process - notification is secondary
-                                            }
-                                        }
-                                        
-                                        resolve({
-                                            success: true,
-                                            message: 'Payment processed successfully',
-                                            invoice_id: transaction.invoice_id
-                                        });
-                                    } catch (processingError) {
-                                        logger.error(`[WEBHOOK] Error in payment processing:`, processingError);
-                                        resolve({
-                                            success: true,
-                                            message: 'Payment processed successfully',
-                                            invoice_id: transaction.invoice_id
-                                        });
-                                    }
-                                } else {
-                                    logger.info(`[WEBHOOK] Payment status updated: ${result.status}`);
-                                    resolve({
-                                        success: true,
-                                        message: 'Payment status updated',
-                                        status: result.status
-                                    });
-                                }
-                            }
-                        }.bind(this));
-                    }
-                });
-            } catch (error) {
-                logger.error(`[WEBHOOK] Webhook processing error:`, error);
-                reject(error);
-            }
-        });
-    }
-
-    // Helper method to check if payment is successful
-    isPaymentSuccessful(status) {
-        const successfulStatuses = [
-            'settlement', 'PAID', 'success', 'completed', 'settled',
-            'capture', 'authorize', 'pending', 'processing'
-        ];
-        return successfulStatuses.includes(status?.toLowerCase());
-    }
-
-    // Process payment directly like WhatsApp admin (fallback method)
-    async processDirectPayment(invoice, result, gateway) {
+async handlePaymentWebhook(payload, gateway) {
+    return new Promise(async (resolve, reject) => {
         try {
-            logger.info(`[WEBHOOK] Processing direct payment for invoice: ${invoice.id}`);
-            
-            // Update invoice status
-            await this.updateInvoiceStatus(invoice.id, 'paid', 'online');
-            
-            // Record payment in payments table
-            const paymentData = {
-                invoice_id: invoice.id,
-                amount: result.amount || invoice.amount,
-                payment_method: 'online',
-                reference_number: result.order_id || `WEB_${Date.now()}`,
-                notes: `Payment via ${gateway} webhook - ${result.payment_type || 'online'}`
-            };
-            
-            await this.recordPayment(paymentData);
-            logger.info(`[WEBHOOK] Direct payment processed successfully`);
-            
-            // Get customer info for notification
-            const customer = await this.getCustomerById(invoice.customer_id);
-            if (!customer) {
-                logger.error(`[WEBHOOK] Customer not found for invoice: ${invoice.id}`);
-                return;
-            }
-            
-            // Send WhatsApp notification
-            try {
-                await this.sendPaymentSuccessNotification(customer, invoice);
-                logger.info(`[WEBHOOK] Payment success notification sent to ${customer.phone}`);
-            } catch (notificationError) {
-                logger.error(`[WEBHOOK] Failed to send notification to ${customer.phone}:`, notificationError);
-                // Don't throw error - payment is already processed
-            }
-            
+            logger.info(`[WEBHOOK] Processing ${gateway} webhook:`, payload);
+
+            // Normalize/parse from gateway
+            const result = await this.paymentGateway.handleWebhook(payload, gateway);
+            logger.info(`[WEBHOOK] Gateway result:`, result);
+
+            // Find transaction by order_id
+            const txSql = `
+                SELECT * FROM payment_gateway_transactions
+                WHERE order_id = ? AND gateway = ?
+            `;
+
+            this.db.get(txSql, [result.order_id, gateway], async (err, transaction) => {
+                if (err) {
+                    logger.error(`[WEBHOOK] Database error:`, err);
+                    return reject(err);
+                }
+
+                // Fallback by invoice number
+                if (!transaction) {
+                    logger.warn(`[WEBHOOK] Transaction not found for order_id: ${result.order_id}`);
+                    const invoiceNumber = (result.order_id || '').replace('INV-', '');
+                    const fallbackSql = `
+                        SELECT i.*
+                        FROM invoices i
+                        WHERE i.invoice_number = ?
+                    `;
+                    this.db.get(fallbackSql, [invoiceNumber], async (fbErr, invoice) => {
+                        if (fbErr || !invoice) {
+                            logger.error(`[WEBHOOK] Fallback search failed:`, fbErr);
+                            return reject(new Error('Transaction and invoice not found'));
+                        }
+                        await this.processDirectPayment(invoice, result, gateway);
+                        // Immediate restore for fallback path
+                        try {
+                            const customer = await this.getCustomerById(invoice.customer_id);
+                            if (customer && customer.status === 'suspended') {
+                                const invoices = await this.getInvoicesByCustomer(customer.id);
+                                const unpaid = invoices.filter(i => i.status === 'unpaid');
+                                if (unpaid.length === 0) await serviceSuspension.restoreCustomerService(customer);
+                            }
+                        } catch (restoreErr) {
+                            logger.error('[WEBHOOK] Immediate restore (fallback) failed:', restoreErr);
+                        }
+                        return resolve({ success: true, message: 'Payment processed via fallback method', invoice_id: invoice.id });
+                    });
+                    return; // stop here, fallback async handled
+                }
+
+                // Update transaction status
+                const updateSql = `
+                    UPDATE payment_gateway_transactions
+                    SET status = ?, payment_type = ?, fraud_status = ?, updated_at = CURRENT_TIMESTAMP
+                    WHERE id = ?
+                `;
+                this.db.run(updateSql, [
+                    result.status,
+                    result.payment_type || null,
+                    result.fraud_status || null,
+                    transaction.id
+                ], async function(updateErr) {
+                    if (updateErr) {
+                        logger.error(`[WEBHOOK] Update transaction error:`, updateErr);
+                        return reject(updateErr);
+                    }
+
+                    if (!this.isPaymentSuccessful(result.status)) {
+                        logger.info(`[WEBHOOK] Payment status updated: ${result.status}`);
+                        return resolve({ success: true, message: 'Payment status updated', status: result.status });
+                    }
+
+                    try {
+                        logger.info(`[WEBHOOK] Processing successful payment for invoice: ${transaction.invoice_id}`);
+
+                        // Mark invoice paid and record payment
+                        await this.updateInvoiceStatus(transaction.invoice_id, 'paid', 'online');
+                        const paymentData = {
+                            invoice_id: transaction.invoice_id,
+                            amount: result.amount || transaction.amount,
+                            payment_method: 'online',
+                            reference_number: result.order_id,
+                            notes: `Payment via ${gateway} - ${result.payment_type || 'online'}`
+                        };
+                        await this.recordPayment(paymentData);
+
+                        // Notify and restore
+                        const invoice = await this.getInvoiceById(transaction.invoice_id);
+                        const customer = await this.getCustomerById(invoice.customer_id);
+                        if (customer) {
+                            try {
+                                await this.sendPaymentSuccessNotification(customer, invoice);
+                            } catch (notificationError) {
+                                logger.error(`[WEBHOOK] Failed send notification:`, notificationError);
+                            }
+                            try {
+                                const refreshed = await this.getCustomerById(invoice.customer_id);
+                                if (refreshed && refreshed.status === 'suspended') {
+                                    const invoices = await this.getInvoicesByCustomer(refreshed.id);
+                                    const unpaid = invoices.filter(i => i.status === 'unpaid');
+                                    if (unpaid.length === 0) await serviceSuspension.restoreCustomerService(refreshed);
+                                }
+                            } catch (restoreErr) {
+                                logger.error('[WEBHOOK] Immediate restore failed:', restoreErr);
+                            }
+                        } else {
+                            logger.error(`[WEBHOOK] Customer not found for invoice: ${transaction.invoice_id}`);
+                        }
+
+                        return resolve({ success: true, message: 'Payment processed successfully', invoice_id: transaction.invoice_id });
+                    } catch (processingError) {
+                        logger.error(`[WEBHOOK] Error in payment processing:`, processingError);
+                        return resolve({ success: true, message: 'Payment processed successfully', invoice_id: transaction.invoice_id });
+                    }
+                }.bind(this));
+            });
         } catch (error) {
-            logger.error(`[WEBHOOK] Error in direct payment processing:`, error);
-            throw error;
+            logger.error(`[WEBHOOK] Webhook processing error:`, error);
+            reject(error);
         }
+    });
     }
 
     async getPaymentTransactions(invoiceId = null) {
