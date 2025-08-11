@@ -125,8 +125,13 @@
                         </div>
                         <div class="mb-3">
                             <label for="pppoe_profile" class="form-label">PPPoE Profile</label>
-                            <input type="text" class="form-control" id="pppoe_profile" name="pppoe_profile" placeholder="Contoh: default, 10mbps, 20mbps" value="default">
-                            <small class="form-text text-muted">Profile PPPoE yang akan digunakan untuk paket ini di Mikrotik</small>
+                            <div class="input-group">
+                                <select class="form-select" id="pppoe_profile" name="pppoe_profile">
+                                    <option value="default">default</option>
+                                </select>
+                                <button class="btn btn-outline-secondary" type="button" id="reloadProfilesAdd">Reload</button>
+                            </div>
+                            <small class="form-text text-muted">Pilih profile PPPoE dari Mikrotik. Klik Reload bila daftar belum muncul.</small>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -167,8 +172,13 @@
                         </div>
                         <div class="mb-3">
                             <label for="edit_pppoe_profile" class="form-label">PPPoE Profile</label>
-                            <input type="text" class="form-control" id="edit_pppoe_profile" name="pppoe_profile" placeholder="Contoh: default, 10mbps, 20mbps">
-                            <small class="form-text text-muted">Profile PPPoE yang akan digunakan untuk paket ini di Mikrotik</small>
+                            <div class="input-group">
+                                <select class="form-select" id="edit_pppoe_profile" name="pppoe_profile">
+                                    <option value="default">default</option>
+                                </select>
+                                <button class="btn btn-outline-secondary" type="button" id="reloadProfilesEdit">Reload</button>
+                            </div>
+                            <small class="form-text text-muted">Pilih profile PPPoE dari Mikrotik. Klik Reload bila daftar belum muncul.</small>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -211,7 +221,59 @@
                 pageLength: 25,
                 lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]]
             });
+
+            // Load profiles into Add form on open
+            $('#addPackageModal').on('shown.bs.modal', function(){
+                loadPPPoEProfiles('#pppoe_profile');
+            });
+            // Preload on page ready for Add form
+            loadPPPoEProfiles('#pppoe_profile');
+            // Manual reload buttons
+            $('#reloadProfilesAdd').on('click', function(){ loadPPPoEProfiles('#pppoe_profile'); });
+            $('#reloadProfilesEdit').on('click', function(){ loadPPPoEProfiles('#edit_pppoe_profile'); });
         });
+
+        // Fetch and populate PPPoE Profiles from Mikrotik
+        function loadPPPoEProfiles(selectSelector, selectedValue = 'default') {
+            const sel = document.querySelector(selectSelector);
+            if (!sel) return;
+            // show loading option
+            sel.innerHTML = '<option>Loading...</option>';
+            fetch('/admin/mikrotik/profiles/api')
+                .then(r => r.json())
+                .then(data => {
+                    const profiles = (data && data.success && Array.isArray(data.profiles)) ? data.profiles : [];
+                    // Build unique name list
+                    const names = Array.from(new Set(profiles.map(p => p.name).filter(Boolean)));
+                    // Fallback ensure 'default' exists
+                    if (!names.includes('default')) names.unshift('default');
+                    sel.innerHTML = '';
+                    names.forEach(name => {
+                        const opt = document.createElement('option');
+                        opt.value = name;
+                        opt.textContent = name;
+                        sel.appendChild(opt);
+                    });
+                    sel.value = selectedValue || 'default';
+                    // if selected not in list, append and select it
+                    if (sel.value !== (selectedValue || 'default')) {
+                        const opt = document.createElement('option');
+                        opt.value = selectedValue;
+                        opt.textContent = selectedValue;
+                        sel.appendChild(opt);
+                        sel.value = selectedValue;
+                    }
+                })
+                .catch(err => {
+                    console.error('Gagal load PPPoE profiles:', err);
+                    if (typeof showAlert === 'function') {
+                        showAlert('danger', 'Gagal memuat PPPoE profiles dari Mikrotik');
+                    }
+                    // minimal fallback
+                    sel.innerHTML = '<option value="default">default</option>';
+                    sel.value = selectedValue || 'default';
+                });
+        }
 
         // Add Package Form
         $('#addPackageForm').on('submit', function(e) {
@@ -279,7 +341,9 @@
                         $('#edit_speed').val(package.speed);
                         $('#edit_price').val(package.price);
                         $('#edit_description').val(package.description || '');
-                        $('#edit_pppoe_profile').val(package.pppoe_profile || 'default');
+                        // Load profiles then set selection and show modal
+                        const selected = package.pppoe_profile || 'default';
+                        loadPPPoEProfiles('#edit_pppoe_profile', selected);
                         $('#editPackageModal').modal('show');
                     } else {
                         showAlert('danger', data.message || 'Gagal mengambil data paket');

@@ -122,6 +122,32 @@
                     </div>
                 </div>
 
+                <!-- Isolir Profile Setting -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <strong>Pilih Profile Isolir (Mikrotik)</strong>
+                                <div>
+                                    <button class="btn btn-sm btn-outline-secondary me-2" id="reloadIsolirProfilesBtn">
+                                        <i class="bx bx-refresh me-1"></i>Reload
+                                    </button>
+                                    <button class="btn btn-sm btn-primary" id="saveIsolirProfileBtn">
+                                        <i class="bx bx-save me-1"></i>Simpan
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <label for="isolirProfileSelect" class="form-label">Profile Isolir</label>
+                                <select id="isolirProfileSelect" class="form-select">
+                                    <option value="default">Loading...</option>
+                                </select>
+                                <small class="text-muted">Dipakai saat Suspend. Default: 'isolir'.</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Action Buttons -->
                 <div class="row mb-4">
                     <div class="col-md-4">
@@ -375,8 +401,93 @@
 
         // Initialize
         $(document).ready(function() {
+            // Load isolir profiles and current setting
+            loadIsolirProfiles();
+            loadCurrentIsolirProfile();
             loadStats();
             loadSuspendedCustomers();
+        });
+
+        // Load Mikrotik PPPoE profiles into isolir select
+        function loadIsolirProfiles(selected) {
+            const sel = document.getElementById('isolirProfileSelect');
+            if (!sel) return;
+            sel.innerHTML = '<option>Loading...</option>';
+            fetch('/admin/mikrotik/profiles/api')
+                .then(r => r.json())
+                .then(data => {
+                    const names = Array.from(new Set(((data && data.profiles) || []).map(p => p.name).filter(Boolean)));
+                    if (!names.includes('isolir')) names.unshift('isolir');
+                    sel.innerHTML = '';
+                    names.forEach(n => {
+                        const opt = document.createElement('option');
+                        opt.value = n;
+                        opt.textContent = n;
+                        sel.appendChild(opt);
+                    });
+                    if (selected) sel.value = selected;
+                })
+                .catch(err => {
+                    console.error('Load isolir profiles error:', err);
+                    sel.innerHTML = '<option value="isolir">isolir</option>';
+                    showToast('error', 'Gagal', 'Gagal memuat profile Mikrotik');
+                });
+        }
+
+        // Get current isolir profile setting
+        function loadCurrentIsolirProfile() {
+            fetch('/admin/billing/service-suspension/isolir-profile')
+                .then(r => r.json())
+                .then(data => {
+                    if (data && data.success) {
+                        const current = data.isolir_profile || 'isolir';
+                        // ensure options exist then set
+                        const sel = document.getElementById('isolirProfileSelect');
+                        if (sel && sel.options.length > 0) {
+                            sel.value = current;
+                            if (sel.value !== current) {
+                                const opt = document.createElement('option');
+                                opt.value = current;
+                                opt.textContent = current;
+                                sel.appendChild(opt);
+                                sel.value = current;
+                            }
+                        } else {
+                            loadIsolirProfiles(current);
+                        }
+                    }
+                })
+                .catch(() => {});
+        }
+
+        // Save isolir profile
+        $('#saveIsolirProfileBtn').click(function(){
+            const sel = document.getElementById('isolirProfileSelect');
+            if (!sel) return;
+            const value = sel.value || 'isolir';
+            const btn = $(this);
+            btn.prop('disabled', true).html('<i class="bx bx-loader-alt bx-spin me-1"></i>Menyimpan...');
+            fetch('/admin/billing/service-suspension/isolir-profile', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+                body: new URLSearchParams({ isolir_profile: value }).toString()
+            }).then(r => r.json()).then(data => {
+                if (data && data.success) {
+                    showToast('success', 'Tersimpan', `Isolir profile diset ke: ${value}`);
+                } else {
+                    showToast('error', 'Gagal', data.message || 'Gagal menyimpan');
+                }
+            }).catch(err => {
+                showToast('error', 'Gagal', 'Gagal menyimpan');
+            }).finally(() => {
+                btn.prop('disabled', false).html('<i class="bx bx-save me-1"></i>Simpan');
+            });
+        });
+
+        // Reload profiles button
+        $('#reloadIsolirProfilesBtn').click(function(){
+            const current = document.getElementById('isolirProfileSelect')?.value;
+            loadIsolirProfiles(current);
         });
     </script>
 </body>

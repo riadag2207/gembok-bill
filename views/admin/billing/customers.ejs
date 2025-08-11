@@ -206,10 +206,28 @@
                         </h5>
                     </div>
                     <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="selectAllCustomers">
+                                    <label class="form-check-label" for="selectAllCustomers">
+                                        Pilih Semua
+                                    </label>
+                                </div>
+                            </div>
+                            <div>
+                                <button id="bulkDeleteBtn" class="btn btn-danger btn-sm" disabled>
+                                    <i class="bx bx-trash"></i> Hapus Terpilih
+                                </button>
+                            </div>
+                        </div>
                         <div class="table-responsive">
                             <table id="customersTable" class="table table-striped table-hover">
                                 <thead>
                                     <tr>
+                                        <th style="width:32px">
+                                            <!-- header checkbox already above -->
+                                        </th>
                                         <th>Nama</th>
                                         <th>Telepon</th>
 
@@ -226,6 +244,9 @@
                                     <% if (customers && customers.length > 0) { %>
                                         <% customers.forEach(function(customer) { %>
                                             <tr>
+                                                <td>
+                                                    <input type="checkbox" class="form-check-input customer-checkbox" value="<%= customer.phone %>">
+                                                </td>
                                                 <td><%= customer.name %></td>
                                                 <td><%= customer.phone %></td>
 
@@ -301,8 +322,24 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="pppoe_username" class="form-label">PPPoE Username</label>
-                            <input type="text" class="form-control" id="pppoe_username" name="pppoe_username">
+                            <label for="pppoe_username" class="form-label">PPPoE Username (opsional)</label>
+                            <input type="text" class="form-control" id="pppoe_username" name="pppoe_username" placeholder="username@domain">
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="create_pppoe_user" name="create_pppoe_user">
+                            <label class="form-check-label" for="create_pppoe_user">
+                                Buat user PPPoE di Mikrotik sekarang (pakai profile dari paket)
+                            </label>
+                        </div>
+                        <div class="row g-2 align-items-end mb-3" id="pppoe_password_row" style="display:none;">
+                            <div class="col-8">
+                                <label for="pppoe_password" class="form-label">PPPoE Password</label>
+                                <input type="text" class="form-control" id="pppoe_password" name="pppoe_password" placeholder="Minimal 6 karakter">
+                                <small class="text-muted">Jika tidak diisi, sistem akan generate otomatis.</small>
+                            </div>
+                            <div class="col-4">
+                                <button class="btn btn-outline-secondary w-100" type="button" id="genPppoePassBtn">Generate</button>
+                            </div>
                         </div>
                         <div class="mb-3">
                             <label for="address" class="form-label">Alamat</label>
@@ -331,6 +368,11 @@
                                 <option value="0">Tidak - Tidak diisolir otomatis</option>
                             </select>
                             <small class="form-text text-muted">Pilih apakah pelanggan akan diisolir otomatis saat telat bayar</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="billing_day" class="form-label">Tanggal Penagihan (1-28)</label>
+                            <input type="number" class="form-control" id="billing_day" name="billing_day" min="1" max="28" value="15">
+                            <small class="form-text text-muted">Tanggal jatuh tempo tagihan setiap bulan. Nilai di luar 28 akan disesuaikan.</small>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -394,6 +436,11 @@
                             <small class="form-text text-muted">Pilih apakah pelanggan akan diisolir otomatis saat telat bayar</small>
                         </div>
                         <div class="mb-3">
+                            <label for="edit_billing_day" class="form-label">Tanggal Penagihan (1-28)</label>
+                            <input type="number" class="form-control" id="edit_billing_day" name="billing_day" min="1" max="28" value="15">
+                            <small class="form-text text-muted">Tanggal jatuh tempo tagihan setiap bulan. Nilai di luar 28 akan disesuaikan.</small>
+                        </div>
+                        <div class="mb-3">
                             <label for="edit_status" class="form-label">Status</label>
                             <select class="form-control" id="edit_status" name="status">
                                 <option value="active">Aktif</option>
@@ -441,12 +488,72 @@
     <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
     <script>
         $(document).ready(function() {
-            $('#customersTable').DataTable({
+            const dt = $('#customersTable').DataTable({
                 language: {
                     url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/id.json'
                 },
                 pageLength: 25,
                 lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]]
+            });
+
+            // Update bulk delete button state
+            function updateBulkState() {
+                const anyChecked = $('.customer-checkbox:checked').length > 0;
+                $('#bulkDeleteBtn').prop('disabled', !anyChecked);
+                const total = $('.customer-checkbox').length;
+                const checked = $('.customer-checkbox:checked').length;
+                const selectAll = document.getElementById('selectAllCustomers');
+                selectAll.indeterminate = checked > 0 && checked < total;
+                selectAll.checked = checked > 0 && checked === total;
+            }
+
+            // Select all handler
+            $('#selectAllCustomers').on('change', function() {
+                const checked = this.checked;
+                $('.customer-checkbox').prop('checked', checked);
+                updateBulkState();
+            });
+
+            // Row checkbox handler
+            $(document).on('change', '.customer-checkbox', updateBulkState);
+
+            // Re-bind after table draw (pagination/search)
+            dt.on('draw', function() {
+                updateBulkState();
+            });
+
+            // Bulk delete click
+            $('#bulkDeleteBtn').on('click', function() {
+                const phones = $('.customer-checkbox:checked').map(function(){ return this.value; }).get();
+                if (phones.length === 0) return;
+                if (!confirm(`Hapus ${phones.length} pelanggan terpilih?`)) return;
+
+                const btn = $(this);
+                const original = btn.html();
+                btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Menghapus...');
+
+                fetch('/admin/billing/customers/bulk-delete', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phones })
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        const s = data.summary || {}; 
+                        showToast('success', `Hapus massal selesai. Berhasil: ${s.success||0}, Gagal: ${s.failed||0}`);
+                        setTimeout(() => location.reload(), 1000);
+                    } else {
+                        showToast('error', data.message || 'Gagal hapus massal');
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    showToast('error', 'Terjadi kesalahan saat hapus massal');
+                })
+                .finally(() => {
+                    btn.prop('disabled', false).html(original);
+                });
             });
             
             // Reset form when modal is hidden
@@ -541,9 +648,15 @@
             const name = $('#name').val().trim();
             const phone = $('#phone').val().trim();
             const package_id = $('#package_id').val();
+            const createPppoe = $('#create_pppoe_user').is(':checked');
+            const pppoeUser = $('#pppoe_username').val().trim();
             
             if (!name || !phone || !package_id) {
                 showToast('error', 'Nama, telepon, dan paket wajib diisi');
+                return;
+            }
+            if (createPppoe && !pppoeUser) {
+                showToast('error', 'Isi PPPoE Username jika ingin membuat user di Mikrotik');
                 return;
             }
             
@@ -555,11 +668,18 @@
             const formData = {
                 name: name,
                 phone: phone,
-                pppoe_username: $('#pppoe_username').val().trim(),
+                pppoe_username: pppoeUser,
                 address: $('#address').val().trim(),
                 package_id: package_id,
                 pppoe_profile: $('#pppoe_profile').val().trim() || 'default',
-                auto_suspension: $('#auto_suspension').val()
+                auto_suspension: $('#auto_suspension').val(),
+                create_pppoe_user: createPppoe ? 1 : 0,
+                pppoe_password: $('#pppoe_password').val().trim(),
+                billing_day: (function() {
+                    const v = parseInt($('#billing_day').val(), 10);
+                    if (Number.isFinite(v)) return Math.min(Math.max(v, 1), 28);
+                    return 15;
+                })()
             };
             
             fetch('/admin/billing/customers', {
@@ -589,6 +709,18 @@
             });
         });
 
+        // Toggle PPPoE password row visibility
+        $('#create_pppoe_user').on('change', function(){
+            const show = $(this).is(':checked');
+            $('#pppoe_password_row').css('display', show ? '' : 'none');
+        });
+
+        // Generate password button
+        $('#genPppoePassBtn').on('click', function(){
+            const pass = Math.random().toString(36).slice(-8) + Math.floor(Math.random()*10);
+            $('#pppoe_password').val(pass);
+        });
+
         // Edit Customer
         function editCustomer(phone) {
             fetch(`/admin/billing/api/customers/${phone}`)
@@ -604,6 +736,11 @@
                         $('#edit_pppoe_profile').val(customer.pppoe_profile || '');
                         $('#edit_auto_suspension').val(customer.auto_suspension !== undefined ? customer.auto_suspension : 1);
                         $('#edit_status').val(customer.status);
+                        $('#edit_billing_day').val((function(){
+                            const v = parseInt(customer.billing_day, 10);
+                            if (Number.isFinite(v)) return Math.min(Math.max(v, 1), 28);
+                            return 15;
+                        })());
                         $('#editCustomerModal').modal('show');
                     } else {
                         showToast('error', data.message || 'Gagal mengambil data pelanggan');
@@ -641,7 +778,12 @@
                 package_id: package_id,
                 pppoe_profile: $('#edit_pppoe_profile').val().trim() || 'default',
                 auto_suspension: $('#edit_auto_suspension').val(),
-                status: $('#edit_status').val()
+                status: $('#edit_status').val(),
+                billing_day: (function() {
+                    const v = parseInt($('#edit_billing_day').val(), 10);
+                    if (Number.isFinite(v)) return Math.min(Math.max(v, 1), 28);
+                    return 15;
+                })()
             };
             
             fetch(`/admin/billing/customers/${phone}`, {
