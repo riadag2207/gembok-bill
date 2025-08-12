@@ -507,7 +507,7 @@ Terima kasih telah memilih layanan kami.`,
     }
 
     // Send service restoration notification
-    async sendServiceRestorationNotification(customer) {
+    async sendServiceRestorationNotification(customer, reason) {
         try {
             // Check if template is enabled
             if (!this.isTemplateEnabled('service_restoration')) {
@@ -525,7 +525,8 @@ Terima kasih telah memilih layanan kami.`,
                 {
                     customer_name: customer.name,
                     package_name: customer.package_name || 'N/A',
-                    package_speed: customer.package_speed || 'N/A'
+                    package_speed: customer.package_speed || 'N/A',
+                    reason: reason || ''
                 }
             );
 

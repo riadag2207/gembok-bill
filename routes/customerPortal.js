@@ -617,7 +617,8 @@ router.post('/login', async (req, res) => {
       const min = Math.pow(10, otpLength - 1);
       const max = Math.pow(10, otpLength) - 1;
       const otp = Math.floor(min + Math.random() * (max - min)).toString();
-      otpStore[phone] = { otp, expires: Date.now() + 5 * 60 * 1000 };
+      const expiryMin = parseInt(settings.otp_expiry_minutes || '5', 10);
+      otpStore[phone] = { otp, expires: Date.now() + (isNaN(expiryMin) ? 5 : expiryMin) * 60 * 1000 };
       
       // Kirim OTP ke WhatsApp pelanggan
       try {
@@ -634,7 +635,7 @@ router.post('/login', async (req, res) => {
       }
       
       if (req.xhr || req.headers.accept.indexOf('json') > -1) {
-        return res.json({ success: true, message: 'OTP berhasil dikirim', redirect: '/customer/otp' });
+        return res.json({ success: true, message: 'OTP berhasil dikirim', redirect: `/customer/otp?phone=${phone}` });
       } else {
         return res.render('otp', { phone, error: null, otp_length: otpLength, settings });
       }

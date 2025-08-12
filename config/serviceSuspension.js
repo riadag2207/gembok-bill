@@ -181,7 +181,7 @@ class ServiceSuspensionManager {
     /**
      * Restore layanan pelanggan (aktifkan kembali internet)
      */
-    async restoreCustomerService(customer) {
+    async restoreCustomerService(customer, reason = 'Manual restore') {
         try {
             logger.info(`Restoring service for customer: ${customer.username}`);
 
@@ -208,7 +208,7 @@ class ServiceSuspensionManager {
                     await mikrotik.write('/ppp/secret/set', [
                         `=.id=${customer.pppoe_username}`,
                         `=profile=${profileToUse}`,
-                        '=comment=ACTIVE'
+                        `=comment=ACTIVE - ${reason}`
                     ]);
                     
                     // Disconnect active session agar client reconnect dengan profile baru
@@ -288,7 +288,7 @@ class ServiceSuspensionManager {
             // 4. Send WhatsApp notification
             try {
                 const whatsappNotifications = require('./whatsapp-notifications');
-                await whatsappNotifications.sendServiceRestorationNotification(customer);
+                await whatsappNotifications.sendServiceRestorationNotification(customer, reason);
             } catch (notificationError) {
                 logger.error(`WhatsApp notification failed for ${customer.username}:`, notificationError.message);
             }
@@ -296,7 +296,8 @@ class ServiceSuspensionManager {
             return {
                 success: results.mikrotik || results.genieacs || results.billing,
                 results,
-                customer: customer.username
+                customer: customer.username,
+                reason
             };
 
         } catch (error) {

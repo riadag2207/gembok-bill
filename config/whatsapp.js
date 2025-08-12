@@ -5209,22 +5209,36 @@ Pesan GenieACS telah diaktifkan kembali.`);
                     sender: remoteJid
                 });
                 await billingCommands.handleBayar(remoteJid, params);
-                return;
-            }
+            return;
+        }
 
-            // Perintah tagihan status
-            if (command.startsWith('tagihan ') || command.startsWith('!tagihan ') || command.startsWith('/tagihan ')) {
-                if (!isAdmin) {
-                    await sock.sendMessage(remoteJid, { 
-                        text: '❌ *AKSES DITOLAK*\n\nHanya admin yang dapat menggunakan perintah ini.'
-                    });
-                    return;
-                }
-                const params = messageText.split(' ').slice(1);
-                console.log(`Menjalankan perintah tagihan dengan parameter:`, params);
-                await billingCommands.handleTagihan(remoteJid, params);
+        // Perintah isolir layanan
+        if (command.startsWith('isolir ')) {
+            if (!isAdmin) {
+                await sock.sendMessage(remoteJid, { 
+                    text: '❌ *AKSES DITOLAK*\n\nHanya admin yang dapat menggunakan perintah ini.'
+                });
                 return;
             }
+            const params = messageText.split(' ').slice(1);
+            console.log(`Menjalankan perintah isolir dengan parameter:`, params);
+            await billingCommands.handleIsolir(remoteJid, params);
+            return;
+        }
+
+        // Perintah buka isolir (restore)
+        if (command.startsWith('buka ')) {
+            if (!isAdmin) {
+                await sock.sendMessage(remoteJid, { 
+                    text: '❌ *AKSES DITOLAK*\n\nHanya admin yang dapat menggunakan perintah ini.'
+                });
+                return;
+            }
+            const params = messageText.split(' ').slice(1);
+            console.log(`Menjalankan perintah buka (restore) dengan parameter:`, params);
+            await billingCommands.handleBuka(remoteJid, params);
+            return;
+        }
 
             // Perintah sudah bayar
             if (command === 'sudahbayar' || command === '!sudahbayar' || command === '/sudahbayar') {
@@ -5363,7 +5377,7 @@ Pesan GenieACS telah diaktifkan kembali.`);
             // Perintah info layanan
             if (command === 'info' || command === '!info' || command === '/info') {
                 console.log(`Menjalankan perintah info layanan untuk ${senderNumber}`);
-                await handleInfoLayanan(remoteJid);
+                await handleInfoLayanan(remoteJid, senderNumber);
                 return;
             }
             
@@ -5399,6 +5413,8 @@ Pesan GenieACS telah diaktifkan kembali.`);
                 } else {
                     await sendGenieACSDisabledMessage(remoteJid);
                 }
+                // Setelah status perangkat, kirim juga status tagihan
+                await sendBillingStatus(remoteJid, senderNumber);
                 return;
             }
             
@@ -5664,12 +5680,13 @@ function getGenieacsConfig() {
     };
 }
 
-// Fungsi untuk menangani info layanan
-async function handleInfoLayanan(remoteJid) {
+// Fungsi untuk menangani info layanan (tambahan billing)
+async function handleInfoLayanan(remoteJid, senderNumber) {
     try {
         console.log(`Menampilkan info layanan ke ${remoteJid}`);
         
         const { getSetting } = require('./settingsManager');
+        const billingManager = require('./billing');
         
         // Ambil nomor admin dan teknisi dengan format yang benar
         const adminNumber = getSetting('admins.0', '628xxxxxxxxxx');
@@ -5685,7 +5702,7 @@ async function handleInfoLayanan(remoteJid) {
         }
         const technicianNumbersText = technicianNumbers.length > 0 ? technicianNumbers.join(', ') : '628xxxxxxxxxx';
         
-        const message = formatWithHeaderFooter(`🏢 *INFORMASI LAYANAN*
+        let message = formatWithHeaderFooter(`🏢 *INFORMASI LAYANAN*
 
 📱 *ALIJAYA DIGITAL NETWORK*
 Layanan internet cepat dan stabil untuk kebutuhan Anda.
@@ -5723,6 +5740,63 @@ Layanan internet cepat dan stabil untuk kebutuhan Anda.
 
 Untuk bantuan lebih lanjut, silakan hubungi teknisi kami.`);
         
+        // Tambahkan ringkasan tagihan pelanggan (jika nomor terdaftar)
+        try {
+            let customer = await billingManager.getCustomerByPhone(senderNumber);
+            if (!customer && senderNumber && senderNumber.startsWith('62')) {
+                const altPhone = '0' + senderNumber.slice(2);
+                customer = await billingManager.getCustomerByPhone(altPhone);
+            }
+
+            const bankName = getSetting('payment_bank_name', '');
+            const accountNumber = getSetting('payment_account_number', '');
+            const accountHolder = getSetting('payment_account_holder', '');
+            const contactWa = getSetting('contact_whatsapp', '');
+            const dana = getSetting('payment_dana', '');
+            const ovo = getSetting('payment_ovo', '');
+            const gopay = getSetting('payment_gopay', '');
+
+            if (customer) {
+                const invoices = await billingManager.getInvoicesByCustomer(customer.id);
+                const unpaid = invoices.filter(i => i.status === 'unpaid');
+                const totalUnpaid = unpaid.reduce((sum, inv) => sum + parseFloat(inv.amount || 0), 0);
+                const nextDue = unpaid
+                    .map(i => new Date(i.due_date))
+                    .sort((a, b) => a - b)[0];
+
+                message += `\n\n📋 *INFORMASI TAGIHAN*\n`;
+                if (unpaid.length > 0) {
+                    message += `• Status: BELUM LUNAS (${unpaid.length} tagihan)\n`;
+                    message += `• Total: Rp ${totalUnpaid.toLocaleString('id-ID')}\n`;
+                    if (nextDue) message += `• Jatuh Tempo Berikutnya: ${nextDue.toLocaleDateString('id-ID')}\n`;
+                } else {
+                    message += `• Status: LUNAS ✅\n`;
+                }
+
+                // Info pembayaran
+                if (bankName && accountNumber) {
+                    message += `\n🏦 *PEMBAYARAN*\n`;
+                    message += `• Bank: ${bankName}\n`;
+                    message += `• No. Rekening: ${accountNumber}\n`;
+                    if (accountHolder) message += `• A/N: ${accountHolder}\n`;
+                }
+                const ewallets = [];
+                if (dana) ewallets.push(`DANA: ${dana}`);
+                if (ovo) ewallets.push(`OVO: ${ovo}`);
+                if (gopay) ewallets.push(`GoPay: ${gopay}`);
+                if (ewallets.length > 0) {
+                    message += `• E-Wallet: ${ewallets.join(' | ')}\n`;
+                }
+                if (contactWa) {
+                    message += `• Konfirmasi: ${contactWa}\n`;
+                }
+            } else {
+                message += `\n\n📋 *INFORMASI TAGIHAN*\n• Nomor Anda belum terdaftar di sistem billing. Silakan hubungi admin untuk sinkronisasi.`;
+            }
+        } catch (billErr) {
+            console.error('Gagal menambahkan info tagihan pada info layanan:', billErr);
+        }
+
         await sock.sendMessage(remoteJid, { text: message });
         console.log(`Pesan info layanan terkirim ke ${remoteJid}`);
         
@@ -5733,3 +5807,68 @@ Untuk bantuan lebih lanjut, silakan hubungi teknisi kami.`);
         });
     }
 }
+
+// Helper untuk mengirim status tagihan pelanggan (dipakai pada perintah status)
+async function sendBillingStatus(remoteJid, senderNumber) {
+    try {
+        const { getSetting } = require('./settingsManager');
+        const billingManager = require('./billing');
+
+        let customer = await billingManager.getCustomerByPhone(senderNumber);
+        if (!customer && senderNumber && senderNumber.startsWith('62')) {
+            const altPhone = '0' + senderNumber.slice(2);
+            customer = await billingManager.getCustomerByPhone(altPhone);
+        }
+
+        const bankName = getSetting('payment_bank_name', '');
+        const accountNumber = getSetting('payment_account_number', '');
+        const accountHolder = getSetting('payment_account_holder', '');
+        const contactWa = getSetting('contact_whatsapp', '');
+        const dana = getSetting('payment_dana', '');
+        const ovo = getSetting('payment_ovo', '');
+        const gopay = getSetting('payment_gopay', '');
+
+        let text = `📋 *INFORMASI TAGIHAN*\n`;
+        if (customer) {
+            const invoices = await billingManager.getInvoicesByCustomer(customer.id);
+            const unpaid = invoices.filter(i => i.status === 'unpaid');
+            const totalUnpaid = unpaid.reduce((sum, inv) => sum + parseFloat(inv.amount || 0), 0);
+            const nextDue = unpaid
+                .map(i => new Date(i.due_date))
+                .sort((a, b) => a - b)[0];
+
+            if (unpaid.length > 0) {
+                text += `• Status: BELUM LUNAS (${unpaid.length} tagihan)\n`;
+                text += `• Total: Rp ${totalUnpaid.toLocaleString('id-ID')}\n`;
+                if (nextDue) text += `• Jatuh Tempo Berikutnya: ${nextDue.toLocaleDateString('id-ID')}\n`;
+            } else {
+                text += `• Status: LUNAS ✅\n`;
+            }
+
+            if (bankName && accountNumber) {
+                text += `\n🏦 *PEMBAYARAN*\n`;
+                text += `• Bank: ${bankName}\n`;
+                text += `• No. Rekening: ${accountNumber}\n`;
+                if (accountHolder) text += `• A/N: ${accountHolder}\n`;
+            }
+            const ewallets = [];
+            if (dana) ewallets.push(`DANA: ${dana}`);
+            if (ovo) ewallets.push(`OVO: ${ovo}`);
+            if (gopay) ewallets.push(`GoPay: ${gopay}`);
+            if (ewallets.length > 0) {
+                text += `• E-Wallet: ${ewallets.join(' | ')}\n`;
+            }
+            if (contactWa) {
+                text += `• Konfirmasi: ${contactWa}\n`;
+            }
+        } else {
+            text += `• Nomor Anda belum terdaftar di sistem billing. Silakan hubungi admin untuk sinkronisasi.`;
+        }
+
+        await sock.sendMessage(remoteJid, { text });
+    } catch (e) {
+        console.error('Error sending billing status:', e);
+    }
+}
+
+// ... (rest of the code remains the same)

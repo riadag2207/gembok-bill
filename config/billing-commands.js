@@ -1,6 +1,7 @@
 const billingManager = require('./billing');
 const logger = require('./logger');
 const { getSetting } = require('./settingsManager');
+const serviceSuspension = require('./serviceSuspension');
 
 class BillingCommands {
     constructor() {
@@ -27,6 +28,141 @@ class BillingCommands {
         }
     }
 
+    // Suspend layanan pelanggan via WA admin
+    async handleIsolir(remoteJid, params) {
+        try {
+            if (params.length < 1) {
+                await this.sendFormattedMessage(remoteJid,
+                    '❌ *FORMAT SALAH!*\n\n' +
+                    'Format: isolir [nomor/nama_pelanggan] [alasan opsional]\n' +
+                    'Contoh:\n' +
+                    '• isolir 081234567890 Telat bayar\n' +
+                    '• isolir "Santo" Telat 2 bulan'
+                );
+                return;
+            }
+
+            const searchTerm = params[0];
+            const reason = params.slice(1).join(' ') || 'Telat bayar (manual WA)';
+
+            // Cari customer berdasarkan phone atau nama (mendukung nama dengan spasi jika parser sudah menggabungkan)
+            let customer = await billingManager.getCustomerByNameOrPhone(searchTerm);
+            if (!customer) {
+                // Coba cari multiple kandidat
+                const candidates = await billingManager.findCustomersByNameOrPhone(params.join(' '));
+                if (candidates.length === 0) {
+                    await this.sendFormattedMessage(remoteJid,
+                        '❌ *PELANGGAN TIDAK DITEMUKAN!*\n\n' +
+                        `Pencarian: "${params.join(' ')}"`
+                    );
+                    return;
+                }
+                if (candidates.length > 1) {
+                    let message = `🔍 *DITEMUKAN ${candidates.length} PELANGGAN*\n\n`;
+                    candidates.forEach((c, i) => {
+                        message += `${i + 1}. *${c.name}*\n`;
+                        message += `   📱 ${c.phone}\n`;
+                        message += `   👤 ${c.username}\n`;
+                        message += `   Gunakan: \`isolir ${c.phone} [alasan]\`\n\n`;
+                    });
+                    await this.sendFormattedMessage(remoteJid, message);
+                    return;
+                }
+                customer = candidates[0];
+            }
+
+            // Jalankan isolir
+            const result = await serviceSuspension.suspendCustomerService(customer, reason);
+            if (result && result.success) {
+                await this.sendFormattedMessage(remoteJid,
+                    '⛔ *ISOLIR BERHASIL*\n\n' +
+                    `*Pelanggan:* ${customer.name}\n` +
+                    `*Nomor:* ${customer.phone}\n` +
+                    `*Username:* ${customer.username}\n` +
+                    `*Alasan:* ${reason}\n` +
+                    `*Status:* Suspended`
+                );
+            } else {
+                await this.sendFormattedMessage(remoteJid,
+                    '❌ *GAGAL ISOLIR!*\n\n' +
+                    `Error: ${(result && result.error) || 'Unknown error'}`
+                );
+            }
+        } catch (error) {
+            logger.error('Error in handleIsolir:', error);
+            await this.sendFormattedMessage(remoteJid,
+                '❌ *ERROR SISTEM!*\n\n' +
+                (error.message || 'Terjadi kesalahan saat isolir pelanggan.')
+            );
+        }
+    }
+
+    // Restore layanan pelanggan via WA admin
+    async handleBuka(remoteJid, params) {
+        try {
+            if (params.length < 1) {
+                await this.sendFormattedMessage(remoteJid,
+                    '❌ *FORMAT SALAH!*\n\n' +
+                    'Format: buka [nomor/nama_pelanggan] [alasan opsional]\n' +
+                    'Contoh:\n' +
+                    '• buka 081234567890 Sudah bayar\n' +
+                    '• buka "Santo" Pembayaran terkonfirmasi'
+                );
+                return;
+            }
+
+            const searchTerm = params[0];
+            const reason = params.slice(1).join(' ') || 'Restore layanan (manual WA)';
+
+            let customer = await billingManager.getCustomerByNameOrPhone(searchTerm);
+            if (!customer) {
+                const candidates = await billingManager.findCustomersByNameOrPhone(params.join(' '));
+                if (candidates.length === 0) {
+                    await this.sendFormattedMessage(remoteJid,
+                        '❌ *PELANGGAN TIDAK DITEMUKAN!*\n\n' +
+                        `Pencarian: "${params.join(' ')}"`
+                    );
+                    return;
+                }
+                if (candidates.length > 1) {
+                    let message = `🔍 *DITEMUKAN ${candidates.length} PELANGGAN*\n\n`;
+                    candidates.forEach((c, i) => {
+                        message += `${i + 1}. *${c.name}*\n`;
+                        message += `   📱 ${c.phone}\n`;
+                        message += `   👤 ${c.username}\n`;
+                        message += `   Gunakan: \`buka ${c.phone} [alasan]\`\n\n`;
+                    });
+                    await this.sendFormattedMessage(remoteJid, message);
+                    return;
+                }
+                customer = candidates[0];
+            }
+
+            const result = await serviceSuspension.restoreCustomerService(customer, reason);
+            if (result && result.success) {
+                await this.sendFormattedMessage(remoteJid,
+                    '🔓 *RESTORE BERHASIL*\n\n' +
+                    `*Pelanggan:* ${customer.name}\n` +
+                    `*Nomor:* ${customer.phone}\n` +
+                    `*Username:* ${customer.username}\n` +
+                    `*Alasan:* ${reason}\n` +
+                    `*Status:* Active`
+                );
+            } else {
+                await this.sendFormattedMessage(remoteJid,
+                    '❌ *GAGAL RESTORE!*\n\n' +
+                    `Error: ${(result && result.error) || 'Unknown error'}`
+                );
+            }
+        } catch (error) {
+            logger.error('Error in handleBuka:', error);
+            await this.sendFormattedMessage(remoteJid,
+                '❌ *ERROR SISTEM!*\n\n' +
+                (error.message || 'Terjadi kesalahan saat restore layanan pelanggan.')
+            );
+        }
+    }
+
     formatWithHeaderFooter(message) {
         const header = getSetting('company_header', 'ALIJAYA BOT MANAGEMENT ISP');
         const footer = getSetting('footer_info', 'Internet Tanpa Batas');
@@ -50,6 +186,10 @@ class BillingCommands {
             `• ✅ *sudahbayar* - Daftar pelanggan yang sudah bayar\n` +
             `• ⏰ *terlambat* - Daftar pelanggan terlambat\n` +
             `• 📈 *statistik* - Statistik billing\n\n` +
+
+            `*Perintah Isolir:*\n` +
+            `• ⛔ *isolir [nomor/nama] [alasan?]* - Suspend layanan pelanggan\n` +
+            `• 🔓 *buka [nomor/nama] [alasan?]* - Restore layanan pelanggan\n\n` +
             
             `*Perintah Paket:*\n` +
             `• 📦 *tambahpaket [nama] [speed] [harga]* - Tambah paket\n` +
@@ -65,6 +205,8 @@ class BillingCommands {
             `bayar Santo  ← menggunakan nama\n` +
             `tagihan "John Doe"  ← nama dengan spasi\n` +
             `cari John  ← pencarian nama\n` +
+            `isolir Santo Telat bayar 2 bulan\n` +
+            `buka 081234567890 Sudah melunasi tagihan\n` +
             `sudahbayar`;
 
         await this.sendFormattedMessage(remoteJid, menuMessage);

@@ -1800,6 +1800,7 @@ router.post('/service-suspension/suspend/:username', async (req, res) => {
 router.post('/service-suspension/restore/:username', async (req, res) => {
     try {
         const { username } = req.params;
+        const { reason } = req.body || {};
         
         const customer = await billingManager.getCustomerByUsername(username);
         if (!customer) {
@@ -1810,13 +1811,14 @@ router.post('/service-suspension/restore/:username', async (req, res) => {
         }
 
         const serviceSuspension = require('../config/serviceSuspension');
-        const result = await serviceSuspension.restoreCustomerService(customer);
+        const result = await serviceSuspension.restoreCustomerService(customer, reason || 'Manual restore');
         
         res.json({
             success: result.success,
             message: result.success ? 'Service restored successfully' : 'Failed to restore service',
             results: result.results,
-            customer: result.customer
+            customer: result.customer,
+            reason: result.reason || (reason || 'Manual restore')
         });
     } catch (error) {
         logger.error('Error restoring service:', error);

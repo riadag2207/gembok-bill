@@ -687,3 +687,57 @@
 [2025-08-11T05:21:15.856Z] [WARN] Error validating WhatsApp number 62838076656xxx: Timed Out
 [2025-08-11T05:21:15.857Z] [WARN] Retry 1/2 failed for 62838076656xxx: Cannot read properties of undefined (reading 'id')
 [2025-08-11T05:33:12.428Z] [WARN] No technician group configured for PPPoE notifications
+[2025-08-12T00:35:51.268Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-12T00:35:51.929Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-12T00:36:51.271Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-12T00:36:51.951Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-12T00:37:51.267Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-12T00:37:51.952Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-12T00:38:51.281Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-12T00:38:51.969Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-12T00:39:51.296Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-12T00:39:51.963Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-12T00:41:33.543Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-12T00:41:34.261Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-12T00:42:33.552Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-12T00:42:33.739Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-12T00:43:33.556Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-12T00:43:33.741Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-12T00:45:23.359Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-12T00:45:23.470Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-12T00:46:23.321Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-12T00:46:23.478Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-12T00:47:23.375Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-12T00:47:23.480Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-12T00:48:23.338Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-12T00:48:23.492Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-12T00:49:23.356Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-12T00:49:23.480Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-12T00:50:23.350Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-12T00:50:23.506Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-12T00:51:23.364Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-12T00:51:23.520Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-12T00:52:23.375Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-12T00:52:23.507Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-12T00:53:23.386Z] [WARN] Monitoring PPPoE connections failed: Koneksi ke Mikrotik gagal
+[2025-08-12T00:53:23.541Z] [WARN] Failed to get PPPoE connections: Unknown error
+[2025-08-12T00:56:15.465Z] [WARN] No technician group configured for PPPoE notifications
+[2025-08-12T00:56:17.161Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-12T00:56:17.161Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-12T00:56:17.369Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-12T00:56:17.370Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-12T01:02:41.788Z] [WARN] No technician group configured for PPPoE notifications
+[2025-08-12T01:02:43.533Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-12T01:02:43.534Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-12T01:02:43.768Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-12T01:02:43.769Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-12T01:23:02.514Z] [WARN] No technician group configured for PPPoE notifications
+[2025-08-12T01:23:05.243Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-12T01:23:05.244Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-12T01:23:05.575Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-12T01:23:05.576Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-12T01:48:12.853Z] [WARN] No technician group configured for PPPoE notifications
+[2025-08-12T01:48:14.726Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-12T01:48:14.727Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-12T01:48:15.010Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-12T01:48:15.011Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
