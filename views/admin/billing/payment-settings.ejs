@@ -311,7 +311,8 @@
 
         async function updateGatewayStatus() {
             try {
-                const response = await fetch('/api/payment/gateway-status');
+                const response = await fetch('/payment/gateway-status');
+
                 const result = await response.json();
                 
                 if (result.success) {

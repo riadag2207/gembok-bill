@@ -200,6 +200,32 @@
                     </div>
                 </div>
                 <% } %>
+
+                <!-- Service Control Section -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header d-flex align-items-center justify-content-between">
+                                <h5 class="card-title mb-0">
+                                    <i class="bx bx-shield"></i> Kontrol Layanan (Mikrotik)
+                                </h5>
+                                <span class="badge bg-light text-dark">Customer: <%= invoice.customer_name %> • Status: <%= invoice.customer_status %></span>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <button id="btnIsolir" class="btn btn-outline-danger" onclick="isolirManual()">
+                                        <i class="bx bx-block"></i> Isolir Manual
+                                    </button>
+                                    <button id="btnRestore" class="btn btn-outline-success" onclick="restoreManual()">
+                                        <i class="bx bx-check-circle"></i> Restore Manual
+                                    </button>
+                                </div>
+                                <small class="text-muted d-block mt-2">Aksi ini akan mengubah profil PPPoE di Mikrotik dan status pelanggan di billing.</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </main>
         </div>
     </div>
@@ -488,6 +514,61 @@
                 alertDiv.remove();
             }
         }, 4000);
+    }
+
+    // Manual Isolir/Restore Handlers
+    async function isolirManual() {
+        const btn = document.getElementById('btnIsolir');
+        const original = btn.innerHTML;
+        const reason = prompt('Alasan Isolir (opsional):', 'Isolir manual dari Admin');
+        try {
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> Memproses...';
+            const resp = await fetch(`/admin/billing/invoices/${INVOICE_ID}/isolir`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ reason: reason || 'Isolir manual dari Admin' })
+            });
+            const res = await resp.json();
+            if (res.success) {
+                showAlert('success', '✅ Layanan berhasil diisolir.');
+            } else {
+                showAlert('danger', '❌ Gagal isolir: ' + (res.message || 'Unknown error'));
+            }
+        } catch (e) {
+            console.error(e);
+            showAlert('danger', '❌ Terjadi kesalahan saat isolir');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = original;
+        }
+    }
+
+    async function restoreManual() {
+        const btn = document.getElementById('btnRestore');
+        const original = btn.innerHTML;
+        const reason = prompt('Alasan Restore (opsional):', 'Restore manual dari Admin');
+        try {
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> Memproses...';
+            const resp = await fetch(`/admin/billing/invoices/${INVOICE_ID}/restore`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ reason: reason || 'Restore manual dari Admin' })
+            });
+            const res = await resp.json();
+            if (res.success) {
+                showAlert('success', '✅ Layanan berhasil direstore.');
+            } else {
+                showAlert('danger', '❌ Gagal restore: ' + (res.message || 'Unknown error'));
+            }
+        } catch (e) {
+            console.error(e);
+            showAlert('danger', '❌ Terjadi kesalahan saat restore');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = original;
+        }
     }
     </script>
      

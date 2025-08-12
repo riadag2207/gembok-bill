@@ -243,7 +243,7 @@
                                 <tbody>
                                     <% if (customers && customers.length > 0) { %>
                                         <% customers.forEach(function(customer) { %>
-                                            <tr>
+                                            <tr data-phone="<%= customer.phone %>" data-username="<%= customer.pppoe_username %>">
                                                 <td>
                                                     <input type="checkbox" class="form-check-input customer-checkbox" value="<%= customer.phone %>">
                                                 </td>
@@ -252,7 +252,7 @@
 
                                                 <td><%= customer.pppoe_username || '-' %></td>
                                                 <td><%= customer.package_name || '-' %></td>
-                                                <td><span class="badge bg-info"><%= customer.pppoe_profile || 'default' %></span></td>
+                                                <td class="pppoe-profile"><span class="badge bg-info"><%= customer.pppoe_profile || 'default' %></span></td>
                                                 <td>
                                                     <% if (customer.auto_suspension === 1) { %>
                                                         <span class="badge bg-success">Ya</span>
@@ -260,7 +260,7 @@
                                                         <span class="badge bg-secondary">Tidak</span>
                                                     <% } %>
                                                 </td>
-                                                <td>
+                                                <td class="cust-status">
                                                     <% if (customer.status === 'active') { %>
                                                         <span class="badge bg-success">Aktif</span>
                                                     <% } else if (customer.status === 'suspended') { %>
@@ -269,7 +269,7 @@
                                                         <span class="badge bg-secondary">Nonaktif</span>
                                                     <% } %>
                                                 </td>
-                                                <td>
+                                                <td class="pay-status">
                                                     <% if (customer.payment_status === 'paid') { %>
                                                         <span class="badge bg-success">Lunas</span>
                                                     <% } else if (customer.payment_status === 'unpaid') { %>
@@ -301,6 +301,90 @@
             </main>
         </div>
     </div>
+
+    <script>
+    // Update summary cards dynamically
+    function updateSummaryCards(data) {
+        try {
+            const mappings = [
+                { selector: 'h3.mt-3.mb-3', index: 0, value: data.total }, // first card total customers
+            ];
+            // Because the structure is uniform, query all h3s inside summary row and set by order.
+            const row = document.querySelectorAll('.row.mb-4 .card .card-body h3.mt-3.mb-3');
+            if (row && row.length >= 6) {
+                row[0].textContent = data.total;
+                row[1].textContent = data.paid;
+                row[2].textContent = data.unpaid;
+                row[3].textContent = data.isolir;
+                row[4].textContent = data.noInvoice;
+                row[5].textContent = data.active;
+            }
+        } catch (e) {
+            console.warn('Failed to update summary cards:', e);
+        }
+    }
+
+    async function fetchSummary() {
+        try {
+            const resp = await fetch('/admin/billing/customers/summary');
+            const res = await resp.json();
+            if (res.success && res.data) {
+                updateSummaryCards(res.data);
+            }
+        } catch (e) {
+            console.warn('Failed to fetch summary:', e);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        fetchSummary();
+        setInterval(fetchSummary, 5000);
+    });
+    </script>
+
+    <script>
+    // Live update table rows
+    function renderStatusBadge(status) {
+        if (status === 'active') return '<span class="badge bg-success">Aktif</span>';
+        if (status === 'suspended') return '<span class="badge bg-danger">Isolir</span>';
+        return '<span class="badge bg-secondary">Nonaktif</span>';
+    }
+    function renderPayBadge(p) {
+        if (p === 'paid') return '<span class="badge bg-success">Lunas</span>';
+        if (p === 'unpaid') return '<span class="badge bg-warning">Belum Lunas</span>';
+        if (p === 'overdue') return '<span class="badge bg-danger">Terlambat</span>';
+        return '<span class="badge bg-info">Belum Ada Tagihan</span>';
+    }
+    async function refreshCustomersTable() {
+        try {
+            const resp = await fetch('/admin/billing/customers/list');
+            const res = await resp.json();
+            if (!res.success || !Array.isArray(res.customers)) return;
+
+            const byUser = new Map(res.customers.filter(c => c.pppoe_username).map(c => [String(c.pppoe_username), c]));
+            const byPhone = new Map(res.customers.filter(c => c.phone).map(c => [String(c.phone), c]));
+            document.querySelectorAll('#customersTable tbody tr[data-phone],#customersTable tbody tr[data-username]')
+                .forEach(tr => {
+                    const uname = tr.getAttribute('data-username');
+                    const phone = tr.getAttribute('data-phone');
+                    const c = (uname && byUser.get(uname)) || (phone && byPhone.get(phone));
+                    if (!c) return;
+                    const statusTd = tr.querySelector('td.cust-status');
+                    const payTd = tr.querySelector('td.pay-status');
+                    const profTd = tr.querySelector('td.pppoe-profile');
+                    if (statusTd) statusTd.innerHTML = renderStatusBadge(c.status);
+                    if (payTd) payTd.innerHTML = renderPayBadge(c.payment_status);
+                    if (profTd) profTd.innerHTML = `<span class="badge bg-info">${c.pppoe_profile || 'default'}</span>`;
+                });
+        } catch (e) {
+            console.warn('Failed to refresh customers table:', e);
+        }
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+        refreshCustomersTable();
+        setInterval(refreshCustomersTable, 5000);
+    });
+    </script>
 
     <!-- Add Customer Modal -->
     <div class="modal fade" id="addCustomerModal" tabindex="-1">
