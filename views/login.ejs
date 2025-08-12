@@ -266,9 +266,10 @@
             data: { phone },
             success: function(response) {
                 if (response.success) {
-                    showToast('success', 'Login Berhasil', 'Mengalihkan ke dashboard...');
+                    const target = response.redirect || '/customer/dashboard';
+                    showToast('success', 'Login Berhasil', 'Mengalihkan...');
                     setTimeout(() => {
-                        window.location.href = '/customer/dashboard';
+                        window.location.href = target;
                     }, 1000);
                 } else {
                     showToast('error', 'Login Gagal', response.message || 'Nomor HP tidak terdaftar');

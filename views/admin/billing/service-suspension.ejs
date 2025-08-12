@@ -385,9 +385,14 @@
         function restoreCustomer(username) {
             if (!confirm(`Yakin ingin restore layanan untuk pelanggan ${username}?`)) return;
 
-            $.post(`/admin/billing/service-suspension/restore/${username}`, function(response) {
+            const reason = prompt('Masukkan alasan buka isolir (opsional):', 'Manual restore');
+            if (reason === null) return; // user canceled prompt
+
+            $.post(`/admin/billing/service-suspension/restore/${username}`, { reason }, function(response) {
                 if (response.success) {
-                    showToast('success', 'Service Restored', `Layanan ${username} berhasil diaktifkan`);
+                    const r = (response.reason || reason || '').trim();
+                    const msg = r ? `Layanan ${username} diaktifkan. Alasan: ${r}` : `Layanan ${username} berhasil diaktifkan`;
+                    showToast('success', 'Service Restored', msg);
                     loadStats();
                     loadSuspendedCustomers();
                 } else {
