@@ -25,6 +25,25 @@ router.post('/create', async (req, res) => {
                 message: 'Invoice ID is required'
             });
         }
+        // Fetch invoice to perform gateway-specific validations
+        let invoice;
+        try {
+            invoice = await billingManager.getInvoiceById(invoice_id);
+        } catch (e) {
+            return res.status(500).json({ success: false, message: 'Failed to load invoice' });
+        }
+        if (!invoice) {
+            return res.status(404).json({ success: false, message: 'Invoice not found' });
+        }
+
+        // Guard: Tripay minimum amount validation (Rp 10.000)
+        if ((gateway === 'tripay' || (!gateway && String((await billingManager.getGatewayStatus())?.active) === 'tripay'))
+            && Number(invoice.amount) < 10000) {
+            return res.status(400).json({
+                success: false,
+                message: 'Minimal nominal Tripay adalah Rp 10.000'
+            });
+        }
 
         const result = await billingManager.createOnlinePayment(invoice_id, gateway);
         

@@ -319,28 +319,31 @@ class XenditGateway {
         };
     }
 
-    async handleWebhook(payload, _headers = {}) {
+    async handleWebhook(payload, headers = {}) {
         try {
-            // Verify webhook signature
-            // Note: Xendit typically uses a callback token header; assumed validated at ingress or via settings
-            const signature = crypto
-                .createHmac('sha256', this.config.callback_token)
-                .update(JSON.stringify(payload))
-                .digest('hex');
-
-            if (payload.signature !== signature) {
-                throw new Error('Invalid signature');
+            // Prefer header-based verification using Xendit callback token
+            const headerToken = headers['x-callback-token'] || headers['X-Callback-Token'] || headers['X-CALLBACK-TOKEN'];
+            if (this.config.callback_token) {
+                if (!headerToken || headerToken !== this.config.callback_token) {
+                    // Fallback: some older integrations may send a body signature; keep backward-compat only if present
+                    if (!payload || !payload.signature) {
+                        throw new Error('Invalid callback token');
+                    }
+                    const legacySig = crypto
+                        .createHmac('sha256', this.config.callback_token)
+                        .update(JSON.stringify(payload))
+                        .digest('hex');
+                    if (payload.signature !== legacySig) {
+                        throw new Error('Invalid signature');
+                    }
+                }
             }
 
             // Map Xendit status to our standard status
-            let status = payload.status;
-            if (payload.status === 'PAID') {
-                status = 'PAID';
-            } else if (payload.status === 'PENDING') {
-                status = 'pending';
-            } else if (payload.status === 'EXPIRED' || payload.status === 'FAILED') {
-                status = 'failed';
-            }
+            let status = 'pending';
+            if (payload.status === 'PAID') status = 'success';
+            else if (payload.status === 'PENDING') status = 'pending';
+            else if (payload.status === 'EXPIRED' || payload.status === 'FAILED') status = 'failed';
 
             const result = {
                 order_id: payload.external_id,
@@ -394,7 +397,9 @@ class TripayGateway {
             .update(rawSign)
             .digest('hex');
 
-        const response = await fetch(`${this.baseUrl}/transaction/create`, {
+        // Use global fetch if available (Node >= 18), otherwise fallback to node-fetch
+        const fetchFn = typeof fetch === 'function' ? fetch : (await import('node-fetch')).default;
+        const response = await fetchFn(`${this.baseUrl}/transaction/create`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${this.config.api_key}`,

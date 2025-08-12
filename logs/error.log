@@ -4139,3 +4139,6 @@
 {}
 [2025-08-12T04:53:04.194Z] [ERROR] Error testing tripay connection:
 {}
+[2025-08-12T12:26:56.312Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-12T12:26:59.328Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-12T12:27:02.348Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries

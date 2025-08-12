@@ -1147,7 +1147,8 @@ class BillingManager {
                     VALUES (?, ?, ?, ?, ?, ?, ?)
                 `;
 
-                this.db.run(sql, [
+                const db = this.db;
+                db.run(sql, [
                     invoiceId,
                     paymentResult.gateway,
                     paymentResult.order_id,
@@ -1155,7 +1156,7 @@ class BillingManager {
                     paymentResult.token,
                     invoice.amount,
                     'pending'
-                ], function(err) {
+                ], (err) => {
                     if (err) {
                         reject(err);
                     } else {
@@ -1166,12 +1167,12 @@ class BillingManager {
                             WHERE id = ?
                         `;
 
-                        this.db.run(updateSql, [
+                        db.run(updateSql, [
                             paymentResult.gateway,
                             paymentResult.token,
                             paymentResult.payment_url,
                             invoiceId
-                        ], function(updateErr) {
+                        ], (updateErr) => {
                             if (updateErr) {
                                 reject(updateErr);
                             } else {

@@ -2055,12 +2055,20 @@ router.post('/payment-settings/test/:gateway', async (req, res) => {
         // Test the gateway by trying to create a test payment
         const testInvoice = {
             invoice_number: 'TEST-001',
-            amount: 1000,
+            amount: 10000,
             package_name: 'Test Package',
             customer_name: 'Test Customer',
             customer_phone: '08123456789',
             customer_email: 'test@example.com'
         };
+        
+        // Guard: Tripay minimum amount validation to avoid gateway rejection
+        if (gateway === 'tripay' && Number(testInvoice.amount) < 10000) {
+            return res.status(400).json({
+                success: false,
+                message: 'Minimal nominal Tripay adalah Rp 10.000'
+            });
+        }
         
         const result = await paymentManager.createPayment(testInvoice, gateway);
         

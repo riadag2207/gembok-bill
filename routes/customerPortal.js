@@ -587,6 +587,13 @@ router.get('/login', (req, res) => {
   res.render('login', { settings, error: null });
 });
 
+// GET: Base customer portal - redirect appropriately
+router.get('/', (req, res) => {
+  const phone = req.session && req.session.phone;
+  if (phone) return res.redirect('/customer/dashboard');
+  return res.redirect('/customer/login');
+});
+
 // POST: Proses login - Optimized dengan AJAX support
 router.post('/login', async (req, res) => {
   try {
