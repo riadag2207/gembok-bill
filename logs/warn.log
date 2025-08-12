@@ -741,3 +741,136 @@
 [2025-08-12T01:48:14.727Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
 [2025-08-12T01:48:15.010Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
 [2025-08-12T01:48:15.011Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-12T02:11:25.142Z] [WARN] No technician group configured for PPPoE notifications
+[2025-08-12T02:11:26.916Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-12T02:11:26.916Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-12T02:11:27.128Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-12T02:11:27.129Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-12T02:28:11.710Z] [WARN] Device not found by phone 087828060111, trying PPPoE...
+[2025-08-12T02:28:25.262Z] [WARN] No technician group configured for PPPoE notifications
+[2025-08-12T02:28:26.974Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-12T02:28:26.975Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-12T02:28:27.186Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-12T02:28:27.187Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-12T02:32:02.674Z] [WARN] No technician group configured for PPPoE notifications
+[2025-08-12T02:32:04.376Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-12T02:32:04.376Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-12T02:32:04.574Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-12T02:32:04.574Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-12T02:32:25.353Z] [WARN] Device not found by phone 087828060111, trying PPPoE...
+[2025-08-12T02:39:02.614Z] [WARN] No technician group configured for PPPoE notifications
+[2025-08-12T02:39:04.404Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-12T02:39:04.405Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-12T02:39:04.605Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-12T02:39:04.606Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-12T02:49:26.171Z] [WARN] Device not found by phone 087828060111, trying PPPoE...
+[2025-08-12T02:49:37.192Z] [WARN] No technician group configured for PPPoE notifications
+[2025-08-12T02:49:38.988Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-12T02:49:38.989Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-12T02:49:39.258Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-12T02:49:39.259Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-12T02:57:37.187Z] [WARN] No technician group configured for PPPoE notifications
+[2025-08-12T02:57:39.063Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-12T02:57:39.063Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-12T02:57:39.333Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-12T02:57:39.334Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-12T03:01:11.702Z] [WARN] No technician group configured for PPPoE notifications
+[2025-08-12T03:01:13.723Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-12T03:01:13.724Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-12T03:01:14.088Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-12T03:01:14.089Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-12T03:01:23.265Z] [WARN] Device not found by phone 081947215703, trying PPPoE...
+[2025-08-12T03:01:23.281Z] [WARN] Device not found by PPPoE test
+[2025-08-12T03:01:23.282Z] [WARN] GenieACS: No device found for customer cust_5703_361057
+[2025-08-12T03:10:11.749Z] [WARN] No technician group configured for PPPoE notifications
+[2025-08-12T03:10:14.195Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-12T03:10:14.196Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-12T03:10:14.579Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-12T03:10:14.580Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-12T03:11:11.756Z] [WARN] No technician group configured for PPPoE notifications
+[2025-08-12T03:11:13.696Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-12T03:11:13.697Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-12T03:11:14.067Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-12T03:11:14.068Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-12T03:16:22.382Z] [WARN] No technician group configured for PPPoE notifications
+[2025-08-12T03:16:24.424Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-12T03:16:24.425Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-12T03:16:24.810Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-12T03:16:24.811Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-12T03:25:22.457Z] [WARN] No technician group configured for PPPoE notifications
+[2025-08-12T03:25:24.582Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-12T03:25:24.583Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-12T03:25:24.912Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-12T03:25:24.913Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-12T03:29:19.431Z] [WARN] No technician group configured for PPPoE notifications
+[2025-08-12T03:29:21.143Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-12T03:29:21.144Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-12T03:29:21.349Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-12T03:29:21.350Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-12T03:35:19.515Z] [WARN] No technician group configured for PPPoE notifications
+[2025-08-12T03:35:21.239Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-12T03:35:21.240Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-12T03:35:21.444Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-12T03:35:21.445Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-12T03:37:30.972Z] [WARN] No technician group configured for PPPoE notifications
+[2025-08-12T03:37:32.833Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-12T03:37:32.834Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-12T03:37:33.120Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-12T03:37:33.121Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-12T03:46:08.887Z] [WARN] No technician group configured for PPPoE notifications
+[2025-08-12T03:46:10.564Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-12T03:46:10.565Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-12T03:46:10.777Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-12T03:46:10.778Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-12T03:52:52.928Z] [WARN] No technician group configured for PPPoE notifications
+[2025-08-12T03:52:54.723Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-12T03:52:54.724Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-12T03:52:54.963Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-12T03:52:54.964Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-12T03:56:03.474Z] [WARN] No technician group configured for PPPoE notifications
+[2025-08-12T03:56:05.276Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-12T03:56:05.277Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-12T03:56:05.515Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-12T03:56:05.515Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-12T04:02:59.365Z] [WARN] No technician group configured for PPPoE notifications
+[2025-08-12T04:03:01.396Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-12T04:03:01.397Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-12T04:03:01.781Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-12T04:03:01.782Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-12T04:07:04.809Z] [WARN] No technician group configured for PPPoE notifications
+[2025-08-12T04:07:06.644Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-12T04:07:06.645Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-12T04:07:06.931Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-12T04:07:06.932Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-12T04:08:04.851Z] [WARN] No technician group configured for PPPoE notifications
+[2025-08-12T04:08:06.710Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-12T04:08:06.711Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-12T04:08:06.997Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-12T04:08:06.998Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-12T04:11:31.143Z] [WARN] No technician group configured for PPPoE notifications
+[2025-08-12T04:11:32.950Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-12T04:11:32.951Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-12T04:11:33.164Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-12T04:11:33.165Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-12T04:18:20.736Z] [WARN] No technician group configured for PPPoE notifications
+[2025-08-12T04:18:22.840Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-12T04:18:22.840Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-12T04:18:23.226Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-12T04:18:23.227Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-12T04:22:11.821Z] [WARN] Device not found by phone 087828060111, trying PPPoE...
+[2025-08-12T04:22:20.771Z] [WARN] No technician group configured for PPPoE notifications
+[2025-08-12T04:22:22.867Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-12T04:22:22.868Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-12T04:22:23.254Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-12T04:22:23.255Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-12T04:23:14.459Z] [WARN] Device not found by phone 087828060111, trying PPPoE...
+[2025-08-12T04:33:20.777Z] [WARN] No technician group configured for PPPoE notifications
+[2025-08-12T04:33:22.751Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-12T04:33:22.751Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-12T04:33:23.083Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-12T04:33:23.084Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-12T04:52:48.082Z] [WARN] No technician group configured for PPPoE notifications
+[2025-08-12T04:52:49.825Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-12T04:52:49.826Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-12T04:52:50.030Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-12T04:52:50.031Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx

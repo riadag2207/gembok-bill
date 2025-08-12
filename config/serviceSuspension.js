@@ -76,13 +76,27 @@ class ServiceSuspensionManager {
                     const selectedProfile = getSetting('isolir_profile', 'isolir');
                     // Pastikan profile isolir ada (auto-create hanya jika 'isolir')
                     await this.ensureIsolirProfile();
-                    
-                    // Update PPPoE user dengan profile isolir
-                    await mikrotik.write('/ppp/secret/set', [
-                        `=.id=${customer.pppoe_username}`,
-                        `=profile=${selectedProfile}`,
-                        '=comment=SUSPENDED - ' + reason
-                    ]);
+
+                    // Cari .id secret berdasarkan name terlebih dahulu
+                    let secretId = null;
+                    try {
+                        const secrets = await mikrotik.write('/ppp/secret/print', [
+                            `?name=${customer.pppoe_username}`
+                        ]);
+                        if (secrets && secrets.length > 0) {
+                            secretId = secrets[0]['.id'];
+                        }
+                    } catch (lookupErr) {
+                        logger.warn(`Mikrotik: failed to lookup secret id for ${customer.pppoe_username}: ${lookupErr.message}`);
+                    }
+
+                    // Update PPPoE user dengan profile isolir, gunakan .id bila tersedia, fallback ke =name=
+                    const setParams = secretId
+                        ? [`=.id=${secretId}`, `=profile=${selectedProfile}`, `=comment=SUSPENDED - ${reason}`]
+                        : [`=name=${customer.pppoe_username}`, `=profile=${selectedProfile}`, `=comment=SUSPENDED - ${reason}`];
+
+                    await mikrotik.write('/ppp/secret/set', setParams);
+                    logger.info(`Mikrotik: Set profile to '${selectedProfile}' for ${customer.pppoe_username} (${secretId ? 'by .id' : 'by name'})`);
                     
                     // Disconnect active session jika ada
                     const activeSessions = await mikrotik.write('/ppp/active/print', [
@@ -147,12 +161,31 @@ class ServiceSuspensionManager {
 
             // 3. Update status di billing database
             try {
-                await billingManager.updateCustomer(customer.username, {
-                    ...customer,
-                    status: 'suspended'
-                });
-                results.billing = true;
-                logger.info(`Billing: Successfully updated status to suspended for ${customer.username}`);
+                if (customer.id) {
+                    logger.info(`[SUSPEND] Updating billing status by id=${customer.id} to 'suspended' (username=${customer.username||customer.pppoe_username||'-'})`);
+                    await billingManager.setCustomerStatusById(customer.id, 'suspended');
+                } else {
+                    // Resolve by username first, then phone, to obtain reliable id
+                    let resolved = null;
+                    if (customer.pppoe_username) {
+                        try { resolved = await billingManager.getCustomerByUsername(customer.pppoe_username); } catch (_) {}
+                    }
+                    if (!resolved && customer.username) {
+                        try { resolved = await billingManager.getCustomerByUsername(customer.username); } catch (_) {}
+                    }
+                    if (!resolved && customer.phone) {
+                        try { resolved = await billingManager.getCustomerByPhone(customer.phone); } catch (_) {}
+                    }
+                    if (resolved && resolved.id) {
+                        logger.info(`[SUSPEND] Resolved customer id=${resolved.id} (username=${resolved.pppoe_username||resolved.username||'-'}) → set 'suspended'`);
+                        await billingManager.setCustomerStatusById(resolved.id, 'suspended');
+                    } else if (customer.phone) {
+                        logger.warn(`[SUSPEND] Falling back to update by phone=${customer.phone} (no id resolved)`);
+                        await billingManager.updateCustomer(customer.phone, { ...customer, status: 'suspended' });
+                    } else {
+                        logger.error(`[SUSPEND] Unable to resolve customer identifier for status update`);
+                    }
+                }
             } catch (billingError) {
                 logger.error(`Billing update failed for ${customer.username}:`, billingError.message);
             }
@@ -204,12 +237,26 @@ class ServiceSuspensionManager {
                         profileToUse = packageData?.pppoe_profile || getSetting('default_pppoe_profile', 'default');
                     }
                     
-                    // Update PPPoE user dengan profile normal
-                    await mikrotik.write('/ppp/secret/set', [
-                        `=.id=${customer.pppoe_username}`,
-                        `=profile=${profileToUse}`,
-                        `=comment=ACTIVE - ${reason}`
-                    ]);
+                    // Cari .id secret berdasarkan name terlebih dahulu
+                    let secretId = null;
+                    try {
+                        const secrets = await mikrotik.write('/ppp/secret/print', [
+                            `?name=${customer.pppoe_username}`
+                        ]);
+                        if (secrets && secrets.length > 0) {
+                            secretId = secrets[0]['.id'];
+                        }
+                    } catch (lookupErr) {
+                        logger.warn(`Mikrotik: failed to lookup secret id for ${customer.pppoe_username}: ${lookupErr.message}`);
+                    }
+
+                    // Update PPPoE user dengan profile normal, gunakan .id bila tersedia, fallback ke =name=
+                    const setParams = secretId
+                        ? [`=.id=${secretId}`, `=profile=${profileToUse}`, `=comment=ACTIVE - ${reason}`]
+                        : [`=name=${customer.pppoe_username}`, `=profile=${profileToUse}`, `=comment=ACTIVE - ${reason}`];
+
+                    await mikrotik.write('/ppp/secret/set', setParams);
+                    logger.info(`Mikrotik: Restored profile to '${profileToUse}' for ${customer.pppoe_username} (${secretId ? 'by .id' : 'by name'})`);
                     
                     // Disconnect active session agar client reconnect dengan profile baru
                     const activeSessions = await mikrotik.write('/ppp/active/print', [
@@ -275,14 +322,33 @@ class ServiceSuspensionManager {
 
             // 3. Update status di billing database
             try {
-                await billingManager.updateCustomer(customer.username, {
-                    ...customer,
-                    status: 'active'
-                });
-                results.billing = true;
-                logger.info(`Billing: Successfully updated status to active for ${customer.username}`);
+                if (customer.id) {
+                    logger.info(`[RESTORE] Updating billing status by id=${customer.id} to 'active' (username=${customer.username||customer.pppoe_username||'-'})`);
+                    await billingManager.setCustomerStatusById(customer.id, 'active');
+                } else {
+                    // Resolve by username first, then phone
+                    let resolved = null;
+                    if (customer.pppoe_username) {
+                        try { resolved = await billingManager.getCustomerByUsername(customer.pppoe_username); } catch (_) {}
+                    }
+                    if (!resolved && customer.username) {
+                        try { resolved = await billingManager.getCustomerByUsername(customer.username); } catch (_) {}
+                    }
+                    if (!resolved && customer.phone) {
+                        try { resolved = await billingManager.getCustomerByPhone(customer.phone); } catch (_) {}
+                    }
+                    if (resolved && resolved.id) {
+                        logger.info(`[RESTORE] Resolved customer id=${resolved.id} (username=${resolved.pppoe_username||resolved.username||'-'}) → set 'active'`);
+                        await billingManager.setCustomerStatusById(resolved.id, 'active');
+                    } else if (customer.phone) {
+                        logger.warn(`[RESTORE] Falling back to update by phone=${customer.phone} (no id resolved)`);
+                        await billingManager.updateCustomer(customer.phone, { ...customer, status: 'active' });
+                    } else {
+                        logger.error(`[RESTORE] Unable to resolve customer identifier for status update`);
+                    }
+                }
             } catch (billingError) {
-                logger.error(`Billing update failed for ${customer.username}:`, billingError.message);
+                logger.error(`Billing restore update failed for ${customer.username}:`, billingError.message);
             }
 
             // 4. Send WhatsApp notification

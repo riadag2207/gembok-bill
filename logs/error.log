@@ -4091,3 +4091,51 @@
 [2025-08-12T00:56:11.694Z] [ERROR] Error connecting to Mikrotik: 
 [2025-08-12T00:56:13.743Z] [ERROR] Error connecting to Mikrotik: 
 [2025-08-12T00:56:15.773Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-12T02:27:56.665Z] [ERROR] Mikrotik suspension failed for cust_0111_284713: - no such item (4)
+[2025-08-12T02:28:32.897Z] [ERROR] GenieACS suspension failed for cust_0111_284713: - socket hang up
+[2025-08-12T02:28:32.899Z] [ERROR] Billing update failed for cust_0111_284713: - billingManager.updateCustomer is not a function
+[2025-08-12T02:32:46.433Z] [ERROR] GenieACS suspension failed for cust_0111_284713: - socket hang up
+[2025-08-12T02:32:46.436Z] [ERROR] Billing update failed for cust_0111_284713: - billingManager.updateCustomer is not a function
+[2025-08-12T02:49:47.250Z] [ERROR] GenieACS suspension failed for cust_0111_284713: - socket hang up
+[2025-08-12T02:49:47.251Z] [ERROR] Billing update failed for cust_0111_284713: - billingManager.updateCustomer is not a function
+[2025-08-12T02:50:44.926Z] [ERROR] Error in automatic service restoration check:
+{}
+[2025-08-12T02:50:44.927Z] [ERROR] Error checking paid customers:
+{}
+[2025-08-12T03:00:00.286Z] [ERROR] Error in automatic service suspension check:
+{}
+[2025-08-12T03:00:00.305Z] [ERROR] Error in daily service suspension check:
+{}
+[2025-08-12T03:01:23.285Z] [ERROR] Billing update failed for cust_5703_361057: - billingManager.updateCustomer is not a function
+[2025-08-12T03:17:19.496Z] [ERROR] GenieACS suspension failed for cust_0111_209346: - socket hang up
+[2025-08-12T03:17:19.497Z] [ERROR] Billing update failed for cust_0111_209346: - billingManager.updateCustomer is not a function
+[2025-08-12T03:29:27.137Z] [ERROR] GenieACS suspension failed for cust_0111_209346: - socket hang up
+[2025-08-12T03:29:27.138Z] [ERROR] Billing update failed for cust_0111_209346: - billingManager.updateCustomer is not a function
+[2025-08-12T03:38:31.790Z] [ERROR] GenieACS suspension failed for cust_0111_209346: - socket hang up
+[2025-08-12T03:38:31.793Z] [ERROR] Billing update failed for cust_0111_209346: - billingManager.updateCustomer is not a function
+[2025-08-12T03:46:11.990Z] [ERROR] GenieACS suspension failed for cust_0111_209346: - socket hang up
+[2025-08-12T03:46:11.992Z] [ERROR] Billing update failed for cust_0111_209346: - billingManager.updateCustomerById is not a function
+[2025-08-12T03:52:43.489Z] [ERROR] GenieACS suspension failed for cust_0111_209346: - socket hang up
+[2025-08-12T03:52:43.490Z] [ERROR] Billing update failed for cust_0111_209346: - billingManager.updateCustomerById is not a function
+[2025-08-12T03:55:43.648Z] [ERROR] GenieACS suspension failed for cust_0111_209346: - socket hang up
+[2025-08-12T03:55:43.649Z] [ERROR] Billing update failed for cust_0111_209346: - billingManager.updateCustomerById is not a function
+[2025-08-12T04:00:00.290Z] [ERROR] Error in automatic service restoration check:
+{}
+[2025-08-12T04:00:00.295Z] [ERROR] Error in daily service restoration check:
+{}
+[2025-08-12T04:02:44.164Z] [ERROR] GenieACS suspension failed for cust_0111_209346: - socket hang up
+[2025-08-12T04:02:44.165Z] [ERROR] Billing update failed for cust_0111_209346: - billingManager.setCustomerStatusById is not a function
+[2025-08-12T04:07:15.019Z] [ERROR] GenieACS suspension failed for cust_0111_209346: - socket hang up
+[2025-08-12T04:07:15.021Z] [ERROR] Billing update failed for cust_0111_209346: - billingManager.setCustomerStatusById is not a function
+[2025-08-12T04:11:10.444Z] [ERROR] GenieACS suspension failed for cust_0111_209346: - socket hang up
+[2025-08-12T04:11:10.447Z] [ERROR] Billing update failed for cust_0111_209346: - billingManager.setCustomerStatusById is not a function
+[2025-08-12T04:17:39.928Z] [ERROR] GenieACS suspension failed for cust_0111_209346: - socket hang up
+[2025-08-12T04:21:04.949Z] [ERROR] GenieACS restoration failed for cust_0111_209346: - socket hang up
+[2025-08-12T04:22:32.909Z] [ERROR] GenieACS suspension failed for cust_0111_284713: - socket hang up
+[2025-08-12T04:23:35.554Z] [ERROR] GenieACS restoration failed for cust_0111_284713: - socket hang up
+[2025-08-12T04:29:45.283Z] [ERROR] GenieACS suspension failed for cust_0111_209346: - socket hang up
+[2025-08-12T04:30:48.244Z] [ERROR] GenieACS restoration failed for cust_0111_209346: - socket hang up
+[2025-08-12T04:52:59.822Z] [ERROR] Error testing tripay connection:
+{}
+[2025-08-12T04:53:04.194Z] [ERROR] Error testing tripay connection:
+{}

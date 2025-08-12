@@ -2,6 +2,7 @@ const fs = require('fs');
 const crypto = require('crypto');
 
 class PaymentGatewayManager {
+
     constructor() {
         this.settings = this.loadSettings();
         this.gateways = {};
@@ -47,6 +48,46 @@ class PaymentGatewayManager {
         return this.activeGateway;
     }
 
+    // Reload settings and reinitialize gateways without server restart
+    reload() {
+        try {
+            this.settings = this.loadSettings();
+        } catch (_) {
+            this.settings = {};
+        }
+
+        // Reset gateways
+        this.gateways = {};
+
+        // Reinitialize enabled gateways
+        if (this.settings.payment_gateway && this.settings.payment_gateway.midtrans && this.settings.payment_gateway.midtrans.enabled) {
+            try {
+                this.gateways.midtrans = new MidtransGateway(this.settings.payment_gateway.midtrans);
+            } catch (error) {
+                console.error('Failed to initialize Midtrans gateway on reload:', error);
+            }
+        }
+
+        if (this.settings.payment_gateway && this.settings.payment_gateway.xendit && this.settings.payment_gateway.xendit.enabled) {
+            try {
+                this.gateways.xendit = new XenditGateway(this.settings.payment_gateway.xendit);
+            } catch (error) {
+                console.error('Failed to initialize Xendit gateway on reload:', error);
+            }
+        }
+
+        if (this.settings.payment_gateway && this.settings.payment_gateway.tripay && this.settings.payment_gateway.tripay.enabled) {
+            try {
+                this.gateways.tripay = new TripayGateway(this.settings.payment_gateway.tripay);
+            } catch (error) {
+                console.error('Failed to initialize Tripay gateway on reload:', error);
+            }
+        }
+
+        this.activeGateway = this.settings.payment_gateway ? this.settings.payment_gateway.active : null;
+        return { active: this.activeGateway, initialized: Object.keys(this.gateways) };
+    }
+
     async createPayment(invoice, gateway = null) {
         const selectedGateway = gateway || this.activeGateway;
         
@@ -80,18 +121,21 @@ class PaymentGatewayManager {
         }
 
         try {
-            console.log(`[PAYMENT_GATEWAY] Processing webhook from ${gateway}:`, JSON.stringify(payload, null, 2));
-            
-            const result = await this.gateways[gateway].handleWebhook(payload);
+            // Support either raw body or { body, headers }
+            const body = payload && payload.body ? payload.body : payload;
+            const headers = payload && payload.headers ? payload.headers : {};
+            console.log(`[PAYMENT_GATEWAY] Processing webhook from ${gateway}:`, JSON.stringify(body, null, 2));
+
+            const result = await this.gateways[gateway].handleWebhook(body, headers);
             console.log(`[PAYMENT_GATEWAY] Raw result from ${gateway}:`, JSON.stringify(result, null, 2));
-            
+
             // Normalize the result to ensure consistent format
             const normalizedResult = {
-                order_id: result.order_id || result.merchant_ref || result.external_id || payload.order_id,
-                status: result.status || payload.status || 'pending',
-                amount: result.amount || payload.amount || payload.gross_amount,
-                payment_type: result.payment_type || payload.payment_type || payload.payment_method,
-                fraud_status: result.fraud_status || payload.fraud_status || 'accept',
+                order_id: result.order_id || result.merchant_ref || result.external_id || body.order_id,
+                status: result.status || body.status || 'pending',
+                amount: result.amount || body.amount || body.gross_amount,
+                payment_type: result.payment_type || body.payment_type || body.payment_method,
+                fraud_status: result.fraud_status || body.fraud_status || 'accept',
                 reference: result.reference || result.invoice_id || null
             };
             
@@ -147,6 +191,7 @@ class PaymentGatewayManager {
 }
 
 class MidtransGateway {
+
     constructor(config) {
         if (!config || !config.server_key || !config.client_key) {
             throw new Error('Midtrans configuration is incomplete. Missing server_key or client_key.');
@@ -194,7 +239,7 @@ class MidtransGateway {
         };
     }
 
-    async handleWebhook(payload) {
+    async handleWebhook(payload, _headers = {}) {
         try {
             // Verify signature
             const expectedSignature = crypto
@@ -234,6 +279,7 @@ class MidtransGateway {
 }
 
 class XenditGateway {
+
     constructor(config) {
         if (!config || !config.api_key) {
             throw new Error('Xendit configuration is incomplete. Missing api_key.');
@@ -273,9 +319,10 @@ class XenditGateway {
         };
     }
 
-    async handleWebhook(payload) {
+    async handleWebhook(payload, _headers = {}) {
         try {
             // Verify webhook signature
+            // Note: Xendit typically uses a callback token header; assumed validated at ingress or via settings
             const signature = crypto
                 .createHmac('sha256', this.config.callback_token)
                 .update(JSON.stringify(payload))
@@ -313,6 +360,7 @@ class XenditGateway {
 }
 
 class TripayGateway {
+
     constructor(config) {
         if (!config || !config.api_key || !config.private_key || !config.merchant_code) {
             throw new Error('Tripay configuration is incomplete. Missing api_key, private_key, or merchant_code.');
@@ -339,9 +387,11 @@ class TripayGateway {
             return_url: `${this.config.base_url || 'http://localhost:3003'}/payment/finish`
         };
 
+        // Tripay signature: HMAC SHA256 of merchant_code + merchant_ref + amount using private_key
+        const rawSign = `${this.config.merchant_code}${orderData.merchant_ref}${orderData.amount}`;
         const signature = crypto
             .createHmac('sha256', this.config.private_key)
-            .update(JSON.stringify(orderData))
+            .update(rawSign)
             .digest('hex');
 
         const response = await fetch(`${this.baseUrl}/transaction/create`, {
@@ -351,8 +401,9 @@ class TripayGateway {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
+                merchant_code: this.config.merchant_code,
                 ...orderData,
-                signature: signature
+                signature
             })
         });
 
@@ -369,25 +420,23 @@ class TripayGateway {
         }
     }
 
-    async handleWebhook(payload) {
+    async handleWebhook(payload, headers = {}) {
         try {
-            // Verify signature
-            const signature = crypto
+            // Verify Tripay callback signature from header
+            const cbSig = headers['x-callback-signature'] || headers['X-Callback-Signature'] || headers['X-CALLBACK-SIGNATURE'];
+            const expected = crypto
                 .createHmac('sha256', this.config.private_key)
                 .update(JSON.stringify(payload))
                 .digest('hex');
-
-            if (payload.signature !== signature) {
+            if (!cbSig || cbSig !== expected) {
                 throw new Error('Invalid signature');
             }
 
             // Map Tripay status to our standard status
-            let status = payload.status;
-            if (payload.status === 'PAID' || payload.status === 'UNPAID') {
-                status = payload.status;
-            } else if (payload.status === 'EXPIRED' || payload.status === 'FAILED') {
-                status = 'failed';
-            }
+            let status = 'pending';
+            if (payload.status === 'PAID') status = 'success';
+            else if (payload.status === 'UNPAID') status = 'pending';
+            else if (payload.status === 'EXPIRED' || payload.status === 'FAILED') status = 'failed';
 
             const result = {
                 order_id: payload.merchant_ref,

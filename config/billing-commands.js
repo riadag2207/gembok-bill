@@ -703,6 +703,21 @@ class BillingCommands {
                     `*Method:* ${method}\n` +
                     `*Status:* Paid`
                 );
+
+                // Auto-restore jika semua tagihan lunas
+                try {
+                    const refreshed = await billingManager.getCustomerById(customer.id);
+                    const allInvoices = await billingManager.getInvoicesByCustomer(customer.id);
+                    const unpaid = allInvoices.filter(i => i.status === 'unpaid');
+                    logger.info(`[BILLING][WA] PayInvoice cek auto-restore -> status: ${refreshed?.status}, unpaid: ${unpaid.length}`);
+                    if (refreshed && refreshed.status === 'suspended' && unpaid.length === 0) {
+                        logger.info('[BILLING][WA] PayInvoice tidak ada tagihan tertunda. Menjalankan restore layanan...');
+                        const restoreRes = await serviceSuspension.restoreCustomerService(refreshed, `Payment via WhatsApp (${method})`);
+                        logger.info('[BILLING][WA] PayInvoice hasil restore:', restoreRes);
+                    }
+                } catch (restoreErr) {
+                    logger.error('[BILLING][WA] PayInvoice gagal auto-restore setelah pembayaran:', restoreErr);
+                }
             } else {
                 await this.sendFormattedMessage(remoteJid, 
                     '❌ *GAGAL MEMPROSES PEMBAYARAN!*\n\n' +
@@ -846,6 +861,21 @@ class BillingCommands {
                         `*Metode:* Cash\n` +
                         `*Status:* Lunas`
                     );
+
+                    // Coba auto-restore layanan jika semua tagihan sudah lunas
+                    try {
+                        const refreshed = await billingManager.getCustomerById(customer.id);
+                        const allInvoices = await billingManager.getInvoicesByCustomer(customer.id);
+                        const unpaid = allInvoices.filter(i => i.status === 'unpaid');
+                        logger.info(`[BILLING][WA] Cek auto-restore -> status: ${refreshed?.status}, unpaid: ${unpaid.length}`);
+                        if (refreshed && refreshed.status === 'suspended' && unpaid.length === 0) {
+                            logger.info('[BILLING][WA] Tidak ada tagihan tertunda. Menjalankan restore layanan...');
+                            const restoreRes = await serviceSuspension.restoreCustomerService(refreshed, 'Payment via WhatsApp Admin');
+                            logger.info('[BILLING][WA] Hasil restore:', restoreRes);
+                        }
+                    } catch (restoreErr) {
+                        logger.error('[BILLING][WA] Gagal auto-restore setelah pembayaran:', restoreErr);
+                    }
                 } else {
                     logger.error(`[BILLING] Record payment gagal:`, result);
                     await this.sendFormattedMessage(remoteJid, 

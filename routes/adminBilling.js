@@ -42,6 +42,38 @@ router.get('/dashboard', getAppSettings, async (req, res) => {
     }
 });
 
+// Customers list for live table updates
+router.get('/customers/list', async (req, res) => {
+    try {
+        const customers = await billingManager.getCustomers();
+        return res.json({ success: true, customers });
+    } catch (error) {
+        logger.error('Error loading customers list:', error);
+        return res.status(500).json({ success: false, message: 'Error loading customers list', error: error.message });
+    }
+});
+
+// Customers summary for live updates
+router.get('/customers/summary', async (req, res) => {
+    try {
+        const customers = await billingManager.getCustomers();
+        const total = customers.length;
+        const paid = customers.filter(c => c.payment_status === 'paid').length;
+        const unpaid = customers.filter(c => c.payment_status === 'unpaid').length;
+        const noInvoice = customers.filter(c => c.payment_status === 'no_invoice').length;
+        const active = customers.filter(c => c.status === 'active').length;
+        const isolir = customers.filter(c => c.payment_status === 'overdue' || c.status === 'suspended').length;
+
+        return res.json({
+            success: true,
+            data: { total, paid, unpaid, noInvoice, active, isolir }
+        });
+    } catch (error) {
+        logger.error('Error loading customers summary:', error);
+        return res.status(500).json({ success: false, message: 'Error loading customers summary', error: error.message });
+    }
+});
+
 // Bulk delete customers
 router.post('/customers/bulk-delete', async (req, res) => {
     try {
@@ -1953,11 +1985,15 @@ router.post('/payment-settings/active-gateway', async (req, res) => {
         const settings = getSettingsWithCache();
         
         settings.payment_gateway.active = activeGateway;
-        // fs.writeFileSync('settings.json', JSON.stringify(settings, null, 2)); // This line is removed
+        // Persist to settings.json via settingsManager
+        setSetting('payment_gateway', settings.payment_gateway);
+        // Hot-reload gateways
+        const reloadInfo = billingManager.reloadPaymentGateway();
         
         res.json({
             success: true,
-            message: 'Active gateway updated successfully'
+            message: 'Active gateway updated successfully',
+            reload: reloadInfo
         });
     } catch (error) {
         logger.error('Error updating active gateway:', error);
@@ -1989,11 +2025,15 @@ router.post('/payment-settings/:gateway', async (req, res) => {
             ...config
         };
         
-        // fs.writeFileSync('settings.json', JSON.stringify(settings, null, 2)); // This line is removed
+        // Persist to settings.json via settingsManager
+        setSetting('payment_gateway', settings.payment_gateway);
+        // Hot-reload gateways
+        const reloadInfo = billingManager.reloadPaymentGateway();
         
         res.json({
             success: true,
-            message: `${gateway} configuration updated successfully`
+            message: `${gateway} configuration updated successfully`,
+            reload: reloadInfo
         });
     } catch (error) {
         logger.error(`Error updating ${req.params.gateway} configuration:`, error);
@@ -2038,4 +2078,44 @@ router.post('/payment-settings/test/:gateway', async (req, res) => {
     }
 });
 
-module.exports = router; 
+// Manual Isolir by Invoice ID
+router.post('/invoices/:id/isolir', async (req, res) => {
+    try {
+        const id = parseInt(req.params.id, 10);
+        const reason = (req.body && req.body.reason) || 'Isolir manual dari Admin';
+
+        const invoice = await billingManager.getInvoiceById(id);
+        if (!invoice) return res.status(404).json({ success: false, message: 'Invoice tidak ditemukan' });
+
+        const customer = await billingManager.getCustomerById(invoice.customer_id);
+        if (!customer) return res.status(404).json({ success: false, message: 'Pelanggan tidak ditemukan' });
+
+        const result = await serviceSuspension.suspendCustomerService(customer, reason);
+        return res.json({ success: !!result?.success, data: result, message: result?.success ? 'Isolir berhasil' : (result?.error || 'Gagal isolir') });
+    } catch (error) {
+        logger.error('Error manual isolir:', error);
+        return res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// Manual Restore by Invoice ID
+router.post('/invoices/:id/restore', async (req, res) => {
+    try {
+        const id = parseInt(req.params.id, 10);
+        const reason = (req.body && req.body.reason) || 'Restore manual dari Admin';
+
+        const invoice = await billingManager.getInvoiceById(id);
+        if (!invoice) return res.status(404).json({ success: false, message: 'Invoice tidak ditemukan' });
+
+        const customer = await billingManager.getCustomerById(invoice.customer_id);
+        if (!customer) return res.status(404).json({ success: false, message: 'Pelanggan tidak ditemukan' });
+
+        const result = await serviceSuspension.restoreCustomerService(customer, reason);
+        return res.json({ success: !!result?.success, data: result, message: result?.success ? 'Restore berhasil' : (result?.error || 'Gagal restore') });
+    } catch (error) {
+        logger.error('Error manual restore:', error);
+        return res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+module.exports = router;

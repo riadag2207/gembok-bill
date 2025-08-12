@@ -2,7 +2,6 @@ const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const fs = require('fs');
 const PaymentGatewayManager = require('./paymentGateway');
-const serviceSuspension = require('./serviceSuspension');
 const logger = require('./logger'); // Added logger import
 
 class BillingManager {
@@ -10,6 +9,36 @@ class BillingManager {
         this.dbPath = path.join(__dirname, '../data/billing.db');
         this.paymentGateway = new PaymentGatewayManager();
         this.initDatabase();
+    }
+
+    // Hot-reload payment gateway configuration from settings.json
+    reloadPaymentGateway() {
+        try {
+            const result = this.paymentGateway.reload();
+            return result;
+        } catch (e) {
+            try { logger.error('[BILLING] Failed to reload payment gateways:', e.message); } catch (_) {}
+            return { error: true, message: e.message };
+        }
+    }
+
+    async setCustomerStatusById(id, status) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const existing = await this.getCustomerById(id);
+                if (!existing) return reject(new Error('Customer not found'));
+                const sql = `UPDATE customers SET status = ? WHERE id = ?`;
+                this.db.run(sql, [status, id], function(err) {
+                    if (err) return reject(err);
+                    try {
+                        logger.info(`[BILLING] setCustomerStatusById: id=${id}, username=${existing.username}, from=${existing.status} -> to=${status}`);
+                    } catch (_) {}
+                    resolve({ id, status });
+                });
+            } catch (e) {
+                reject(e);
+            }
+        });
     }
 
     initDatabase() {
@@ -25,6 +54,40 @@ class BillingManager {
             } else {
                 console.log('Billing database connected');
                 this.createTables();
+            }
+        });
+    }
+
+    async updateCustomerById(id, customerData) {
+        return new Promise(async (resolve, reject) => {
+            const { name, pppoe_username, email, address, package_id, pppoe_profile, status, auto_suspension, billing_day } = customerData;
+            try {
+                const oldCustomer = await this.getCustomerById(id);
+                if (!oldCustomer) return reject(new Error('Customer not found'));
+
+                const normBillingDay = Math.min(Math.max(parseInt(billing_day !== undefined ? billing_day : (oldCustomer?.billing_day ?? 15), 10) || 15, 1), 28);
+
+                const sql = `UPDATE customers SET name = ?, pppoe_username = ?, email = ?, address = ?, package_id = ?, pppoe_profile = ?, status = ?, auto_suspension = ?, billing_day = ? WHERE id = ?`;
+                this.db.run(sql, [
+                    name ?? oldCustomer.name,
+                    pppoe_username ?? oldCustomer.pppoe_username,
+                    email ?? oldCustomer.email,
+                    address ?? oldCustomer.address,
+                    package_id ?? oldCustomer.package_id,
+                    pppoe_profile ?? oldCustomer.pppoe_profile,
+                    status ?? oldCustomer.status,
+                    auto_suspension !== undefined ? auto_suspension : oldCustomer.auto_suspension,
+                    normBillingDay,
+                    id
+                ], async function(err) {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve({ username: oldCustomer.username, id, ...customerData });
+                    }
+                });
+            } catch (error) {
+                reject(error);
             }
         });
     }
@@ -1165,7 +1228,10 @@ async handlePaymentWebhook(payload, gateway) {
                             if (customer && customer.status === 'suspended') {
                                 const invoices = await this.getInvoicesByCustomer(customer.id);
                                 const unpaid = invoices.filter(i => i.status === 'unpaid');
-                                if (unpaid.length === 0) await serviceSuspension.restoreCustomerService(customer);
+                                if (unpaid.length === 0) {
+                                    const serviceSuspension = require('./serviceSuspension');
+                                    await serviceSuspension.restoreCustomerService(customer);
+                                }
                             }
                         } catch (restoreErr) {
                             logger.error('[WEBHOOK] Immediate restore (fallback) failed:', restoreErr);
@@ -1225,7 +1291,10 @@ async handlePaymentWebhook(payload, gateway) {
                                 if (refreshed && refreshed.status === 'suspended') {
                                     const invoices = await this.getInvoicesByCustomer(refreshed.id);
                                     const unpaid = invoices.filter(i => i.status === 'unpaid');
-                                    if (unpaid.length === 0) await serviceSuspension.restoreCustomerService(refreshed);
+                                    if (unpaid.length === 0) {
+                                        const serviceSuspension = require('./serviceSuspension');
+                                        await serviceSuspension.restoreCustomerService(refreshed);
+                                    }
                                 }
                             } catch (restoreErr) {
                                 logger.error('[WEBHOOK] Immediate restore failed:', restoreErr);

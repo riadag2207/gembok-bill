@@ -45,7 +45,7 @@ router.post('/create', async (req, res) => {
 // Payment webhook handlers
 router.post('/webhook/midtrans', async (req, res) => {
     try {
-        const result = await billingManager.handlePaymentWebhook(req.body, 'midtrans');
+        const result = await billingManager.handlePaymentWebhook({ body: req.body, headers: req.headers }, 'midtrans');
         res.status(200).json(result);
     } catch (error) {
         console.error('Midtrans webhook error:', error);
@@ -58,7 +58,7 @@ router.post('/webhook/midtrans', async (req, res) => {
 
 router.post('/webhook/xendit', async (req, res) => {
     try {
-        const result = await billingManager.handlePaymentWebhook(req.body, 'xendit');
+        const result = await billingManager.handlePaymentWebhook({ body: req.body, headers: req.headers }, 'xendit');
         res.status(200).json(result);
     } catch (error) {
         console.error('Xendit webhook error:', error);
@@ -71,7 +71,7 @@ router.post('/webhook/xendit', async (req, res) => {
 
 router.post('/webhook/tripay', async (req, res) => {
     try {
-        const result = await billingManager.handlePaymentWebhook(req.body, 'tripay');
+        const result = await billingManager.handlePaymentWebhook({ body: req.body, headers: req.headers }, 'tripay');
         res.status(200).json(result);
     } catch (error) {
         console.error('Tripay webhook error:', error);
