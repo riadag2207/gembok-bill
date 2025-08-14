@@ -8,6 +8,9 @@ const multer = require('multer');
 const upload = multer();
 const ExcelJS = require('exceljs');
 
+// Ensure JSON body parsing for this router
+router.use(express.json());
+
 // Middleware untuk mendapatkan pengaturan aplikasi
 const getAppSettings = (req, res, next) => {
     req.appSettings = {
@@ -204,8 +207,12 @@ router.post('/import/customers/xlsx', upload.single('file'), async (req, res) =>
                         return Number.isFinite(n) ? n : 1;
                     })(),
                     billing_day: (() => {
-                        const v = Number(getVal(row, 'billing_day'));
-                        const n = Number.isFinite(v) ? Math.min(Math.max(Math.trunc(v), 1), 28) : 15;
+                        // If the cell is empty or whitespace, default to 1
+                        const rawVal = getVal(row, 'billing_day');
+                        const rawStr = String(rawVal ?? '').trim();
+                        if (rawStr === '') return 1;
+                        const v = parseInt(rawStr, 10);
+                        const n = Number.isFinite(v) ? Math.min(Math.max(v, 1), 28) : 1;
                         return n;
                     })()
                 };
@@ -319,7 +326,7 @@ router.post('/import/customers/json', upload.single('file'), async (req, res) =>
                     pppoe_profile: raw.pppoe_profile || 'default',
                     status: raw.status || 'active',
                     auto_suspension: raw.auto_suspension !== undefined ? parseInt(raw.auto_suspension, 10) : 1,
-                    billing_day: raw.billing_day ? Math.min(Math.max(parseInt(raw.billing_day), 1), 28) : 15
+                    billing_day: raw.billing_day ? Math.min(Math.max(parseInt(raw.billing_day), 1), 28) : 1
                 };
 
                 if (existing) {
@@ -1514,6 +1521,38 @@ router.delete('/invoices/:id', async (req, res) => {
             message: 'Error deleting invoice',
             error: error.message
         });
+    }
+});
+
+// Bulk delete invoices
+router.post('/invoices/bulk-delete', async (req, res) => {
+    try {
+        const { ids } = req.body || {};
+        if (!Array.isArray(ids) || ids.length === 0) {
+            return res.status(400).json({ success: false, message: 'Daftar ID tagihan kosong atau tidak valid' });
+        }
+
+        const results = [];
+        let success = 0;
+        let failed = 0;
+
+        for (const rawId of ids) {
+            try {
+                const id = parseInt(rawId, 10);
+                if (!Number.isFinite(id)) throw new Error('ID tidak valid');
+                const deletedInvoice = await billingManager.deleteInvoice(id);
+                results.push({ id, success: true, invoice_number: deletedInvoice?.invoice_number });
+                success++;
+            } catch (e) {
+                results.push({ id: rawId, success: false, message: e.message });
+                failed++;
+            }
+        }
+
+        return res.json({ success: true, summary: { success, failed, total: ids.length }, results });
+    } catch (error) {
+        logger.error('Error bulk deleting invoices:', error);
+        return res.status(500).json({ success: false, message: 'Gagal melakukan hapus massal tagihan', error: error.message });
     }
 });
 

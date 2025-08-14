@@ -1253,13 +1253,13 @@ async handlePaymentWebhook(payload, gateway) {
                     result.payment_type || null,
                     result.fraud_status || null,
                     transaction.id
-                ], async function(updateErr) {
+                ], async (updateErr) => {
                     if (updateErr) {
                         logger.error(`[WEBHOOK] Update transaction error:`, updateErr);
                         return reject(updateErr);
                     }
 
-                    if (!this.isPaymentSuccessful(result.status)) {
+                    if (result.status !== 'success') {
                         logger.info(`[WEBHOOK] Payment status updated: ${result.status}`);
                         return resolve({ success: true, message: 'Payment status updated', status: result.status });
                     }
@@ -1309,7 +1309,7 @@ async handlePaymentWebhook(payload, gateway) {
                         logger.error(`[WEBHOOK] Error in payment processing:`, processingError);
                         return resolve({ success: true, message: 'Payment processed successfully', invoice_id: transaction.invoice_id });
                     }
-                }.bind(this));
+                });
             });
         } catch (error) {
             logger.error(`[WEBHOOK] Webhook processing error:`, error);

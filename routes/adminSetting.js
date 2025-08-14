@@ -46,7 +46,16 @@ router.get('/data', (req, res) => {
     fs.readFile(settingsPath, 'utf8', (err, data) => {
         if (err) return res.status(500).json({ error: 'Gagal membaca settings.json' });
         try {
-            res.json(JSON.parse(data));
+            const json = JSON.parse(data);
+            // Ensure Tripay base_url field exists so it appears in the admin form
+            try {
+                json.payment_gateway = json.payment_gateway || {};
+                json.payment_gateway.tripay = json.payment_gateway.tripay || {};
+                if (typeof json.payment_gateway.tripay.base_url === 'undefined') {
+                    json.payment_gateway.tripay.base_url = '';
+                }
+            } catch (_) {}
+            res.json(json);
         } catch (e) {
             res.status(500).json({ error: 'Format settings.json tidak valid' });
         }
@@ -116,21 +125,23 @@ router.post('/save', (req, res) => {
                 console.error('Error menyimpan settings.json:', err);
                 return res.status(500).json({ 
                     success: false,
-                    error: 'Gagal menyimpan pengaturan: ' + err.message 
+                    message: 'Gagal menyimpan pengaturan'
                 });
             }
 
-            // Cek field yang hilang (ada di oldSettings tapi tidak di mergedSettings)
-            const oldKeys = Object.keys(oldSettings);
-            const newKeys = Object.keys(sanitizedSettings);
-            const missing = oldKeys.filter(k => !newKeys.includes(k));
-            
-            if (missing.length > 0) {
-                console.warn('Field yang hilang dari settings.json setelah simpan:', missing);
-            }
+            // Log perubahan setting
+            const missing = [];
+            if (!sanitizedSettings.server_port) missing.push('server_port');
+            if (!sanitizedSettings.server_host) missing.push('server_host');
 
-            // Log aktivitas
-            console.log('Settings berhasil disimpan:', Object.keys(newSettings));
+            // Hot-reload payment gateways so changes apply without restart
+            let reloadInfo = null;
+            try {
+                const billingManager = require('../config/billing');
+                reloadInfo = billingManager.reloadPaymentGateway();
+            } catch (e) {
+                logger.warn('Gagal reload payment gateway setelah simpan settings:', e.message);
+            }
 
             res.json({ 
                 success: true, 

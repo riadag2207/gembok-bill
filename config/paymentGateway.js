@@ -1,5 +1,6 @@
 const fs = require('fs');
 const crypto = require('crypto');
+const { getSetting } = require('./settingsManager');
 
 class PaymentGatewayManager {
 
@@ -207,6 +208,11 @@ class MidtransGateway {
     }
 
     async createPayment(invoice) {
+        // Validate email to avoid Midtrans 400 on invalid format
+        const email = (invoice.customer_email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(invoice.customer_email))
+            ? invoice.customer_email
+            : undefined;
+
         const parameter = {
             transaction_details: {
                 order_id: `INV-${invoice.invoice_number}`,
@@ -215,7 +221,7 @@ class MidtransGateway {
             customer_details: {
                 first_name: invoice.customer_name,
                 phone: invoice.customer_phone || '',
-                email: invoice.customer_email || ''
+                ...(email ? { email } : {})
             },
             item_details: [{
                 id: invoice.package_id || 'PACKAGE-001',
@@ -370,10 +376,23 @@ class TripayGateway {
         }
         
         this.config = config;
-        this.baseUrl = config.production ? 'https://tripay.co.id' : 'https://tripay.co.id/api-sandbox';
+        // Use proper API base path for production and sandbox
+        this.baseUrl = config.production ? 'https://tripay.co.id/api' : 'https://tripay.co.id/api-sandbox';
     }
 
     async createPayment(invoice) {
+        // Derive application base URL for callbacks
+        const hostSetting = getSetting('server_host', 'localhost');
+        const host = (hostSetting && String(hostSetting).trim()) || 'localhost';
+        const port = getSetting('server_port', '3003');
+        const defaultAppBase = `http://${host}${port ? `:${port}` : ''}`;
+        const rawBase = (this.config.base_url || defaultAppBase || '').toString().trim();
+        const baseNoSlash = rawBase.replace(/\/+$/, ''); // remove trailing slash
+        if (!/^https?:\/\//i.test(baseNoSlash)) {
+            throw new Error(`Invalid base_url for Tripay callbacks: "${rawBase}". Please set a full URL starting with http:// or https:// in settings (payment_gateway.tripay.base_url) or set valid server_host/server_port.`);
+        }
+        const appBaseUrl = baseNoSlash;
+
         const orderData = {
             method: 'BRIVA',
             merchant_ref: `INV-${invoice.invoice_number}`,
@@ -386,8 +405,8 @@ class TripayGateway {
                 price: parseInt(invoice.amount),
                 quantity: 1
             }],
-            callback_url: `${this.config.base_url || 'http://localhost:3003'}/webhook/tripay`,
-            return_url: `${this.config.base_url || 'http://localhost:3003'}/payment/finish`
+            callback_url: `${appBaseUrl}/payment/webhook/tripay`,
+            return_url: `${appBaseUrl}/payment/finish`
         };
 
         // Tripay signature: HMAC SHA256 of merchant_code + merchant_ref + amount using private_key
@@ -412,8 +431,18 @@ class TripayGateway {
             })
         });
 
+        // Harden parsing: ensure JSON, otherwise throw descriptive error
+        const contentType = (response.headers && response.headers.get && response.headers.get('content-type')) || '';
+        if (!contentType.includes('application/json')) {
+            const text = await response.text();
+            throw new Error(`Tripay API returned non-JSON (status ${response.status}): ${text.slice(0, 200)}`);
+        }
+
         const result = await response.json();
-        
+        if (!response.ok) {
+            throw new Error(`Tripay API error ${response.status}: ${JSON.stringify(result)}`);
+        }
+
         if (result.success) {
             return {
                 payment_url: result.data.checkout_url,
