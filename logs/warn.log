@@ -1108,3 +1108,64 @@
 [2025-08-14T05:59:25.699Z] [WARN] Error validating WhatsApp number 62822180947xxx: Connection Closed
 [2025-08-14T05:59:25.700Z] [WARN] Retry 1/2 failed for 62822180947xxx: Cannot read properties of undefined (reading 'id')
 [2025-08-14T05:59:27.707Z] [WARN] Retry 2/2 failed for 62822180947xxx: Cannot read properties of undefined (reading 'id')
+[2025-08-14T06:56:42.941Z] [WARN] No technician group configured for PPPoE notifications
+[2025-08-14T06:57:13.160Z] [WARN] Error validating WhatsApp number 6281947215703: Timed Out
+[2025-08-14T06:57:13.164Z] [WARN] Retry 1/2 failed for 6281947215703: Cannot read properties of undefined (reading 'id')
+[2025-08-14T06:57:15.176Z] [WARN] Retry 2/2 failed for 6281947215703: Cannot read properties of undefined (reading 'id')
+[2025-08-14T06:57:46.193Z] [WARN] Error validating WhatsApp number 62838076656xxx: Timed Out
+[2025-08-14T06:57:46.194Z] [WARN] Retry 1/2 failed for 62838076656xxx: Cannot read properties of undefined (reading 'id')
+[2025-08-14T06:57:48.198Z] [WARN] Retry 2/2 failed for 62838076656xxx: Cannot read properties of undefined (reading 'id')
+[2025-08-14T06:58:13.202Z] [WARN] Error validating WhatsApp number 6281947215703: Timed Out
+[2025-08-14T06:58:13.203Z] [WARN] Retry 1/2 failed for 6281947215703: Cannot read properties of undefined (reading 'id')
+[2025-08-14T06:58:15.209Z] [WARN] Retry 2/2 failed for 6281947215703: Cannot read properties of undefined (reading 'id')
+[2025-08-14T06:58:19.215Z] [WARN] Error validating WhatsApp number 62822180947xxx: Timed Out
+[2025-08-14T06:58:19.217Z] [WARN] Retry 1/2 failed for 62822180947xxx: Cannot read properties of undefined (reading 'id')
+[2025-08-14T06:58:21.219Z] [WARN] Retry 2/2 failed for 62822180947xxx: Cannot read properties of undefined (reading 'id')
+[2025-08-14T06:58:46.228Z] [WARN] Error validating WhatsApp number 62838076656xxx: Timed Out
+[2025-08-14T06:58:46.230Z] [WARN] Retry 1/2 failed for 62838076656xxx: Cannot read properties of undefined (reading 'id')
+[2025-08-14T06:58:48.247Z] [WARN] Retry 2/2 failed for 62838076656xxx: Cannot read properties of undefined (reading 'id')
+[2025-08-14T06:59:19.267Z] [WARN] Error validating WhatsApp number 62822180947xxx: Timed Out
+[2025-08-14T06:59:19.269Z] [WARN] Retry 1/2 failed for 62822180947xxx: Cannot read properties of undefined (reading 'id')
+[2025-08-14T06:59:21.272Z] [WARN] Retry 2/2 failed for 62822180947xxx: Cannot read properties of undefined (reading 'id')
+[2025-08-14T07:07:33.826Z] [WARN] No technician group configured for PPPoE notifications
+[2025-08-14T07:08:03.933Z] [WARN] Error validating WhatsApp number 6281947215703: Timed Out
+[2025-08-14T07:08:03.936Z] [WARN] Retry 1/2 failed for 6281947215703: Cannot read properties of undefined (reading 'id')
+[2025-08-14T07:08:05.945Z] [WARN] Retry 2/2 failed for 6281947215703: Cannot read properties of undefined (reading 'id')
+[2025-08-14T07:08:36.964Z] [WARN] Error validating WhatsApp number 62838076656xxx: Timed Out
+[2025-08-14T07:08:36.966Z] [WARN] Retry 1/2 failed for 62838076656xxx: Cannot read properties of undefined (reading 'id')
+[2025-08-14T07:08:38.971Z] [WARN] Retry 2/2 failed for 62838076656xxx: Cannot read properties of undefined (reading 'id')
+[2025-08-14T07:09:03.904Z] [WARN] Error validating WhatsApp number 6281947215703: Timed Out
+[2025-08-14T07:09:03.906Z] [WARN] Retry 1/2 failed for 6281947215703: Cannot read properties of undefined (reading 'id')
+[2025-08-14T07:09:05.913Z] [WARN] Retry 2/2 failed for 6281947215703: Cannot read properties of undefined (reading 'id')
+[2025-08-14T07:09:09.992Z] [WARN] Error validating WhatsApp number 62822180947xxx: Timed Out
+[2025-08-14T07:09:09.994Z] [WARN] Retry 1/2 failed for 62822180947xxx: Cannot read properties of undefined (reading 'id')
+[2025-08-14T07:09:12.000Z] [WARN] Retry 2/2 failed for 62822180947xxx: Cannot read properties of undefined (reading 'id')
+[2025-08-14T07:09:36.931Z] [WARN] Error validating WhatsApp number 62838076656xxx: Timed Out
+[2025-08-14T07:09:36.933Z] [WARN] Retry 1/2 failed for 62838076656xxx: Cannot read properties of undefined (reading 'id')
+[2025-08-14T07:09:38.940Z] [WARN] Retry 2/2 failed for 62838076656xxx: Cannot read properties of undefined (reading 'id')
+[2025-08-14T07:10:09.947Z] [WARN] Error validating WhatsApp number 62822180947xxx: Timed Out
+[2025-08-14T07:10:09.949Z] [WARN] Retry 1/2 failed for 62822180947xxx: Cannot read properties of undefined (reading 'id')
+[2025-08-14T07:10:11.955Z] [WARN] Retry 2/2 failed for 62822180947xxx: Cannot read properties of undefined (reading 'id')
+[2025-08-14T07:33:17.433Z] [WARN] No technician group configured for PPPoE notifications
+[2025-08-14T07:33:47.612Z] [WARN] Error validating WhatsApp number 6281947215703: Timed Out
+[2025-08-14T07:33:47.614Z] [WARN] Retry 1/2 failed for 6281947215703: Cannot read properties of undefined (reading 'id')
+[2025-08-14T07:33:49.621Z] [WARN] Retry 2/2 failed for 6281947215703: Cannot read properties of undefined (reading 'id')
+[2025-08-14T07:34:20.633Z] [WARN] Error validating WhatsApp number 62838076656xxx: Timed Out
+[2025-08-14T07:34:20.635Z] [WARN] Retry 1/2 failed for 62838076656xxx: Cannot read properties of undefined (reading 'id')
+[2025-08-14T07:34:22.638Z] [WARN] Retry 2/2 failed for 62838076656xxx: Cannot read properties of undefined (reading 'id')
+[2025-08-14T07:34:47.596Z] [WARN] Error validating WhatsApp number 6281947215703: Timed Out
+[2025-08-14T07:34:47.598Z] [WARN] Retry 1/2 failed for 6281947215703: Cannot read properties of undefined (reading 'id')
+[2025-08-14T07:34:49.602Z] [WARN] Retry 2/2 failed for 6281947215703: Cannot read properties of undefined (reading 'id')
+[2025-08-14T07:34:53.662Z] [WARN] Error validating WhatsApp number 62822180947xxx: Timed Out
+[2025-08-14T07:34:53.663Z] [WARN] Retry 1/2 failed for 62822180947xxx: Cannot read properties of undefined (reading 'id')
+[2025-08-14T07:34:55.668Z] [WARN] Retry 2/2 failed for 62822180947xxx: Cannot read properties of undefined (reading 'id')
+[2025-08-14T07:35:20.616Z] [WARN] Error validating WhatsApp number 62838076656xxx: Timed Out
+[2025-08-14T07:35:20.682Z] [WARN] Retry 1/2 failed for 62838076656xxx: Cannot read properties of undefined (reading 'id')
+[2025-08-14T07:35:22.687Z] [WARN] Retry 2/2 failed for 62838076656xxx: Cannot read properties of undefined (reading 'id')
+[2025-08-14T07:35:53.713Z] [WARN] Error validating WhatsApp number 62822180947xxx: Timed Out
+[2025-08-14T07:35:53.715Z] [WARN] Retry 1/2 failed for 62822180947xxx: Cannot read properties of undefined (reading 'id')
+[2025-08-14T07:35:55.730Z] [WARN] Retry 2/2 failed for 62822180947xxx: Cannot read properties of undefined (reading 'id')
+[2025-08-14T07:46:16.963Z] [WARN] No technician group configured for PPPoE notifications
+[2025-08-14T07:46:47.075Z] [WARN] Error validating WhatsApp number 6281947215703: Timed Out
+[2025-08-14T07:46:47.077Z] [WARN] Retry 1/2 failed for 6281947215703: Cannot read properties of undefined (reading 'id')
+[2025-08-14T07:46:49.084Z] [WARN] Retry 2/2 failed for 6281947215703: Cannot read properties of undefined (reading 'id')

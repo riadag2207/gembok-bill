@@ -1,6 +1,8 @@
 const { getSetting } = require('./settingsManager');
 const billingManager = require('./billing');
 const logger = require('./logger');
+const fs = require('fs');
+const path = require('path');
 
 class WhatsAppNotificationManager {
     constructor() {
@@ -205,6 +207,22 @@ Terima kasih telah memilih layanan kami.`,
             const footerInfo = footerSeparator + getSetting('footer_info', 'Powered by Alijaya Digital Network');
             
             const fullMessage = `${companyHeader}${message}${footerInfo}`;
+            
+            // If imagePath provided and exists, send as image with caption
+            if (options.imagePath) {
+                try {
+                    const imagePath = options.imagePath;
+                    if (fs.existsSync(imagePath)) {
+                        await this.sock.sendMessage(jid, { image: { url: imagePath }, caption: fullMessage });
+                        logger.info(`WhatsApp image notification sent to ${phoneNumber}`);
+                        return { success: true };
+                    } else {
+                        logger.warn(`Image not found at path: ${imagePath}, falling back to text message`);
+                    }
+                } catch (imgErr) {
+                    logger.error(`Failed sending image, falling back to text:`, imgErr);
+                }
+            }
 
             await this.sock.sendMessage(jid, { text: fullMessage }, options);
             
@@ -249,7 +267,9 @@ Terima kasih telah memilih layanan kami.`,
                 data
             );
 
-            return await this.sendNotification(customer.phone, message);
+            // Attach invoice banner image if available
+            const imagePath = path.resolve(__dirname, '../public/img/tagihan.jpg');
+            return await this.sendNotification(customer.phone, message, { imagePath });
         } catch (error) {
             logger.error('Error sending invoice created notification:', error);
             return { success: false, error: error.message };
@@ -293,7 +313,9 @@ Terima kasih telah memilih layanan kami.`,
                 data
             );
 
-            return await this.sendNotification(customer.phone, message);
+            // Attach same invoice banner image
+            const imagePath = path.resolve(__dirname, '../public/img/tagihan.jpg');
+            return await this.sendNotification(customer.phone, message, { imagePath });
         } catch (error) {
             logger.error('Error sending due date reminder:', error);
             return { success: false, error: error.message };
@@ -332,7 +354,9 @@ Terima kasih telah memilih layanan kami.`,
                 data
             );
 
-            return await this.sendNotification(customer.phone, message);
+            // Attach same invoice banner image
+            const imagePath = path.resolve(__dirname, '../public/img/tagihan.jpg');
+            return await this.sendNotification(customer.phone, message, { imagePath });
         } catch (error) {
             logger.error('Error sending payment received notification:', error);
             return { success: false, error: error.message };

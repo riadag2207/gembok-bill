@@ -436,7 +436,14 @@ async function connectToWhatsApp() {
                                 // Kirim gambar QR donasi (jika tersedia)
                                 try {
                                     const fs = require('fs');
-                                    const qrPath = './public/img/qr-donasi.jpg';
+                                    const path = require('path');
+                                    // Prefer non-public path inside config
+                                    let qrPath = path.join(__dirname, 'qr-donasi.jpg');
+                                    if (!fs.existsSync(qrPath)) {
+                                        // Fallback to historical public path if config copy not found
+                                        const fallback = path.join(__dirname, '../public/img/qr-donasi.jpg');
+                                        if (fs.existsSync(fallback)) qrPath = fallback;
+                                    }
                                     if (fs.existsSync(qrPath)) {
                                         const qrBuffer = fs.readFileSync(qrPath);
                                         await sock.sendMessage(`${adminNumber}@s.whatsapp.net`, {
@@ -496,7 +503,14 @@ async function connectToWhatsApp() {
                                 // Kirim gambar QR donasi (jika tersedia)
                                 try {
                                     const fs = require('fs');
-                                    const qrPath = './public/img/qr-donasi.jpg';
+                                    const path = require('path');
+                                    // Prefer non-public path inside config
+                                    let qrPath = path.join(__dirname, 'qr-donasi.jpg');
+                                    if (!fs.existsSync(qrPath)) {
+                                        // Fallback to historical public path if config copy not found
+                                        const fallback = path.join(__dirname, '../public/img/qr-donasi.jpg');
+                                        if (fs.existsSync(fallback)) qrPath = fallback;
+                                    }
                                     if (fs.existsSync(qrPath)) {
                                         const qrBuffer = fs.readFileSync(qrPath);
                                         await sock.sendMessage(`${superAdminNumber}@s.whatsapp.net`, {

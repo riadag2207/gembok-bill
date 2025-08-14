@@ -1311,12 +1311,13 @@ router.get('/invoices', getAppSettings, async (req, res) => {
 router.post('/invoices', async (req, res) => {
     try {
         const { customer_id, package_id, amount, due_date, notes } = req.body;
+        const safeNotes = (notes || '').toString().trim();
         const invoiceData = {
             customer_id: parseInt(customer_id),
             package_id: parseInt(package_id),
             amount: parseFloat(amount),
             due_date: due_date,
-            notes: notes.trim()
+            notes: safeNotes
         };
 
         if (!invoiceData.customer_id || !invoiceData.package_id || !invoiceData.amount || !invoiceData.due_date) {
