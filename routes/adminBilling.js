@@ -1195,7 +1195,12 @@ router.put('/customers/:phone', async (req, res) => {
             package_id: package_id,
             pppoe_profile: profileToUse,
             status: status || currentCustomer.status,
-            auto_suspension: auto_suspension !== undefined ? parseInt(auto_suspension) : currentCustomer.auto_suspension
+            auto_suspension: auto_suspension !== undefined ? parseInt(auto_suspension) : currentCustomer.auto_suspension,
+            billing_day: (function(){
+                const v = parseInt(billing_day, 10);
+                if (Number.isFinite(v)) return Math.min(Math.max(v, 1), 28);
+                return currentCustomer.billing_day ?? 1;
+            })()
         };
 
         const result = await billingManager.updateCustomer(phone, customerData);
