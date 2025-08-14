@@ -7,7 +7,7 @@
 
 ## 📋 Deskripsi Aplikasi
 
-**Gembok Bill** adalah sistem manajemen ISP terintegrasi yang menggabungkan WhatsApp Gateway dengan portal admin web untuk mengelola layanan internet secara komprehensif. Aplikasi ini dirancang khusus untuk ISP (Internet Service Provider) yang membutuhkan solusi all-in-one untuk manajemen pelanggan, billing, monitoring, dan notifikasi.
+**Gembok Bill** adalah sistem manajemen RTRWNet terintegrasi yang menggabungkan WhatsApp Gateway dengan portal admin web untuk mengelola layanan internet secara komprehensif. Aplikasi ini dirancang khusus untuk ISP (Internet Service Provider) yang membutuhkan solusi all-in-one untuk manajemen pelanggan, billing, monitoring, dan notifikasi.
 
 ### 🎯 Fitur Utama
 
