@@ -1,14 +1,14 @@
 {
   "admins.0": "6281947215703",
-  "admin_username": "alijaya",
-  "admin_password": "060111",
+  "admin_username": "admin",
+  "admin_password": "admin",
   "genieacs_url": "http://192.168.8.89:7557",
-  "genieacs_username": "acs",
-  "genieacs_password": "060111",
-  "mikrotik_host": "192.168.8.1",
-  "mikrotik_port": "8700",
-  "mikrotik_user": "alijaya",
-  "mikrotik_password": "060111",
+  "genieacs_username": "admin",
+  "genieacs_password": "admin",
+  "mikrotik_host": "192.168.88.1",
+  "mikrotik_port": "8728",
+  "mikrotik_user": "admin",
+  "mikrotik_password": "admin",
   "isolir_profile": "ISOLIR",
   "main_interface": "ether1",
   "pppoe_monitor_enable": "true",
@@ -26,7 +26,7 @@
   "customerPortalOtp": "true",
   "otp_length": "4",
   "otp_expiry_minutes": "5",
-  "server_host": "103.175.238.126",
+  "server_host": "103.173xx.xx",
   "pppoe_notifications.enabled": "true",
   "pppoe_notifications.loginNotifications": "true",
   "pppoe_notifications.logoutNotifications": "true",
@@ -72,10 +72,10 @@
     "tripay": {
       "enabled": true,
       "production": true,
-      "api_key": "cQmEYDHRjZfwhtJAPrmgNHeIwccaLPYaNN426miw",
-      "private_key": "5PnYM-mTjy7-wCX1v-pej6I-BlxEe",
-      "merchant_code": "T44271",
-      "base_url": "http://103.175.238.126:3003"
+      "api_key": "cQmEYDHRjZfxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "private_key": "5PnYM-xxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "merchant_code": "Txxxxxxxx",
+      "base_url": "http://103.xxx.xxx.xxx"
     }
   }
 }
