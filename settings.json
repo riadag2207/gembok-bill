@@ -1,20 +1,20 @@
 {
   "admins.0": "6281947215703",
-  "admin_username": "admin",
-  "admin_password": "admin",
+  "admin_username": "alijaya",
+  "admin_password": "060111",
   "genieacs_url": "http://192.168.8.89:7557",
-  "genieacs_username": "admin",
-  "genieacs_password": "admin",
-  "mikrotik_host": "192.168.88.1",
-  "mikrotik_port": "8728",
-  "mikrotik_user": "admin",
-  "mikrotik_password": "admin",
+  "genieacs_username": "acs",
+  "genieacs_password": "060111",
+  "mikrotik_host": "192.168.8.1",
+  "mikrotik_port": "8700",
+  "mikrotik_user": "alijaya",
+  "mikrotik_password": "060111",
   "isolir_profile": "ISOLIR",
   "main_interface": "ether1",
   "pppoe_monitor_enable": "true",
   "technician_numbers.0": "62838076656xxx",
   "technician_numbers.1": "62822180947xxx",
-  "technician_group_id": "1203630314957962xx@g.us",
+  "technician_group_id": "120363031495796230@g.us",
   "whatsapp_keep_alive": "true",
   "whatsapp_restart_on_error": "true",
   "rx_power_warning": "-40",
@@ -26,7 +26,7 @@
   "customerPortalOtp": "true",
   "otp_length": "4",
   "otp_expiry_minutes": "5",
-  "server_host": "192.168.8.89",
+  "server_host": "103.175.238.126",
   "pppoe_notifications.enabled": "true",
   "pppoe_notifications.loginNotifications": "true",
   "pppoe_notifications.logoutNotifications": "true",
@@ -55,26 +55,27 @@
   "contact_address": "Jl. Pantai Tanjungpura Desa Ujunggebang",
   "contact_whatsapp": "081947215703",
   "payment_gateway": {
-    "active": "midtrans",
+    "active": "tripay",
     "midtrans": {
-      "enabled": true,
+      "enabled": false,
       "production": false,
       "server_key": "SB-Mid-server-XXXXXXXXXXXXXXXXXXXXXXXX",
       "client_key": "SB-Mid-client-XXXXXXXXXXXXXXXXXXXXXXXX",
       "merchant_id": "G123456789"
     },
     "xendit": {
-      "enabled": true,
+      "enabled": false,
       "production": false,
       "api_key": "xnd_public_development_XXXXXXXXXXXXXXXXXXXXXXXX",
       "callback_token": "your_callback_token_here"
     },
     "tripay": {
       "enabled": true,
-      "production": false,
-      "api_key": "your_tripay_api_key_here",
-      "private_key": "your_tripay_private_key_here",
-      "merchant_code": "your_merchant_code_here"
+      "production": true,
+      "api_key": "cQmEYDHRjZfwhtJAPrmgNHeIwccaLPYaNN426miw",
+      "private_key": "5PnYM-mTjy7-wCX1v-pej6I-BlxEe",
+      "merchant_code": "T44271",
+      "base_url": "http://103.175.238.126:3003"
     }
   }
 }
