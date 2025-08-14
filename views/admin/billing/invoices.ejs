@@ -144,12 +144,12 @@
                 <form id="addInvoiceForm">
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label for="customer_username" class="form-label">Pelanggan</label>
-                            <select class="form-control" id="customer_username" name="customer_username" required>
+                            <label for="customer_id" class="form-label">Pelanggan</label>
+                            <select class="form-control" id="customer_id" name="customer_id" required>
                                 <option value="">Pilih Pelanggan</option>
                                 <% if (customers && customers.length > 0) { %>
                                     <% customers.forEach(function(customer) { %>
-                                        <option value="<%= customer.username %>">
+                                        <option value="<%= customer.id %>">
                                             <%= customer.name %> (<%= customer.phone %>)
                                         </option>
                                     <% }); %>
@@ -178,8 +178,8 @@
                             <input type="date" class="form-control" id="due_date" name="due_date" required>
                         </div>
                         <div class="mb-3">
-                            <label for="description" class="form-label">Deskripsi</label>
-                            <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                            <label for="notes" class="form-label">Deskripsi</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -224,6 +224,10 @@
         $('#addInvoiceForm').on('submit', function(e) {
             e.preventDefault();
             const formData = new FormData(this);
+            const urlParams = new URLSearchParams();
+            for (const [key, value] of formData.entries()) {
+                urlParams.append(key, value);
+            }
             
             // Loading state
             const $btn = $(this).find('button[type="submit"]');
@@ -232,7 +236,8 @@
             
             fetch('/admin/billing/invoices', {
                 method: 'POST',
-                body: formData
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+                body: urlParams.toString()
             })
             .then(response => response.json())
             .then(data => {
