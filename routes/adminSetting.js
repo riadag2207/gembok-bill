@@ -62,6 +62,27 @@ router.get('/data', (req, res) => {
     });
 });
 
+// GET: Securely serve Donation QR image from config with fallback to public
+router.get('/donation-qr', (req, res) => {
+    try {
+        const configPath = path.join(__dirname, '../config/qr-donasi.jpg');
+        const publicPath = path.join(__dirname, '../public/img/qr-donasi.jpg');
+        const filePath = fs.existsSync(configPath) ? configPath : publicPath;
+
+        if (!fs.existsSync(filePath)) {
+            return res.status(404).send('QR image not found');
+        }
+
+        // Simple content-type based on extension (jpg)
+        res.setHeader('Cache-Control', 'no-cache');
+        res.type('jpg');
+        fs.createReadStream(filePath).pipe(res);
+    } catch (e) {
+        logger.error('Error serving donation QR:', e);
+        res.status(500).send('Failed to load QR image');
+    }
+});
+
 // POST: Simpan perubahan setting
 router.post('/save', (req, res) => {
     try {

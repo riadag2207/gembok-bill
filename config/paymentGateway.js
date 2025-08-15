@@ -213,6 +213,14 @@ class MidtransGateway {
             ? invoice.customer_email
             : undefined;
 
+        // Derive application base URL for callbacks (prefer config.base_url, fallback to settings)
+        const hostSettingMid = getSetting('server_host', 'localhost');
+        const hostMid = (hostSettingMid && String(hostSettingMid).trim()) || 'localhost';
+        const portMid = getSetting('server_port', '3003');
+        const defaultAppBaseMid = `http://${hostMid}${portMid ? `:${portMid}` : ''}`;
+        const rawBaseMid = (this.config.base_url || defaultAppBaseMid || '').toString().trim();
+        const appBaseUrlMid = rawBaseMid.replace(/\/+$/, '');
+
         const parameter = {
             transaction_details: {
                 order_id: `INV-${invoice.invoice_number}`,
@@ -230,9 +238,9 @@ class MidtransGateway {
                 name: invoice.package_name || 'Internet Package'
             }],
             callbacks: {
-                finish: `${this.config.base_url || 'http://localhost:3003'}/payment/finish`,
-                error: `${this.config.base_url || 'http://localhost:3003'}/payment/error`,
-                pending: `${this.config.base_url || 'http://localhost:3003'}/payment/pending`
+                finish: `${appBaseUrlMid}/payment/finish`,
+                error: `${appBaseUrlMid}/payment/error`,
+                pending: `${appBaseUrlMid}/payment/pending`
             }
         };
 
@@ -303,6 +311,14 @@ class XenditGateway {
     }
 
     async createPayment(invoice) {
+        // Derive application base URL for redirects (prefer config.base_url, fallback to settings)
+        const hostSettingXe = getSetting('server_host', 'localhost');
+        const hostXe = (hostSettingXe && String(hostSettingXe).trim()) || 'localhost';
+        const portXe = getSetting('server_port', '3003');
+        const defaultAppBaseXe = `http://${hostXe}${portXe ? `:${portXe}` : ''}`;
+        const rawBaseXe = (this.config.base_url || defaultAppBaseXe || '').toString().trim();
+        const appBaseUrlXe = rawBaseXe.replace(/\/+$/, '');
+
         const invoiceData = {
             externalID: `INV-${invoice.invoice_number}`,
             amount: parseInt(invoice.amount),
@@ -312,8 +328,8 @@ class XenditGateway {
                 email: invoice.customer_email || 'customer@example.com',
                 mobileNumber: invoice.customer_phone || ''
             },
-            successRedirectURL: `${this.config.base_url || 'http://localhost:3003'}/payment/success`,
-            failureRedirectURL: `${this.config.base_url || 'http://localhost:3003'}/payment/failed`
+            successRedirectURL: `${appBaseUrlXe}/payment/success`,
+            failureRedirectURL: `${appBaseUrlXe}/payment/failed`
         };
 
         const xenditInvoice = await this.xenditClient.Invoice.createInvoice(invoiceData);

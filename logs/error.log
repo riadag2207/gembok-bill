@@ -4225,3 +4225,81 @@
 [2025-08-14T07:35:55.731Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
 [2025-08-14T07:38:49.991Z] [ERROR] WhatsApp sock not initialized
 [2025-08-14T07:46:49.085Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-14T08:07:00.831Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-14T08:07:33.860Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-14T08:08:00.808Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-14T08:08:06.900Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-14T08:08:33.829Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-14T08:09:06.854Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-14T22:01:37.338Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-14T22:02:10.418Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-14T22:02:37.319Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-14T22:02:43.448Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-14T22:03:10.336Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-14T22:03:43.380Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-14T22:05:07.423Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-14T22:05:10.469Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-14T22:05:13.481Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-14T22:06:07.316Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-14T22:06:10.330Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-14T22:06:13.353Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-14T22:10:07.355Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-14T22:10:10.369Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-14T22:10:13.390Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-14T22:17:43.569Z] [ERROR] Error testing midtrans connection:
+{
+  "name": "MidtransError",
+  "message": "Midtrans API is returning API error. HTTP status code: 401. API response: {\"error_messages\":[\"Access denied due to unauthorized transaction, please check client or server key\",\"Visit https://docs.midtrans.com/reference/backend-integration for more details\"]}",
+  "stack": "MidtransError: Midtrans API is returning API error. HTTP status code: 401. API response: {\"error_messages\":[\"Access denied due to unauthorized transaction, please check client or server key\",\"Visit https://docs.midtrans.com/reference/backend-integration for more details\"]}\n    at E:\\gembok-bill-main\\node_modules\\midtrans-client\\lib\\httpClient.js:85:13\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)"
+}
+[2025-08-14T22:17:55.556Z] [ERROR] Error testing midtrans connection:
+{
+  "name": "MidtransError",
+  "message": "Midtrans API is returning API error. HTTP status code: 401. API response: {\"error_messages\":[\"Access denied due to unauthorized transaction, please check client or server key\",\"Visit https://docs.midtrans.com/reference/backend-integration for more details\"]}",
+  "stack": "MidtransError: Midtrans API is returning API error. HTTP status code: 401. API response: {\"error_messages\":[\"Access denied due to unauthorized transaction, please check client or server key\",\"Visit https://docs.midtrans.com/reference/backend-integration for more details\"]}\n    at E:\\gembok-bill-main\\node_modules\\midtrans-client\\lib\\httpClient.js:85:13\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)"
+}
+[2025-08-14T22:18:34.107Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-14T22:19:07.145Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-14T22:19:34.177Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-14T22:19:40.175Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-14T22:20:07.207Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-14T22:20:40.231Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-14T22:49:04.318Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-14T22:49:07.328Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-14T22:49:10.353Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-14T22:58:04.369Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-14T22:58:07.394Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-14T22:58:10.414Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-14T23:10:04.456Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-14T23:10:07.478Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-14T23:10:10.494Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-14T23:14:50.172Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-14T23:15:23.194Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-14T23:15:50.145Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-14T23:15:56.392Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-14T23:16:23.257Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-14T23:16:50.162Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-14T23:16:53.188Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-14T23:16:56.209Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-14T23:16:56.301Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-14T23:17:20.210Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-14T23:17:23.322Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-14T23:17:26.484Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-14T23:18:20.231Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-14T23:18:23.263Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-14T23:18:26.288Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-14T23:21:49.522Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-14T23:22:22.561Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-14T23:22:49.509Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-14T23:22:55.576Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-14T23:23:22.550Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-14T23:23:55.589Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-15T00:14:19.940Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-15T00:14:23.012Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-15T00:14:26.036Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-15T00:51:38.992Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-15T00:52:12.025Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-15T00:52:39.003Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-15T00:52:45.089Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-15T00:53:12.041Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-15T00:53:45.067Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
