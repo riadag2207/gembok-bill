@@ -119,6 +119,13 @@
                                         <input type="text" class="form-control" id="midtransMerchantId" 
                                                value="<%= settings.payment_gateway.midtrans.merchant_id %>">
                                     </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Base URL (Callback/Return):</label>
+                                        <input type="text" class="form-control" id="midtransBaseUrl"
+                                               placeholder="https://billing.domainanda.com atau http://IP:PORT"
+                                               value="<%= (settings.payment_gateway.midtrans && settings.payment_gateway.midtrans.base_url) ? settings.payment_gateway.midtrans.base_url : '' %>">
+                                        <div class="form-text">Jika kosong, sistem menggunakan host/port dari settings.json</div>
+                                    </div>
                                     <button type="submit" class="btn btn-primary w-100">
                                         <i class="bx bx-save"></i> Simpan Midtrans
                                     </button>
@@ -167,6 +174,13 @@
                                         <label class="form-label">Callback Token:</label>
                                         <input type="text" class="form-control" id="xenditCallbackToken" 
                                                value="<%= settings.payment_gateway.xendit.callback_token %>">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Base URL (Redirect):</label>
+                                        <input type="text" class="form-control" id="xenditBaseUrl"
+                                               placeholder="https://billing.domainanda.com atau http://IP:PORT"
+                                               value="<%= (settings.payment_gateway.xendit && settings.payment_gateway.xendit.base_url) ? settings.payment_gateway.xendit.base_url : '' %>">
+                                        <div class="form-text">Jika kosong, sistem menggunakan host/port dari settings.json</div>
                                     </div>
                                     <button type="submit" class="btn btn-primary w-100">
                                         <i class="bx bx-save"></i> Simpan Xendit
@@ -374,9 +388,21 @@
                 formData.server_key = document.getElementById('midtransServerKey').value;
                 formData.client_key = document.getElementById('midtransClientKey').value;
                 formData.merchant_id = document.getElementById('midtransMerchantId').value;
+                const baseUrl = document.getElementById('midtransBaseUrl').value.trim();
+                if (baseUrl && !/^https?:\/\//i.test(baseUrl)) {
+                    showAlert('danger', 'Base URL harus diawali http:// atau https://');
+                    return;
+                }
+                if (baseUrl) formData.base_url = baseUrl;
             } else if (gateway === 'xendit') {
                 formData.api_key = document.getElementById('xenditApiKey').value;
                 formData.callback_token = document.getElementById('xenditCallbackToken').value;
+                const baseUrl = document.getElementById('xenditBaseUrl').value.trim();
+                if (baseUrl && !/^https?:\/\//i.test(baseUrl)) {
+                    showAlert('danger', 'Base URL harus diawali http:// atau https://');
+                    return;
+                }
+                if (baseUrl) formData.base_url = baseUrl;
             } else if (gateway === 'tripay') {
                 formData.api_key = document.getElementById('tripayApiKey').value;
                 formData.private_key = document.getElementById('tripayPrivateKey').value;
