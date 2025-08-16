@@ -293,6 +293,105 @@
             <p class="mb-1"><strong>Kontak:</strong> <%= settings.contact_phone || '-' %></p>
           </div>
         </div>
+
+        <!-- E-Wallet -->
+        <% if (settings.payment_dana || settings.payment_ovo || settings.payment_gopay) { %>
+          <hr class="my-3">
+          <h6 class="text-primary mb-2">
+            <i class="bi bi-wallet2 me-2"></i>
+            E-Wallet
+          </h6>
+          <div class="row g-2">
+            <% if (settings.payment_dana) { %>
+              <div class="col-12 col-md-4">
+                <div class="border rounded p-3 h-100">
+                  <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                      <div class="fw-semibold">DANA</div>
+                      <div class="text-muted small" id="wallet-number-dana"><%= settings.payment_dana %></div>
+                    </div>
+                    <span class="badge bg-info">Aktif</span>
+                  </div>
+                  <div class="mt-2 d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-primary copy-wallet-btn" data-number="<%= settings.payment_dana %>">
+                      <i class="bi bi-clipboard me-1"></i>Copy
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary show-qr-btn" data-target="#wallet-qr-dana" data-text="<%= settings.payment_dana %>">
+                      <i class="bi bi-qr-code me-1"></i>Tampilkan QR
+                    </button>
+                    <button class="btn btn-sm btn-outline-success download-qr-btn"
+                            data-target="#wallet-qr-dana"
+                            data-text="<%= settings.payment_dana %>"
+                            data-filename="QR-DANA-<%= settings.payment_dana %>.png">
+                      <i class="bi bi-download me-1"></i>Download QR
+                    </button>
+                  </div>
+                  <div id="wallet-qr-dana" class="mt-2" style="display:none;"></div>
+                </div>
+              </div>
+            <% } %>
+            <% if (settings.payment_ovo) { %>
+              <div class="col-12 col-md-4">
+                <div class="border rounded p-3 h-100">
+                  <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                      <div class="fw-semibold">OVO</div>
+                      <div class="text-muted small" id="wallet-number-ovo"><%= settings.payment_ovo %></div>
+                    </div>
+                    <span class="badge bg-info">Aktif</span>
+                  </div>
+                  <div class="mt-2 d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-primary copy-wallet-btn" data-number="<%= settings.payment_ovo %>">
+                      <i class="bi bi-clipboard me-1"></i>Copy
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary show-qr-btn" data-target="#wallet-qr-ovo" data-text="<%= settings.payment_ovo %>">
+                      <i class="bi bi-qr-code me-1"></i>Tampilkan QR
+                    </button>
+                    <button class="btn btn-sm btn-outline-success download-qr-btn"
+                            data-target="#wallet-qr-ovo"
+                            data-text="<%= settings.payment_ovo %>"
+                            data-filename="QR-OVO-<%= settings.payment_ovo %>.png">
+                      <i class="bi bi-download me-1"></i>Download PNG
+                    </button>
+                  </div>
+                  <div id="wallet-qr-ovo" class="mt-2" style="display:none;"></div>
+                </div>
+              </div>
+            <% } %>
+            <% if (settings.payment_gopay) { %>
+              <div class="col-12 col-md-4">
+                <div class="border rounded p-3 h-100">
+                  <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                      <div class="fw-semibold">GoPay</div>
+                      <div class="text-muted small" id="wallet-number-gopay"><%= settings.payment_gopay %></div>
+                    </div>
+                    <span class="badge bg-info">Aktif</span>
+                  </div>
+                  <div class="mt-2 d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-primary copy-wallet-btn" data-number="<%= settings.payment_gopay %>">
+                      <i class="bi bi-clipboard me-1"></i>Copy
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary show-qr-btn" data-target="#wallet-qr-gopay" data-text="<%= settings.payment_gopay %>">
+                      <i class="bi bi-qr-code me-1"></i>Tampilkan QR
+                    </button>
+                    <button class="btn btn-sm btn-outline-success download-qr-btn"
+                            data-target="#wallet-qr-gopay"
+                            data-text="<%= settings.payment_gopay %>"
+                            data-filename="QR-GoPay-<%= settings.payment_gopay %>.png">
+                      <i class="bi bi-download me-1"></i>Download PNG
+                    </button>
+                  </div>
+                  <div id="wallet-qr-gopay" class="mt-2" style="display:none;"></div>
+                </div>
+              </div>
+            <% } %>
+          </div>
+          <div class="alert alert-secondary mt-2 py-2 small">
+            <i class="bi bi-info-circle me-1"></i>
+            Silakan transfer ke nomor E-Wallet di atas sesuai preferensi Anda, lalu konfirmasi ke admin.
+          </div>
+        <% } %>
         <div class="alert alert-info mt-3">
           <i class="bi bi-info-circle me-2"></i>
           <strong>Penting:</strong> Setelah melakukan pembayaran, harap simpan bukti pembayaran dan konfirmasi ke admin melalui WhatsApp <%= settings.contact_whatsapp || '-' %>.
@@ -336,6 +435,8 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+  <script src="/js/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   
   <script>
     $(document).ready(function() {
@@ -346,6 +447,115 @@
         },
         order: [[4, 'desc']], // Sort by created date descending
         pageLength: 10
+      });
+
+      function generateOrGetQrCanvas($target, text) {
+        if (typeof QRCode === 'undefined') return null;
+        // If canvas/img exists, reuse it; else generate
+        const existingCanvas = $target.find('canvas')[0] || $target.find('img')[0];
+        if (existingCanvas) return existingCanvas;
+        // Generate hidden then return element
+        $target.show();
+        $target.empty();
+        $target.css({ background: '#ffffff', padding: '12px', display: 'inline-block' });
+        new QRCode($target[0], {
+          text: text,
+          width: 240,
+          height: 240,
+          colorDark: '#000000',
+          colorLight: '#ffffff',
+          correctLevel: QRCode.CorrectLevel.H
+        });
+        return $target.find('canvas')[0] || $target.find('img')[0] || null;
+      }
+
+      // Download QR as PNG
+      $(document).on('click', '.download-qr-btn', function() {
+        const targetSel = $(this).data('target');
+        const text = String($(this).data('text') || '');
+        const filename = String($(this).data('filename') || 'qr.png');
+        const $target = $(targetSel);
+        if ($target.length === 0) return;
+
+        if (typeof QRCode === 'undefined') {
+          showToast('error', 'Gagal', 'Library QRCode belum termuat. Coba muat ulang.');
+          return;
+        }
+
+        const el = generateOrGetQrCanvas($target, text);
+        if (!el) {
+          showToast('error', 'Gagal', 'Tidak dapat menyiapkan QR.');
+          return;
+        }
+
+        try {
+          // Support canvas or img
+          let dataUrl = '';
+          if (el.tagName.toLowerCase() === 'canvas') {
+            dataUrl = el.toDataURL('image/png');
+          } else if (el.tagName.toLowerCase() === 'img') {
+            dataUrl = el.src;
+          }
+          if (!dataUrl) throw new Error('No dataURL');
+
+          const a = document.createElement('a');
+          a.href = dataUrl;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        } catch (e) {
+          showToast('error', 'Gagal', 'Tidak dapat mengunduh QR.');
+        }
+      });
+
+      // Copy E-Wallet number
+      $(document).on('click', '.copy-wallet-btn', function() {
+        const number = $(this).data('number');
+        if (!number) return;
+        navigator.clipboard.writeText(String(number))
+          .then(() => {
+            showToast('success', 'Disalin', 'Nomor E-Wallet berhasil disalin.');
+          })
+          .catch(() => {
+            showToast('error', 'Gagal', 'Tidak dapat menyalin nomor.');
+          });
+      });
+
+      // Toggle QR for E-Wallet
+      $(document).on('click', '.show-qr-btn', function() {
+        const targetSel = $(this).data('target');
+        const text = String($(this).data('text') || '');
+        const $target = $(targetSel);
+        if ($target.length === 0) return;
+
+        if ($target.is(':visible')) {
+          $target.hide();
+          $(this).html('<i class="bi bi-qr-code me-1"></i>Tampilkan QR');
+          return;
+        }
+
+        $target.show();
+        try {
+          if (typeof QRCode === 'undefined') {
+            showToast('error', 'Gagal', 'Library QRCode belum termuat. Coba muat ulang halaman.');
+            return;
+          }
+          // Reset and ensure good contrast + quiet zone
+          $target.empty();
+          $target.css({ background: '#ffffff', padding: '12px', display: 'inline-block' });
+          new QRCode($target[0], {
+            text: text,
+            width: 240,
+            height: 240,
+            colorDark: '#000000',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.H
+          });
+        } catch (e) {
+          showToast('error', 'Gagal', 'Tidak dapat membuat QR code.');
+        }
+        $(this).html('<i class="bi bi-eye-slash me-1"></i>Sembunyikan QR');
       });
 
       // Handle payment button click
