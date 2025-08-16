@@ -237,6 +237,19 @@
                                                value="<%= settings.payment_gateway.tripay.merchant_code %>">
                                     </div>
                                     <div class="mb-3">
+                                        <label class="form-label">Metode Pembayaran:</label>
+                                        <select class="form-select" id="tripayMethod">
+                                            <% const method = (settings.payment_gateway.tripay && settings.payment_gateway.tripay.method) ? settings.payment_gateway.tripay.method : 'BRIVA'; %>
+                                            <option value="QRIS" <%= method === 'QRIS' ? 'selected' : '' %>>QRIS</option>
+                                            <option value="BRIVA" <%= method === 'BRIVA' ? 'selected' : '' %>>BRIVA</option>
+                                            <option value="GOPAY" <%= method === 'GOPAY' ? 'selected' : '' %>>GoPay</option>
+                                            <option value="OVO" <%= method === 'OVO' ? 'selected' : '' %>>OVO</option>
+                                            <option value="DANA" <%= method === 'DANA' ? 'selected' : '' %>>DANA</option>
+                                            <option value="SHOPEEPAY" <%= method === 'SHOPEEPAY' ? 'selected' : '' %>>ShopeePay</option>
+                                        </select>
+                                        <div class="form-text">Pilih metode Tripay default yang akan digunakan saat membuat pembayaran online.</div>
+                                    </div>
+                                    <div class="mb-3">
                                         <label class="form-label">Base URL (Callback/Return):</label>
                                         <input type="text" class="form-control" id="tripayBaseUrl"
                                                placeholder="https://billing.domainanda.com atau http://IP:PORT"
@@ -407,6 +420,7 @@
                 formData.api_key = document.getElementById('tripayApiKey').value;
                 formData.private_key = document.getElementById('tripayPrivateKey').value;
                 formData.merchant_code = document.getElementById('tripayMerchantCode').value;
+                formData.method = document.getElementById('tripayMethod').value;
                 const baseUrl = document.getElementById('tripayBaseUrl').value.trim();
                 if (baseUrl && !/^https?:\/\//i.test(baseUrl)) {
                     showAlert('danger', 'Base URL harus diawali http:// atau https://');
