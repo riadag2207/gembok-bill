@@ -135,6 +135,7 @@
                       <th>Status</th>
                       <th>Tanggal Dibuat</th>
                       <th>Paket</th>
+                      <th>Aksi</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -175,6 +176,18 @@
                           <span class="badge bg-info">
                             <%= invoice.package_name %>
                           </span>
+                        </td>
+                        <td>
+                          <% if (invoice.status === 'unpaid') { %>
+                            <button class="btn btn-sm btn-primary pay-now-btn"
+                                    data-invoice-id="<%= invoice.id %>"
+                                    data-invoice-number="<%= invoice.invoice_number %>"
+                                    data-amount="<%= invoice.amount %>">
+                              <i class="bi bi-credit-card me-1"></i>Bayar Sekarang
+                            </button>
+                          <% } else { %>
+                            <span class="text-success small"><i class="bi bi-check-circle me-1"></i>Lunas</span>
+                          <% } %>
                         </td>
                       </tr>
                     <% }); %>
