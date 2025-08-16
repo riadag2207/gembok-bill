@@ -618,9 +618,10 @@ router.post('/login', async (req, res) => {
       }
     }
     
-    if (settings.customerPortalOtp === 'true') {
+    // Aktifkan OTP jika setting bernilai true (boolean) atau 'true' (string)
+    if (settings.customerPortalOtp === true || String(settings.customerPortalOtp).toLowerCase() === 'true') {
       // Generate OTP sesuai jumlah digit di settings
-      const otpLength = settings.otp_length || 6;
+      const otpLength = parseInt(settings.otp_length || '6', 10);
       const min = Math.pow(10, otpLength - 1);
       const max = Math.pow(10, otpLength) - 1;
       const otp = Math.floor(min + Math.random() * (max - min)).toString();
@@ -632,7 +633,7 @@ router.post('/login', async (req, res) => {
         const waJid = phone.replace(/^0/, '62') + '@s.whatsapp.net';
         const msg = `🔐 *KODE OTP PORTAL PELANGGAN*\n\n` +
           `Kode OTP Anda adalah: *${otp}*\n\n` +
-          `⏰ Kode ini berlaku selama 5 menit\n` +
+          `⏰ Kode ini berlaku selama ${(isNaN(expiryMin) ? 5 : expiryMin)} menit\n` +
           `🔒 Jangan bagikan kode ini kepada siapapun`;
         
         await sendMessage(waJid, msg);
