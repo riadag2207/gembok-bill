@@ -121,76 +121,125 @@
       </div>
       <div class="card-body">
         <% if (invoices && invoices.length > 0) { %>
-          <div class="table-responsive">
-            <table class="table table-hover" id="invoicesTable">
-              <thead>
-                <tr>
-                  <th>No. Tagihan</th>
-                  <th>Jumlah</th>
-                  <th>Jatuh Tempo</th>
-                  <th>Status</th>
-                  <th>Tanggal Dibuat</th>
-                  <th>Catatan</th>
-                  <th>Aksi</th>
-                </tr>
-              </thead>
-              <tbody>
+          <div class="table-container">
+            <h6><i class="bi bi-receipt-cutoff"></i>Riwayat Tagihan</h6>
+            <!-- Desktop / Tablet: Tabel -->
+            <div class="d-none d-md-block">
+              <div class="table-responsive">
+                <table class="table table-hover" id="invoicesTable" style="width:100%">
+                  <thead>
+                    <tr>
+                      <th>No. Tagihan</th>
+                      <th>Jumlah</th>
+                      <th>Jatuh Tempo</th>
+                      <th>Status</th>
+                      <th>Tanggal Dibuat</th>
+                      <th>Paket</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% invoices.forEach(function(invoice) { %>
+                      <tr>
+                        <td>
+                          <span class="fw-bold"><%= invoice.invoice_number %></span>
+                        </td>
+                        <td>
+                          <span class="fw-bold text-primary">
+                            Rp <%= parseFloat(invoice.amount).toLocaleString('id-ID') %>
+                          </span>
+                        </td>
+                        <td>
+                          <% if (new Date(invoice.due_date) < new Date() && invoice.status === 'unpaid') { %>
+                            <span class="text-danger fw-bold">
+                              <%= new Date(invoice.due_date).toLocaleDateString('id-ID') %>
+                            </span>
+                          <% } else { %>
+                            <%= new Date(invoice.due_date).toLocaleDateString('id-ID') %>
+                          <% } %>
+                        </td>
+                        <td>
+                          <% if (invoice.status === 'paid') { %>
+                            <span class="badge bg-success">Lunas</span>
+                          <% } else if (invoice.status === 'unpaid') { %>
+                            <% if (new Date(invoice.due_date) < new Date()) { %>
+                              <span class="badge bg-danger">Terlambat</span>
+                            <% } else { %>
+                              <span class="badge bg-warning text-dark">Belum Lunas</span>
+                            <% } %>
+                          <% } %>
+                        </td>
+                        <td>
+                          <%= new Date(invoice.created_at).toLocaleDateString('id-ID') %>
+                        </td>
+                        <td>
+                          <span class="badge bg-info">
+                            <%= invoice.package_name %>
+                          </span>
+                        </td>
+                      </tr>
+                    <% }); %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Mobile: Kartu dengan tombol di bawah -->
+            <div class="d-block d-md-none">
+              <div class="vstack gap-3">
                 <% invoices.forEach(function(invoice) { %>
-                  <tr class="invoice-card">
-                    <td>
-                      <span class="fw-bold"><%= invoice.invoice_number %></span>
-                    </td>
-                    <td>
-                      <span class="fw-bold text-primary">
-                        Rp <%= parseFloat(invoice.amount).toLocaleString('id-ID') %>
-                      </span>
-                    </td>
-                    <td>
-                      <% if (new Date(invoice.due_date) < new Date() && invoice.status === 'unpaid') { %>
-                        <span class="text-danger fw-bold">
-                          <%= new Date(invoice.due_date).toLocaleDateString('id-ID') %>
-                        </span>
-                      <% } else { %>
-                        <%= new Date(invoice.due_date).toLocaleDateString('id-ID') %>
-                      <% } %>
-                    </td>
-                    <td>
-                      <% if (invoice.status === 'paid') { %>
-                        <span class="badge badge-paid">Lunas</span>
-                      <% } else if (invoice.status === 'unpaid') { %>
-                        <% if (new Date(invoice.due_date) < new Date()) { %>
-                          <span class="badge badge-overdue">Terlambat</span>
-                        <% } else { %>
-                          <span class="badge badge-unpaid">Belum Lunas</span>
-                        <% } %>
-                      <% } %>
-                    </td>
-                    <td>
-                      <%= new Date(invoice.created_at).toLocaleDateString('id-ID') %>
-                    </td>
-                    <td>
-                      <small class="text-muted">
-                        <%= invoice.notes || '-' %>
-                      </small>
-                    </td>
-                    <td>
+                  <div class="card shadow-sm">
+                    <div class="card-body">
+                      <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                          <div class="small text-muted">No. Tagihan</div>
+                          <div class="fw-bold"><%= invoice.invoice_number %></div>
+                        </div>
+                        <div class="text-end">
+                          <div class="small text-muted">Jumlah</div>
+                          <div class="fw-bold text-primary">Rp <%= parseFloat(invoice.amount).toLocaleString('id-ID') %></div>
+                        </div>
+                      </div>
+                      <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div>
+                          <div class="small text-muted">Jatuh Tempo</div>
+                          <% if (new Date(invoice.due_date) < new Date() && invoice.status === 'unpaid') { %>
+                            <div class="text-danger fw-semibold"><%= new Date(invoice.due_date).toLocaleDateString('id-ID') %></div>
+                          <% } else { %>
+                            <div><%= new Date(invoice.due_date).toLocaleDateString('id-ID') %></div>
+                          <% } %>
+                        </div>
+                        <div class="text-end">
+                          <div class="small text-muted">Status</div>
+                          <% if (invoice.status === 'paid') { %>
+                            <span class="badge bg-success">Lunas</span>
+                          <% } else if (invoice.status === 'unpaid') { %>
+                            <% if (new Date(invoice.due_date) < new Date()) { %>
+                              <span class="badge bg-danger">Terlambat</span>
+                            <% } else { %>
+                              <span class="badge bg-warning text-dark">Belum Lunas</span>
+                            <% } %>
+                          <% } %>
+                        </div>
+                      </div>
+                      <div class="mb-3">
+                        <span class="badge bg-info"><%= invoice.package_name %></span>
+                        <small class="text-muted ms-2">Dibuat: <%= new Date(invoice.created_at).toLocaleDateString('id-ID') %></small>
+                      </div>
                       <% if (invoice.status === 'unpaid') { %>
-                        <button class="btn btn-primary btn-sm pay-now-btn" 
-                                data-invoice-id="<%= invoice.id %>" 
+                        <button class="btn btn-primary w-100 pay-now-btn"
+                                data-invoice-id="<%= invoice.id %>"
                                 data-invoice-number="<%= invoice.invoice_number %>"
                                 data-amount="<%= invoice.amount %>">
                           <i class="bi bi-credit-card me-1"></i>Bayar Sekarang
                         </button>
                       <% } else { %>
-                        <span class="text-success small">
-                          <i class="bi bi-check-circle me-1"></i>Lunas
-                        </span>
+                        <div class="text-success small"><i class="bi bi-check-circle me-1"></i>Lunas</div>
                       <% } %>
-                    </td>
-                  </tr>
+                    </div>
+                  </div>
                 <% }); %>
-              </tbody>
-            </table>
+              </div>
+            </div>
           </div>
         <% } else { %>
           <div class="text-center py-4">
