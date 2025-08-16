@@ -119,7 +119,9 @@ router.post('/payment-settings/:gateway', async (req, res) => {
                 api_key: req.body.api_key !== undefined ? req.body.api_key : (pg.tripay?.api_key || ''),
                 private_key: req.body.private_key !== undefined ? req.body.private_key : (pg.tripay?.private_key || ''),
                 merchant_code: req.body.merchant_code !== undefined ? req.body.merchant_code : (pg.tripay?.merchant_code || ''),
-                base_url: req.body.base_url !== undefined ? String(req.body.base_url || '').trim() : (pg.tripay?.base_url || pg.base_url || '')
+                base_url: req.body.base_url !== undefined ? String(req.body.base_url || '').trim() : (pg.tripay?.base_url || pg.base_url || ''),
+                // Allow selecting Tripay payment method (e.g. QRIS, BRIVA, GOPAY, OVO, DANA, SHOPEEPAY)
+                method: req.body.method !== undefined ? String(req.body.method || '').trim() : (pg.tripay?.method || 'BRIVA')
             };
         }
 
