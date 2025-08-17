@@ -13913,205 +13913,2754 @@
 [2025-08-15T00:19:17.650Z] [INFO] Monitoring PPPoE connections: 165 active connections
 [2025-08-15T00:20:17.648Z] [INFO] Monitoring PPPoE connections: 165 active connections
 [2025-08-15T00:21:17.648Z] [INFO] Monitoring PPPoE connections: 165 active connections
-[2025-08-15T00:50:01.881Z] [INFO] Invoice scheduler initialized - will run on 1st of every month at 08:00
-[2025-08-15T00:50:01.883Z] [INFO] Due date reminder scheduler initialized - will run daily at 09:00
-[2025-08-15T00:50:01.884Z] [INFO] Service suspension/restoration scheduler initialized - will run daily at 10:00 and 11:00
-[2025-08-15T00:50:06.660Z] [INFO] PPPoE monitoring started with interval 60000ms
-[2025-08-15T00:50:06.662Z] [INFO] Attempting to start server on configured port: 3003
-[2025-08-15T00:50:06.664Z] [INFO] Memulai server pada port yang dikonfigurasi: 3003
-[2025-08-15T00:50:06.665Z] [INFO] Port diambil dari settings.json - tidak ada fallback ke port alternatif
-[2025-08-15T00:50:06.674Z] [INFO] ✅ Server berhasil berjalan pada port 3003
-[2025-08-15T00:50:06.675Z] [INFO] 🌐 Web Portal tersedia di: http://localhost:3003
-[2025-08-15T00:50:06.676Z] [INFO] Environment: development
-[2025-08-15T00:50:06.833Z] [INFO] WhatsApp socket set in pppoe-notifications module
-[2025-08-15T00:50:06.834Z] [INFO] WhatsApp socket set in pppoe-commands module
-[2025-08-15T00:50:06.835Z] [INFO] WhatsApp socket set in genieacs-commands module
-[2025-08-15T00:50:06.835Z] [INFO] WhatsApp connected successfully
-[2025-08-15T00:50:06.837Z] [INFO] PPPoE monitoring started with interval 60000ms
-[2025-08-15T00:50:06.838Z] [INFO] RX Power monitoring initialized
-[2025-08-15T00:50:06.838Z] [INFO] PPPoE monitoring auto-started on initialization
-[2025-08-15T00:50:06.839Z] [INFO] PPPoE monitoring initialized
-[2025-08-15T00:50:17.415Z] [INFO] Connected to Mikrotik at 192.168.8.1:8700
-[2025-08-15T00:51:06.835Z] [INFO] PPPoE LOGIN:
+[2025-08-15T00:41:32.211Z] [INFO] Monitoring PPPoE connections: 165 active connections
+[2025-08-15T00:42:32.210Z] [INFO] Monitoring PPPoE connections: 165 active connections
+[2025-08-15T00:43:22.936Z] [INFO] Invoice scheduler initialized - will run on 1st of every month at 08:00
+[2025-08-15T00:43:22.938Z] [INFO] Due date reminder scheduler initialized - will run daily at 09:00
+[2025-08-15T00:43:22.940Z] [INFO] Service suspension/restoration scheduler initialized - will run daily at 10:00 and 11:00
+[2025-08-15T00:43:23.531Z] [INFO] Attempting to start server on configured port: 3003
+[2025-08-15T00:43:23.532Z] [INFO] Memulai server pada port yang dikonfigurasi: 3003
+[2025-08-15T00:43:23.532Z] [INFO] Port diambil dari settings.json - tidak ada fallback ke port alternatif
+[2025-08-15T00:43:23.536Z] [INFO] ✅ Server berhasil berjalan pada port 3003
+[2025-08-15T00:43:23.536Z] [INFO] 🌐 Web Portal tersedia di: http://localhost:3003
+[2025-08-15T00:43:23.536Z] [INFO] Environment: development
+[2025-08-15T00:43:23.651Z] [INFO] WhatsApp socket set in pppoe-notifications module
+[2025-08-15T00:43:23.651Z] [INFO] WhatsApp socket set in pppoe-commands module
+[2025-08-15T00:43:23.652Z] [INFO] WhatsApp socket set in genieacs-commands module
+[2025-08-15T00:43:23.652Z] [INFO] WhatsApp connected successfully
+[2025-08-15T00:43:23.653Z] [INFO] PPPoE monitoring started with interval 60000ms
+[2025-08-15T00:43:23.654Z] [INFO] RX Power monitoring initialized
+[2025-08-15T00:43:23.654Z] [INFO] PPPoE monitoring auto-started on initialization
+[2025-08-15T00:43:23.654Z] [INFO] PPPoE monitoring initialized
+[2025-08-15T00:43:51.247Z] [INFO] Connected to Mikrotik at 192.168.8.1:8700
+[2025-08-15T00:44:23.735Z] [INFO] PPPoE LOGIN detected: indah@tanjungpura, kasdi@rawagunda, rudibengkel@tanjungpura, wakeng, iman@, darim@lor, andi, yudi, darim, rom@lah, tariman, aqiel, tinih, ejun, ros_pppoe, nurudin, brohim, kendo@tanjungpura, maktub, sandi@rajan, server@yayan, dedy@sarkim, server@arep, seka, gunawan, fajar, Uchi, wendy@tanjungpura, wiwin@seblak, eka, toko@sayur, dedi@aira, toax, hany@tarsiti, antony@ps, gadel, aldo, suliwa, dhea_tile@rawagunda, elvano1, lisan@banteng, alam, newok, kus, winata@laut, rintem, kandar, wadi@rawagunda, sarwan, @cimun, raeni, salsa, warsana, opang@tanjungpura, damar, elis@rawagunda, dasta, codet, toyinah, yuni@rawagunda, aang, kama@, erni, nadiva, karban, Tarci@lor, memble@, nina@kesin, warungyuni@laut, mardi, murba, winata, nuriyah, memble2, tester, sarjo, jami@sut, kincling, nalda@rawagunda2, karmanda, tarci, lussy, sanyo, rasta, test, eva, server@ilik, santo, adiiman, RT-KARONI, runaeni, mastobari@, h.juroh, SDNUG1, abibah, nana, oland, warung_elisa@laut, muktar@ompong, nesa, alan@pentud, karsih, junanto@rawagunda, mella, tibil, luwih@, koriya, talita, rangdu, ooh, erul, daruni@rawagunda, yohan@rawagunda, kasmuri, handoko, icha, durta, sumi, windah, leha, nani, wendy@genjong, soleh@pegagan, Endra@genjong1, yusuf, pabudi@genjong, turidah, khofik@janggar, gemblung, umikulsum@janggar, setiyadi@genjong, ety@pegagan, F663, waidah@pegagan, novita, intan@ujungmulya, uung@pegagan, sudini@pegagan, astri@pegagan, dadang@genjong, denihamdani@pegagan, durniyah@pegagan, mangasep@janggar, eva@pegagan, opang@pegagan, surminih@pegagan, lina@ujungmulya, sutara@pegagan, wilda, murdani, sarna@pegagan, yuni@ujungmulya, anwar@janggar, eryanto@pegagan, kurnati, adinesep@ujungmulya, yogi, bunga, coyih, pandi@tanjungpura, aang2, nalda@pegagan, atam, suminih@rawagunda, walong@asep
+[2025-08-15T00:44:24.350Z] [INFO] PPPoE notification sent to 6281947215703
+[2025-08-15T00:44:26.000Z] [INFO] PPPoE notification sent to 1/1 valid recipients (3 total)
+[2025-08-15T00:44:26.000Z] [INFO] PPPoE monitoring: 165 active connections, 165 login, 0 logout
+[2025-08-15T00:44:42.672Z] [INFO] Message received
+{
+  "sender": "6282384420013",
+  "messageLength": 402
+}
+[2025-08-15T00:54:33.568Z] [INFO] Message received
+{
+  "sender": "6282298988565",
+  "messageLength": 385
+}
+[2025-08-15T00:57:12.545Z] [INFO] Message received
+{
+  "sender": "6282298988565",
+  "messageLength": 385
+}
+[2025-08-15T00:59:19.444Z] [INFO] Message received
+{
+  "sender": "6282298988565",
+  "messageLength": 385
+}
+[2025-08-15T01:01:25.029Z] [INFO] Message received
+{
+  "sender": "6282298988565",
+  "messageLength": 384
+}
+[2025-08-15T01:02:12.840Z] [INFO] Message received
+{
+  "sender": "6285766949154",
+  "messageLength": 383
+}
+[2025-08-15T01:02:23.110Z] [INFO] Message received
+{
+  "sender": "6285766949154",
+  "messageLength": 233
+}
+[2025-08-15T01:04:10.413Z] [INFO] Message received
+{
+  "sender": "6289695533557",
+  "messageLength": 402
+}
+[2025-08-15T01:04:12.012Z] [INFO] Message received
+{
+  "sender": "6281243339311",
+  "messageLength": 402
+}
+[2025-08-15T01:04:31.572Z] [INFO] Message received
+{
+  "sender": "6289695533557",
+  "messageLength": 223
+}
+[2025-08-15T01:08:37.035Z] [INFO] Message received
+{
+  "sender": "6283130345658",
+  "messageLength": 384
+}
+[2025-08-15T01:11:54.303Z] [INFO] Message received
+{
+  "sender": "6282298988565",
+  "messageLength": 384
+}
+[2025-08-15T01:14:49.740Z] [INFO] Message received
+{
+  "sender": "6282298988565",
+  "messageLength": 384
+}
+[2025-08-15T01:19:06.291Z] [INFO] Message received
+{
+  "sender": "6282298988565",
+  "messageLength": 384
+}
+[2025-08-15T01:20:44.590Z] [INFO] Message received
+{
+  "sender": "6282298988565",
+  "messageLength": 384
+}
+[2025-08-15T01:24:50.624Z] [INFO] Message received
+{
+  "sender": "6281243339311",
+  "messageLength": 203
+}
+[2025-08-15T01:38:23.735Z] [INFO] PPPoE LOGOUT detected: yusuf, turidah, novita, astri@pegagan
+[2025-08-15T01:38:31.825Z] [INFO] PPPoE notification sent to 0/3 valid recipients (3 total)
+[2025-08-15T01:38:31.825Z] [INFO] PPPoE monitoring: 161 active connections, 0 login, 4 logout
+[2025-08-15T01:44:40.552Z] [INFO] Message received
+{
+  "sender": "6281947215703",
+  "messageLength": 7
+}
+[2025-08-15T02:00:00.622Z] [INFO] Starting daily due date reminders...
+[2025-08-15T02:00:00.624Z] [INFO] Found 0 invoices due in the next 3 days
+[2025-08-15T02:00:00.624Z] [INFO] Daily due date reminders completed
+[2025-08-15T02:13:55.445Z] [INFO] Invoice scheduler initialized - will run on 1st of every month at 08:00
+[2025-08-15T02:13:55.448Z] [INFO] Due date reminder scheduler initialized - will run daily at 09:00
+[2025-08-15T02:13:55.450Z] [INFO] Service suspension/restoration scheduler initialized - will run daily at 10:00 and 11:00
+[2025-08-15T02:13:55.984Z] [INFO] Attempting to start server on configured port: 3003
+[2025-08-15T02:13:55.985Z] [INFO] Memulai server pada port yang dikonfigurasi: 3003
+[2025-08-15T02:13:55.985Z] [INFO] Port diambil dari settings.json - tidak ada fallback ke port alternatif
+[2025-08-15T02:13:55.991Z] [INFO] ✅ Server berhasil berjalan pada port 3003
+[2025-08-15T02:13:55.991Z] [INFO] 🌐 Web Portal tersedia di: http://localhost:3003
+[2025-08-15T02:13:55.991Z] [INFO] Environment: development
+[2025-08-15T02:13:56.153Z] [INFO] WhatsApp socket set in pppoe-notifications module
+[2025-08-15T02:13:56.154Z] [INFO] WhatsApp socket set in pppoe-commands module
+[2025-08-15T02:13:56.154Z] [INFO] WhatsApp socket set in genieacs-commands module
+[2025-08-15T02:13:56.155Z] [INFO] WhatsApp connected successfully
+[2025-08-15T02:13:56.156Z] [INFO] PPPoE monitoring started with interval 60000ms
+[2025-08-15T02:13:56.157Z] [INFO] RX Power monitoring initialized
+[2025-08-15T02:13:56.158Z] [INFO] PPPoE monitoring auto-started on initialization
+[2025-08-15T02:13:56.158Z] [INFO] PPPoE monitoring initialized
+[2025-08-15T02:14:13.809Z] [INFO] Message received
+{
+  "sender": "6281947215703",
+  "messageLength": 4
+}
+[2025-08-15T02:14:18.463Z] [INFO] Message received
+{
+  "sender": "6281947215703",
+  "messageLength": 7
+}
+[2025-08-15T02:14:56.180Z] [INFO] Connected to Mikrotik at 192.168.8.1:8700
+[2025-08-15T02:14:56.277Z] [INFO] PPPoE LOGIN detected: indah@tanjungpura, kasdi@rawagunda, rudibengkel@tanjungpura, wakeng, iman@, darim@lor, andi, yudi, darim, rom@lah, tariman, aqiel, tinih, ejun, ros_pppoe, nurudin, brohim, kendo@tanjungpura, maktub, sandi@rajan, server@yayan, dedy@sarkim, server@arep, seka, gunawan, fajar, Uchi, wendy@tanjungpura, wiwin@seblak, eka, toko@sayur, dedi@aira, toax, hany@tarsiti, antony@ps, gadel, aldo, suliwa, dhea_tile@rawagunda, elvano1, lisan@banteng, alam, newok, kus, winata@laut, rintem, kandar, wadi@rawagunda, sarwan, @cimun, raeni, salsa, warsana, opang@tanjungpura, damar, elis@rawagunda, dasta, codet, toyinah, yuni@rawagunda, aang, kama@, erni, nadiva, karban, Tarci@lor, memble@, nina@kesin, warungyuni@laut, mardi, murba, winata, nuriyah, memble2, tester, sarjo, jami@sut, kincling, nalda@rawagunda2, karmanda, tarci, lussy, sanyo, rasta, test, eva, server@ilik, santo, adiiman, RT-KARONI, runaeni, mastobari@, h.juroh, SDNUG1, abibah, nana, oland, warung_elisa@laut, muktar@ompong, nesa, alan@pentud, karsih, junanto@rawagunda, mella, tibil, luwih@, koriya, talita, rangdu, ooh, erul, daruni@rawagunda, yohan@rawagunda, kasmuri, handoko, icha, durta, sumi, windah, leha, nani, wendy@genjong, soleh@pegagan, Endra@genjong1, pabudi@genjong, khofik@janggar, gemblung, umikulsum@janggar, setiyadi@genjong, ety@pegagan, F663, waidah@pegagan, intan@ujungmulya, uung@pegagan, sudini@pegagan, dadang@genjong, denihamdani@pegagan, durniyah@pegagan, mangasep@janggar, eva@pegagan, opang@pegagan, surminih@pegagan, lina@ujungmulya, sutara@pegagan, wilda, murdani, sarna@pegagan, yuni@ujungmulya, anwar@janggar, eryanto@pegagan, kurnati, adinesep@ujungmulya, yogi, bunga, coyih, pandi@tanjungpura, aang2, nalda@pegagan, atam, suminih@rawagunda, walong@asep, ajri
+[2025-08-15T02:14:56.959Z] [INFO] PPPoE notification sent to 6281947215703
+[2025-08-15T02:14:58.710Z] [INFO] PPPoE notification sent to 1/1 valid recipients (3 total)
+[2025-08-15T02:14:58.710Z] [INFO] PPPoE monitoring: 162 active connections, 162 login, 0 logout
+[2025-08-15T02:21:23.322Z] [INFO] Message received
+{
+  "sender": "6281545472600",
+  "messageLength": 206
+}
+[2025-08-15T02:31:16.911Z] [INFO] Message received
+{
+  "sender": "status",
+  "messageLength": 65
+}
+[2025-08-15T02:48:19.775Z] [INFO] Message received
+{
+  "sender": "6285230699395",
+  "messageLength": 385
+}
+[2025-08-15T02:48:46.362Z] [INFO] Message received
+{
+  "sender": "6285230699395",
+  "messageLength": 191
+}
+[2025-08-15T03:00:00.544Z] [INFO] Starting daily service suspension check...
+[2025-08-15T03:00:00.545Z] [INFO] Starting automatic service suspension check...
+[2025-08-15T03:00:00.547Z] [INFO] Service suspension check completed. Checked: 0, Suspended: 0, Errors: 0
+[2025-08-15T03:00:00.547Z] [INFO] Daily service suspension check completed
+[2025-08-15T03:21:12.258Z] [INFO] Message received
+{
+  "sender": "6283130345658",
+  "messageLength": 384
+}
+[2025-08-15T03:37:56.339Z] [INFO] PPPoE LOGOUT detected: icha
+[2025-08-15T03:38:04.425Z] [INFO] PPPoE notification sent to 0/3 valid recipients (3 total)
+[2025-08-15T03:38:04.426Z] [INFO] PPPoE monitoring: 161 active connections, 0 login, 1 logout
+[2025-08-15T03:38:56.335Z] [INFO] PPPoE LOGIN detected: icha
+[2025-08-15T03:39:04.435Z] [INFO] PPPoE notification sent to 0/3 valid recipients (3 total)
+[2025-08-15T03:39:04.435Z] [INFO] PPPoE monitoring: 162 active connections, 1 login, 0 logout
+[2025-08-15T04:00:00.894Z] [INFO] Starting daily service restoration check...
+[2025-08-15T04:00:00.895Z] [INFO] Starting automatic service restoration check...
+[2025-08-15T04:00:00.900Z] [INFO] Service restoration check completed. Checked: 0, Restored: 0, Errors: 0
+[2025-08-15T04:00:00.900Z] [INFO] Daily service restoration check completed
+[2025-08-15T04:03:56.345Z] [INFO] PPPoE LOGOUT detected: talita
+[2025-08-15T04:04:04.438Z] [INFO] PPPoE notification sent to 0/3 valid recipients (3 total)
+[2025-08-15T04:04:04.438Z] [INFO] PPPoE monitoring: 161 active connections, 0 login, 1 logout
+[2025-08-15T04:11:43.127Z] [INFO] Message received
+{
+  "sender": "6281259872053",
+  "messageLength": 385
+}
+[2025-08-15T04:14:56.364Z] [INFO] PPPoE LOGIN detected: talita
+[2025-08-15T04:15:04.479Z] [INFO] PPPoE notification sent to 0/3 valid recipients (3 total)
+[2025-08-15T04:15:04.480Z] [INFO] PPPoE monitoring: 162 active connections, 1 login, 0 logout
+[2025-08-15T04:18:13.659Z] [INFO] [WEBHOOK] Processing tripay webhook:
+{
+  "body": {
+    "reference": "T4427126213089KJGRD",
+    "merchant_ref": "INV-INV-202508-1300",
+    "payment_method": "BRI Virtual Account",
+    "payment_method_code": "BRIVA",
+    "total_amount": 110000,
+    "fee_merchant": 4250,
+    "fee_customer": 0,
+    "total_fee": 4250,
+    "amount_received": 105750,
+    "is_closed_payment": 1,
+    "status": "EXPIRED",
+    "paid_at": null,
+    "note": "Transaction expired"
+  },
+  "headers": {
+    "host": "103.175.238.126:3003",
+    "accept": "*/*",
+    "x-callback-event": "payment_status",
+    "x-callback-signature": "b9df484df7b2b2fc9b1e82a8ff00e530a1da8e585f5a94dda94a710801811192",
+    "content-type": "application/json",
+    "user-agent": "TriPay Payment/1.0 (+https://tripay.co.id/developer?tab=callback)",
+    "content-length": "327"
+  }
+}
+[2025-08-15T04:18:13.661Z] [INFO] [WEBHOOK] Gateway result:
+{
+  "order_id": "INV-INV-202508-1300",
+  "status": "failed",
+  "payment_type": "BRI Virtual Account",
+  "fraud_status": "accept",
+  "reference": "T4427126213089KJGRD"
+}
+[2025-08-15T04:19:22.912Z] [INFO] Message received
+{
+  "sender": "6281259872053",
+  "messageLength": 385
+}
+[2025-08-15T04:27:20.100Z] [INFO] Message received
+{
+  "sender": "6285187380500",
+  "messageLength": 220
+}
+[2025-08-15T05:04:09.462Z] [INFO] [WEBHOOK] Processing tripay webhook:
+{
+  "body": {
+    "reference": "T4427126213875SNDVO",
+    "merchant_ref": "INV-TEST-001",
+    "payment_method": "BRI Virtual Account",
+    "payment_method_code": "BRIVA",
+    "total_amount": 10000,
+    "fee_merchant": 4250,
+    "fee_customer": 0,
+    "total_fee": 4250,
+    "amount_received": 5750,
+    "is_closed_payment": 1,
+    "status": "EXPIRED",
+    "paid_at": null,
+    "note": "Transaction expired"
+  },
+  "headers": {
+    "host": "alijaya.gantiwifi.online",
+    "user-agent": "TriPay Payment/1.0 (+https://tripay.co.id/developer?tab=callback)",
+    "content-length": "317",
+    "accept": "*/*",
+    "accept-encoding": "gzip, br",
+    "cdn-loop": "cloudflare; loops=1",
+    "cf-connecting-ip": "95.111.200.230",
+    "cf-ipcountry": "SG",
+    "cf-ray": "96f6264ace2b895e-SIN",
+    "cf-visitor": "{\"scheme\":\"https\"}",
+    "cf-warp-tag-id": "7a585dff-916f-450f-8d10-b83ef8d241dc",
+    "connection": "keep-alive",
+    "content-type": "application/json",
+    "x-callback-event": "payment_status",
+    "x-callback-signature": "4a625f35919a670bd7e05efb6408bff6a7fab21b383755984a6435cf912428bf",
+    "x-forwarded-for": "95.111.200.230",
+    "x-forwarded-proto": "https"
+  }
+}
+[2025-08-15T05:04:09.463Z] [INFO] [WEBHOOK] Gateway result:
+{
+  "order_id": "INV-TEST-001",
+  "status": "failed",
+  "payment_type": "BRI Virtual Account",
+  "fraud_status": "accept",
+  "reference": "T4427126213875SNDVO"
+}
+[2025-08-15T05:16:12.777Z] [INFO] Message received
+{
+  "sender": "6281259872053",
+  "messageLength": 209
+}
+[2025-08-15T05:21:30.793Z] [INFO] Message received
+{
+  "sender": "62882003176953",
+  "messageLength": 382
+}
+[2025-08-15T06:20:10.223Z] [INFO] Message received
+{
+  "sender": "6281259872053",
+  "messageLength": 384
+}
+[2025-08-15T06:31:56.379Z] [INFO] PPPoE LOGOUT detected: darim
+[2025-08-15T06:32:04.468Z] [INFO] PPPoE notification sent to 0/3 valid recipients (3 total)
+[2025-08-15T06:32:04.469Z] [INFO] PPPoE monitoring: 161 active connections, 0 login, 1 logout
+[2025-08-15T06:32:56.375Z] [INFO] PPPoE LOGIN detected: darim
+[2025-08-15T06:33:04.463Z] [INFO] PPPoE notification sent to 0/3 valid recipients (3 total)
+[2025-08-15T06:33:04.463Z] [INFO] PPPoE LOGOUT detected: yohan@rawagunda
+[2025-08-15T06:33:12.573Z] [INFO] PPPoE notification sent to 0/3 valid recipients (3 total)
+[2025-08-15T06:33:12.573Z] [INFO] PPPoE monitoring: 161 active connections, 1 login, 1 logout
+[2025-08-15T06:34:56.377Z] [INFO] PPPoE LOGIN detected: yohan@rawagunda
+[2025-08-15T06:35:04.460Z] [INFO] PPPoE notification sent to 0/3 valid recipients (3 total)
+[2025-08-15T06:35:04.460Z] [INFO] PPPoE monitoring: 162 active connections, 1 login, 0 logout
+[2025-08-15T06:39:02.491Z] [INFO] Message received
+{
+  "sender": "status",
+  "messageLength": 42
+}
+[2025-08-15T06:59:43.863Z] [INFO] Message received
+{
+  "sender": "6281545472600",
+  "messageLength": 402
+}
+[2025-08-15T07:21:41.919Z] [INFO] Message received
+{
+  "sender": "6281545472600",
+  "messageLength": 206
+}
+[2025-08-15T07:43:15.577Z] [INFO] Message received
+{
+  "sender": "status",
+  "messageLength": 70
+}
+[2025-08-15T07:45:01.868Z] [INFO] Message received
+{
+  "sender": "6289520031821",
+  "messageLength": 359
+}
+[2025-08-15T07:45:21.711Z] [INFO] Message received
+{
+  "sender": "6281228748674",
+  "messageLength": 402
+}
+[2025-08-15T07:54:56.384Z] [INFO] PPPoE LOGIN detected: novita, astri@pegagan, yusuf, turidah
+[2025-08-15T07:55:04.485Z] [INFO] PPPoE notification sent to 0/3 valid recipients (3 total)
+[2025-08-15T07:55:04.486Z] [INFO] PPPoE monitoring: 166 active connections, 4 login, 0 logout
+[2025-08-15T07:59:56.423Z] [INFO] PPPoE LOGOUT detected: eryanto@pegagan
+[2025-08-15T08:00:04.586Z] [INFO] PPPoE notification sent to 0/3 valid recipients (3 total)
+[2025-08-15T08:00:04.586Z] [INFO] PPPoE monitoring: 165 active connections, 0 login, 1 logout
+[2025-08-15T08:00:56.392Z] [INFO] PPPoE LOGIN detected: sang, eryanto@pegagan
+[2025-08-15T08:01:04.477Z] [INFO] PPPoE notification sent to 0/3 valid recipients (3 total)
+[2025-08-15T08:01:04.477Z] [INFO] PPPoE monitoring: 167 active connections, 2 login, 0 logout
+[2025-08-15T08:12:56.398Z] [INFO] PPPoE LOGOUT detected: walong@asep
+[2025-08-15T08:13:04.490Z] [INFO] PPPoE notification sent to 0/3 valid recipients (3 total)
+[2025-08-15T08:13:04.490Z] [INFO] PPPoE monitoring: 166 active connections, 0 login, 1 logout
+[2025-08-15T08:34:33.240Z] [INFO] Message received
+{
+  "sender": "62882003176953",
+  "messageLength": 382
+}
+[2025-08-15T08:42:31.595Z] [INFO] Message received
+{
+  "sender": "62882003176953",
+  "messageLength": 382
+}
+[2025-08-15T08:51:56.406Z] [INFO] PPPoE LOGIN detected: walong@asep
+[2025-08-15T08:52:04.494Z] [INFO] PPPoE notification sent to 0/3 valid recipients (3 total)
+[2025-08-15T08:52:04.494Z] [INFO] PPPoE monitoring: 167 active connections, 1 login, 0 logout
+[2025-08-15T09:05:09.555Z] [INFO] Message received
+{
+  "sender": "6281259872053",
+  "messageLength": 384
+}
+[2025-08-15T09:30:15.467Z] [INFO] Message received
+{
+  "sender": "6282118350189",
+  "messageLength": 203
+}
+[2025-08-15T09:36:10.383Z] [INFO] Message received
+{
+  "sender": "6281259872053",
+  "messageLength": 384
+}
+[2025-08-15T10:09:17.125Z] [INFO] Message received
+{
+  "sender": "6281545472600",
+  "messageLength": 402
+}
+[2025-08-15T10:19:56.409Z] [INFO] PPPoE LOGOUT detected: seka
+[2025-08-15T10:20:04.494Z] [INFO] PPPoE notification sent to 0/3 valid recipients (3 total)
+[2025-08-15T10:20:04.494Z] [INFO] PPPoE monitoring: 166 active connections, 0 login, 1 logout
+[2025-08-15T10:20:56.403Z] [INFO] PPPoE LOGIN detected: seka
+[2025-08-15T10:21:04.492Z] [INFO] PPPoE notification sent to 0/3 valid recipients (3 total)
+[2025-08-15T10:21:04.493Z] [INFO] PPPoE monitoring: 167 active connections, 1 login, 0 logout
+[2025-08-15T10:21:57.293Z] [INFO] Message received
+{
+  "sender": "6287739897901",
+  "messageLength": 214
+}
+[2025-08-15T10:21:58.243Z] [INFO] Message received
+{
+  "sender": "6287739897901",
+  "messageLength": 385
+}
+[2025-08-15T10:23:44.461Z] [INFO] Message received
+{
+  "sender": "6287739897901",
+  "messageLength": 385
+}
+[2025-08-15T10:33:20.089Z] [INFO] Message received
+{
+  "sender": "6281818171597",
+  "messageLength": 384
+}
+[2025-08-15T10:33:54.929Z] [INFO] Message received
+{
+  "sender": "6281818171597",
+  "messageLength": 384
+}
+[2025-08-15T10:34:06.345Z] [INFO] Message received
+{
+  "sender": "6281818171597",
+  "messageLength": 384
+}
+[2025-08-15T10:34:19.532Z] [INFO] Message received
+{
+  "sender": "6281818171597",
+  "messageLength": 206
+}
+[2025-08-15T10:42:24.407Z] [INFO] Message received
+{
+  "sender": "6281259872053",
+  "messageLength": 402
+}
+[2025-08-15T10:44:05.739Z] [INFO] Message received
+{
+  "sender": "6281259872053",
+  "messageLength": 216
+}
+[2025-08-15T10:51:28.706Z] [INFO] Message received
+{
+  "sender": "6281545472600",
+  "messageLength": 402
+}
+[2025-08-15T11:07:45.704Z] [INFO] Message received
+{
+  "sender": "6281259872053",
+  "messageLength": 402
+}
+[2025-08-15T11:43:17.041Z] [INFO] Message received
+{
+  "sender": "6281545472600",
+  "messageLength": 402
+}
+[2025-08-15T11:54:36.833Z] [INFO] Message received
+{
+  "sender": "6281545472600",
+  "messageLength": 402
+}
+[2025-08-15T11:54:40.473Z] [INFO] Message received
+{
+  "sender": "6281545472600",
+  "messageLength": 206
+}
+[2025-08-15T11:58:50.972Z] [INFO] Message received
+{
+  "sender": "6281545472600",
+  "messageLength": 402
+}
+[2025-08-15T12:19:56.427Z] [INFO] PPPoE LOGOUT detected: coyih, pandi@tanjungpura
+[2025-08-15T12:20:04.520Z] [INFO] PPPoE notification sent to 0/3 valid recipients (3 total)
+[2025-08-15T12:20:04.520Z] [INFO] PPPoE monitoring: 165 active connections, 0 login, 2 logout
+[2025-08-15T12:20:56.423Z] [INFO] PPPoE LOGIN detected: coyih, pandi@tanjungpura
+[2025-08-15T12:21:04.510Z] [INFO] PPPoE notification sent to 0/3 valid recipients (3 total)
+[2025-08-15T12:21:04.510Z] [INFO] PPPoE monitoring: 167 active connections, 2 login, 0 logout
+[2025-08-15T12:26:50.584Z] [INFO] Message received
+{
+  "sender": "6281545472600",
+  "messageLength": 206
+}
+[2025-08-15T12:39:59.527Z] [INFO] Message received
+{
+  "sender": "6281947215703",
+  "messageLength": 7
+}
+[2025-08-15T12:42:29.683Z] [INFO] Message received
+{
+  "sender": "6281259872053",
+  "messageLength": 402
+}
+[2025-08-15T12:42:56.423Z] [INFO] PPPoE LOGOUT detected: mardi
+[2025-08-15T12:43:04.504Z] [INFO] PPPoE notification sent to 0/3 valid recipients (3 total)
+[2025-08-15T12:43:04.504Z] [INFO] PPPoE monitoring: 166 active connections, 0 login, 1 logout
+[2025-08-15T12:43:56.424Z] [INFO] PPPoE LOGIN detected: mardi
+[2025-08-15T12:44:04.512Z] [INFO] PPPoE notification sent to 0/3 valid recipients (3 total)
+[2025-08-15T12:44:04.512Z] [INFO] PPPoE monitoring: 167 active connections, 1 login, 0 logout
+[2025-08-15T12:53:57.475Z] [INFO] Message received
+{
+  "sender": "6281259872053",
+  "messageLength": 402
+}
+[2025-08-15T13:20:29.035Z] [INFO] Message received
+{
+  "sender": "6281947215703",
+  "messageLength": 14
+}
+[2025-08-15T13:36:09.538Z] [INFO] Message received
+{
+  "sender": "6281259872053",
+  "messageLength": 402
+}
+[2025-08-15T13:38:08.155Z] [INFO] Message received
+{
+  "sender": "6281259872053",
+  "messageLength": 402
+}
+[2025-08-15T13:59:56.430Z] [INFO] PPPoE LOGOUT detected: sumi
+[2025-08-15T14:00:04.521Z] [INFO] PPPoE notification sent to 0/3 valid recipients (3 total)
+[2025-08-15T14:00:04.521Z] [INFO] PPPoE monitoring: 166 active connections, 0 login, 1 logout
+[2025-08-15T14:05:50.121Z] [INFO] Message received
+{
+  "sender": "6285155265353",
+  "messageLength": 384
+}
+[2025-08-15T14:07:25.310Z] [INFO] Message received
+{
+  "sender": "6285155265353",
+  "messageLength": 384
+}
+[2025-08-15T14:18:13.560Z] [INFO] Message received
+{
+  "sender": "6281545472600",
+  "messageLength": 402
+}
+[2025-08-15T14:20:35.782Z] [INFO] [WEBHOOK] Processing tripay webhook:
+{
+  "body": {
+    "reference": "T4427126223902HYPTX",
+    "merchant_ref": "INV-INV-202508-0799",
+    "payment_method": "BRI Virtual Account",
+    "payment_method_code": "BRIVA",
+    "total_amount": 110000,
+    "fee_merchant": 4250,
+    "fee_customer": 0,
+    "total_fee": 4250,
+    "amount_received": 105750,
+    "is_closed_payment": 1,
+    "status": "EXPIRED",
+    "paid_at": null,
+    "note": "Transaction expired"
+  },
+  "headers": {
+    "host": "alijaya.gantiwifi.online",
+    "user-agent": "TriPay Payment/1.0 (+https://tripay.co.id/developer?tab=callback)",
+    "content-length": "327",
+    "accept": "*/*",
+    "accept-encoding": "gzip, br",
+    "cdn-loop": "cloudflare; loops=1",
+    "cf-connecting-ip": "95.111.200.230",
+    "cf-ipcountry": "SG",
+    "cf-ray": "96f955636f747235-SIN",
+    "cf-visitor": "{\"scheme\":\"https\"}",
+    "cf-warp-tag-id": "7a585dff-916f-450f-8d10-b83ef8d241dc",
+    "connection": "keep-alive",
+    "content-type": "application/json",
+    "x-callback-event": "payment_status",
+    "x-callback-signature": "289073a6af3c1be6523ec7084aae9f057d0d38aad8e6edfc29dba75b16aa4dea",
+    "x-forwarded-for": "95.111.200.230",
+    "x-forwarded-proto": "https"
+  }
+}
+[2025-08-15T14:20:35.784Z] [INFO] [WEBHOOK] Gateway result:
+{
+  "order_id": "INV-INV-202508-0799",
+  "status": "failed",
+  "payment_type": "BRI Virtual Account",
+  "fraud_status": "accept",
+  "reference": "T4427126223902HYPTX"
+}
+[2025-08-15T14:20:35.925Z] [INFO] [WEBHOOK] Payment status updated: failed
+[2025-08-15T14:22:25.626Z] [INFO] [WEBHOOK] Processing tripay webhook:
+{
+  "body": {
+    "reference": "T4427126223920URW18",
+    "merchant_ref": "INV-INV-202508-0799",
+    "payment_method": "BRI Virtual Account",
+    "payment_method_code": "BRIVA",
+    "total_amount": 110000,
+    "fee_merchant": 4250,
+    "fee_customer": 0,
+    "total_fee": 4250,
+    "amount_received": 105750,
+    "is_closed_payment": 1,
+    "status": "EXPIRED",
+    "paid_at": null,
+    "note": "Transaction expired"
+  },
+  "headers": {
+    "host": "alijaya.gantiwifi.online",
+    "user-agent": "TriPay Payment/1.0 (+https://tripay.co.id/developer?tab=callback)",
+    "content-length": "327",
+    "accept": "*/*",
+    "accept-encoding": "gzip, br",
+    "cdn-loop": "cloudflare; loops=1",
+    "cf-connecting-ip": "95.111.200.230",
+    "cf-ipcountry": "SG",
+    "cf-ray": "96f95811fa63d4de-SIN",
+    "cf-visitor": "{\"scheme\":\"https\"}",
+    "cf-warp-tag-id": "7a585dff-916f-450f-8d10-b83ef8d241dc",
+    "connection": "keep-alive",
+    "content-type": "application/json",
+    "x-callback-event": "payment_status",
+    "x-callback-signature": "11e3af26a6843412b419ed3c946eb165ee01da56c90ad6f7176dbeb19f32e875",
+    "x-forwarded-for": "95.111.200.230",
+    "x-forwarded-proto": "https"
+  }
+}
+[2025-08-15T14:22:25.627Z] [INFO] [WEBHOOK] Gateway result:
+{
+  "order_id": "INV-INV-202508-0799",
+  "status": "failed",
+  "payment_type": "BRI Virtual Account",
+  "fraud_status": "accept",
+  "reference": "T4427126223920URW18"
+}
+[2025-08-15T14:22:25.760Z] [INFO] [WEBHOOK] Payment status updated: failed
+[2025-08-15T14:26:56.433Z] [INFO] PPPoE LOGOUT detected: mastobari@
+[2025-08-15T14:27:04.525Z] [INFO] PPPoE notification sent to 0/3 valid recipients (3 total)
+[2025-08-15T14:27:04.525Z] [INFO] PPPoE monitoring: 165 active connections, 0 login, 1 logout
+[2025-08-15T14:48:01.359Z] [INFO] Message received
+{
+  "sender": "6281259872053",
+  "messageLength": 384
+}
+[2025-08-15T14:59:56.434Z] [INFO] PPPoE LOGOUT detected: ooh
+[2025-08-15T15:00:04.521Z] [INFO] PPPoE notification sent to 0/3 valid recipients (3 total)
+[2025-08-15T15:00:04.521Z] [INFO] PPPoE monitoring: 164 active connections, 0 login, 1 logout
+[2025-08-15T15:00:56.439Z] [INFO] PPPoE LOGIN detected: ooh
+[2025-08-15T15:01:04.525Z] [INFO] PPPoE notification sent to 0/3 valid recipients (3 total)
+[2025-08-15T15:01:04.525Z] [INFO] PPPoE monitoring: 165 active connections, 1 login, 0 logout
+[2025-08-15T15:12:56.432Z] [INFO] PPPoE LOGOUT detected: ooh
+[2025-08-15T15:13:04.524Z] [INFO] PPPoE notification sent to 0/3 valid recipients (3 total)
+[2025-08-15T15:13:04.525Z] [INFO] PPPoE monitoring: 164 active connections, 0 login, 1 logout
+[2025-08-15T15:15:56.433Z] [INFO] PPPoE LOGIN detected: ooh
+[2025-08-15T15:16:04.528Z] [INFO] PPPoE notification sent to 0/3 valid recipients (3 total)
+[2025-08-15T15:16:04.528Z] [INFO] PPPoE monitoring: 165 active connections, 1 login, 0 logout
+[2025-08-15T15:21:21.819Z] [INFO] Message received
+{
+  "sender": "6281545472600",
+  "messageLength": 402
+}
+[2025-08-15T15:33:56.430Z] [INFO] PPPoE LOGOUT detected: coyih, pandi@tanjungpura
+[2025-08-15T15:34:04.521Z] [INFO] PPPoE notification sent to 0/3 valid recipients (3 total)
+[2025-08-15T15:34:04.521Z] [INFO] PPPoE monitoring: 163 active connections, 0 login, 2 logout
+[2025-08-15T15:34:56.438Z] [INFO] PPPoE LOGIN detected: coyih, pandi@tanjungpura
+[2025-08-15T15:35:04.523Z] [INFO] PPPoE notification sent to 0/3 valid recipients (3 total)
+[2025-08-15T15:35:04.523Z] [INFO] PPPoE monitoring: 165 active connections, 2 login, 0 logout
+[2025-08-15T15:51:52.890Z] [INFO] Message received
+{
+  "sender": "6285166828568",
+  "messageLength": 385
+}
+[2025-08-15T15:54:56.435Z] [INFO] PPPoE LOGIN detected: abas@pegagan
+[2025-08-15T15:54:59.498Z] [INFO] Message received
+{
+  "sender": "6285166828568",
+  "messageLength": 212
+}
+[2025-08-15T15:55:04.514Z] [INFO] PPPoE notification sent to 0/3 valid recipients (3 total)
+[2025-08-15T15:55:04.514Z] [INFO] PPPoE monitoring: 166 active connections, 1 login, 0 logout
+[2025-08-15T16:09:16.423Z] [INFO] Message received
+{
+  "sender": "62811600407",
+  "messageLength": 400
+}
+[2025-08-15T16:29:43.602Z] [INFO] Message received
+{
+  "sender": "6282118350189",
+  "messageLength": 402
+}
+[2025-08-15T16:38:40.080Z] [INFO] Message received
+{
+  "sender": "6281259872053",
+  "messageLength": 385
+}
+[2025-08-15T16:40:37.372Z] [INFO] Message received
+{
+  "sender": "6281259872053",
+  "messageLength": 385
+}
+[2025-08-15T16:42:06.521Z] [INFO] Message received
+{
+  "sender": "6281259872053",
+  "messageLength": 385
+}
+[2025-08-15T16:44:06.207Z] [INFO] Message received
+{
+  "sender": "6285694419441",
+  "messageLength": 385
+}
+[2025-08-15T16:44:37.134Z] [INFO] Message received
+{
+  "sender": "6281259872053",
+  "messageLength": 385
+}
+[2025-08-15T16:45:03.514Z] [INFO] Message received
+{
+  "sender": "6285694419441",
+  "messageLength": 4
+}
+[2025-08-15T16:45:04.733Z] [INFO] Message received
+{
+  "sender": "6285694419441",
+  "messageLength": 218
+}
+[2025-08-15T16:45:13.778Z] [INFO] Message received
+{
+  "sender": "6289520031821",
+  "messageLength": 359
+}
+[2025-08-15T16:46:06.381Z] [INFO] Message received
+{
+  "sender": "6285694419441",
+  "messageLength": 6
+}
+[2025-08-15T16:49:31.722Z] [INFO] Message received
+{
+  "sender": "6281355623777",
+  "messageLength": 385
+}
+[2025-08-15T16:52:20.999Z] [INFO] Message received
+{
+  "sender": "6281259872053",
+  "messageLength": 385
+}
+[2025-08-15T16:53:52.082Z] [INFO] Message received
+{
+  "sender": "6281259872053",
+  "messageLength": 385
+}
+[2025-08-15T16:56:05.730Z] [INFO] Message received
+{
+  "sender": "6281259872053",
+  "messageLength": 385
+}
+[2025-08-15T16:56:56.444Z] [INFO] PPPoE LOGIN detected: sumi
+[2025-08-15T16:57:04.533Z] [INFO] PPPoE notification sent to 0/3 valid recipients (3 total)
+[2025-08-15T16:57:04.533Z] [INFO] PPPoE monitoring: 167 active connections, 1 login, 0 logout
+[2025-08-15T16:59:46.408Z] [INFO] Message received
+{
+  "sender": "6281259872053",
+  "messageLength": 385
+}
+[2025-08-15T17:02:07.380Z] [INFO] Message received
+{
+  "sender": "6281259872053",
+  "messageLength": 402
+}
+[2025-08-15T17:15:56.437Z] [INFO] PPPoE LOGOUT detected: bunga
+[2025-08-15T17:16:04.521Z] [INFO] PPPoE notification sent to 0/3 valid recipients (3 total)
+[2025-08-15T17:16:04.521Z] [INFO] PPPoE monitoring: 166 active connections, 0 login, 1 logout
+[2025-08-15T17:16:56.443Z] [INFO] PPPoE LOGIN detected: bunga
+[2025-08-15T17:17:04.523Z] [INFO] PPPoE notification sent to 0/3 valid recipients (3 total)
+[2025-08-15T17:17:04.524Z] [INFO] PPPoE monitoring: 167 active connections, 1 login, 0 logout
+[2025-08-15T17:18:26.111Z] [INFO] Message received
+{
+  "sender": "6281545472600",
+  "messageLength": 402
+}
+[2025-08-15T17:30:22.036Z] [INFO] Message received
+{
+  "sender": "6282384420013",
+  "messageLength": 402
+}
+[2025-08-15T17:42:53.450Z] [INFO] Message received
+{
+  "sender": "62882003176953",
+  "messageLength": 382
+}
+[2025-08-15T18:23:51.409Z] [INFO] Message received
+{
+  "sender": "6289520031821",
+  "messageLength": 359
+}
+[2025-08-15T18:24:06.511Z] [INFO] Message received
+{
+  "sender": "62895401381444",
+  "messageLength": 403
+}
+[2025-08-15T18:24:50.708Z] [INFO] Message received
+{
+  "sender": "6282384420013",
+  "messageLength": 402
+}
+[2025-08-15T18:25:16.924Z] [INFO] Message received
+{
+  "sender": "6283130345658",
+  "messageLength": 384
+}
+[2025-08-15T18:26:17.086Z] [INFO] Message received
+{
+  "sender": "6281243339311",
+  "messageLength": 402
+}
+[2025-08-15T18:26:29.504Z] [INFO] Message received
+{
+  "sender": "6289638881777",
+  "messageLength": 402
+}
+[2025-08-15T18:29:18.743Z] [INFO] Message received
+{
+  "sender": "6281228748674",
+  "messageLength": 402
+}
+[2025-08-15T18:35:53.018Z] [INFO] Message received
+{
+  "sender": "6282118350189",
+  "messageLength": 402
+}
+[2025-08-15T18:45:42.817Z] [INFO] Message received
+{
+  "sender": "62882003176953",
+  "messageLength": 382
+}
+[2025-08-15T18:48:15.303Z] [INFO] Message received
+{
+  "sender": "6289520031821",
+  "messageLength": 359
+}
+[2025-08-15T18:59:56.470Z] [INFO] PPPoE LOGOUT detected: ros_pppoe
+[2025-08-15T19:00:04.552Z] [INFO] PPPoE notification sent to 0/3 valid recipients (3 total)
+[2025-08-15T19:00:04.552Z] [INFO] PPPoE monitoring: 166 active connections, 0 login, 1 logout
+[2025-08-15T19:00:56.469Z] [INFO] PPPoE LOGIN detected: ros_pppoe
+[2025-08-15T19:01:04.552Z] [INFO] PPPoE notification sent to 0/3 valid recipients (3 total)
+[2025-08-15T19:01:04.552Z] [INFO] PPPoE monitoring: 167 active connections, 1 login, 0 logout
+[2025-08-15T19:02:06.332Z] [INFO] Message received
+{
+  "sender": "6283866315966",
+  "messageLength": 511
+}
+[2025-08-15T19:03:24.630Z] [INFO] Message received
+{
+  "sender": "6285166828568",
+  "messageLength": 384
+}
+[2025-08-15T19:03:43.254Z] [INFO] Message received
+{
+  "sender": "62811600407",
+  "messageLength": 400
+}
+[2025-08-15T19:03:43.426Z] [INFO] Message received
+{
+  "sender": "6282118350189",
+  "messageLength": 402
+}
+[2025-08-15T19:03:58.109Z] [INFO] Message received
+{
+  "sender": "6281259872053",
+  "messageLength": 402
+}
+[2025-08-15T19:03:59.001Z] [INFO] Message received
+{
+  "sender": "6281228748674",
+  "messageLength": 402
+}
+[2025-08-15T19:05:02.150Z] [INFO] Message received
+{
+  "sender": "6289695533557",
+  "messageLength": 402
+}
+[2025-08-15T19:05:43.184Z] [INFO] Message received
+{
+  "sender": "6282384420013",
+  "messageLength": 402
+}
+[2025-08-15T19:06:13.732Z] [INFO] Message received
+{
+  "sender": "6281545472600",
+  "messageLength": 402
+}
+[2025-08-15T19:06:55.116Z] [INFO] Message received
+{
+  "sender": "6283831256568",
+  "messageLength": 402
+}
+[2025-08-15T19:07:01.820Z] [INFO] Message received
+{
+  "sender": "6285155265353",
+  "messageLength": 384
+}
+[2025-08-15T19:49:27.087Z] [INFO] Message received
+{
+  "sender": "6281355623777",
+  "messageLength": 384
+}
+[2025-08-15T19:49:32.428Z] [INFO] Message received
+{
+  "sender": "6281228748674",
+  "messageLength": 402
+}
+[2025-08-15T19:49:39.324Z] [INFO] Message received
+{
+  "sender": "6282118350189",
+  "messageLength": 402
+}
+[2025-08-15T19:50:40.915Z] [INFO] Message received
+{
+  "sender": "62882003176953",
+  "messageLength": 382
+}
+[2025-08-15T19:50:49.282Z] [INFO] Message received
+{
+  "sender": "6289695533557",
+  "messageLength": 402
+}
+[2025-08-15T19:52:23.854Z] [INFO] Message received
+{
+  "sender": "6281243339311",
+  "messageLength": 402
+}
+[2025-08-15T19:59:56.480Z] [INFO] PPPoE LOGOUT detected: windah
+[2025-08-15T20:00:04.562Z] [INFO] PPPoE notification sent to 0/3 valid recipients (3 total)
+[2025-08-15T20:00:04.562Z] [INFO] PPPoE monitoring: 166 active connections, 0 login, 1 logout
+[2025-08-15T20:01:56.485Z] [INFO] PPPoE LOGIN detected: windah
+[2025-08-15T20:02:04.570Z] [INFO] PPPoE notification sent to 0/3 valid recipients (3 total)
+[2025-08-15T20:02:04.570Z] [INFO] PPPoE monitoring: 167 active connections, 1 login, 0 logout
+[2025-08-15T20:51:08.341Z] [INFO] Invoice scheduler initialized - will run on 1st of every month at 08:00
+[2025-08-15T20:51:08.343Z] [INFO] Due date reminder scheduler initialized - will run daily at 09:00
+[2025-08-15T20:51:08.345Z] [INFO] Service suspension/restoration scheduler initialized - will run daily at 10:00 and 11:00
+[2025-08-15T20:51:08.845Z] [INFO] Attempting to start server on configured port: 3003
+[2025-08-15T20:51:08.846Z] [INFO] Memulai server pada port yang dikonfigurasi: 3003
+[2025-08-15T20:51:08.846Z] [INFO] Port diambil dari settings.json - tidak ada fallback ke port alternatif
+[2025-08-15T20:51:08.851Z] [INFO] ✅ Server berhasil berjalan pada port 3003
+[2025-08-15T20:51:08.851Z] [INFO] 🌐 Web Portal tersedia di: http://localhost:3003
+[2025-08-15T20:51:08.852Z] [INFO] Environment: development
+[2025-08-15T20:51:08.990Z] [INFO] WhatsApp socket set in pppoe-notifications module
+[2025-08-15T20:51:08.990Z] [INFO] WhatsApp socket set in pppoe-commands module
+[2025-08-15T20:51:08.990Z] [INFO] WhatsApp socket set in genieacs-commands module
+[2025-08-15T20:51:08.991Z] [INFO] WhatsApp connected successfully
+[2025-08-15T20:51:08.992Z] [INFO] PPPoE monitoring started with interval 60000ms
+[2025-08-15T20:51:08.993Z] [INFO] RX Power monitoring initialized
+[2025-08-15T20:51:08.993Z] [INFO] PPPoE monitoring auto-started on initialization
+[2025-08-15T20:51:08.993Z] [INFO] PPPoE monitoring initialized
+[2025-08-15T20:52:09.018Z] [INFO] Connected to Mikrotik at 192.168.8.1:8700
+[2025-08-15T20:52:09.121Z] [INFO] PPPoE LOGIN detected: indah@tanjungpura, kasdi@rawagunda, rudibengkel@tanjungpura, wakeng, iman@, darim@lor, andi, yudi, rom@lah, tariman, aqiel, tinih, ejun, nurudin, brohim, kendo@tanjungpura, maktub, sandi@rajan, server@yayan, dedy@sarkim, server@arep, gunawan, fajar, Uchi, wendy@tanjungpura, wiwin@seblak, eka, toko@sayur, dedi@aira, toax, hany@tarsiti, antony@ps, gadel, aldo, suliwa, dhea_tile@rawagunda, elvano1, lisan@banteng, alam, newok, kus, winata@laut, rintem, kandar, wadi@rawagunda, sarwan, @cimun, raeni, salsa, warsana, opang@tanjungpura, damar, elis@rawagunda, dasta, codet, toyinah, yuni@rawagunda, aang, kama@, erni, nadiva, karban, Tarci@lor, memble@, nina@kesin, warungyuni@laut, murba, winata, nuriyah, memble2, tester, sarjo, jami@sut, kincling, nalda@rawagunda2, karmanda, lussy, sanyo, rasta, test, eva, server@ilik, santo, adiiman, RT-KARONI, runaeni, h.juroh, SDNUG1, abibah, oland, warung_elisa@laut, muktar@ompong, nesa, alan@pentud, karsih, junanto@rawagunda, mella, tibil, luwih@, koriya, rangdu, erul, daruni@rawagunda, handoko, durta, yogi, aang2, atam, suminih@rawagunda, ajri, icha, talita, kasmuri, yohan@rawagunda, nana, walong@asep, seka, mardi, tarci, darim, ooh, coyih, pandi@tanjungpura, sumi, bunga, ros_pppoe, windah, uung@pegagan, soleh@pegagan, astri@pegagan, F663, waidah@pegagan, dadang@genjong, Endra@genjong1, murdani, pabudi@genjong, denihamdani@pegagan, yusuf, surminih@pegagan, lina@ujungmulya, turidah, umikulsum@janggar, khofik@janggar, sang, nalda@pegagan, novita, wendy@genjong, intan@ujungmulya, mangasep@janggar, eva@pegagan, opang@pegagan, leha, nani, setiyadi@genjong, ety@pegagan, sutara@pegagan, sudini@pegagan, gemblung, wilda, durniyah@pegagan, anwar@janggar, sarna@pegagan, yuni@ujungmulya, eryanto@pegagan, adinesep@ujungmulya, abas@pegagan, kurnati
+[2025-08-15T20:52:09.734Z] [INFO] PPPoE notification sent to 6281947215703
+[2025-08-15T20:52:11.281Z] [INFO] PPPoE notification sent to 1/1 valid recipients (3 total)
+[2025-08-15T20:52:11.281Z] [INFO] PPPoE monitoring: 167 active connections, 167 login, 0 logout
+[2025-08-15T21:05:42.560Z] [INFO] Message received
+{
+  "sender": "6289520031821",
+  "messageLength": 359
+}
+[2025-08-15T21:08:06.254Z] [INFO] Message received
+{
+  "sender": "6289638881777",
+  "messageLength": 402
+}
+[2025-08-15T21:09:52.104Z] [INFO] Message received
+{
+  "sender": "6281259872053",
+  "messageLength": 402
+}
+[2025-08-15T21:21:02.713Z] [INFO] Message received
+{
+  "sender": "6282118350189",
+  "messageLength": 402
+}
+[2025-08-15T21:37:53.052Z] [INFO] Message received
+{
+  "sender": "6282384420013",
+  "messageLength": 402
+}
+[2025-08-15T21:41:06.536Z] [INFO] Message received
+{
+  "sender": "6281243339311",
+  "messageLength": 402
+}
+[2025-08-15T21:41:57.866Z] [INFO] Message received
+{
+  "sender": "6281259872053",
+  "messageLength": 402
+}
+[2025-08-15T21:42:10.754Z] [INFO] Message received
+{
+  "sender": "62811600407",
+  "messageLength": 400
+}
+[2025-08-15T21:42:26.221Z] [INFO] Message received
+{
+  "sender": "62882003176953",
+  "messageLength": 382
+}
+[2025-08-15T21:42:28.140Z] [INFO] Message received
+{
+  "sender": "6283831256568",
+  "messageLength": 402
+}
+[2025-08-15T21:42:47.351Z] [INFO] Message received
+{
+  "sender": "62811600407",
+  "messageLength": 400
+}
+[2025-08-15T21:47:17.289Z] [INFO] Message received
+{
+  "sender": "6281355623777",
+  "messageLength": 384
+}
+[2025-08-15T21:47:48.603Z] [INFO] Message received
+{
+  "sender": "6281259872053",
+  "messageLength": 402
+}
+[2025-08-15T21:48:15.410Z] [INFO] Message received
+{
+  "sender": "6285166828568",
+  "messageLength": 384
+}
+[2025-08-15T21:48:23.228Z] [INFO] Message received
+{
+  "sender": "6281228748674",
+  "messageLength": 402
+}
+[2025-08-15T21:48:24.718Z] [INFO] Message received
+{
+  "sender": "62895401381444",
+  "messageLength": 403
+}
+[2025-08-15T21:54:47.796Z] [INFO] Message received
+{
+  "sender": "6281259872053",
+  "messageLength": 402
+}
+[2025-08-15T21:54:53.352Z] [INFO] Message received
+{
+  "sender": "62811600407",
+  "messageLength": 400
+}
+[2025-08-15T21:54:56.189Z] [INFO] Message received
+{
+  "sender": "6283866315966",
+  "messageLength": 511
+}
+[2025-08-15T21:55:07.685Z] [INFO] Message received
+{
+  "sender": "6282384420013",
+  "messageLength": 402
+}
+[2025-08-15T21:55:09.000Z] [INFO] Message received
+{
+  "sender": "62811600407",
+  "messageLength": 400
+}
+[2025-08-15T22:00:44.174Z] [INFO] Message received
+{
+  "sender": "62811600407",
+  "messageLength": 400
+}
+[2025-08-15T22:00:48.442Z] [INFO] Message received
+{
+  "sender": "6289695533557",
+  "messageLength": 402
+}
+[2025-08-15T22:00:58.018Z] [INFO] Message received
+{
+  "sender": "62882003176953",
+  "messageLength": 382
+}
+[2025-08-15T22:01:08.070Z] [INFO] Message received
+{
+  "sender": "6281355623777",
+  "messageLength": 384
+}
+[2025-08-15T22:01:21.463Z] [INFO] Message received
+{
+  "sender": "6282118350189",
+  "messageLength": 402
+}
+[2025-08-15T22:01:27.006Z] [INFO] Message received
+{
+  "sender": "6289638881777",
+  "messageLength": 402
+}
+[2025-08-15T22:01:43.711Z] [INFO] Message received
+{
+  "sender": "6281355623777",
+  "messageLength": 384
+}
+[2025-08-15T22:02:04.513Z] [INFO] Message received
+{
+  "sender": "6281545472600",
+  "messageLength": 402
+}
+[2025-08-15T22:03:04.621Z] [INFO] Message received
+{
+  "sender": "6281355623777",
+  "messageLength": 384
+}
+[2025-08-15T22:04:33.165Z] [INFO] Message received
+{
+  "sender": "6289520031821",
+  "messageLength": 359
+}
+[2025-08-15T22:07:24.022Z] [INFO] Message received
+{
+  "sender": "62882003176953",
+  "messageLength": 382
+}
+[2025-08-15T22:07:32.579Z] [INFO] Message received
+{
+  "sender": "6283831256568",
+  "messageLength": 402
+}
+[2025-08-15T22:08:07.424Z] [INFO] Message received
+{
+  "sender": "6285155265353",
+  "messageLength": 385
+}
+[2025-08-15T22:08:52.087Z] [INFO] Message received
+{
+  "sender": "6281545472600",
+  "messageLength": 402
+}
+[2025-08-15T22:08:52.222Z] [INFO] Message received
+{
+  "sender": "6282384420013",
+  "messageLength": 402
+}
+[2025-08-15T22:10:08.813Z] [INFO] Message received
+{
+  "sender": "6281243339311",
+  "messageLength": 402
+}
+[2025-08-15T22:12:09.309Z] [INFO] PPPoE LOGIN detected: mastobari@
+[2025-08-15T22:12:17.409Z] [INFO] PPPoE notification sent to 0/3 valid recipients (3 total)
+[2025-08-15T22:12:17.409Z] [INFO] PPPoE monitoring: 168 active connections, 1 login, 0 logout
+[2025-08-15T22:13:25.113Z] [INFO] Message received
+{
+  "sender": "6281243339311",
+  "messageLength": 203
+}
+[2025-08-15T22:55:17.568Z] [INFO] Message received
+{
+  "sender": "6281947215703",
+  "messageLength": 4
+}
+[2025-08-15T22:55:22.921Z] [INFO] Message received
+{
+  "sender": "6281947215703",
+  "messageLength": 7
+}
+[2025-08-15T22:55:29.577Z] [INFO] Message received
+{
+  "sender": "6281947215703",
+  "messageLength": 6
+}
+[2025-08-15T23:01:56.435Z] [INFO] Message received
+{
+  "sender": "6281355623777",
+  "messageLength": 203
+}
+[2025-08-15T23:05:17.047Z] [INFO] Message received
+{
+  "sender": "6281259872053",
+  "messageLength": 209
+}
+[2025-08-15T23:26:14.670Z] [INFO] Message received
+{
+  "sender": "62811600407",
+  "messageLength": 400
+}
+[2025-08-15T23:32:51.546Z] [INFO] Message received
+{
+  "sender": "6289695533557",
+  "messageLength": 402
+}
+[2025-08-15T23:54:43.046Z] [INFO] Message received
+{
+  "sender": "6285155265353",
+  "messageLength": 385
+}
+[2025-08-16T00:46:15.935Z] [INFO] [WEBHOOK] Processing tripay webhook:
+{
+  "body": {
+    "reference": "T4427126229896CQSCB",
+    "merchant_ref": "INV-TEST-001",
+    "payment_method": "BRI Virtual Account",
+    "payment_method_code": "BRIVA",
+    "total_amount": 10000,
+    "fee_merchant": 4250,
+    "fee_customer": 0,
+    "total_fee": 4250,
+    "amount_received": 5750,
+    "is_closed_payment": 1,
+    "status": "EXPIRED",
+    "paid_at": null,
+    "note": "Transaction expired"
+  },
+  "headers": {
+    "host": "alijaya.gantiwifi.online",
+    "user-agent": "TriPay Payment/1.0 (+https://tripay.co.id/developer?tab=callback)",
+    "content-length": "317",
+    "accept": "*/*",
+    "accept-encoding": "gzip, br",
+    "cdn-loop": "cloudflare; loops=1",
+    "cf-connecting-ip": "95.111.200.230",
+    "cf-ipcountry": "SG",
+    "cf-ray": "96fce9e55e1ea8d5-SIN",
+    "cf-visitor": "{\"scheme\":\"https\"}",
+    "cf-warp-tag-id": "7a585dff-916f-450f-8d10-b83ef8d241dc",
+    "connection": "keep-alive",
+    "content-type": "application/json",
+    "x-callback-event": "payment_status",
+    "x-callback-signature": "25a850dc364195674f89db1defc81316f182e6bcb7fadba303d18683fa55a22f",
+    "x-forwarded-for": "95.111.200.230",
+    "x-forwarded-proto": "https"
+  }
+}
+[2025-08-16T00:46:15.937Z] [INFO] [WEBHOOK] Gateway result:
+{
+  "order_id": "INV-TEST-001",
+  "status": "failed",
+  "payment_type": "BRI Virtual Account",
+  "fraud_status": "accept",
+  "reference": "T4427126229896CQSCB"
+}
+[2025-08-16T00:50:25.684Z] [INFO] Message received
+{
+  "sender": "status",
+  "messageLength": 46
+}
+[2025-08-16T00:58:09.390Z] [INFO] Message received
+{
+  "sender": "6281545472600",
+  "messageLength": 402
+}
+[2025-08-16T01:14:19.201Z] [INFO] Message received
+{
+  "sender": "6285155265353",
+  "messageLength": 384
+}
+[2025-08-16T01:18:09.328Z] [INFO] PPPoE LOGOUT detected: coyih, pandi@tanjungpura
+[2025-08-16T01:18:17.419Z] [INFO] PPPoE notification sent to 0/3 valid recipients (3 total)
+[2025-08-16T01:18:17.419Z] [INFO] PPPoE monitoring: 166 active connections, 0 login, 2 logout
+[2025-08-16T01:19:09.328Z] [INFO] PPPoE LOGIN detected: coyih, pandi@tanjungpura
+[2025-08-16T01:19:17.411Z] [INFO] PPPoE notification sent to 0/3 valid recipients (3 total)
+[2025-08-16T01:19:17.411Z] [INFO] PPPoE monitoring: 168 active connections, 2 login, 0 logout
+[2025-08-16T01:45:49.600Z] [INFO] Message received
+{
+  "sender": "6281259872053",
+  "messageLength": 384
+}
+[2025-08-16T02:00:00.213Z] [INFO] Starting daily due date reminders...
+[2025-08-16T02:00:00.214Z] [INFO] Found 0 invoices due in the next 3 days
+[2025-08-16T02:00:00.215Z] [INFO] Daily due date reminders completed
+[2025-08-16T02:01:29.781Z] [INFO] Message received
+{
+  "sender": "6281947215703",
+  "messageLength": 4
+}
+[2025-08-16T02:02:12.221Z] [INFO] Message received
+{
+  "sender": "6281947215703",
+  "messageLength": 7
+}
+[2025-08-16T02:03:08.878Z] [INFO] Message received
+{
+  "sender": "6281947215703",
+  "messageLength": 4
+}
+[2025-08-16T02:11:04.085Z] [INFO] Invoice scheduler initialized - will run on 1st of every month at 08:00
+[2025-08-16T02:11:04.092Z] [INFO] Due date reminder scheduler initialized - will run daily at 09:00
+[2025-08-16T02:11:04.103Z] [INFO] Service suspension/restoration scheduler initialized - will run daily at 10:00 and 11:00
+[2025-08-16T02:11:04.692Z] [INFO] Attempting to start server on configured port: 3003
+[2025-08-16T02:11:04.692Z] [INFO] Memulai server pada port yang dikonfigurasi: 3003
+[2025-08-16T02:11:04.693Z] [INFO] Port diambil dari settings.json - tidak ada fallback ke port alternatif
+[2025-08-16T02:11:04.697Z] [INFO] ✅ Server berhasil berjalan pada port 3003
+[2025-08-16T02:11:04.698Z] [INFO] 🌐 Web Portal tersedia di: http://localhost:3003
+[2025-08-16T02:11:04.698Z] [INFO] Environment: development
+[2025-08-16T02:11:04.849Z] [INFO] WhatsApp socket set in pppoe-notifications module
+[2025-08-16T02:11:04.849Z] [INFO] WhatsApp socket set in pppoe-commands module
+[2025-08-16T02:11:04.850Z] [INFO] WhatsApp socket set in genieacs-commands module
+[2025-08-16T02:11:04.851Z] [INFO] WhatsApp connected successfully
+[2025-08-16T02:11:04.852Z] [INFO] PPPoE monitoring started with interval 60000ms
+[2025-08-16T02:11:04.853Z] [INFO] RX Power monitoring initialized
+[2025-08-16T02:11:04.853Z] [INFO] PPPoE monitoring auto-started on initialization
+[2025-08-16T02:11:04.853Z] [INFO] PPPoE monitoring initialized
+[2025-08-16T02:12:04.896Z] [INFO] Connected to Mikrotik at 192.168.8.1:8700
+[2025-08-16T02:12:04.998Z] [INFO] PPPoE LOGIN detected: indah@tanjungpura, kasdi@rawagunda, rudibengkel@tanjungpura, wakeng, iman@, darim@lor, andi, yudi, rom@lah, tariman, aqiel, tinih, ejun, nurudin, brohim, kendo@tanjungpura, maktub, sandi@rajan, server@yayan, dedy@sarkim, server@arep, gunawan, fajar, Uchi, wendy@tanjungpura, wiwin@seblak, eka, toko@sayur, dedi@aira, toax, hany@tarsiti, antony@ps, gadel, aldo, suliwa, dhea_tile@rawagunda, elvano1, lisan@banteng, alam, newok, kus, winata@laut, rintem, kandar, wadi@rawagunda, sarwan, @cimun, raeni, salsa, warsana, opang@tanjungpura, damar, elis@rawagunda, dasta, codet, toyinah, yuni@rawagunda, aang, kama@, erni, nadiva, karban, Tarci@lor, memble@, nina@kesin, warungyuni@laut, murba, winata, nuriyah, memble2, tester, sarjo, jami@sut, kincling, nalda@rawagunda2, karmanda, lussy, sanyo, rasta, eva, server@ilik, santo, adiiman, RT-KARONI, runaeni, h.juroh, SDNUG1, abibah, oland, warung_elisa@laut, muktar@ompong, nesa, alan@pentud, karsih, junanto@rawagunda, mella, tibil, luwih@, koriya, rangdu, erul, daruni@rawagunda, handoko, durta, aang2, atam, suminih@rawagunda, ajri, icha, talita, kasmuri, yohan@rawagunda, nana, walong@asep, seka, mardi, tarci, darim, ooh, sumi, bunga, ros_pppoe, windah, uung@pegagan, soleh@pegagan, astri@pegagan, F663, waidah@pegagan, dadang@genjong, Endra@genjong1, murdani, pabudi@genjong, denihamdani@pegagan, yusuf, surminih@pegagan, lina@ujungmulya, turidah, umikulsum@janggar, khofik@janggar, sang, nalda@pegagan, novita, wendy@genjong, intan@ujungmulya, mangasep@janggar, eva@pegagan, opang@pegagan, leha, nani, setiyadi@genjong, ety@pegagan, sutara@pegagan, sudini@pegagan, gemblung, wilda, durniyah@pegagan, anwar@janggar, sarna@pegagan, yuni@ujungmulya, eryanto@pegagan, adinesep@ujungmulya, abas@pegagan, kurnati, mastobari@, yogi, test, coyih, pandi@tanjungpura
+[2025-08-16T02:12:05.533Z] [INFO] PPPoE notification sent to 6281947215703
+[2025-08-16T02:12:06.972Z] [INFO] PPPoE notification sent to 1/1 valid recipients (3 total)
+[2025-08-16T02:12:06.972Z] [INFO] PPPoE monitoring: 168 active connections, 168 login, 0 logout
+[2025-08-16T02:14:46.898Z] [INFO] Message received
+{
+  "sender": "6285155265353",
+  "messageLength": 384
+}
+[2025-08-16T02:15:21.930Z] [INFO] Message received
+{
+  "sender": "6283866315966",
+  "messageLength": 511
+}
+[2025-08-16T02:23:05.005Z] [INFO] PPPoE LOGOUT detected: muktar@ompong
+[2025-08-16T02:23:18.868Z] [INFO] PPPoE notification sent to 6281947215703
+[2025-08-16T02:23:20.294Z] [INFO] PPPoE notification sent to 1/1 valid recipients (3 total)
+[2025-08-16T02:23:20.294Z] [INFO] PPPoE monitoring: 167 active connections, 0 login, 1 logout
+[2025-08-16T02:30:16.844Z] [INFO] Message received
+{
+  "sender": "6281259872053",
+  "messageLength": 384
+}
+[2025-08-16T02:31:50.074Z] [INFO] Message received
+{
+  "sender": "6281947215703",
+  "messageLength": 7
+}
+[2025-08-16T02:31:55.238Z] [INFO] Message received
+{
+  "sender": "6281947215703",
+  "messageLength": 6
+}
+[2025-08-16T02:32:47.329Z] [INFO] Message received
+{
+  "sender": "status",
+  "messageLength": 13
+}
+[2025-08-16T02:34:26.030Z] [INFO] Message received
+{
+  "sender": "6281259872053",
+  "messageLength": 384
+}
+[2025-08-16T02:39:05.003Z] [INFO] PPPoE LOGOUT detected: karmanda
+[2025-08-16T02:39:05.497Z] [INFO] PPPoE notification sent to 6281947215703
+[2025-08-16T02:39:06.924Z] [INFO] PPPoE notification sent to 1/1 valid recipients (3 total)
+[2025-08-16T02:39:06.924Z] [INFO] PPPoE monitoring: 166 active connections, 0 login, 1 logout
+[2025-08-16T02:40:05.006Z] [INFO] PPPoE LOGIN detected: karmanda
+[2025-08-16T02:40:05.508Z] [INFO] PPPoE notification sent to 6281947215703
+[2025-08-16T02:40:06.938Z] [INFO] PPPoE notification sent to 1/1 valid recipients (3 total)
+[2025-08-16T02:40:06.938Z] [INFO] PPPoE monitoring: 167 active connections, 1 login, 0 logout
+[2025-08-16T03:00:00.128Z] [INFO] Starting daily service suspension check...
+[2025-08-16T03:00:00.128Z] [INFO] Starting automatic service suspension check...
+[2025-08-16T03:00:00.130Z] [INFO] Service suspension check completed. Checked: 0, Suspended: 0, Errors: 0
+[2025-08-16T03:00:00.130Z] [INFO] Daily service suspension check completed
+[2025-08-16T03:08:05.296Z] [INFO] Message received
+{
+  "sender": "6281259872053",
+  "messageLength": 209
+}
+[2025-08-16T03:12:14.479Z] [INFO] Message received
+{
+  "sender": "6281545472600",
+  "messageLength": 402
+}
+[2025-08-16T03:58:26.970Z] [INFO] Message received
+{
+  "sender": "6283866315966",
+  "messageLength": 189
+}
+[2025-08-16T04:00:00.395Z] [INFO] Starting daily service restoration check...
+[2025-08-16T04:00:00.395Z] [INFO] Starting automatic service restoration check...
+[2025-08-16T04:00:00.401Z] [INFO] Service restoration check completed. Checked: 0, Restored: 0, Errors: 0
+[2025-08-16T04:00:00.401Z] [INFO] Daily service restoration check completed
+[2025-08-16T04:00:30.022Z] [INFO] Message received
+{
+  "sender": "6285155265353",
+  "messageLength": 384
+}
+[2025-08-16T04:03:42.946Z] [INFO] Message received
+{
+  "sender": "6281545472600",
+  "messageLength": 206
+}
+[2025-08-16T04:11:58.647Z] [INFO] Message received
+{
+  "sender": "6281355623777",
+  "messageLength": 385
+}
+[2025-08-16T04:13:05.014Z] [INFO] PPPoE LOGOUT detected: luwih@
+[2025-08-16T04:13:05.519Z] [INFO] PPPoE notification sent to 6281947215703
+[2025-08-16T04:13:06.952Z] [INFO] PPPoE notification sent to 1/1 valid recipients (3 total)
+[2025-08-16T04:13:06.952Z] [INFO] PPPoE monitoring: 166 active connections, 0 login, 1 logout
+[2025-08-16T04:22:40.804Z] [INFO] Message received
+{
+  "sender": "6281259872053",
+  "messageLength": 385
+}
+[2025-08-16T04:23:40.053Z] [INFO] Message received
+{
+  "sender": "6281259872053",
+  "messageLength": 385
+}
+[2025-08-16T04:26:05.025Z] [INFO] PPPoE LOGIN detected: luwih@
+[2025-08-16T04:26:05.518Z] [INFO] PPPoE notification sent to 6281947215703
+[2025-08-16T04:26:06.943Z] [INFO] PPPoE notification sent to 1/1 valid recipients (3 total)
+[2025-08-16T04:26:06.943Z] [INFO] PPPoE monitoring: 167 active connections, 1 login, 0 logout
+[2025-08-16T04:26:08.304Z] [INFO] Message received
+{
+  "sender": "6281259872053",
+  "messageLength": 385
+}
+[2025-08-16T04:30:53.279Z] [INFO] Message received
+{
+  "sender": "6281355623777",
+  "messageLength": 385
+}
+[2025-08-16T04:43:05.023Z] [INFO] PPPoE LOGOUT detected: abibah
+[2025-08-16T04:43:05.513Z] [INFO] PPPoE notification sent to 6281947215703
+[2025-08-16T04:43:06.939Z] [INFO] PPPoE notification sent to 1/1 valid recipients (3 total)
+[2025-08-16T04:43:06.939Z] [INFO] PPPoE monitoring: 166 active connections, 0 login, 1 logout
+[2025-08-16T04:45:40.756Z] [INFO] Message received
+{
+  "sender": "6281355623777",
+  "messageLength": 385
+}
+[2025-08-16T04:49:50.691Z] [INFO] Message received
+{
+  "sender": "6281355623777",
+  "messageLength": 385
+}
+[2025-08-16T04:57:28.870Z] [INFO] Message received
+{
+  "sender": "6281355623777",
+  "messageLength": 385
+}
+[2025-08-16T05:00:15.521Z] [INFO] Message received
+{
+  "sender": "62895401381444",
+  "messageLength": 403
+}
+[2025-08-16T05:02:05.028Z] [INFO] PPPoE LOGIN detected: abibah
+[2025-08-16T05:02:05.523Z] [INFO] PPPoE notification sent to 6281947215703
+[2025-08-16T05:02:06.951Z] [INFO] PPPoE notification sent to 1/1 valid recipients (3 total)
+[2025-08-16T05:02:06.951Z] [INFO] PPPoE monitoring: 167 active connections, 1 login, 0 logout
+[2025-08-16T05:24:32.958Z] [INFO] Message received
+{
+  "sender": "6281259872053",
+  "messageLength": 385
+}
+[2025-08-16T05:25:22.223Z] [INFO] Message received
+{
+  "sender": "6281259872053",
+  "messageLength": 385
+}
+[2025-08-16T05:25:51.904Z] [INFO] Message received
+{
+  "sender": "6281259872053",
+  "messageLength": 209
+}
+[2025-08-16T05:33:05.027Z] [INFO] PPPoE LOGOUT detected: soleh@pegagan
+[2025-08-16T05:33:05.528Z] [INFO] PPPoE notification sent to 6281947215703
+[2025-08-16T05:33:06.955Z] [INFO] PPPoE notification sent to 1/1 valid recipients (3 total)
+[2025-08-16T05:33:06.955Z] [INFO] PPPoE monitoring: 166 active connections, 0 login, 1 logout
+[2025-08-16T05:34:05.029Z] [INFO] PPPoE LOGOUT detected: tarci
+[2025-08-16T05:34:05.521Z] [INFO] PPPoE notification sent to 6281947215703
+[2025-08-16T05:34:06.956Z] [INFO] PPPoE notification sent to 1/1 valid recipients (3 total)
+[2025-08-16T05:34:06.956Z] [INFO] PPPoE monitoring: 165 active connections, 0 login, 1 logout
+[2025-08-16T05:35:05.029Z] [INFO] PPPoE LOGIN detected: tarci
+[2025-08-16T05:35:05.531Z] [INFO] PPPoE notification sent to 6281947215703
+[2025-08-16T05:35:06.957Z] [INFO] PPPoE notification sent to 1/1 valid recipients (3 total)
+[2025-08-16T05:35:06.957Z] [INFO] PPPoE monitoring: 166 active connections, 1 login, 0 logout
+[2025-08-16T05:42:03.615Z] [INFO] Message received
+{
+  "sender": "6281355623777",
+  "messageLength": 385
+}
+[2025-08-16T06:03:38.369Z] [INFO] Message received
+{
+  "sender": "6281259872053",
+  "messageLength": 384
+}
+[2025-08-16T06:08:58.317Z] [INFO] Message received
+{
+  "sender": "6281259872053",
+  "messageLength": 384
+}
+[2025-08-16T06:18:05.041Z] [INFO] PPPoE LOGIN detected: soleh@pegagan
+[2025-08-16T06:18:05.535Z] [INFO] PPPoE notification sent to 6281947215703
+[2025-08-16T06:18:06.961Z] [INFO] PPPoE notification sent to 1/1 valid recipients (3 total)
+[2025-08-16T06:18:06.961Z] [INFO] PPPoE monitoring: 167 active connections, 1 login, 0 logout
+[2025-08-16T06:24:05.039Z] [INFO] PPPoE LOGOUT detected: nana
+[2025-08-16T06:24:05.540Z] [INFO] PPPoE notification sent to 6281947215703
+[2025-08-16T06:24:06.971Z] [INFO] PPPoE notification sent to 1/1 valid recipients (3 total)
+[2025-08-16T06:24:06.971Z] [INFO] PPPoE monitoring: 166 active connections, 0 login, 1 logout
+[2025-08-16T06:25:05.038Z] [INFO] PPPoE LOGIN detected: nana
+[2025-08-16T06:25:05.529Z] [INFO] PPPoE notification sent to 6281947215703
+[2025-08-16T06:25:06.952Z] [INFO] PPPoE notification sent to 1/1 valid recipients (3 total)
+[2025-08-16T06:25:06.952Z] [INFO] PPPoE monitoring: 167 active connections, 1 login, 0 logout
+[2025-08-16T06:29:32.046Z] [INFO] Message received
+{
+  "sender": "6281259872053",
+  "messageLength": 209
+}
+[2025-08-16T06:59:05.667Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:00:26.436Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:01:30.093Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:02:34.134Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:03:37.990Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:03:44.298Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 233
+}
+[2025-08-16T07:04:01.900Z] [INFO] Message received
+{
+  "sender": "6281243339311",
+  "messageLength": 402
+}
+[2025-08-16T07:04:19.414Z] [INFO] Message received
+{
+  "sender": "6281243339311",
+  "messageLength": 203
+}
+[2025-08-16T07:04:39.588Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 233
+}
+[2025-08-16T07:04:40.100Z] [INFO] Message received
+{
+  "sender": "6281355623777",
+  "messageLength": 214
+}
+[2025-08-16T07:04:41.961Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:05:45.166Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:06:48.961Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:07:53.394Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:08:56.449Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:09:59.967Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:11:04.264Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:12:08.359Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:13:12.052Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:14:15.805Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:15:19.402Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:16:23.076Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:17:26.730Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:18:30.627Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:19:34.054Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:20:38.436Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:21:42.060Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:22:46.345Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:23:49.830Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:24:53.601Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:25:57.007Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:27:00.546Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:27:32.876Z] [INFO] Message received
+{
+  "sender": "6282373001987",
+  "messageLength": 384
+}
+[2025-08-16T07:28:05.126Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:29:08.662Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:30:12.427Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:31:16.652Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:32:20.123Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:33:03.707Z] [INFO] Message received
+{
+  "sender": "6282373001987",
+  "messageLength": 384
+}
+[2025-08-16T07:33:23.206Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:34:27.326Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:35:31.504Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:36:35.143Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:37:38.937Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:38:42.285Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:39:46.127Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:40:50.571Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:41:54.214Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:42:57.327Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:44:01.364Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:45:04.832Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:46:09.052Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:47:13.024Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:48:17.218Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:49:20.012Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:50:24.876Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:51:27.783Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:52:31.426Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:53:35.669Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:54:39.522Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:55:42.476Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:56:46.362Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:57:50.409Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:58:54.198Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T07:59:58.637Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:01:02.180Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:01:03.821Z] [INFO] Message received
+{
+  "sender": "6285155265353",
+  "messageLength": 384
+}
+[2025-08-16T08:02:05.050Z] [INFO] PPPoE LOGIN detected: muktar@ompong
+[2025-08-16T08:02:05.451Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:02:05.699Z] [INFO] PPPoE notification sent to 6281947215703
+[2025-08-16T08:02:07.126Z] [INFO] PPPoE notification sent to 1/1 valid recipients (3 total)
+[2025-08-16T08:02:07.126Z] [INFO] PPPoE monitoring: 168 active connections, 1 login, 0 logout
+[2025-08-16T08:03:09.290Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:04:13.119Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:05:16.757Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:06:21.315Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:07:24.910Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:08:28.314Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:09:31.989Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:10:35.511Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:11:39.402Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:12:43.671Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:13:46.771Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:14:51.107Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:15:55.141Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:16:58.583Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:18:03.036Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:19:06.048Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:20:09.996Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:21:14.351Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:22:17.454Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:22:55.657Z] [INFO] Message received
+{
+  "sender": "6285749807907",
+  "messageLength": 402
+}
+[2025-08-16T08:23:21.672Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:24:24.904Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:25:28.892Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:25:57.488Z] [INFO] Message received
+{
+  "sender": "6285749807907",
+  "messageLength": 402
+}
+[2025-08-16T08:26:22.948Z] [INFO] Message received
+{
+  "sender": "6285749807907",
+  "messageLength": 402
+}
+[2025-08-16T08:26:33.254Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:27:16.279Z] [INFO] Message received
+{
+  "sender": "6285749807907",
+  "messageLength": 402
+}
+[2025-08-16T08:27:25.342Z] [INFO] Message received
+{
+  "sender": "6285749807907",
+  "messageLength": 402
+}
+[2025-08-16T08:27:36.459Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:28:03.367Z] [INFO] Message received
+{
+  "sender": "6285749807907",
+  "messageLength": 402
+}
+[2025-08-16T08:28:21.017Z] [INFO] Message received
+{
+  "sender": "6285749807907",
+  "messageLength": 402
+}
+[2025-08-16T08:28:40.028Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:29:21.017Z] [INFO] Message received
+{
+  "sender": "6285749807907",
+  "messageLength": 402
+}
+[2025-08-16T08:29:27.022Z] [INFO] Message received
+{
+  "sender": "6285749807907",
+  "messageLength": 402
+}
+[2025-08-16T08:29:30.131Z] [INFO] Message received
+{
+  "sender": "6285749807907",
+  "messageLength": 402
+}
+[2025-08-16T08:29:32.362Z] [INFO] Message received
+{
+  "sender": "6285749807907",
+  "messageLength": 402
+}
+[2025-08-16T08:29:35.875Z] [INFO] Message received
+{
+  "sender": "6285749807907",
+  "messageLength": 402
+}
+[2025-08-16T08:29:41.730Z] [INFO] Message received
+{
+  "sender": "6285749807907",
+  "messageLength": 402
+}
+[2025-08-16T08:29:44.552Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:29:54.484Z] [INFO] Message received
+{
+  "sender": "6285749807907",
+  "messageLength": 402
+}
+[2025-08-16T08:29:56.155Z] [INFO] Message received
+{
+  "sender": "6285749807907",
+  "messageLength": 402
+}
+[2025-08-16T08:30:13.342Z] [INFO] Message received
+{
+  "sender": "6285749807907",
+  "messageLength": 402
+}
+[2025-08-16T08:30:15.146Z] [INFO] Message received
+{
+  "sender": "6285749807907",
+  "messageLength": 402
+}
+[2025-08-16T08:30:32.963Z] [INFO] Message received
+{
+  "sender": "6285749807907",
+  "messageLength": 402
+}
+[2025-08-16T08:30:47.452Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:31:10.156Z] [INFO] Message received
+{
+  "sender": "6285749807907",
+  "messageLength": 402
+}
+[2025-08-16T08:31:29.094Z] [INFO] Message received
+{
+  "sender": "6285749807907",
+  "messageLength": 402
+}
+[2025-08-16T08:31:33.113Z] [INFO] Message received
+{
+  "sender": "6285749807907",
+  "messageLength": 402
+}
+[2025-08-16T08:31:51.252Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:32:55.346Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:32:55.406Z] [INFO] Message received
+{
+  "sender": "6285749807907",
+  "messageLength": 402
+}
+[2025-08-16T08:33:05.173Z] [INFO] Message received
+{
+  "sender": "6285749807907",
+  "messageLength": 402
+}
+[2025-08-16T08:33:13.393Z] [INFO] Message received
+{
+  "sender": "6285749807907",
+  "messageLength": 402
+}
+[2025-08-16T08:33:35.710Z] [INFO] Message received
+{
+  "sender": "6285749807907",
+  "messageLength": 402
+}
+[2025-08-16T08:33:43.192Z] [INFO] Message received
+{
+  "sender": "6285749807907",
+  "messageLength": 402
+}
+[2025-08-16T08:33:59.092Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:34:00.991Z] [INFO] Message received
+{
+  "sender": "6285749807907",
+  "messageLength": 402
+}
+[2025-08-16T08:34:05.418Z] [INFO] Message received
+{
+  "sender": "6285749807907",
+  "messageLength": 402
+}
+[2025-08-16T08:34:13.088Z] [INFO] Message received
+{
+  "sender": "6285749807907",
+  "messageLength": 402
+}
+[2025-08-16T08:35:02.577Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:35:44.641Z] [INFO] Message received
+{
+  "sender": "6285749807907",
+  "messageLength": 402
+}
+[2025-08-16T08:35:52.437Z] [INFO] Message received
+{
+  "sender": "6285749807907",
+  "messageLength": 402
+}
+[2025-08-16T08:36:07.144Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:36:07.596Z] [INFO] Message received
+{
+  "sender": "6285749807907",
+  "messageLength": 402
+}
+[2025-08-16T08:36:21.552Z] [INFO] Message received
+{
+  "sender": "6285749807907",
+  "messageLength": 402
+}
+[2025-08-16T08:36:30.943Z] [INFO] Message received
+{
+  "sender": "6285749807907",
+  "messageLength": 402
+}
+[2025-08-16T08:36:45.445Z] [INFO] Message received
+{
+  "sender": "6285749807907",
+  "messageLength": 402
+}
+[2025-08-16T08:36:51.401Z] [INFO] Message received
+{
+  "sender": "6285749807907",
+  "messageLength": 402
+}
+[2025-08-16T08:37:10.774Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:37:30.815Z] [INFO] Message received
+{
+  "sender": "6285749807907",
+  "messageLength": 402
+}
+[2025-08-16T08:37:50.652Z] [INFO] Message received
+{
+  "sender": "6285749807907",
+  "messageLength": 402
+}
+[2025-08-16T08:37:53.651Z] [INFO] Message received
+{
+  "sender": "6285749807907",
+  "messageLength": 402
+}
+[2025-08-16T08:38:13.966Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:39:17.657Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:40:21.514Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:41:25.789Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:42:29.638Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:43:33.018Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:44:36.529Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:45:40.313Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:46:43.994Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:47:47.827Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:47:57.385Z] [INFO] Message received
+{
+  "sender": "6281243339311",
+  "messageLength": 402
+}
+[2025-08-16T08:48:51.784Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:49:55.800Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:50:58.953Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:51:21.579Z] [INFO] Message received
+{
+  "sender": "6281259872053",
+  "messageLength": 402
+}
+[2025-08-16T08:51:49.595Z] [INFO] Message received
+{
+  "sender": "6281259872053",
+  "messageLength": 402
+}
+[2025-08-16T08:52:03.675Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:53:06.419Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:54:11.258Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:55:14.470Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:56:18.182Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:57:22.146Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:58:05.061Z] [INFO] PPPoE LOGOUT detected: kasmuri
+[2025-08-16T08:58:05.607Z] [INFO] PPPoE notification sent to 6281947215703
+[2025-08-16T08:58:07.032Z] [INFO] PPPoE notification sent to 1/1 valid recipients (3 total)
+[2025-08-16T08:58:07.032Z] [INFO] PPPoE monitoring: 167 active connections, 0 login, 1 logout
+[2025-08-16T08:58:25.532Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:58:31.340Z] [INFO] Message received
+{
+  "sender": "6281259872053",
+  "messageLength": 384
+}
+[2025-08-16T08:59:29.830Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T08:59:57.891Z] [INFO] Message received
+{
+  "sender": "6281243339311",
+  "messageLength": 203
+}
+[2025-08-16T08:59:58.212Z] [INFO] Message received
+{
+  "sender": "6281243339311",
+  "messageLength": 203
+}
+[2025-08-16T09:00:33.391Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T09:01:05.051Z] [INFO] PPPoE LOGIN detected: kasmuri
+[2025-08-16T09:01:05.551Z] [INFO] PPPoE notification sent to 6281947215703
+[2025-08-16T09:01:07.099Z] [INFO] PPPoE notification sent to 1/1 valid recipients (3 total)
+[2025-08-16T09:01:07.099Z] [INFO] PPPoE monitoring: 168 active connections, 1 login, 0 logout
+[2025-08-16T09:01:08.128Z] [INFO] Message received
+{
+  "sender": "6281243339311",
+  "messageLength": 402
+}
+[2025-08-16T09:01:37.323Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T09:02:41.042Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T09:03:44.424Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T09:04:06.707Z] [INFO] Message received
+{
+  "sender": "6281259872053",
+  "messageLength": 209
+}
+[2025-08-16T09:04:06.906Z] [INFO] Message received
+{
+  "sender": "6281259872053",
+  "messageLength": 209
+}
+[2025-08-16T09:04:48.337Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T09:05:52.538Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T09:06:55.583Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T09:07:59.250Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T09:09:03.572Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T09:10:06.986Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T09:11:10.796Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T09:12:14.544Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T09:13:18.250Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T09:14:22.329Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T09:15:25.736Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T09:16:29.204Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T09:17:33.059Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T09:18:37.086Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T09:19:41.020Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T09:20:44.254Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T09:21:48.684Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T09:22:19.663Z] [INFO] Message received
+{
+  "sender": "6281243339311",
+  "messageLength": 203
+}
+[2025-08-16T09:22:52.037Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T09:23:56.349Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T09:24:59.749Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T09:26:03.571Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T09:27:06.683Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T09:28:10.708Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T09:29:14.151Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T09:30:18.294Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T09:31:21.676Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T09:32:25.538Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T09:33:30.439Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T09:33:32.470Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 233
+}
+[2025-08-16T09:34:12.593Z] [INFO] Message received
+{
+  "sender": "6281947215703",
+  "messageLength": 4
+}
+[2025-08-16T09:34:28.717Z] [INFO] Message received
+{
+  "sender": "6281947215703",
+  "messageLength": 7
+}
+[2025-08-16T09:34:32.731Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T09:34:33.581Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 233
+}
+[2025-08-16T09:34:47.733Z] [INFO] Message received
+{
+  "sender": "6281947215703",
+  "messageLength": 11
+}
+[2025-08-16T09:34:47.736Z] [INFO] [BILLING] handleBayar dipanggil dengan params:
 [
-  "indah@tanjungpura",
-  "kasdi@rawagunda",
-  "rudibengkel@tanjungpura",
-  "wakeng",
-  "iman@",
-  "darim@lor",
-  "andi",
-  "yudi",
-  "darim",
-  "rom@lah",
-  "tariman",
-  "aqiel",
-  "tinih",
-  "ejun",
-  "ros_pppoe",
-  "nurudin",
-  "brohim",
-  "kendo@tanjungpura",
-  "maktub",
-  "sandi@rajan",
-  "server@yayan",
-  "dedy@sarkim",
-  "server@arep",
-  "seka",
-  "gunawan",
-  "fajar",
-  "Uchi",
-  "wendy@tanjungpura",
-  "wiwin@seblak",
-  "eka",
-  "toko@sayur",
-  "dedi@aira",
-  "toax",
-  "hany@tarsiti",
-  "antony@ps",
-  "gadel",
-  "aldo",
-  "suliwa",
-  "dhea_tile@rawagunda",
-  "elvano1",
-  "lisan@banteng",
-  "alam",
-  "newok",
-  "kus",
-  "winata@laut",
-  "rintem",
-  "kandar",
-  "wadi@rawagunda",
-  "sarwan",
-  "@cimun",
-  "raeni",
-  "salsa",
-  "warsana",
-  "opang@tanjungpura",
-  "damar",
-  "elis@rawagunda",
-  "dasta",
-  "codet",
-  "toyinah",
-  "yuni@rawagunda",
-  "aang",
-  "kama@",
-  "erni",
-  "nadiva",
-  "karban",
-  "Tarci@lor",
-  "memble@",
-  "nina@kesin",
-  "warungyuni@laut",
-  "mardi",
-  "murba",
-  "winata",
-  "nuriyah",
-  "memble2",
-  "tester",
-  "sarjo",
-  "jami@sut",
-  "kincling",
-  "nalda@rawagunda2",
-  "karmanda",
-  "tarci",
-  "lussy",
-  "sanyo",
-  "rasta",
-  "test",
-  "eva",
-  "server@ilik",
-  "santo",
-  "adiiman",
-  "RT-KARONI",
-  "runaeni",
-  "mastobari@",
-  "h.juroh",
-  "SDNUG1",
-  "abibah",
-  "nana",
-  "oland",
-  "warung_elisa@laut",
-  "muktar@ompong",
-  "nesa",
-  "alan@pentud",
-  "karsih",
-  "junanto@rawagunda",
-  "mella",
-  "tibil",
-  "luwih@",
-  "koriya",
-  "talita",
-  "rangdu",
-  "ooh",
-  "erul",
-  "daruni@rawagunda",
-  "yohan@rawagunda",
-  "kasmuri",
-  "handoko",
-  "icha",
-  "durta",
-  "sumi",
-  "windah",
-  "leha",
-  "nani",
-  "wendy@genjong",
-  "soleh@pegagan",
-  "Endra@genjong1",
-  "yusuf",
-  "pabudi@genjong",
-  "turidah",
-  "khofik@janggar",
-  "gemblung",
-  "umikulsum@janggar",
-  "setiyadi@genjong",
-  "ety@pegagan",
-  "F663",
-  "waidah@pegagan",
-  "novita",
-  "intan@ujungmulya",
-  "uung@pegagan",
-  "sudini@pegagan",
-  "astri@pegagan",
-  "dadang@genjong",
-  "denihamdani@pegagan",
-  "durniyah@pegagan",
-  "mangasep@janggar",
-  "eva@pegagan",
-  "opang@pegagan",
-  "surminih@pegagan",
-  "lina@ujungmulya",
-  "sutara@pegagan",
-  "wilda",
-  "murdani",
-  "sarna@pegagan",
-  "yuni@ujungmulya",
-  "anwar@janggar",
-  "eryanto@pegagan",
-  "kurnati",
-  "adinesep@ujungmulya",
-  "yogi",
-  "bunga",
-  "coyih",
-  "pandi@tanjungpura",
-  "aang2",
-  "nalda@pegagan",
-  "atam",
-  "suminih@rawagunda",
-  "walong@asep"
+  "santo"
 ]
-[2025-08-15T00:51:06.836Z] [INFO] Monitoring PPPoE connections: 165 active connections
-[2025-08-15T00:51:06.900Z] [INFO] PPPoE LOGIN detected: indah@tanjungpura, kasdi@rawagunda, rudibengkel@tanjungpura, wakeng, iman@, darim@lor, andi, yudi, darim, rom@lah, tariman, aqiel, tinih, ejun, ros_pppoe, nurudin, brohim, kendo@tanjungpura, maktub, sandi@rajan, server@yayan, dedy@sarkim, server@arep, seka, gunawan, fajar, Uchi, wendy@tanjungpura, wiwin@seblak, eka, toko@sayur, dedi@aira, toax, hany@tarsiti, antony@ps, gadel, aldo, suliwa, dhea_tile@rawagunda, elvano1, lisan@banteng, alam, newok, kus, winata@laut, rintem, kandar, wadi@rawagunda, sarwan, @cimun, raeni, salsa, warsana, opang@tanjungpura, damar, elis@rawagunda, dasta, codet, toyinah, yuni@rawagunda, aang, kama@, erni, nadiva, karban, Tarci@lor, memble@, nina@kesin, warungyuni@laut, mardi, murba, winata, nuriyah, memble2, tester, sarjo, jami@sut, kincling, nalda@rawagunda2, karmanda, tarci, lussy, sanyo, rasta, test, eva, server@ilik, santo, adiiman, RT-KARONI, runaeni, mastobari@, h.juroh, SDNUG1, abibah, nana, oland, warung_elisa@laut, muktar@ompong, nesa, alan@pentud, karsih, junanto@rawagunda, mella, tibil, luwih@, koriya, talita, rangdu, ooh, erul, daruni@rawagunda, yohan@rawagunda, kasmuri, handoko, icha, durta, sumi, windah, leha, nani, wendy@genjong, soleh@pegagan, Endra@genjong1, yusuf, pabudi@genjong, turidah, khofik@janggar, gemblung, umikulsum@janggar, setiyadi@genjong, ety@pegagan, F663, waidah@pegagan, novita, intan@ujungmulya, uung@pegagan, sudini@pegagan, astri@pegagan, dadang@genjong, denihamdani@pegagan, durniyah@pegagan, mangasep@janggar, eva@pegagan, opang@pegagan, surminih@pegagan, lina@ujungmulya, sutara@pegagan, wilda, murdani, sarna@pegagan, yuni@ujungmulya, anwar@janggar, eryanto@pegagan, kurnati, adinesep@ujungmulya, yogi, bunga, coyih, pandi@tanjungpura, aang2, nalda@pegagan, atam, suminih@rawagunda, walong@asep
-[2025-08-15T00:52:06.735Z] [INFO] Monitoring PPPoE connections: 165 active connections
-[2025-08-15T00:52:06.918Z] [INFO] PPPoE LOGIN detected: indah@tanjungpura, kasdi@rawagunda, rudibengkel@tanjungpura, wakeng, iman@, darim@lor, andi, yudi, darim, rom@lah, tariman, aqiel, tinih, ejun, ros_pppoe, nurudin, brohim, kendo@tanjungpura, maktub, sandi@rajan, server@yayan, dedy@sarkim, server@arep, seka, gunawan, fajar, Uchi, wendy@tanjungpura, wiwin@seblak, eka, toko@sayur, dedi@aira, toax, hany@tarsiti, antony@ps, gadel, aldo, suliwa, dhea_tile@rawagunda, elvano1, lisan@banteng, alam, newok, kus, winata@laut, rintem, kandar, wadi@rawagunda, sarwan, @cimun, raeni, salsa, warsana, opang@tanjungpura, damar, elis@rawagunda, dasta, codet, toyinah, yuni@rawagunda, aang, kama@, erni, nadiva, karban, Tarci@lor, memble@, nina@kesin, warungyuni@laut, mardi, murba, winata, nuriyah, memble2, tester, sarjo, jami@sut, kincling, nalda@rawagunda2, karmanda, tarci, lussy, sanyo, rasta, test, eva, server@ilik, santo, adiiman, RT-KARONI, runaeni, mastobari@, h.juroh, SDNUG1, abibah, nana, oland, warung_elisa@laut, muktar@ompong, nesa, alan@pentud, karsih, junanto@rawagunda, mella, tibil, luwih@, koriya, talita, rangdu, ooh, erul, daruni@rawagunda, yohan@rawagunda, kasmuri, handoko, icha, durta, sumi, windah, leha, nani, wendy@genjong, soleh@pegagan, Endra@genjong1, yusuf, pabudi@genjong, turidah, khofik@janggar, gemblung, umikulsum@janggar, setiyadi@genjong, ety@pegagan, F663, waidah@pegagan, novita, intan@ujungmulya, uung@pegagan, sudini@pegagan, astri@pegagan, dadang@genjong, denihamdani@pegagan, durniyah@pegagan, mangasep@janggar, eva@pegagan, opang@pegagan, surminih@pegagan, lina@ujungmulya, sutara@pegagan, wilda, murdani, sarna@pegagan, yuni@ujungmulya, anwar@janggar, eryanto@pegagan, kurnati, adinesep@ujungmulya, yogi, bunga, coyih, pandi@tanjungpura, aang2, nalda@pegagan, atam, suminih@rawagunda, walong@asep
-[2025-08-15T00:52:45.118Z] [INFO] PPPoE notification sent to 0/3 valid recipients (3 total)
-[2025-08-15T00:52:45.128Z] [INFO] PPPoE monitoring: 165 active connections, 165 login, 0 logout
-[2025-08-15T00:53:06.739Z] [INFO] Monitoring PPPoE connections: 165 active connections
-[2025-08-15T00:53:45.068Z] [INFO] PPPoE notification sent to 0/3 valid recipients (3 total)
-[2025-08-15T00:53:45.068Z] [INFO] PPPoE monitoring: 165 active connections, 165 login, 0 logout
-[2025-08-15T00:54:06.759Z] [INFO] Monitoring PPPoE connections: 165 active connections
-[2025-08-15T00:55:06.750Z] [INFO] Monitoring PPPoE connections: 165 active connections
-[2025-08-15T00:56:06.793Z] [INFO] Monitoring PPPoE connections: 165 active connections
-[2025-08-15T00:57:06.788Z] [INFO] Monitoring PPPoE connections: 165 active connections
-[2025-08-15T00:58:06.795Z] [INFO] Monitoring PPPoE connections: 165 active connections
-[2025-08-15T00:59:06.796Z] [INFO] Monitoring PPPoE connections: 165 active connections
+[2025-08-16T09:34:47.736Z] [INFO] [BILLING] Mencari pelanggan dengan: santo
+[2025-08-16T09:34:47.738Z] [INFO] [BILLING] Customer ditemukan: - Ya
+[2025-08-16T09:34:47.738Z] [INFO] [BILLING] Mencari invoice untuk customer ID: 260
+[2025-08-16T09:34:47.739Z] [INFO] [BILLING] Total invoice ditemukan: 0
+[2025-08-16T09:35:36.050Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T09:35:36.839Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 233
+}
+[2025-08-16T09:36:40.089Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T09:36:48.391Z] [INFO] Message received
+{
+  "sender": "6281947215703",
+  "messageLength": 4
+}
+[2025-08-16T09:37:44.456Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T09:38:47.332Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T09:39:37.051Z] [INFO] Message received
+{
+  "sender": "6281947215703",
+  "messageLength": 7
+}
+[2025-08-16T09:39:40.114Z] [INFO] Message received
+{
+  "sender": "6281947215703",
+  "messageLength": 6
+}
+[2025-08-16T09:39:51.140Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T09:39:51.962Z] [INFO] Message received
+{
+  "sender": "6281947215703",
+  "messageLength": 7
+}
+[2025-08-16T09:39:59.582Z] [INFO] Message received
+{
+  "sender": "6281947215703",
+  "messageLength": 7
+}
+[2025-08-16T09:40:55.241Z] [INFO] Message received
+{
+  "sender": "6285121222845",
+  "messageLength": 385
+}
+[2025-08-16T09:46:49.450Z] [INFO] Invoice scheduler initialized - will run on 1st of every month at 08:00
+[2025-08-16T09:46:49.451Z] [INFO] Due date reminder scheduler initialized - will run daily at 09:00
+[2025-08-16T09:46:49.453Z] [INFO] Service suspension/restoration scheduler initialized - will run daily at 10:00 and 11:00
+[2025-08-16T09:46:50.109Z] [INFO] Direktori sesi WhatsApp dibuat: ./whatsapp-session
+[2025-08-16T09:46:50.122Z] [INFO] Attempting to start server on configured port: 3003
+[2025-08-16T09:46:50.123Z] [INFO] Memulai server pada port yang dikonfigurasi: 3003
+[2025-08-16T09:46:50.124Z] [INFO] Port diambil dari settings.json - tidak ada fallback ke port alternatif
+[2025-08-16T09:46:50.130Z] [INFO] ✅ Server berhasil berjalan pada port 3003
+[2025-08-16T09:46:50.130Z] [INFO] 🌐 Web Portal tersedia di: http://localhost:3003
+[2025-08-16T09:46:50.131Z] [INFO] Environment: development
+[2025-08-16T09:46:50.288Z] [INFO] WhatsApp socket set in pppoe-notifications module
+[2025-08-16T09:46:50.289Z] [INFO] WhatsApp socket set in pppoe-commands module
+[2025-08-16T09:46:50.290Z] [INFO] WhatsApp socket set in genieacs-commands module
+[2025-08-16T09:46:50.291Z] [INFO] WhatsApp connected successfully
+[2025-08-16T09:46:50.292Z] [INFO] PPPoE monitoring started with interval 60000ms
+[2025-08-16T09:46:50.294Z] [INFO] RX Power monitoring initialized
+[2025-08-16T09:46:50.295Z] [INFO] PPPoE monitoring auto-started on initialization
+[2025-08-16T09:46:50.295Z] [INFO] PPPoE monitoring initialized
+[2025-08-16T09:47:50.338Z] [INFO] Connected to Mikrotik at 192.168.8.1:8700
+[2025-08-16T09:47:50.429Z] [INFO] PPPoE LOGIN detected: indah@tanjungpura, kasdi@rawagunda, rudibengkel@tanjungpura, wakeng, iman@, darim@lor, andi, yudi, rom@lah, tariman, aqiel, tinih, ejun, nurudin, brohim, kendo@tanjungpura, maktub, sandi@rajan, server@yayan, dedy@sarkim, server@arep, gunawan, fajar, Uchi, wendy@tanjungpura, wiwin@seblak, eka, toko@sayur, dedi@aira, toax, hany@tarsiti, antony@ps, gadel, aldo, suliwa, dhea_tile@rawagunda, elvano1, lisan@banteng, alam, newok, kus, winata@laut, rintem, kandar, wadi@rawagunda, sarwan, @cimun, raeni, salsa, warsana, opang@tanjungpura, damar, elis@rawagunda, dasta, codet, toyinah, yuni@rawagunda, aang, kama@, erni, nadiva, karban, Tarci@lor, memble@, nina@kesin, warungyuni@laut, murba, winata, nuriyah, memble2, tester, sarjo, jami@sut, kincling, nalda@rawagunda2, lussy, sanyo, rasta, eva, server@ilik, santo, adiiman, RT-KARONI, h.juroh, SDNUG1, oland, warung_elisa@laut, nesa, alan@pentud, karsih, junanto@rawagunda, mella, tibil, koriya, rangdu, erul, daruni@rawagunda, handoko, durta, aang2, atam, suminih@rawagunda, ajri, icha, talita, yohan@rawagunda, walong@asep, seka, mardi, darim, ooh, sumi, bunga, ros_pppoe, windah, uung@pegagan, F663, waidah@pegagan, dadang@genjong, Endra@genjong1, murdani, pabudi@genjong, denihamdani@pegagan, yusuf, surminih@pegagan, lina@ujungmulya, turidah, umikulsum@janggar, khofik@janggar, sang, nalda@pegagan, novita, wendy@genjong, intan@ujungmulya, mangasep@janggar, eva@pegagan, opang@pegagan, leha, nani, setiyadi@genjong, ety@pegagan, sutara@pegagan, sudini@pegagan, gemblung, wilda, durniyah@pegagan, anwar@janggar, sarna@pegagan, yuni@ujungmulya, eryanto@pegagan, adinesep@ujungmulya, abas@pegagan, kurnati, mastobari@, yogi, test, coyih, pandi@tanjungpura, karmanda, luwih@, abibah, tarci, soleh@pegagan, runaeni, nana, astri@pegagan, muktar@ompong, kasmuri
+[2025-08-16T09:47:58.559Z] [INFO] PPPoE notification sent to 0/3 valid recipients (3 total)
+[2025-08-16T09:47:58.560Z] [INFO] PPPoE monitoring: 168 active connections, 168 login, 0 logout
+[2025-08-16T09:50:56.425Z] [INFO] Invoice scheduler initialized - will run on 1st of every month at 08:00
+[2025-08-16T09:50:56.426Z] [INFO] Due date reminder scheduler initialized - will run daily at 09:00
+[2025-08-16T09:50:56.428Z] [INFO] Service suspension/restoration scheduler initialized - will run daily at 10:00 and 11:00
+[2025-08-16T09:50:57.087Z] [INFO] Attempting to start server on configured port: 3003
+[2025-08-16T09:50:57.088Z] [INFO] Memulai server pada port yang dikonfigurasi: 3003
+[2025-08-16T09:50:57.088Z] [INFO] Port diambil dari settings.json - tidak ada fallback ke port alternatif
+[2025-08-16T09:50:57.094Z] [INFO] ✅ Server berhasil berjalan pada port 3003
+[2025-08-16T09:50:57.094Z] [INFO] 🌐 Web Portal tersedia di: http://localhost:3003
+[2025-08-16T09:50:57.095Z] [INFO] Environment: development
+[2025-08-16T09:50:57.191Z] [INFO] WhatsApp socket set in pppoe-notifications module
+[2025-08-16T09:50:57.192Z] [INFO] WhatsApp socket set in pppoe-commands module
+[2025-08-16T09:50:57.192Z] [INFO] WhatsApp socket set in genieacs-commands module
+[2025-08-16T09:50:57.193Z] [INFO] WhatsApp connected successfully
+[2025-08-16T09:50:57.195Z] [INFO] PPPoE monitoring started with interval 60000ms
+[2025-08-16T09:50:57.196Z] [INFO] RX Power monitoring initialized
+[2025-08-16T09:50:57.196Z] [INFO] PPPoE monitoring auto-started on initialization
+[2025-08-16T09:50:57.197Z] [INFO] PPPoE monitoring initialized
+[2025-08-16T09:51:57.210Z] [INFO] Connected to Mikrotik at 192.168.8.1:8700
+[2025-08-16T09:51:57.296Z] [INFO] PPPoE LOGIN detected: indah@tanjungpura, kasdi@rawagunda, rudibengkel@tanjungpura, wakeng, iman@, darim@lor, andi, yudi, rom@lah, tariman, aqiel, tinih, ejun, nurudin, brohim, kendo@tanjungpura, maktub, sandi@rajan, server@yayan, dedy@sarkim, server@arep, gunawan, fajar, Uchi, wendy@tanjungpura, wiwin@seblak, eka, toko@sayur, dedi@aira, toax, hany@tarsiti, antony@ps, gadel, aldo, suliwa, dhea_tile@rawagunda, elvano1, lisan@banteng, alam, newok, kus, winata@laut, rintem, kandar, wadi@rawagunda, sarwan, @cimun, raeni, salsa, warsana, opang@tanjungpura, damar, elis@rawagunda, dasta, codet, toyinah, yuni@rawagunda, aang, kama@, erni, nadiva, karban, Tarci@lor, memble@, nina@kesin, warungyuni@laut, murba, winata, nuriyah, memble2, tester, sarjo, jami@sut, kincling, nalda@rawagunda2, lussy, sanyo, rasta, eva, server@ilik, santo, adiiman, RT-KARONI, h.juroh, SDNUG1, oland, warung_elisa@laut, nesa, alan@pentud, karsih, junanto@rawagunda, mella, tibil, koriya, rangdu, erul, daruni@rawagunda, handoko, durta, aang2, atam, suminih@rawagunda, ajri, icha, talita, yohan@rawagunda, walong@asep, seka, mardi, darim, ooh, sumi, bunga, ros_pppoe, windah, uung@pegagan, F663, waidah@pegagan, dadang@genjong, Endra@genjong1, murdani, pabudi@genjong, denihamdani@pegagan, yusuf, surminih@pegagan, lina@ujungmulya, turidah, umikulsum@janggar, khofik@janggar, sang, nalda@pegagan, novita, wendy@genjong, intan@ujungmulya, mangasep@janggar, eva@pegagan, opang@pegagan, leha, nani, setiyadi@genjong, ety@pegagan, sutara@pegagan, sudini@pegagan, gemblung, wilda, durniyah@pegagan, anwar@janggar, sarna@pegagan, yuni@ujungmulya, eryanto@pegagan, adinesep@ujungmulya, abas@pegagan, kurnati, mastobari@, yogi, test, coyih, pandi@tanjungpura, karmanda, luwih@, abibah, tarci, soleh@pegagan, runaeni, nana, astri@pegagan, muktar@ompong, kasmuri
+[2025-08-16T09:51:57.897Z] [INFO] PPPoE notification sent to 6281947215703
+[2025-08-16T09:51:59.459Z] [INFO] PPPoE notification sent to 1/1 valid recipients (3 total)
+[2025-08-16T09:51:59.460Z] [INFO] PPPoE monitoring: 168 active connections, 168 login, 0 logout
+[2025-08-16T09:54:43.825Z] [INFO] Invoice scheduler initialized - will run on 1st of every month at 08:00
+[2025-08-16T09:54:43.827Z] [INFO] Due date reminder scheduler initialized - will run daily at 09:00
+[2025-08-16T09:54:43.829Z] [INFO] Service suspension/restoration scheduler initialized - will run daily at 10:00 and 11:00
+[2025-08-16T09:54:44.491Z] [INFO] Attempting to start server on configured port: 3003
+[2025-08-16T09:54:44.492Z] [INFO] Memulai server pada port yang dikonfigurasi: 3003
+[2025-08-16T09:54:44.493Z] [INFO] Port diambil dari settings.json - tidak ada fallback ke port alternatif
+[2025-08-16T09:54:44.499Z] [INFO] ✅ Server berhasil berjalan pada port 3003
+[2025-08-16T09:54:44.499Z] [INFO] 🌐 Web Portal tersedia di: http://localhost:3003
+[2025-08-16T09:54:44.500Z] [INFO] Environment: development
+[2025-08-16T09:54:44.600Z] [INFO] WhatsApp socket set in pppoe-notifications module
+[2025-08-16T09:54:44.600Z] [INFO] WhatsApp socket set in pppoe-commands module
+[2025-08-16T09:54:44.601Z] [INFO] WhatsApp socket set in genieacs-commands module
+[2025-08-16T09:54:44.602Z] [INFO] WhatsApp connected successfully
+[2025-08-16T09:54:44.603Z] [INFO] PPPoE monitoring started with interval 60000ms
+[2025-08-16T09:54:44.605Z] [INFO] RX Power monitoring initialized
+[2025-08-16T09:54:44.605Z] [INFO] PPPoE monitoring auto-started on initialization
+[2025-08-16T09:54:44.606Z] [INFO] PPPoE monitoring initialized
+[2025-08-16T09:55:44.629Z] [INFO] Connected to Mikrotik at 192.168.8.1:8700
+[2025-08-16T09:55:44.734Z] [INFO] PPPoE LOGIN detected: indah@tanjungpura, kasdi@rawagunda, rudibengkel@tanjungpura, wakeng, iman@, darim@lor, andi, yudi, rom@lah, tariman, aqiel, tinih, ejun, nurudin, brohim, kendo@tanjungpura, maktub, sandi@rajan, server@yayan, dedy@sarkim, server@arep, gunawan, fajar, Uchi, wendy@tanjungpura, wiwin@seblak, eka, toko@sayur, dedi@aira, toax, hany@tarsiti, antony@ps, gadel, aldo, suliwa, dhea_tile@rawagunda, elvano1, lisan@banteng, alam, newok, kus, winata@laut, rintem, kandar, wadi@rawagunda, sarwan, @cimun, raeni, salsa, warsana, opang@tanjungpura, damar, elis@rawagunda, dasta, codet, toyinah, yuni@rawagunda, aang, kama@, erni, nadiva, karban, Tarci@lor, memble@, nina@kesin, warungyuni@laut, murba, winata, nuriyah, memble2, tester, sarjo, jami@sut, kincling, nalda@rawagunda2, lussy, sanyo, rasta, eva, server@ilik, santo, adiiman, RT-KARONI, h.juroh, SDNUG1, oland, warung_elisa@laut, nesa, alan@pentud, karsih, junanto@rawagunda, mella, tibil, koriya, rangdu, erul, daruni@rawagunda, handoko, durta, aang2, atam, suminih@rawagunda, ajri, icha, talita, yohan@rawagunda, walong@asep, seka, mardi, darim, ooh, sumi, bunga, ros_pppoe, windah, uung@pegagan, F663, waidah@pegagan, dadang@genjong, Endra@genjong1, murdani, pabudi@genjong, denihamdani@pegagan, yusuf, surminih@pegagan, lina@ujungmulya, turidah, umikulsum@janggar, khofik@janggar, sang, nalda@pegagan, novita, wendy@genjong, intan@ujungmulya, mangasep@janggar, eva@pegagan, opang@pegagan, leha, nani, setiyadi@genjong, ety@pegagan, sutara@pegagan, sudini@pegagan, gemblung, wilda, durniyah@pegagan, anwar@janggar, sarna@pegagan, yuni@ujungmulya, eryanto@pegagan, adinesep@ujungmulya, abas@pegagan, kurnati, mastobari@, yogi, test, coyih, pandi@tanjungpura, karmanda, luwih@, abibah, tarci, soleh@pegagan, runaeni, nana, astri@pegagan, muktar@ompong, kasmuri
+[2025-08-16T09:55:45.324Z] [INFO] PPPoE notification sent to 6281947215703
+[2025-08-16T09:55:46.890Z] [INFO] PPPoE notification sent to 1/1 valid recipients (3 total)
+[2025-08-16T09:55:46.890Z] [INFO] PPPoE monitoring: 168 active connections, 168 login, 0 logout
+[2025-08-16T10:17:44.862Z] [INFO] PPPoE LOGOUT detected: setiyadi@genjong
+[2025-08-16T10:17:53.015Z] [INFO] PPPoE notification sent to 0/3 valid recipients (3 total)
+[2025-08-16T10:17:53.016Z] [INFO] PPPoE monitoring: 167 active connections, 0 login, 1 logout
+[2025-08-16T10:19:11.901Z] [INFO] Invoice scheduler initialized - will run on 1st of every month at 08:00
+[2025-08-16T10:19:11.903Z] [INFO] Due date reminder scheduler initialized - will run daily at 09:00
+[2025-08-16T10:19:11.905Z] [INFO] Service suspension/restoration scheduler initialized - will run daily at 10:00 and 11:00
+[2025-08-16T10:19:12.564Z] [INFO] Attempting to start server on configured port: 3003
+[2025-08-16T10:19:12.565Z] [INFO] Memulai server pada port yang dikonfigurasi: 3003
+[2025-08-16T10:19:12.565Z] [INFO] Port diambil dari settings.json - tidak ada fallback ke port alternatif
+[2025-08-16T10:19:12.570Z] [INFO] ✅ Server berhasil berjalan pada port 3003
+[2025-08-16T10:19:12.571Z] [INFO] 🌐 Web Portal tersedia di: http://localhost:3003
+[2025-08-16T10:19:12.572Z] [INFO] Environment: development
+[2025-08-16T10:19:12.671Z] [INFO] WhatsApp socket set in pppoe-notifications module
+[2025-08-16T10:19:12.672Z] [INFO] WhatsApp socket set in pppoe-commands module
+[2025-08-16T10:19:12.672Z] [INFO] WhatsApp socket set in genieacs-commands module
+[2025-08-16T10:19:12.673Z] [INFO] WhatsApp connected successfully
+[2025-08-16T10:19:12.674Z] [INFO] PPPoE monitoring started with interval 60000ms
+[2025-08-16T10:19:12.676Z] [INFO] RX Power monitoring initialized
+[2025-08-16T10:19:12.677Z] [INFO] PPPoE monitoring auto-started on initialization
+[2025-08-16T10:19:12.677Z] [INFO] PPPoE monitoring initialized
+[2025-08-16T10:19:37.351Z] [INFO] Connected to Mikrotik at 192.168.8.1:8700
+[2025-08-16T10:20:12.758Z] [INFO] PPPoE LOGIN detected: indah@tanjungpura, kasdi@rawagunda, rudibengkel@tanjungpura, wakeng, iman@, darim@lor, andi, yudi, rom@lah, tariman, aqiel, tinih, ejun, nurudin, brohim, kendo@tanjungpura, maktub, sandi@rajan, server@yayan, dedy@sarkim, server@arep, gunawan, fajar, Uchi, wendy@tanjungpura, wiwin@seblak, eka, toko@sayur, dedi@aira, toax, hany@tarsiti, antony@ps, gadel, aldo, suliwa, dhea_tile@rawagunda, elvano1, lisan@banteng, alam, newok, kus, winata@laut, rintem, kandar, wadi@rawagunda, sarwan, @cimun, raeni, salsa, warsana, opang@tanjungpura, damar, elis@rawagunda, dasta, codet, toyinah, yuni@rawagunda, aang, kama@, erni, nadiva, karban, Tarci@lor, memble@, nina@kesin, warungyuni@laut, murba, winata, nuriyah, memble2, tester, sarjo, jami@sut, kincling, nalda@rawagunda2, lussy, sanyo, rasta, eva, server@ilik, santo, adiiman, RT-KARONI, h.juroh, SDNUG1, oland, warung_elisa@laut, nesa, alan@pentud, karsih, junanto@rawagunda, mella, tibil, koriya, rangdu, erul, daruni@rawagunda, handoko, durta, aang2, atam, suminih@rawagunda, ajri, icha, talita, yohan@rawagunda, walong@asep, seka, mardi, darim, ooh, sumi, bunga, ros_pppoe, windah, uung@pegagan, F663, waidah@pegagan, dadang@genjong, Endra@genjong1, murdani, pabudi@genjong, denihamdani@pegagan, yusuf, surminih@pegagan, lina@ujungmulya, turidah, umikulsum@janggar, khofik@janggar, sang, nalda@pegagan, novita, wendy@genjong, intan@ujungmulya, mangasep@janggar, eva@pegagan, opang@pegagan, leha, nani, ety@pegagan, sutara@pegagan, sudini@pegagan, gemblung, wilda, durniyah@pegagan, anwar@janggar, sarna@pegagan, yuni@ujungmulya, eryanto@pegagan, adinesep@ujungmulya, abas@pegagan, kurnati, mastobari@, yogi, test, coyih, pandi@tanjungpura, karmanda, luwih@, abibah, tarci, soleh@pegagan, runaeni, nana, astri@pegagan, muktar@ompong, kasmuri
+[2025-08-16T10:20:13.263Z] [INFO] PPPoE notification sent to 6281947215703
+[2025-08-16T10:20:14.717Z] [INFO] PPPoE notification sent to 1/1 valid recipients (3 total)
+[2025-08-16T10:20:14.717Z] [INFO] PPPoE monitoring: 167 active connections, 167 login, 0 logout
+[2025-08-16T10:23:12.774Z] [INFO] PPPoE LOGOUT detected: yohan@rawagunda
+[2025-08-16T10:23:13.279Z] [INFO] PPPoE notification sent to 6281947215703
+[2025-08-16T10:23:14.717Z] [INFO] PPPoE notification sent to 1/1 valid recipients (3 total)
+[2025-08-16T10:23:14.718Z] [INFO] PPPoE monitoring: 166 active connections, 0 login, 1 logout
+[2025-08-16T10:26:50.868Z] [INFO] Invoice scheduler initialized - will run on 1st of every month at 08:00
+[2025-08-16T10:26:50.869Z] [INFO] Due date reminder scheduler initialized - will run daily at 09:00
+[2025-08-16T10:26:50.871Z] [INFO] Service suspension/restoration scheduler initialized - will run daily at 10:00 and 11:00
+[2025-08-16T10:26:51.511Z] [INFO] Attempting to start server on configured port: 3003
+[2025-08-16T10:26:51.512Z] [INFO] Memulai server pada port yang dikonfigurasi: 3003
+[2025-08-16T10:26:51.513Z] [INFO] Port diambil dari settings.json - tidak ada fallback ke port alternatif
+[2025-08-16T10:26:51.518Z] [INFO] ✅ Server berhasil berjalan pada port 3003
+[2025-08-16T10:26:51.519Z] [INFO] 🌐 Web Portal tersedia di: http://localhost:3003
+[2025-08-16T10:26:51.519Z] [INFO] Environment: development
+[2025-08-16T10:26:51.617Z] [INFO] WhatsApp socket set in pppoe-notifications module
+[2025-08-16T10:26:51.618Z] [INFO] WhatsApp socket set in pppoe-commands module
+[2025-08-16T10:26:51.619Z] [INFO] WhatsApp socket set in genieacs-commands module
+[2025-08-16T10:26:51.619Z] [INFO] WhatsApp connected successfully
+[2025-08-16T10:26:51.621Z] [INFO] PPPoE monitoring started with interval 60000ms
+[2025-08-16T10:26:51.622Z] [INFO] RX Power monitoring initialized
+[2025-08-16T10:26:51.622Z] [INFO] PPPoE monitoring auto-started on initialization
+[2025-08-16T10:26:51.623Z] [INFO] PPPoE monitoring initialized
+[2025-08-16T10:28:04.975Z] [INFO] Invoice scheduler initialized - will run on 1st of every month at 08:00
+[2025-08-16T10:28:04.976Z] [INFO] Due date reminder scheduler initialized - will run daily at 09:00
+[2025-08-16T10:28:04.978Z] [INFO] Service suspension/restoration scheduler initialized - will run daily at 10:00 and 11:00
+[2025-08-16T10:28:05.631Z] [INFO] Attempting to start server on configured port: 3003
+[2025-08-16T10:28:05.632Z] [INFO] Memulai server pada port yang dikonfigurasi: 3003
+[2025-08-16T10:28:05.632Z] [INFO] Port diambil dari settings.json - tidak ada fallback ke port alternatif
+[2025-08-16T10:28:05.637Z] [INFO] ✅ Server berhasil berjalan pada port 3003
+[2025-08-16T10:28:05.638Z] [INFO] 🌐 Web Portal tersedia di: http://localhost:3003
+[2025-08-16T10:28:05.639Z] [INFO] Environment: development
+[2025-08-16T10:28:05.735Z] [INFO] WhatsApp socket set in pppoe-notifications module
+[2025-08-16T10:28:05.735Z] [INFO] WhatsApp socket set in pppoe-commands module
+[2025-08-16T10:28:05.736Z] [INFO] WhatsApp socket set in genieacs-commands module
+[2025-08-16T10:28:05.737Z] [INFO] WhatsApp connected successfully
+[2025-08-16T10:28:05.738Z] [INFO] PPPoE monitoring started with interval 60000ms
+[2025-08-16T10:28:05.740Z] [INFO] RX Power monitoring initialized
+[2025-08-16T10:28:05.740Z] [INFO] PPPoE monitoring auto-started on initialization
+[2025-08-16T10:28:05.741Z] [INFO] PPPoE monitoring initialized
+[2025-08-16T10:28:15.312Z] [INFO] Connected to Mikrotik at 192.168.8.1:8700
+[2025-08-16T10:29:05.815Z] [INFO] PPPoE LOGIN detected: indah@tanjungpura, kasdi@rawagunda, rudibengkel@tanjungpura, wakeng, iman@, darim@lor, andi, yudi, rom@lah, tariman, aqiel, tinih, ejun, nurudin, brohim, kendo@tanjungpura, maktub, sandi@rajan, server@yayan, dedy@sarkim, server@arep, gunawan, fajar, Uchi, wendy@tanjungpura, wiwin@seblak, eka, toko@sayur, dedi@aira, toax, hany@tarsiti, antony@ps, gadel, aldo, suliwa, dhea_tile@rawagunda, elvano1, lisan@banteng, alam, newok, kus, winata@laut, rintem, kandar, wadi@rawagunda, sarwan, @cimun, raeni, salsa, warsana, opang@tanjungpura, damar, elis@rawagunda, dasta, codet, toyinah, yuni@rawagunda, aang, kama@, erni, nadiva, karban, Tarci@lor, memble@, nina@kesin, warungyuni@laut, murba, winata, nuriyah, memble2, tester, sarjo, jami@sut, kincling, nalda@rawagunda2, lussy, sanyo, rasta, eva, server@ilik, santo, adiiman, RT-KARONI, h.juroh, SDNUG1, oland, warung_elisa@laut, nesa, alan@pentud, karsih, junanto@rawagunda, mella, tibil, koriya, rangdu, erul, daruni@rawagunda, handoko, durta, aang2, atam, suminih@rawagunda, ajri, icha, talita, walong@asep, seka, mardi, darim, ooh, sumi, bunga, ros_pppoe, windah, uung@pegagan, F663, waidah@pegagan, dadang@genjong, Endra@genjong1, murdani, pabudi@genjong, denihamdani@pegagan, yusuf, surminih@pegagan, lina@ujungmulya, turidah, umikulsum@janggar, khofik@janggar, sang, nalda@pegagan, novita, wendy@genjong, intan@ujungmulya, mangasep@janggar, eva@pegagan, opang@pegagan, leha, nani, ety@pegagan, sutara@pegagan, sudini@pegagan, gemblung, wilda, durniyah@pegagan, anwar@janggar, sarna@pegagan, yuni@ujungmulya, eryanto@pegagan, adinesep@ujungmulya, abas@pegagan, kurnati, mastobari@, yogi, test, coyih, pandi@tanjungpura, karmanda, luwih@, abibah, tarci, soleh@pegagan, runaeni, nana, astri@pegagan, muktar@ompong, kasmuri, setiyadi@genjong
+[2025-08-16T10:29:06.385Z] [INFO] PPPoE notification sent to 6281947215703
+[2025-08-16T10:29:07.930Z] [INFO] PPPoE notification sent to 1/1 valid recipients (3 total)
+[2025-08-16T10:29:07.932Z] [INFO] PPPoE monitoring: 167 active connections, 167 login, 0 logout

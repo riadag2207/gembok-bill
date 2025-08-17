@@ -4297,9 +4297,139 @@
 [2025-08-15T00:14:19.940Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
 [2025-08-15T00:14:23.012Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
 [2025-08-15T00:14:26.036Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
-[2025-08-15T00:51:38.992Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
-[2025-08-15T00:52:12.025Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
-[2025-08-15T00:52:39.003Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
-[2025-08-15T00:52:45.089Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
-[2025-08-15T00:53:12.041Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
-[2025-08-15T00:53:45.067Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-15T00:43:23.531Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-15T01:38:25.812Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-15T01:38:28.819Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-15T01:38:31.824Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-15T02:13:55.984Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-15T03:37:58.415Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-15T03:38:01.420Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-15T03:38:04.425Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-15T03:38:58.425Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-15T03:39:01.430Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-15T03:39:04.435Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-15T04:03:58.426Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-15T04:04:01.430Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-15T04:04:04.437Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-15T04:14:58.469Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-15T04:15:01.474Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-15T04:15:04.479Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-15T04:18:13.663Z] [ERROR] [WEBHOOK] Fallback search failed:
+[2025-08-15T05:04:09.465Z] [ERROR] [WEBHOOK] Fallback search failed:
+[2025-08-15T06:31:58.456Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-15T06:32:01.463Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-15T06:32:04.468Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-15T06:32:58.452Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-15T06:33:01.457Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-15T06:33:04.462Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-15T06:33:06.538Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-15T06:33:09.568Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-15T06:33:12.573Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-15T06:34:58.450Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-15T06:35:01.454Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-15T06:35:04.459Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-15T07:54:58.475Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-15T07:55:01.480Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-15T07:55:04.485Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-15T07:59:58.577Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-15T08:00:01.582Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-15T08:00:04.585Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-15T08:00:58.465Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-15T08:01:01.472Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-15T08:01:04.477Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-15T08:12:58.482Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-15T08:13:01.486Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-15T08:13:04.490Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-15T08:51:58.482Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-15T08:52:01.489Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-15T08:52:04.494Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-15T10:19:58.483Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-15T10:20:01.488Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-15T10:20:04.494Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-15T10:20:58.480Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-15T10:21:01.486Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-15T10:21:04.492Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-15T12:19:58.510Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-15T12:20:01.514Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-15T12:20:04.519Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-15T12:20:58.499Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-15T12:21:01.505Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-15T12:21:04.509Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-15T12:42:58.494Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-15T12:43:01.498Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-15T12:43:04.503Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-15T12:43:58.501Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-15T12:44:01.508Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-15T12:44:04.511Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-15T13:59:58.511Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-15T14:00:01.516Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-15T14:00:04.521Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-15T14:26:58.514Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-15T14:27:01.517Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-15T14:27:04.525Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-15T14:59:58.510Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-15T15:00:01.515Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-15T15:00:04.521Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-15T15:00:58.516Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-15T15:01:01.520Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-15T15:01:04.525Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-15T15:12:58.512Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-15T15:13:01.519Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-15T15:13:04.524Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-15T15:15:58.515Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-15T15:16:01.521Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-15T15:16:04.528Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-15T15:33:58.510Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-15T15:34:01.515Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-15T15:34:04.520Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-15T15:34:58.513Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-15T15:35:01.517Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-15T15:35:04.523Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-15T15:54:58.505Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-15T15:55:01.508Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-15T15:55:04.513Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-15T16:56:58.524Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-15T16:57:01.530Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-15T16:57:04.533Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-15T17:15:58.510Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-15T17:16:01.515Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-15T17:16:04.520Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-15T17:16:58.514Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-15T17:17:01.518Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-15T17:17:04.523Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-15T18:59:58.543Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-15T19:00:01.548Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-15T19:00:04.552Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-15T19:00:58.543Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-15T19:01:01.546Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-15T19:01:04.551Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-15T19:59:58.553Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-15T20:00:01.559Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-15T20:00:04.562Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-15T20:01:58.559Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-15T20:02:01.564Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-15T20:02:04.570Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-15T20:51:08.845Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-15T22:12:11.397Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-15T22:12:14.403Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-15T22:12:17.409Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-16T00:46:15.938Z] [ERROR] [WEBHOOK] Fallback search failed:
+[2025-08-16T01:18:11.405Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-16T01:18:14.411Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-16T01:18:17.419Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-16T01:19:11.401Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-16T01:19:14.406Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-16T01:19:17.410Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-16T02:11:04.691Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-16T09:46:50.121Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-16T09:47:52.519Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-16T09:47:55.544Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-16T09:47:58.558Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-16T09:50:57.086Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-16T09:54:44.490Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-16T10:17:46.948Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-16T10:17:49.983Z] [ERROR] Failed to send PPPoE notification to 62838076656xxx after 2 retries
+[2025-08-16T10:17:53.014Z] [ERROR] Failed to send PPPoE notification to 62822180947xxx after 2 retries
+[2025-08-16T10:19:12.562Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-16T10:26:51.510Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-16T10:28:05.629Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function

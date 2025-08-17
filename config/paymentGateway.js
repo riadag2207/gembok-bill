@@ -410,7 +410,7 @@ class TripayGateway {
         const appBaseUrl = baseNoSlash;
 
         const orderData = {
-            method: 'BRIVA',
+            method: this.config.method || 'BRIVA',
             merchant_ref: `INV-${invoice.invoice_number}`,
             amount: parseInt(invoice.amount),
             customer_name: invoice.customer_name,

@@ -1363,22 +1363,475 @@
 [2025-08-15T00:14:24.020Z] [WARN] Error validating WhatsApp number 62822180947xxx: Connection Closed
 [2025-08-15T00:14:24.021Z] [WARN] Retry 1/2 failed for 62822180947xxx: Cannot read properties of undefined (reading 'id')
 [2025-08-15T00:14:26.035Z] [WARN] Retry 2/2 failed for 62822180947xxx: Cannot read properties of undefined (reading 'id')
-[2025-08-15T00:51:06.826Z] [WARN] No technician group configured for PPPoE notifications
-[2025-08-15T00:51:36.982Z] [WARN] Error validating WhatsApp number 6281947215703: Timed Out
-[2025-08-15T00:51:36.984Z] [WARN] Retry 1/2 failed for 6281947215703: Cannot read properties of undefined (reading 'id')
-[2025-08-15T00:51:38.991Z] [WARN] Retry 2/2 failed for 6281947215703: Cannot read properties of undefined (reading 'id')
-[2025-08-15T00:52:10.013Z] [WARN] Error validating WhatsApp number 62838076656xxx: Timed Out
-[2025-08-15T00:52:10.015Z] [WARN] Retry 1/2 failed for 62838076656xxx: Cannot read properties of undefined (reading 'id')
-[2025-08-15T00:52:12.024Z] [WARN] Retry 2/2 failed for 62838076656xxx: Cannot read properties of undefined (reading 'id')
-[2025-08-15T00:52:36.991Z] [WARN] Error validating WhatsApp number 6281947215703: Timed Out
-[2025-08-15T00:52:36.993Z] [WARN] Retry 1/2 failed for 6281947215703: Cannot read properties of undefined (reading 'id')
-[2025-08-15T00:52:39.002Z] [WARN] Retry 2/2 failed for 6281947215703: Cannot read properties of undefined (reading 'id')
-[2025-08-15T00:52:43.042Z] [WARN] Error validating WhatsApp number 62822180947xxx: Timed Out
-[2025-08-15T00:52:43.043Z] [WARN] Retry 1/2 failed for 62822180947xxx: Cannot read properties of undefined (reading 'id')
-[2025-08-15T00:52:45.081Z] [WARN] Retry 2/2 failed for 62822180947xxx: Cannot read properties of undefined (reading 'id')
-[2025-08-15T00:53:10.022Z] [WARN] Error validating WhatsApp number 62838076656xxx: Timed Out
-[2025-08-15T00:53:10.024Z] [WARN] Retry 1/2 failed for 62838076656xxx: Cannot read properties of undefined (reading 'id')
-[2025-08-15T00:53:12.040Z] [WARN] Retry 2/2 failed for 62838076656xxx: Cannot read properties of undefined (reading 'id')
-[2025-08-15T00:53:43.060Z] [WARN] Error validating WhatsApp number 62822180947xxx: Timed Out
-[2025-08-15T00:53:43.062Z] [WARN] Retry 1/2 failed for 62822180947xxx: Cannot read properties of undefined (reading 'id')
-[2025-08-15T00:53:45.067Z] [WARN] Retry 2/2 failed for 62822180947xxx: Cannot read properties of undefined (reading 'id')
+[2025-08-15T00:44:25.674Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-15T00:44:25.674Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-15T00:44:25.999Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-15T00:44:25.999Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-15T01:38:23.807Z] [WARN] Error validating WhatsApp number 6281947215703: Connection Closed
+[2025-08-15T01:38:23.809Z] [WARN] Retry 1/2 failed for 6281947215703: Connection Closed
+[2025-08-15T01:38:25.811Z] [WARN] Retry 2/2 failed for 6281947215703: Connection Closed
+[2025-08-15T01:38:26.814Z] [WARN] Error validating WhatsApp number 62838076656xxx: Connection Closed
+[2025-08-15T01:38:26.816Z] [WARN] Retry 1/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T01:38:28.819Z] [WARN] Retry 2/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T01:38:29.821Z] [WARN] Error validating WhatsApp number 62822180947xxx: Connection Closed
+[2025-08-15T01:38:29.823Z] [WARN] Retry 1/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T01:38:31.824Z] [WARN] Retry 2/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T02:14:58.313Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-15T02:14:58.344Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-15T02:14:58.710Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-15T02:14:58.710Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-15T03:37:56.411Z] [WARN] Error validating WhatsApp number 6281947215703: Connection Closed
+[2025-08-15T03:37:56.413Z] [WARN] Retry 1/2 failed for 6281947215703: Connection Closed
+[2025-08-15T03:37:58.415Z] [WARN] Retry 2/2 failed for 6281947215703: Connection Closed
+[2025-08-15T03:37:59.416Z] [WARN] Error validating WhatsApp number 62838076656xxx: Connection Closed
+[2025-08-15T03:37:59.418Z] [WARN] Retry 1/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T03:38:01.420Z] [WARN] Retry 2/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T03:38:02.422Z] [WARN] Error validating WhatsApp number 62822180947xxx: Connection Closed
+[2025-08-15T03:38:02.423Z] [WARN] Retry 1/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T03:38:04.425Z] [WARN] Retry 2/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T03:38:56.418Z] [WARN] Error validating WhatsApp number 6281947215703: Connection Closed
+[2025-08-15T03:38:56.423Z] [WARN] Retry 1/2 failed for 6281947215703: Connection Closed
+[2025-08-15T03:38:58.425Z] [WARN] Retry 2/2 failed for 6281947215703: Connection Closed
+[2025-08-15T03:38:59.427Z] [WARN] Error validating WhatsApp number 62838076656xxx: Connection Closed
+[2025-08-15T03:38:59.428Z] [WARN] Retry 1/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T03:39:01.430Z] [WARN] Retry 2/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T03:39:02.431Z] [WARN] Error validating WhatsApp number 62822180947xxx: Connection Closed
+[2025-08-15T03:39:02.433Z] [WARN] Retry 1/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T03:39:04.434Z] [WARN] Retry 2/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T04:03:56.419Z] [WARN] Error validating WhatsApp number 6281947215703: Connection Closed
+[2025-08-15T04:03:56.425Z] [WARN] Retry 1/2 failed for 6281947215703: Connection Closed
+[2025-08-15T04:03:58.426Z] [WARN] Retry 2/2 failed for 6281947215703: Connection Closed
+[2025-08-15T04:03:59.427Z] [WARN] Error validating WhatsApp number 62838076656xxx: Connection Closed
+[2025-08-15T04:03:59.428Z] [WARN] Retry 1/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T04:04:01.430Z] [WARN] Retry 2/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T04:04:02.432Z] [WARN] Error validating WhatsApp number 62822180947xxx: Connection Closed
+[2025-08-15T04:04:02.434Z] [WARN] Retry 1/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T04:04:04.437Z] [WARN] Retry 2/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T04:14:56.466Z] [WARN] Error validating WhatsApp number 6281947215703: Connection Closed
+[2025-08-15T04:14:56.468Z] [WARN] Retry 1/2 failed for 6281947215703: Connection Closed
+[2025-08-15T04:14:58.469Z] [WARN] Retry 2/2 failed for 6281947215703: Connection Closed
+[2025-08-15T04:14:59.470Z] [WARN] Error validating WhatsApp number 62838076656xxx: Connection Closed
+[2025-08-15T04:14:59.472Z] [WARN] Retry 1/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T04:15:01.474Z] [WARN] Retry 2/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T04:15:02.476Z] [WARN] Error validating WhatsApp number 62822180947xxx: Connection Closed
+[2025-08-15T04:15:02.477Z] [WARN] Retry 1/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T04:15:04.479Z] [WARN] Retry 2/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T04:18:13.662Z] [WARN] [WEBHOOK] Transaction not found for order_id: INV-INV-202508-1300
+[2025-08-15T05:04:09.464Z] [WARN] [WEBHOOK] Transaction not found for order_id: INV-TEST-001
+[2025-08-15T06:31:56.450Z] [WARN] Error validating WhatsApp number 6281947215703: Connection Closed
+[2025-08-15T06:31:56.455Z] [WARN] Retry 1/2 failed for 6281947215703: Connection Closed
+[2025-08-15T06:31:58.456Z] [WARN] Retry 2/2 failed for 6281947215703: Connection Closed
+[2025-08-15T06:31:59.457Z] [WARN] Error validating WhatsApp number 62838076656xxx: Connection Closed
+[2025-08-15T06:31:59.459Z] [WARN] Retry 1/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T06:32:01.462Z] [WARN] Retry 2/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T06:32:02.464Z] [WARN] Error validating WhatsApp number 62822180947xxx: Connection Closed
+[2025-08-15T06:32:02.465Z] [WARN] Retry 1/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T06:32:04.467Z] [WARN] Retry 2/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T06:32:56.449Z] [WARN] Error validating WhatsApp number 6281947215703: Connection Closed
+[2025-08-15T06:32:56.450Z] [WARN] Retry 1/2 failed for 6281947215703: Connection Closed
+[2025-08-15T06:32:58.452Z] [WARN] Retry 2/2 failed for 6281947215703: Connection Closed
+[2025-08-15T06:32:59.454Z] [WARN] Error validating WhatsApp number 62838076656xxx: Connection Closed
+[2025-08-15T06:32:59.456Z] [WARN] Retry 1/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T06:33:01.457Z] [WARN] Retry 2/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T06:33:02.458Z] [WARN] Error validating WhatsApp number 62822180947xxx: Connection Closed
+[2025-08-15T06:33:02.460Z] [WARN] Retry 1/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T06:33:04.462Z] [WARN] Retry 2/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T06:33:04.535Z] [WARN] Error validating WhatsApp number 6281947215703: Connection Closed
+[2025-08-15T06:33:04.536Z] [WARN] Retry 1/2 failed for 6281947215703: Connection Closed
+[2025-08-15T06:33:06.538Z] [WARN] Retry 2/2 failed for 6281947215703: Connection Closed
+[2025-08-15T06:33:07.539Z] [WARN] Error validating WhatsApp number 62838076656xxx: Connection Closed
+[2025-08-15T06:33:07.540Z] [WARN] Retry 1/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T06:33:09.568Z] [WARN] Retry 2/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T06:33:10.570Z] [WARN] Error validating WhatsApp number 62822180947xxx: Connection Closed
+[2025-08-15T06:33:10.571Z] [WARN] Retry 1/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T06:33:12.573Z] [WARN] Retry 2/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T06:34:56.447Z] [WARN] Error validating WhatsApp number 6281947215703: Connection Closed
+[2025-08-15T06:34:56.449Z] [WARN] Retry 1/2 failed for 6281947215703: Connection Closed
+[2025-08-15T06:34:58.450Z] [WARN] Retry 2/2 failed for 6281947215703: Connection Closed
+[2025-08-15T06:34:59.451Z] [WARN] Error validating WhatsApp number 62838076656xxx: Connection Closed
+[2025-08-15T06:34:59.453Z] [WARN] Retry 1/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T06:35:01.454Z] [WARN] Retry 2/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T06:35:02.456Z] [WARN] Error validating WhatsApp number 62822180947xxx: Connection Closed
+[2025-08-15T06:35:02.457Z] [WARN] Retry 1/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T06:35:04.459Z] [WARN] Retry 2/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T07:54:56.461Z] [WARN] Error validating WhatsApp number 6281947215703: Connection Closed
+[2025-08-15T07:54:56.473Z] [WARN] Retry 1/2 failed for 6281947215703: Connection Closed
+[2025-08-15T07:54:58.475Z] [WARN] Retry 2/2 failed for 6281947215703: Connection Closed
+[2025-08-15T07:54:59.477Z] [WARN] Error validating WhatsApp number 62838076656xxx: Connection Closed
+[2025-08-15T07:54:59.478Z] [WARN] Retry 1/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T07:55:01.480Z] [WARN] Retry 2/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T07:55:02.482Z] [WARN] Error validating WhatsApp number 62822180947xxx: Connection Closed
+[2025-08-15T07:55:02.483Z] [WARN] Retry 1/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T07:55:04.485Z] [WARN] Retry 2/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T07:59:56.574Z] [WARN] Error validating WhatsApp number 6281947215703: Connection Closed
+[2025-08-15T07:59:56.575Z] [WARN] Retry 1/2 failed for 6281947215703: Connection Closed
+[2025-08-15T07:59:58.577Z] [WARN] Retry 2/2 failed for 6281947215703: Connection Closed
+[2025-08-15T07:59:59.578Z] [WARN] Error validating WhatsApp number 62838076656xxx: Connection Closed
+[2025-08-15T07:59:59.579Z] [WARN] Retry 1/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T08:00:01.581Z] [WARN] Retry 2/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T08:00:02.582Z] [WARN] Error validating WhatsApp number 62822180947xxx: Connection Closed
+[2025-08-15T08:00:02.583Z] [WARN] Retry 1/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T08:00:04.585Z] [WARN] Retry 2/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T08:00:56.462Z] [WARN] Error validating WhatsApp number 6281947215703: Connection Closed
+[2025-08-15T08:00:56.463Z] [WARN] Retry 1/2 failed for 6281947215703: Connection Closed
+[2025-08-15T08:00:58.465Z] [WARN] Retry 2/2 failed for 6281947215703: Connection Closed
+[2025-08-15T08:00:59.466Z] [WARN] Error validating WhatsApp number 62838076656xxx: Connection Closed
+[2025-08-15T08:00:59.468Z] [WARN] Retry 1/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T08:01:01.470Z] [WARN] Retry 2/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T08:01:02.473Z] [WARN] Error validating WhatsApp number 62822180947xxx: Connection Closed
+[2025-08-15T08:01:02.475Z] [WARN] Retry 1/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T08:01:04.477Z] [WARN] Retry 2/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T08:12:56.478Z] [WARN] Error validating WhatsApp number 6281947215703: Connection Closed
+[2025-08-15T08:12:56.479Z] [WARN] Retry 1/2 failed for 6281947215703: Connection Closed
+[2025-08-15T08:12:58.481Z] [WARN] Retry 2/2 failed for 6281947215703: Connection Closed
+[2025-08-15T08:12:59.483Z] [WARN] Error validating WhatsApp number 62838076656xxx: Connection Closed
+[2025-08-15T08:12:59.484Z] [WARN] Retry 1/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T08:13:01.486Z] [WARN] Retry 2/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T08:13:02.487Z] [WARN] Error validating WhatsApp number 62822180947xxx: Connection Closed
+[2025-08-15T08:13:02.488Z] [WARN] Retry 1/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T08:13:04.490Z] [WARN] Retry 2/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T08:51:56.478Z] [WARN] Error validating WhatsApp number 6281947215703: Connection Closed
+[2025-08-15T08:51:56.480Z] [WARN] Retry 1/2 failed for 6281947215703: Connection Closed
+[2025-08-15T08:51:58.482Z] [WARN] Retry 2/2 failed for 6281947215703: Connection Closed
+[2025-08-15T08:51:59.483Z] [WARN] Error validating WhatsApp number 62838076656xxx: Connection Closed
+[2025-08-15T08:51:59.485Z] [WARN] Retry 1/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T08:52:01.489Z] [WARN] Retry 2/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T08:52:02.491Z] [WARN] Error validating WhatsApp number 62822180947xxx: Connection Closed
+[2025-08-15T08:52:02.492Z] [WARN] Retry 1/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T08:52:04.494Z] [WARN] Retry 2/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T10:19:56.478Z] [WARN] Error validating WhatsApp number 6281947215703: Connection Closed
+[2025-08-15T10:19:56.481Z] [WARN] Retry 1/2 failed for 6281947215703: Connection Closed
+[2025-08-15T10:19:58.483Z] [WARN] Retry 2/2 failed for 6281947215703: Connection Closed
+[2025-08-15T10:19:59.485Z] [WARN] Error validating WhatsApp number 62838076656xxx: Connection Closed
+[2025-08-15T10:19:59.486Z] [WARN] Retry 1/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T10:20:01.488Z] [WARN] Retry 2/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T10:20:02.490Z] [WARN] Error validating WhatsApp number 62822180947xxx: Connection Closed
+[2025-08-15T10:20:02.491Z] [WARN] Retry 1/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T10:20:04.493Z] [WARN] Retry 2/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T10:20:56.477Z] [WARN] Error validating WhatsApp number 6281947215703: Connection Closed
+[2025-08-15T10:20:56.479Z] [WARN] Retry 1/2 failed for 6281947215703: Connection Closed
+[2025-08-15T10:20:58.480Z] [WARN] Retry 2/2 failed for 6281947215703: Connection Closed
+[2025-08-15T10:20:59.481Z] [WARN] Error validating WhatsApp number 62838076656xxx: Connection Closed
+[2025-08-15T10:20:59.483Z] [WARN] Retry 1/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T10:21:01.486Z] [WARN] Retry 2/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T10:21:02.488Z] [WARN] Error validating WhatsApp number 62822180947xxx: Connection Closed
+[2025-08-15T10:21:02.490Z] [WARN] Retry 1/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T10:21:04.492Z] [WARN] Retry 2/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T12:19:56.504Z] [WARN] Error validating WhatsApp number 6281947215703: Connection Closed
+[2025-08-15T12:19:56.507Z] [WARN] Retry 1/2 failed for 6281947215703: Connection Closed
+[2025-08-15T12:19:58.509Z] [WARN] Retry 2/2 failed for 6281947215703: Connection Closed
+[2025-08-15T12:19:59.511Z] [WARN] Error validating WhatsApp number 62838076656xxx: Connection Closed
+[2025-08-15T12:19:59.512Z] [WARN] Retry 1/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T12:20:01.514Z] [WARN] Retry 2/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T12:20:02.516Z] [WARN] Error validating WhatsApp number 62822180947xxx: Connection Closed
+[2025-08-15T12:20:02.518Z] [WARN] Retry 1/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T12:20:04.519Z] [WARN] Retry 2/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T12:20:56.496Z] [WARN] Error validating WhatsApp number 6281947215703: Connection Closed
+[2025-08-15T12:20:56.497Z] [WARN] Retry 1/2 failed for 6281947215703: Connection Closed
+[2025-08-15T12:20:58.499Z] [WARN] Retry 2/2 failed for 6281947215703: Connection Closed
+[2025-08-15T12:20:59.501Z] [WARN] Error validating WhatsApp number 62838076656xxx: Connection Closed
+[2025-08-15T12:20:59.502Z] [WARN] Retry 1/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T12:21:01.505Z] [WARN] Retry 2/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T12:21:02.506Z] [WARN] Error validating WhatsApp number 62822180947xxx: Connection Closed
+[2025-08-15T12:21:02.508Z] [WARN] Retry 1/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T12:21:04.509Z] [WARN] Retry 2/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T12:42:56.491Z] [WARN] Error validating WhatsApp number 6281947215703: Connection Closed
+[2025-08-15T12:42:56.492Z] [WARN] Retry 1/2 failed for 6281947215703: Connection Closed
+[2025-08-15T12:42:58.494Z] [WARN] Retry 2/2 failed for 6281947215703: Connection Closed
+[2025-08-15T12:42:59.495Z] [WARN] Error validating WhatsApp number 62838076656xxx: Connection Closed
+[2025-08-15T12:42:59.496Z] [WARN] Retry 1/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T12:43:01.498Z] [WARN] Retry 2/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T12:43:02.500Z] [WARN] Error validating WhatsApp number 62822180947xxx: Connection Closed
+[2025-08-15T12:43:02.501Z] [WARN] Retry 1/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T12:43:04.503Z] [WARN] Retry 2/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T12:43:56.498Z] [WARN] Error validating WhatsApp number 6281947215703: Connection Closed
+[2025-08-15T12:43:56.499Z] [WARN] Retry 1/2 failed for 6281947215703: Connection Closed
+[2025-08-15T12:43:58.501Z] [WARN] Retry 2/2 failed for 6281947215703: Connection Closed
+[2025-08-15T12:43:59.503Z] [WARN] Error validating WhatsApp number 62838076656xxx: Connection Closed
+[2025-08-15T12:43:59.505Z] [WARN] Retry 1/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T12:44:01.507Z] [WARN] Retry 2/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T12:44:02.508Z] [WARN] Error validating WhatsApp number 62822180947xxx: Connection Closed
+[2025-08-15T12:44:02.509Z] [WARN] Retry 1/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T12:44:04.511Z] [WARN] Retry 2/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T13:59:56.508Z] [WARN] Error validating WhatsApp number 6281947215703: Connection Closed
+[2025-08-15T13:59:56.509Z] [WARN] Retry 1/2 failed for 6281947215703: Connection Closed
+[2025-08-15T13:59:58.511Z] [WARN] Retry 2/2 failed for 6281947215703: Connection Closed
+[2025-08-15T13:59:59.513Z] [WARN] Error validating WhatsApp number 62838076656xxx: Connection Closed
+[2025-08-15T13:59:59.514Z] [WARN] Retry 1/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T14:00:01.516Z] [WARN] Retry 2/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T14:00:02.518Z] [WARN] Error validating WhatsApp number 62822180947xxx: Connection Closed
+[2025-08-15T14:00:02.519Z] [WARN] Retry 1/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T14:00:04.521Z] [WARN] Retry 2/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T14:26:56.511Z] [WARN] Error validating WhatsApp number 6281947215703: Connection Closed
+[2025-08-15T14:26:56.512Z] [WARN] Retry 1/2 failed for 6281947215703: Connection Closed
+[2025-08-15T14:26:58.514Z] [WARN] Retry 2/2 failed for 6281947215703: Connection Closed
+[2025-08-15T14:26:59.515Z] [WARN] Error validating WhatsApp number 62838076656xxx: Connection Closed
+[2025-08-15T14:26:59.516Z] [WARN] Retry 1/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T14:27:01.517Z] [WARN] Retry 2/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T14:27:02.518Z] [WARN] Error validating WhatsApp number 62822180947xxx: Connection Closed
+[2025-08-15T14:27:02.519Z] [WARN] Retry 1/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T14:27:04.522Z] [WARN] Retry 2/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T14:59:56.507Z] [WARN] Error validating WhatsApp number 6281947215703: Connection Closed
+[2025-08-15T14:59:56.509Z] [WARN] Retry 1/2 failed for 6281947215703: Connection Closed
+[2025-08-15T14:59:58.510Z] [WARN] Retry 2/2 failed for 6281947215703: Connection Closed
+[2025-08-15T14:59:59.512Z] [WARN] Error validating WhatsApp number 62838076656xxx: Connection Closed
+[2025-08-15T14:59:59.513Z] [WARN] Retry 1/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T15:00:01.515Z] [WARN] Retry 2/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T15:00:02.517Z] [WARN] Error validating WhatsApp number 62822180947xxx: Connection Closed
+[2025-08-15T15:00:02.518Z] [WARN] Retry 1/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T15:00:04.520Z] [WARN] Retry 2/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T15:00:56.512Z] [WARN] Error validating WhatsApp number 6281947215703: Connection Closed
+[2025-08-15T15:00:56.513Z] [WARN] Retry 1/2 failed for 6281947215703: Connection Closed
+[2025-08-15T15:00:58.515Z] [WARN] Retry 2/2 failed for 6281947215703: Connection Closed
+[2025-08-15T15:00:59.517Z] [WARN] Error validating WhatsApp number 62838076656xxx: Connection Closed
+[2025-08-15T15:00:59.518Z] [WARN] Retry 1/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T15:01:01.520Z] [WARN] Retry 2/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T15:01:02.521Z] [WARN] Error validating WhatsApp number 62822180947xxx: Connection Closed
+[2025-08-15T15:01:02.523Z] [WARN] Retry 1/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T15:01:04.525Z] [WARN] Retry 2/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T15:12:56.509Z] [WARN] Error validating WhatsApp number 6281947215703: Connection Closed
+[2025-08-15T15:12:56.510Z] [WARN] Retry 1/2 failed for 6281947215703: Connection Closed
+[2025-08-15T15:12:58.512Z] [WARN] Retry 2/2 failed for 6281947215703: Connection Closed
+[2025-08-15T15:12:59.514Z] [WARN] Error validating WhatsApp number 62838076656xxx: Connection Closed
+[2025-08-15T15:12:59.515Z] [WARN] Retry 1/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T15:13:01.517Z] [WARN] Retry 2/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T15:13:02.521Z] [WARN] Error validating WhatsApp number 62822180947xxx: Connection Closed
+[2025-08-15T15:13:02.522Z] [WARN] Retry 1/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T15:13:04.524Z] [WARN] Retry 2/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T15:15:56.511Z] [WARN] Error validating WhatsApp number 6281947215703: Connection Closed
+[2025-08-15T15:15:56.513Z] [WARN] Retry 1/2 failed for 6281947215703: Connection Closed
+[2025-08-15T15:15:58.515Z] [WARN] Retry 2/2 failed for 6281947215703: Connection Closed
+[2025-08-15T15:15:59.517Z] [WARN] Error validating WhatsApp number 62838076656xxx: Connection Closed
+[2025-08-15T15:15:59.519Z] [WARN] Retry 1/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T15:16:01.521Z] [WARN] Retry 2/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T15:16:02.523Z] [WARN] Error validating WhatsApp number 62822180947xxx: Connection Closed
+[2025-08-15T15:16:02.525Z] [WARN] Retry 1/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T15:16:04.528Z] [WARN] Retry 2/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T15:33:56.507Z] [WARN] Error validating WhatsApp number 6281947215703: Connection Closed
+[2025-08-15T15:33:56.509Z] [WARN] Retry 1/2 failed for 6281947215703: Connection Closed
+[2025-08-15T15:33:58.510Z] [WARN] Retry 2/2 failed for 6281947215703: Connection Closed
+[2025-08-15T15:33:59.512Z] [WARN] Error validating WhatsApp number 62838076656xxx: Connection Closed
+[2025-08-15T15:33:59.513Z] [WARN] Retry 1/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T15:34:01.515Z] [WARN] Retry 2/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T15:34:02.517Z] [WARN] Error validating WhatsApp number 62822180947xxx: Connection Closed
+[2025-08-15T15:34:02.518Z] [WARN] Retry 1/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T15:34:04.520Z] [WARN] Retry 2/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T15:34:56.510Z] [WARN] Error validating WhatsApp number 6281947215703: Connection Closed
+[2025-08-15T15:34:56.511Z] [WARN] Retry 1/2 failed for 6281947215703: Connection Closed
+[2025-08-15T15:34:58.513Z] [WARN] Retry 2/2 failed for 6281947215703: Connection Closed
+[2025-08-15T15:34:59.514Z] [WARN] Error validating WhatsApp number 62838076656xxx: Connection Closed
+[2025-08-15T15:34:59.515Z] [WARN] Retry 1/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T15:35:01.517Z] [WARN] Retry 2/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T15:35:02.519Z] [WARN] Error validating WhatsApp number 62822180947xxx: Connection Closed
+[2025-08-15T15:35:02.520Z] [WARN] Retry 1/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T15:35:04.522Z] [WARN] Retry 2/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T15:54:56.502Z] [WARN] Error validating WhatsApp number 6281947215703: Connection Closed
+[2025-08-15T15:54:56.503Z] [WARN] Retry 1/2 failed for 6281947215703: Connection Closed
+[2025-08-15T15:54:58.504Z] [WARN] Retry 2/2 failed for 6281947215703: Connection Closed
+[2025-08-15T15:54:59.505Z] [WARN] Error validating WhatsApp number 62838076656xxx: Connection Closed
+[2025-08-15T15:54:59.506Z] [WARN] Retry 1/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T15:55:01.508Z] [WARN] Retry 2/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T15:55:02.510Z] [WARN] Error validating WhatsApp number 62822180947xxx: Connection Closed
+[2025-08-15T15:55:02.511Z] [WARN] Retry 1/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T15:55:04.513Z] [WARN] Retry 2/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T16:56:56.520Z] [WARN] Error validating WhatsApp number 6281947215703: Connection Closed
+[2025-08-15T16:56:56.521Z] [WARN] Retry 1/2 failed for 6281947215703: Connection Closed
+[2025-08-15T16:56:58.524Z] [WARN] Retry 2/2 failed for 6281947215703: Connection Closed
+[2025-08-15T16:56:59.526Z] [WARN] Error validating WhatsApp number 62838076656xxx: Connection Closed
+[2025-08-15T16:56:59.527Z] [WARN] Retry 1/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T16:57:01.529Z] [WARN] Retry 2/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T16:57:02.530Z] [WARN] Error validating WhatsApp number 62822180947xxx: Connection Closed
+[2025-08-15T16:57:02.532Z] [WARN] Retry 1/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T16:57:04.533Z] [WARN] Retry 2/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T17:15:56.507Z] [WARN] Error validating WhatsApp number 6281947215703: Connection Closed
+[2025-08-15T17:15:56.508Z] [WARN] Retry 1/2 failed for 6281947215703: Connection Closed
+[2025-08-15T17:15:58.510Z] [WARN] Retry 2/2 failed for 6281947215703: Connection Closed
+[2025-08-15T17:15:59.511Z] [WARN] Error validating WhatsApp number 62838076656xxx: Connection Closed
+[2025-08-15T17:15:59.513Z] [WARN] Retry 1/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T17:16:01.515Z] [WARN] Retry 2/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T17:16:02.516Z] [WARN] Error validating WhatsApp number 62822180947xxx: Connection Closed
+[2025-08-15T17:16:02.518Z] [WARN] Retry 1/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T17:16:04.520Z] [WARN] Retry 2/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T17:16:56.512Z] [WARN] Error validating WhatsApp number 6281947215703: Connection Closed
+[2025-08-15T17:16:56.513Z] [WARN] Retry 1/2 failed for 6281947215703: Connection Closed
+[2025-08-15T17:16:58.514Z] [WARN] Retry 2/2 failed for 6281947215703: Connection Closed
+[2025-08-15T17:16:59.515Z] [WARN] Error validating WhatsApp number 62838076656xxx: Connection Closed
+[2025-08-15T17:16:59.517Z] [WARN] Retry 1/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T17:17:01.518Z] [WARN] Retry 2/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T17:17:02.520Z] [WARN] Error validating WhatsApp number 62822180947xxx: Connection Closed
+[2025-08-15T17:17:02.521Z] [WARN] Retry 1/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T17:17:04.523Z] [WARN] Retry 2/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T18:59:56.540Z] [WARN] Error validating WhatsApp number 6281947215703: Connection Closed
+[2025-08-15T18:59:56.541Z] [WARN] Retry 1/2 failed for 6281947215703: Connection Closed
+[2025-08-15T18:59:58.543Z] [WARN] Retry 2/2 failed for 6281947215703: Connection Closed
+[2025-08-15T18:59:59.545Z] [WARN] Error validating WhatsApp number 62838076656xxx: Connection Closed
+[2025-08-15T18:59:59.546Z] [WARN] Retry 1/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T19:00:01.548Z] [WARN] Retry 2/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T19:00:02.549Z] [WARN] Error validating WhatsApp number 62822180947xxx: Connection Closed
+[2025-08-15T19:00:02.550Z] [WARN] Retry 1/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T19:00:04.552Z] [WARN] Retry 2/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T19:00:56.540Z] [WARN] Error validating WhatsApp number 6281947215703: Connection Closed
+[2025-08-15T19:00:56.541Z] [WARN] Retry 1/2 failed for 6281947215703: Connection Closed
+[2025-08-15T19:00:58.543Z] [WARN] Retry 2/2 failed for 6281947215703: Connection Closed
+[2025-08-15T19:00:59.543Z] [WARN] Error validating WhatsApp number 62838076656xxx: Connection Closed
+[2025-08-15T19:00:59.544Z] [WARN] Retry 1/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T19:01:01.546Z] [WARN] Retry 2/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T19:01:02.548Z] [WARN] Error validating WhatsApp number 62822180947xxx: Connection Closed
+[2025-08-15T19:01:02.550Z] [WARN] Retry 1/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T19:01:04.551Z] [WARN] Retry 2/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T19:59:56.550Z] [WARN] Error validating WhatsApp number 6281947215703: Connection Closed
+[2025-08-15T19:59:56.551Z] [WARN] Retry 1/2 failed for 6281947215703: Connection Closed
+[2025-08-15T19:59:58.553Z] [WARN] Retry 2/2 failed for 6281947215703: Connection Closed
+[2025-08-15T19:59:59.553Z] [WARN] Error validating WhatsApp number 62838076656xxx: Connection Closed
+[2025-08-15T19:59:59.555Z] [WARN] Retry 1/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T20:00:01.556Z] [WARN] Retry 2/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T20:00:02.559Z] [WARN] Error validating WhatsApp number 62822180947xxx: Connection Closed
+[2025-08-15T20:00:02.561Z] [WARN] Retry 1/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T20:00:04.562Z] [WARN] Retry 2/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T20:01:56.555Z] [WARN] Error validating WhatsApp number 6281947215703: Connection Closed
+[2025-08-15T20:01:56.556Z] [WARN] Retry 1/2 failed for 6281947215703: Connection Closed
+[2025-08-15T20:01:58.558Z] [WARN] Retry 2/2 failed for 6281947215703: Connection Closed
+[2025-08-15T20:01:59.559Z] [WARN] Error validating WhatsApp number 62838076656xxx: Connection Closed
+[2025-08-15T20:01:59.561Z] [WARN] Retry 1/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T20:02:01.564Z] [WARN] Retry 2/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T20:02:02.566Z] [WARN] Error validating WhatsApp number 62822180947xxx: Connection Closed
+[2025-08-15T20:02:02.567Z] [WARN] Retry 1/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T20:02:04.569Z] [WARN] Retry 2/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T20:52:10.996Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-15T20:52:10.997Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-15T20:52:11.281Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-15T20:52:11.281Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-15T22:12:09.394Z] [WARN] Error validating WhatsApp number 6281947215703: Connection Closed
+[2025-08-15T22:12:09.396Z] [WARN] Retry 1/2 failed for 6281947215703: Connection Closed
+[2025-08-15T22:12:11.397Z] [WARN] Retry 2/2 failed for 6281947215703: Connection Closed
+[2025-08-15T22:12:12.399Z] [WARN] Error validating WhatsApp number 62838076656xxx: Connection Closed
+[2025-08-15T22:12:12.401Z] [WARN] Retry 1/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T22:12:14.403Z] [WARN] Retry 2/2 failed for 62838076656xxx: Connection Closed
+[2025-08-15T22:12:15.405Z] [WARN] Error validating WhatsApp number 62822180947xxx: Connection Closed
+[2025-08-15T22:12:15.406Z] [WARN] Retry 1/2 failed for 62822180947xxx: Connection Closed
+[2025-08-15T22:12:17.409Z] [WARN] Retry 2/2 failed for 62822180947xxx: Connection Closed
+[2025-08-16T00:46:15.938Z] [WARN] [WEBHOOK] Transaction not found for order_id: INV-TEST-001
+[2025-08-16T01:18:09.401Z] [WARN] Error validating WhatsApp number 6281947215703: Connection Closed
+[2025-08-16T01:18:09.404Z] [WARN] Retry 1/2 failed for 6281947215703: Connection Closed
+[2025-08-16T01:18:11.405Z] [WARN] Retry 2/2 failed for 6281947215703: Connection Closed
+[2025-08-16T01:18:12.406Z] [WARN] Error validating WhatsApp number 62838076656xxx: Connection Closed
+[2025-08-16T01:18:12.408Z] [WARN] Retry 1/2 failed for 62838076656xxx: Connection Closed
+[2025-08-16T01:18:14.410Z] [WARN] Retry 2/2 failed for 62838076656xxx: Connection Closed
+[2025-08-16T01:18:15.414Z] [WARN] Error validating WhatsApp number 62822180947xxx: Connection Closed
+[2025-08-16T01:18:15.416Z] [WARN] Retry 1/2 failed for 62822180947xxx: Connection Closed
+[2025-08-16T01:18:17.418Z] [WARN] Retry 2/2 failed for 62822180947xxx: Connection Closed
+[2025-08-16T01:19:09.398Z] [WARN] Error validating WhatsApp number 6281947215703: Connection Closed
+[2025-08-16T01:19:09.399Z] [WARN] Retry 1/2 failed for 6281947215703: Connection Closed
+[2025-08-16T01:19:11.401Z] [WARN] Retry 2/2 failed for 6281947215703: Connection Closed
+[2025-08-16T01:19:12.403Z] [WARN] Error validating WhatsApp number 62838076656xxx: Connection Closed
+[2025-08-16T01:19:12.404Z] [WARN] Retry 1/2 failed for 62838076656xxx: Connection Closed
+[2025-08-16T01:19:14.405Z] [WARN] Retry 2/2 failed for 62838076656xxx: Connection Closed
+[2025-08-16T01:19:15.407Z] [WARN] Error validating WhatsApp number 62822180947xxx: Connection Closed
+[2025-08-16T01:19:15.408Z] [WARN] Retry 1/2 failed for 62822180947xxx: Connection Closed
+[2025-08-16T01:19:17.410Z] [WARN] Retry 2/2 failed for 62822180947xxx: Connection Closed
+[2025-08-16T02:12:06.762Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-16T02:12:06.762Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-16T02:12:06.972Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-16T02:12:06.972Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-16T02:23:20.083Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-16T02:23:20.083Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-16T02:23:20.293Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-16T02:23:20.293Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-16T02:39:06.713Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-16T02:39:06.713Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-16T02:39:06.924Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-16T02:39:06.924Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-16T02:40:06.726Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-16T02:40:06.726Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-16T02:40:06.937Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-16T02:40:06.937Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-16T04:13:06.742Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-16T04:13:06.742Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-16T04:13:06.951Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-16T04:13:06.952Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-16T04:26:06.733Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-16T04:26:06.733Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-16T04:26:06.942Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-16T04:26:06.943Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-16T04:43:06.728Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-16T04:43:06.728Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-16T04:43:06.939Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-16T04:43:06.939Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-16T05:02:06.740Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-16T05:02:06.740Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-16T05:02:06.950Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-16T05:02:06.950Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-16T05:33:06.744Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-16T05:33:06.744Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-16T05:33:06.955Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-16T05:33:06.955Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-16T05:34:06.744Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-16T05:34:06.744Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-16T05:34:06.955Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-16T05:34:06.956Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-16T05:35:06.746Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-16T05:35:06.746Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-16T05:35:06.956Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-16T05:35:06.957Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-16T06:18:06.749Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-16T06:18:06.749Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-16T06:18:06.960Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-16T06:18:06.961Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-16T06:24:06.760Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-16T06:24:06.760Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-16T06:24:06.970Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-16T06:24:06.971Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-16T06:25:06.743Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-16T06:25:06.743Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-16T06:25:06.952Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-16T06:25:06.952Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-16T08:02:06.915Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-16T08:02:06.915Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-16T08:02:07.125Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-16T08:02:07.126Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-16T08:58:06.821Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-16T08:58:06.821Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-16T08:58:07.031Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-16T08:58:07.032Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-16T09:01:06.889Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-16T09:01:06.889Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-16T09:01:07.099Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-16T09:01:07.099Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-16T09:47:50.501Z] [WARN] Error validating WhatsApp number 6281947215703: Connection Closed
+[2025-08-16T09:47:50.507Z] [WARN] Retry 1/2 failed for 6281947215703: Connection Closed
+[2025-08-16T09:47:52.518Z] [WARN] Retry 2/2 failed for 6281947215703: Connection Closed
+[2025-08-16T09:47:53.533Z] [WARN] Error validating WhatsApp number 62838076656xxx: Connection Closed
+[2025-08-16T09:47:53.537Z] [WARN] Retry 1/2 failed for 62838076656xxx: Connection Closed
+[2025-08-16T09:47:55.543Z] [WARN] Retry 2/2 failed for 62838076656xxx: Connection Closed
+[2025-08-16T09:47:56.548Z] [WARN] Error validating WhatsApp number 62822180947xxx: Connection Closed
+[2025-08-16T09:47:56.550Z] [WARN] Retry 1/2 failed for 62822180947xxx: Connection Closed
+[2025-08-16T09:47:58.557Z] [WARN] Retry 2/2 failed for 62822180947xxx: Connection Closed
+[2025-08-16T09:51:59.172Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-16T09:51:59.174Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-16T09:51:59.457Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-16T09:51:59.458Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-16T09:55:46.597Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-16T09:55:46.598Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-16T09:55:46.888Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-16T09:55:46.889Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-16T10:17:44.936Z] [WARN] Error validating WhatsApp number 6281947215703: Connection Closed
+[2025-08-16T10:17:44.938Z] [WARN] Retry 1/2 failed for 6281947215703: Connection Closed
+[2025-08-16T10:17:46.947Z] [WARN] Retry 2/2 failed for 6281947215703: Connection Closed
+[2025-08-16T10:17:47.964Z] [WARN] Error validating WhatsApp number 62838076656xxx: Connection Closed
+[2025-08-16T10:17:47.967Z] [WARN] Retry 1/2 failed for 62838076656xxx: Connection Closed
+[2025-08-16T10:17:49.982Z] [WARN] Retry 2/2 failed for 62838076656xxx: Connection Closed
+[2025-08-16T10:17:51.001Z] [WARN] Error validating WhatsApp number 62822180947xxx: Connection Closed
+[2025-08-16T10:17:51.004Z] [WARN] Retry 1/2 failed for 62822180947xxx: Connection Closed
+[2025-08-16T10:17:53.012Z] [WARN] Retry 2/2 failed for 62822180947xxx: Connection Closed
+[2025-08-16T10:20:14.503Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-16T10:20:14.504Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-16T10:20:14.716Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-16T10:20:14.716Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-16T10:23:14.503Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-16T10:23:14.504Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-16T10:23:14.716Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-16T10:23:14.717Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
+[2025-08-16T10:29:07.654Z] [WARN] WhatsApp validation failed for 62838076656xxx: No result
+[2025-08-16T10:29:07.655Z] [WARN] Skipping invalid WhatsApp number: 62838076656xxx
+[2025-08-16T10:29:07.927Z] [WARN] WhatsApp validation failed for 62822180947xxx: No result
+[2025-08-16T10:29:07.929Z] [WARN] Skipping invalid WhatsApp number: 62822180947xxx
