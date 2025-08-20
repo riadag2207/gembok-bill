@@ -18,6 +18,7 @@
                 padding: 0;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
+                color-adjust: exact;
             }
             .no-print { 
                 display: none !important; 
@@ -29,6 +30,18 @@
                 padding: 0.3cm;
                 width: 100%;
                 max-width: 100%;
+            }
+            .table th {
+                background-color: #f8f9fa !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                color-adjust: exact;
+            }
+            .amount-box {
+                background-color: #007bff !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                color-adjust: exact;
             }
         }
         
@@ -74,6 +87,8 @@
         
         .company-logo {
             max-height: 35px;
+            max-width: 100%;
+            height: auto;
         }
         
         .invoice-title {
@@ -203,6 +218,9 @@
         <button onclick="window.print()" class="btn btn-primary">
             <i class="bi bi-printer"></i> Cetak
         </button>
+        <button onclick="downloadAsPDF()" class="btn btn-success ms-2">
+            <i class="bi bi-download"></i> Download PDF
+        </button>
         <a href="/admin/billing/invoices" class="btn btn-secondary ms-2">
             <i class="bi bi-arrow-left"></i> Kembali
         </a>
@@ -213,9 +231,9 @@
         <div class="invoice-header">
             <div class="row">
                 <div class="col-8">
-                    <img src="/img/logo.png" alt="Logo" class="company-logo">
+                    <img src="/public/img/logo.png" alt="Logo" class="company-logo">
                     <h5 class="mb-1"><%= appSettings.companyHeader %></h5>
-                    <p class="text-muted mb-0" style="font-size: 9px;">Internet Service Provider</p>
+                    <p class="text-muted mb-0" style="font-size: 9px;"><%= appSettings.company_slogan || 'Internet Service Provider' %></p>
                 </div>
                 <div class="col-4 text-end">
                     <div class="invoice-title">INVOICE</div>
@@ -244,7 +262,7 @@
                         </tr>
                         <tr>
                             <td class="fw-bold">Alamat:</td>
-                            <td><%= invoice.customer_address || '-' %></td>
+                            <td><%= invoice.customer_address || 'Alamat tidak tersedia' %></td>
                         </tr>
                     </table>
                 </div>
@@ -297,11 +315,11 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td><%= invoice.package_name %></td>
-                        <td><%= invoice.package_speed %></td>
-                        <td class="text-end">Rp <%= parseFloat(invoice.amount).toLocaleString('id-ID') %></td>
-                    </tr>
+                                            <tr>
+                            <td><%= invoice.package_name %></td>
+                            <td><%= invoice.package_speed || 'Kecepatan tidak tersedia' %></td>
+                            <td class="text-end">Rp <%= parseFloat(invoice.amount).toLocaleString('id-ID') %></td>
+                        </tr>
                 </tbody>
                 <tfoot>
                     <tr class="table-primary">
@@ -321,6 +339,16 @@
             </div>
         </div>
         <% } %>
+        
+        <!-- Company Notes -->
+        <% if (appSettings.invoice_notes && appSettings.invoice_notes.trim() !== '') { %>
+        <div class="notes-section">
+            <h5 class="text-primary mb-2">Informasi Penting</h5>
+            <div class="alert alert-warning">
+                <%= appSettings.invoice_notes %>
+            </div>
+        </div>
+        <% } %>
 
         <!-- Payment Instructions -->
         <div class="payment-section">
@@ -331,9 +359,9 @@
                         <div class="card-body">
                             <h6 class="card-title">Transfer Bank</h6>
                             <p class="card-text" style="margin: 0; font-size: 9px;">
-                                <strong>Bank:</strong> <%= appSettings.payment_bank_name || 'BCA' %><br>
-                                <strong>No. Rekening:</strong> <%= appSettings.payment_account_number || '1234567890' %><br>
-                                <strong>Atas Nama:</strong> <%= appSettings.payment_account_holder || appSettings.companyHeader %>
+                                <strong>Bank:</strong> <%= appSettings.payment_bank_name %><br>
+                                <strong>No. Rekening:</strong> <%= appSettings.payment_account_number %><br>
+                                <strong>Atas Nama:</strong> <%= appSettings.payment_account_holder %>
                             </p>
                         </div>
                     </div>
@@ -344,8 +372,8 @@
                             <h6 class="card-title">Pembayaran Tunai</h6>
                             <p class="card-text" style="margin: 0; font-size: 9px;">
                                 Pembayaran dapat dilakukan di kantor kami:<br>
-                                <strong>Alamat:</strong> <%= appSettings.payment_cash_address || 'Jl. Contoh No. 123' %><br>
-                                <strong>Jam Operasional:</strong> <%= appSettings.payment_cash_hours || '08:00 - 17:00' %>
+                                <strong>Alamat:</strong> <%= appSettings.payment_cash_address %><br>
+                                <strong>Jam Operasional:</strong> <%= appSettings.payment_cash_hours %>
                             </p>
                         </div>
                     </div>
@@ -359,9 +387,9 @@
                 <div class="col-md-7">
                     <p style="margin: 0 0 3px 0;"><strong>Terima kasih telah mempercayai layanan kami!</strong></p>
                     <p style="margin: 0 0 3px 0; font-size: 8px;">
-                        <i class="bi bi-telephone"></i> <%= appSettings.contact_phone || '0812-3456-7890' %><br>
-                        <i class="bi bi-envelope"></i> <%= appSettings.contact_email || 'info@example.com' %><br>
-                        <i class="bi bi-geo-alt"></i> <%= appSettings.contact_address || 'Jl. Contoh No. 123, Kota' %>
+                        <i class="bi bi-telephone"></i> <%= appSettings.contact_phone %><br>
+                        <i class="bi bi-envelope"></i> <%= appSettings.contact_email %><br>
+                        <i class="bi bi-geo-alt"></i> <%= appSettings.contact_address %>
                     </p>
                 </div>
                 <div class="col-md-5 text-end">
@@ -370,16 +398,46 @@
                         Invoice ini dibuat secara otomatis oleh sistem.<br>
                         Mohon simpan sebagai bukti pembayaran.
                     </p>
-                    <% if (appSettings.contact_whatsapp) { %>
                     <p class="text-muted" style="margin: 3px 0 0 0; font-size: 7px;">
-                        <i class="bi bi-whatsapp"></i> WhatsApp: <%= appSettings.contact_whatsapp %>
+                        <i class="bi bi-whatsapp"></i> WhatsApp: <%= appSettings.contact_whatsapp %><br>
+                        <i class="bi bi-globe"></i> Website: <%= appSettings.company_website %>
                     </p>
-                    <% } %>
                 </div>
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script>
+        function downloadAsPDF() {
+            const element = document.querySelector('.container-fluid');
+            const opt = {
+                margin: 0.5,
+                filename: 'invoice-<%= invoice.invoice_number %>.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'cm', format: 'a4', orientation: 'portrait' }
+            };
+            
+            // Sembunyikan tombol print sebelum generate PDF
+            const printButton = document.querySelector('.print-button');
+            printButton.style.display = 'none';
+            
+            html2pdf().set(opt).from(element).save().then(() => {
+                // Tampilkan kembali tombol print setelah PDF selesai
+                printButton.style.display = 'block';
+            });
+        }
+        
+        // Auto-hide print button when printing
+        window.addEventListener('beforeprint', function() {
+            document.querySelector('.print-button').style.display = 'none';
+        });
+        
+        window.addEventListener('afterprint', function() {
+            document.querySelector('.print-button').style.display = 'block';
+        });
+    </script>
 </body>
 </html>
