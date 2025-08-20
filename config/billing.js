@@ -861,7 +861,7 @@ class BillingManager {
     async getInvoiceById(id) {
         return new Promise((resolve, reject) => {
             const sql = `
-                SELECT i.*, c.username, c.name as customer_name, c.phone as customer_phone,
+                SELECT i.*, c.username as customer_username, c.name as customer_name, c.phone as customer_phone, c.address as customer_address,
                        p.name as package_name, p.speed as package_speed
                 FROM invoices i
                 JOIN customers c ON i.customer_id = c.id

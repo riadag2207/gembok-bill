@@ -25,7 +25,19 @@ const getAppSettings = (req, res, next) => {
     req.appSettings = {
         companyHeader: getSetting('company_header', 'ISP Monitor'),
         footerInfo: getSetting('footer_info', ''),
-        logoFilename: getSetting('logo_filename', 'logo.png')
+        logoFilename: getSetting('logo_filename', 'logo.png'),
+        company_slogan: getSetting('company_slogan', ''),
+        company_website: getSetting('company_website', ''),
+        invoice_notes: getSetting('invoice_notes', ''),
+        payment_bank_name: getSetting('payment_bank_name', ''),
+        payment_account_number: getSetting('payment_account_number', ''),
+        payment_account_holder: getSetting('payment_account_holder', ''),
+        payment_cash_address: getSetting('payment_cash_address', ''),
+        payment_cash_hours: getSetting('payment_cash_hours', ''),
+        contact_phone: getSetting('contact_phone', ''),
+        contact_email: getSetting('contact_email', ''),
+        contact_address: getSetting('contact_address', ''),
+        contact_whatsapp: getSetting('contact_whatsapp', '')
     };
     next();
 };
