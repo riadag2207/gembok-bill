@@ -7,7 +7,8 @@ const path = require('path');
 class WhatsAppNotificationManager {
     constructor() {
         this.sock = null;
-        this.templates = {
+        this.templatesFile = path.join(__dirname, '../data/whatsapp-templates.json');
+        this.templates = this.loadTemplates() || {
             invoice_created: {
                 title: 'Tagihan Baru',
                 template: `📋 *TAGIHAN BARU*
@@ -457,6 +458,38 @@ Terima kasih telah memilih layanan kami.`,
     }
 
     // Get all templates
+    // Load templates from file
+    loadTemplates() {
+        try {
+            if (fs.existsSync(this.templatesFile)) {
+                const data = fs.readFileSync(this.templatesFile, 'utf8');
+                console.log('✅ [WHATSAPP] Loaded templates from file');
+                return JSON.parse(data);
+            }
+        } catch (error) {
+            console.error('❌ [WHATSAPP] Error loading templates:', error);
+        }
+        return null;
+    }
+
+    // Save templates to file
+    saveTemplates() {
+        try {
+            // Ensure data directory exists
+            const dataDir = path.dirname(this.templatesFile);
+            if (!fs.existsSync(dataDir)) {
+                fs.mkdirSync(dataDir, { recursive: true });
+            }
+            
+            fs.writeFileSync(this.templatesFile, JSON.stringify(this.templates, null, 2));
+            console.log('✅ [WHATSAPP] Templates saved to file');
+            return true;
+        } catch (error) {
+            console.error('❌ [WHATSAPP] Error saving templates:', error);
+            return false;
+        }
+    }
+
     getTemplates() {
         return this.templates;
     }
@@ -465,9 +498,27 @@ Terima kasih telah memilih layanan kami.`,
     updateTemplate(templateKey, newTemplate) {
         if (this.templates[templateKey]) {
             this.templates[templateKey] = newTemplate;
+            this.saveTemplates(); // Save to file after update
             return true;
         }
         return false;
+    }
+
+    // Update multiple templates at once
+    updateTemplates(templatesData) {
+        let updated = 0;
+        Object.keys(templatesData).forEach(key => {
+            if (this.templates[key]) {
+                this.templates[key] = templatesData[key];
+                updated++;
+            }
+        });
+        
+        if (updated > 0) {
+            this.saveTemplates(); // Save once after all updates
+        }
+        
+        return updated;
     }
 
     // Check if template is enabled

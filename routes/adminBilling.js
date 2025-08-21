@@ -748,14 +748,12 @@ router.post('/whatsapp-settings/templates', async (req, res) => {
         const whatsappNotifications = require('../config/whatsapp-notifications');
         const templateData = req.body;
         
-        // Update templates
-        Object.keys(templateData).forEach(key => {
-            whatsappNotifications.updateTemplate(key, templateData[key]);
-        });
+        // Update templates (more efficient for multiple updates)
+        const updatedCount = whatsappNotifications.updateTemplates(templateData);
         
         res.json({
             success: true,
-            message: 'Templates saved successfully'
+            message: `${updatedCount} templates saved successfully`
         });
     } catch (error) {
         logger.error('Error saving WhatsApp templates:', error);
