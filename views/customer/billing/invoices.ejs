@@ -130,6 +130,11 @@
                                                 <td><%= new Date(invoice.created_at).toLocaleDateString('id-ID') %></td>
                                                 <td>
                                                     <div class="btn-group" role="group">
+                                                        <% if (invoice.status === 'unpaid') { %>
+                                                            <a href="/customer/billing/invoices/<%= invoice.id %>" class="btn btn-sm btn-success">
+                                                                <i class="bi bi-credit-card"></i> Bayar
+                                                            </a>
+                                                        <% } %>
                                                         <a href="/customer/billing/invoices/<%= invoice.id %>" class="btn btn-sm btn-outline-primary">
                                                             <i class="bi bi-eye"></i> Detail
                                                         </a>

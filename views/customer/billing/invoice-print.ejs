@@ -454,10 +454,8 @@
                                  <i class="bi bi-cash text-success" style="font-size: 1.5rem;"></i>
                                  <h6 class="mt-1 mb-1">Tunai</h6>
                                  <p class="small mb-0">
-                                     <%= settings.payment_cash_address || 'Kantor kami' %><br>
-                                     <% if (settings.payment_cash_hours) { %>
-                                         Jam: <%= settings.payment_cash_hours %>
-                                     <% } %>
+                                     <%= appSettings.payment_cash_address %><br>
+                                     Jam: <%= appSettings.payment_cash_hours %>
                                  </p>
                              </div>
                          </div>
@@ -466,9 +464,9 @@
                                  <i class="bi bi-bank text-primary" style="font-size: 1.5rem;"></i>
                                  <h6 class="mt-1 mb-1">Transfer Bank</h6>
                                  <p class="small mb-0">
-                                     <%= settings.payment_bank_name || 'Bank' %><br>
-                                     No. Rek: <%= settings.payment_account_number || '1234567890' %><br>
-                                     A/N: <%= settings.payment_account_holder || 'ALIJAYA DIGITAL NETWORK' %>
+                                     <%= appSettings.payment_bank_name %><br>
+                                     No. Rek: <%= appSettings.payment_account_number %><br>
+                                     A/N: <%= appSettings.payment_account_holder %>
                                  </p>
                              </div>
                          </div>
@@ -482,8 +480,8 @@
                      </div>
                      <p class="text-muted small mt-2 mb-0">
                          <strong>Catatan:</strong> Hubungi admin untuk informasi pembayaran lebih lanjut.<br>
-                         <i class="bi bi-telephone"></i> <%= appSettings.contact_phone || '0812-3456-7890' %> | 
-                         <i class="bi bi-whatsapp"></i> <%= appSettings.contact_whatsapp || '081947215703' %>
+                         <i class="bi bi-telephone"></i> <%= appSettings.contact_phone %> | 
+                         <i class="bi bi-whatsapp"></i> <%= appSettings.contact_whatsapp %>
                      </p>
                  </div>
              </div>

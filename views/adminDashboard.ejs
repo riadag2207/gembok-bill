@@ -177,7 +177,13 @@ let chart = new Chart(ctx, {
         fill: true,
         backgroundColor: 'rgba(13,202,240,0.2)',
         borderColor: 'rgba(13,202,240,1)',
-        tension: 0.4
+        tension: 0.4,
+        pointRadius: 0,
+        pointHoverRadius: 4,
+        borderWidth: 2,
+        // Tambahkan konfigurasi khusus untuk RX
+        yAxisID: 'y',
+        order: 1
       },
       {
         label: 'TX (Mbps)',
@@ -185,13 +191,35 @@ let chart = new Chart(ctx, {
         fill: true,
         backgroundColor: 'rgba(40,167,69,0.2)',
         borderColor: 'rgba(40,167,69,1)',
-        tension: 0.4
+        tension: 0.4,
+        pointRadius: 0,
+        pointHoverRadius: 4,
+        borderWidth: 2,
+        // Tambahkan konfigurasi khusus untuk TX
+        yAxisID: 'y',
+        order: 2
       }
     ]
   },
   options: {
     responsive: true,
     maintainAspectRatio: false,
+    animation: {
+      duration: 750,
+      easing: 'easeInOutQuart'
+    },
+    transitions: {
+      active: {
+        animation: {
+          duration: 300
+        }
+      }
+    },
+    // Tambahkan konfigurasi untuk memastikan chart tetap update
+    responsiveAnimationDuration: 0,
+    hover: {
+      animationDuration: 0
+    },
     plugins: { 
       legend: { 
         display: true,
@@ -234,6 +262,14 @@ let chart = new Chart(ctx, {
         },
         grid: {
           color: 'rgba(0,0,0,0.1)'
+        },
+        // Tambahkan adaptive scaling untuk skala yang lebih dinamis
+        adapters: {
+          type: 'linear',
+          ticks: {
+            autoSkip: true,
+            maxTicksLimit: 8
+          }
         }
       },
       x: {
@@ -251,7 +287,10 @@ let chart = new Chart(ctx, {
         },
         grid: {
           color: 'rgba(0,0,0,0.1)'
-        }
+        },
+        // Tambahkan smooth scrolling
+        min: 0,
+        max: maxPoints - 1
       }
     },
     interaction: {
@@ -261,12 +300,16 @@ let chart = new Chart(ctx, {
     },
     elements: {
       point: {
-        radius: 2,
+        radius: 0,
         hoverRadius: 4
       },
       line: {
         borderWidth: 2
       }
+    },
+    performance: {
+      maxDataPoints: maxPoints,
+      maxDatasetPoints: maxPoints
     }
   }
 });
@@ -275,10 +318,21 @@ function addTrafficData(rx, tx, interface) {
   const now = new Date();
   const label = now.toLocaleTimeString('id-ID', { hour12: false });
   
-  // Konversi ke Mbps
-  const rxMbps = (rx/1000000).toFixed(2);
-  const txMbps = (tx/1000000).toFixed(2);
-  const totalMbps = (parseFloat(rxMbps) + parseFloat(txMbps)).toFixed(2);
+  // Validasi dan konversi data
+  const rxBytes = parseInt(rx) || 0;
+  const txBytes = parseInt(tx) || 0;
+  
+  // Konversi ke Mbps dengan presisi yang lebih baik
+  const rxMbps = (rxBytes / 1000000).toFixed(3);
+  const txMbps = (txBytes / 1000000).toFixed(3);
+  const totalMbps = (parseFloat(rxMbps) + parseFloat(txMbps)).toFixed(3);
+  
+  // Debug logging untuk troubleshooting
+  console.log(`📊 Traffic Data [${interface}]:`, {
+    raw: { rx: rxBytes, tx: txBytes },
+    converted: { rx: rxMbps, tx: txMbps, total: totalMbps },
+    time: label
+  });
   
   // Update real-time info
   document.getElementById('currentRx').textContent = rxMbps + ' Mbps';
@@ -301,16 +355,50 @@ function addTrafficData(rx, tx, interface) {
     statusElement.parentElement.parentElement.className = 'card bg-secondary text-white';
   }
   
-  // Update chart
+  // Update chart dengan animasi smooth
   if (chart.data.labels.length >= maxPoints) {
     chart.data.labels.shift();
     chart.data.datasets[0].data.shift();
     chart.data.datasets[1].data.shift();
   }
-  chart.data.labels.push(label);
-  chart.data.datasets[0].data.push(parseFloat(rxMbps));
-  chart.data.datasets[1].data.push(parseFloat(txMbps));
-  chart.update();
+  
+  // Validasi data sebelum ditambahkan ke chart
+  const rxValue = parseFloat(rxMbps);
+  const txValue = parseFloat(txMbps);
+  
+  // Pastikan data valid dan tidak NaN
+  if (!isNaN(rxValue) && !isNaN(txValue)) {
+    // Tambah data baru
+    chart.data.labels.push(label);
+    chart.data.datasets[0].data.push(rxValue);
+    chart.data.datasets[1].data.push(txValue);
+    
+    console.log(`✅ Data added to chart: RX=${rxValue}, TX=${txValue}`);
+  } else {
+    console.warn(`⚠️ Invalid data detected: RX=${rxValue}, TX=${txValue}`);
+    // Tetap tambahkan data dengan nilai 0 jika ada yang invalid
+    chart.data.labels.push(label);
+    chart.data.datasets[0].data.push(isNaN(rxValue) ? 0 : rxValue);
+    chart.data.datasets[1].data.push(isNaN(txValue) ? 0 : txValue);
+  }
+  
+  // Update chart dengan animasi yang lebih smooth
+  chart.update('none');
+  
+  // Auto-scroll ke data terbaru jika data sudah penuh
+  if (chart.data.labels.length >= maxPoints) {
+    chart.options.scales.x.min = chart.data.labels.length - maxPoints;
+    chart.options.scales.x.max = chart.data.labels.length - 1;
+  }
+  
+  // Auto-adjust skala Y-axis berdasarkan data yang ada
+  adjustYAxisScale();
+  
+  // Log status chart update
+  console.log(`🔄 Chart updated: ${chart.data.labels.length} data points, RX: ${chart.data.datasets[0].data.slice(-1)[0]}, TX: ${chart.data.datasets[1].data.slice(-1)[0]}`);
+  
+  // Pastikan chart tetap bergerak meskipun data = 0
+  ensureChartMovement();
 }
 
 function resetChart() {
@@ -318,7 +406,58 @@ function resetChart() {
   chart.data.labels = [];
   chart.data.datasets[0].data = [];
   chart.data.datasets[1].data = [];
-  chart.update();
+  chart.update('none'); // Gunakan 'none' untuk reset yang lebih smooth
+}
+
+// Fungsi untuk auto-adjust skala Y-axis
+function adjustYAxisScale() {
+  if (chart.data.datasets[0].data.length === 0) return;
+  
+  // Ambil semua data RX dan TX
+  const allData = [
+    ...chart.data.datasets[0].data, // RX data
+    ...chart.data.datasets[1].data  // TX data
+  ];
+  
+  if (allData.length === 0) return;
+  
+  // Hitung min dan max dari data
+  const minValue = Math.min(...allData);
+  const maxValue = Math.max(...allData);
+  
+  // Handle kasus ketika semua data = 0 atau sangat kecil
+  if (maxValue <= 0.001) {
+    // Set default scale untuk data yang sangat kecil
+    chart.options.scales.y.min = 0;
+    chart.options.scales.y.max = 1;
+    console.log(`📏 Y-axis set to default scale: 0 - 1 Mbps (no traffic)`);
+    return;
+  }
+  
+  // Tambahkan margin 20% di atas dan bawah
+  const margin = (maxValue - minValue) * 0.2;
+  const newMin = Math.max(0, minValue - margin);
+  const newMax = maxValue + margin;
+  
+  // Update skala Y-axis jika ada perubahan signifikan
+  if (Math.abs(chart.options.scales.y.min - newMin) > 0.1 || 
+      Math.abs(chart.options.scales.y.max - newMax) > 0.1) {
+    
+    chart.options.scales.y.min = newMin;
+    chart.options.scales.y.max = newMax;
+    
+    console.log(`📏 Y-axis set to default scale: 0 - 1 Mbps (no traffic)`);
+  }
+}
+
+// Fungsi untuk memastikan chart tetap bergerak meskipun data = 0
+function ensureChartMovement() {
+  // Force chart update untuk memastikan animasi tetap berjalan
+  if (chart.data.labels.length > 0) {
+    // Trigger minimal update untuk memastikan chart bergerak
+    chart.update('none');
+    console.log(`🔄 Chart movement ensured - data points: ${chart.data.labels.length}`);
+  }
 }
 
 async function fetchTraffic() {
@@ -326,7 +465,10 @@ async function fetchTraffic() {
     const res = await fetch(`/api/dashboard/traffic?interface=${currentInterface}`);
     const data = await res.json();
     if (data.success) {
-      addTrafficData(data.rx, data.tx, data.interface);
+      // Gunakan requestAnimationFrame untuk update yang lebih smooth
+      requestAnimationFrame(() => {
+        addTrafficData(data.rx, data.tx, data.interface);
+      });
     }
   } catch (e) { 
     console.error('Error fetching traffic data:', e);
@@ -438,9 +580,9 @@ document.getElementById('interfaceSelect').addEventListener('change', function()
 // Load interfaces saat halaman dimuat
 loadInterfaces();
 
-// Set interval untuk update data
-setInterval(fetchTraffic, 2000);
-fetchTraffic();
+// Set interval untuk update data - interval yang lebih optimal untuk grafik
+setInterval(fetchTraffic, 3000); // Update setiap 3 detik untuk grafik yang lebih smooth
+fetchTraffic(); // Fetch data pertama kali
 </script>
 <script>
 // Fungsi untuk me-refresh logo dengan timestamp baru
