@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
 const { findDeviceByTag } = require('../config/addWAN');
+const { findDeviceByPPPoE } = require('../config/genieacs');
 const { sendMessage } = require('../config/sendMessage');
 const { getSettingsWithCache, getSetting } = require('../config/settingsManager');
 const billingManager = require('../config/billing');
@@ -650,6 +651,20 @@ router.post('/login', async (req, res) => {
     } else {
       req.session.phone = phone;
       
+      // Set customer_username untuk konsistensi dengan billing
+      try {
+        const billingManager = require('../config/billing');
+        const customer = await billingManager.getCustomerByPhone(phone);
+        if (customer) {
+          req.session.customer_username = customer.username;
+          console.log(`✅ [LOGIN] Set session customer_username: ${customer.username} for phone: ${phone}`);
+        } else {
+          console.log(`⚠️ [LOGIN] No billing customer found for phone: ${phone}`);
+        }
+      } catch (error) {
+        console.error(`❌ [LOGIN] Error getting customer from billing:`, error);
+      }
+      
       if (req.xhr || req.headers.accept.indexOf('json') > -1) {
         return res.json({ success: true, message: 'Login berhasil', redirect: '/customer/dashboard' });
       } else {
@@ -675,7 +690,7 @@ router.get('/otp', (req, res) => {
 });
 
 // POST: Verifikasi OTP
-router.post('/otp', (req, res) => {
+router.post('/otp', async (req, res) => {
   const { phone, otp } = req.body;
   const data = otpStore[phone];
   const settings = getSettingsWithCache();
@@ -686,6 +701,21 @@ router.post('/otp', (req, res) => {
   delete otpStore[phone];
   req.session = req.session || {};
   req.session.phone = phone;
+  
+  // Set customer_username untuk konsistensi dengan billing
+  try {
+    const billingManager = require('../config/billing');
+    const customer = await billingManager.getCustomerByPhone(phone);
+    if (customer) {
+      req.session.customer_username = customer.username;
+      console.log(`✅ [OTP_LOGIN] Set session customer_username: ${customer.username} for phone: ${phone}`);
+    } else {
+      console.log(`⚠️ [OTP_LOGIN] No billing customer found for phone: ${phone}`);
+    }
+  } catch (error) {
+    console.error(`❌ [OTP_LOGIN] Error getting customer from billing:`, error);
+  }
+  
   return res.redirect('/customer/dashboard');
 });
 
@@ -706,12 +736,11 @@ router.get('/billing', async (req, res) => {
     
     const invoices = await billingManager.getInvoicesByCustomer(customer.id);
     
-    res.render('customer-billing', { 
-      customer,
-      invoices: invoices || [],
-      settings,
-      title: 'Detail Tagihan'
-    });
+    // Set customer_username session for customer billing compatibility
+    req.session.customer_username = customer.username;
+    
+    // Redirect to new customer billing dashboard with payment method selection
+    res.redirect('/customer/billing/dashboard');
   } catch (error) {
     console.error('Error loading billing page:', error);
     res.render('error', { 
@@ -723,18 +752,120 @@ router.get('/billing', async (req, res) => {
 
 // POST: Restart device
 router.post('/restart-device', async (req, res) => {
+  // Prioritas: customer_username dari billing, fallback ke phone
+  const customerUsername = req.session && req.session.customer_username;
   const phone = req.session && req.session.phone;
-  if (!phone) return res.status(401).json({ success: false, message: 'Session tidak valid' });
+  
+  if (!customerUsername && !phone) {
+    return res.status(401).json({ success: false, message: 'Session tidak valid' });
+  }
   
   try {
-    console.log(`🔄 Restart device request from phone: ${phone}`);
+    console.log(`🔄 Restart device request from customer: ${customerUsername || phone}`);
+    console.log(`🔄 Session data - customer_username: ${customerUsername}, phone: ${phone}`);
     
-    // Cari device berdasarkan nomor telepon
-    let device = await findDeviceByTag(phone);
+    // Ambil data customer dari billing
+    let customer = null;
+    if (phone) {
+      try {
+        const billingManager = require('../config/billing');
+        customer = await billingManager.getCustomerByPhone(phone);
+        console.log(`📋 [RESTART] Customer from billing:`, customer ? {
+          id: customer.id, 
+          username: customer.username, 
+          pppoe_username: customer.pppoe_username,
+          phone: customer.phone
+        } : 'Not found');
+      } catch (error) {
+        console.error(`❌ [RESTART] Error getting customer from billing:`, error);
+      }
+    }
+    
+    let device = null;
+    
+    // Prioritas 1: Cari berdasarkan PPPoE Username dari billing
+    if (customer && customer.pppoe_username) {
+      console.log(`🔍 [RESTART] Searching by PPPoE username: ${customer.pppoe_username}`);
+      try {
+        device = await findDeviceByPPPoE(customer.pppoe_username);
+        if (device) {
+          console.log(`✅ [RESTART] Device found by PPPoE username: ${customer.pppoe_username}`);
+        }
+      } catch (error) {
+        console.error(`❌ [RESTART] Error finding device by PPPoE:`, error);
+      }
+    }
+    
+    // Prioritas 2: Fallback ke pencarian berdasarkan tag (berbagai format)
+    if (!device) {
+      const searchVariants = [];
+      
+      if (customer) {
+        // Gunakan data customer dari billing
+        searchVariants.push(
+          customer.username,           // Username billing
+          customer.phone,             // Phone dari billing 
+          customer.pppoe_username     // PPPoE username
+        );
+        
+        // Extract nomor dari customer username jika format cust_xxxx_xxxxxx
+        if (customer.username && customer.username.startsWith('cust_')) {
+          const extracted = customer.username.replace(/^cust_/, '').replace(/_/g, '');
+          searchVariants.push(extracted);
+          searchVariants.push('0' + extracted);
+        }
+      }
+      
+      // Selalu coba dengan phone variants, bahkan tanpa billing data
+      if (phone) {
+        searchVariants.push(
+          phone,                          // Format asli (087828060111)
+          phone.replace(/^0/, '62'),     // 62878280601111  
+          phone.replace(/^0/, '+62'),    // +62878280601111
+          phone.replace(/^0/, ''),       // 87828060111
+          phone.substring(1)             // 87828060111
+        );
+      }
+      
+      // Jika tidak ada billing data, coba dengan customerUsername dari session
+      if (!customer && customerUsername) {
+        console.log(`📱 [RESTART] No billing data, trying session customerUsername: ${customerUsername}`);
+        searchVariants.push(customerUsername);
+        
+        // Extract dari customer username jika format cust_xxxx_xxxxxx
+        if (customerUsername.startsWith('cust_')) {
+          const extracted = customerUsername.replace(/^cust_/, '').replace(/_/g, '');
+          searchVariants.push(extracted);
+          searchVariants.push('0' + extracted);
+        }
+      }
+      
+      // Remove duplicates dan filter empty values
+      const uniqueVariants = [...new Set(searchVariants.filter(v => v && v.trim()))];
+      console.log(`📱 [RESTART] Searching device by tag with variants:`, uniqueVariants);
+      
+      // Cari device berdasarkan tag variants
+      for (const variant of uniqueVariants) {
+        console.log(`🔍 [RESTART] Trying tag variant: ${variant}`);
+        device = await findDeviceByTag(variant);
+        if (device) {
+          console.log(`✅ [RESTART] Device found by tag variant: ${variant}`);
+          break;
+        }
+      }
+    }
     
     if (!device) {
-      console.log(`❌ Device not found for phone: ${phone}`);
-      return res.status(404).json({ success: false, message: 'Perangkat tidak ditemukan' });
+      console.log(`❌ Device not found for customer: ${customerUsername || phone}`);
+      console.log(`❌ Customer data:`, customer ? {
+        username: customer.username,
+        pppoe_username: customer.pppoe_username,
+        phone: customer.phone
+      } : 'No billing data');
+      return res.status(404).json({ 
+        success: false, 
+        message: `Perangkat tidak ditemukan untuk customer: ${customerUsername || phone}` 
+      });
     }
     
     console.log(`✅ Device found: ${device._id}`);

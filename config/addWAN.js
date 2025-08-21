@@ -98,6 +98,8 @@ async function handleAddWAN(remoteJid, params, sock) {
 // Fungsi untuk mencari perangkat berdasarkan tag nomor pelanggan
 async function findDeviceByTag(customerNumber) {
     try {
+        console.log(`🔍 [FIND_DEVICE] Searching for device with tag: ${customerNumber}`);
+        
         // Dapatkan URL GenieACS
         const genieacsUrl = getSetting('genieacs_url', 'http://localhost:7557');
         if (!genieacsUrl) {
@@ -105,10 +107,15 @@ async function findDeviceByTag(customerNumber) {
             return null;
         }
         
+        console.log(`🌐 [FIND_DEVICE] GenieACS URL: ${genieacsUrl}`);
+        
         // Buat query untuk mencari perangkat berdasarkan tag
         const queryObj = { "_tags": customerNumber };
         const queryJson = JSON.stringify(queryObj);
         const encodedQuery = encodeURIComponent(queryJson);
+        
+        console.log(`📋 [FIND_DEVICE] Query object:`, queryObj);
+        console.log(`🔗 [FIND_DEVICE] Full URL: ${genieacsUrl}/devices/?query=${encodedQuery}`);
         
         // Ambil perangkat dari GenieACS
         const response = await axios.get(`${genieacsUrl}/devices/?query=${encodedQuery}`, {
@@ -118,10 +125,15 @@ async function findDeviceByTag(customerNumber) {
             }
         });
         
+        console.log(`📊 [FIND_DEVICE] Response status: ${response.status}`);
+        console.log(`📊 [FIND_DEVICE] Found devices: ${response.data ? response.data.length : 0}`);
+        
         if (response.data && response.data.length > 0) {
+            console.log(`✅ [FIND_DEVICE] Device found:`, response.data[0]._id);
             return response.data[0];
         }
         
+        console.log(`❌ [FIND_DEVICE] No device found with tag: ${customerNumber}`);
         return null;
     } catch (error) {
         logger.error(`Error finding device by tag: ${error.message}`);

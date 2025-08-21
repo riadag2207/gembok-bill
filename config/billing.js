@@ -1187,6 +1187,86 @@ class BillingManager {
         });
     }
 
+    // Create online payment with specific method (for customer choice)
+    async createOnlinePaymentWithMethod(invoiceId, gateway = null, method = null) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                // Get invoice details
+                const invoice = await this.getInvoiceById(invoiceId);
+                if (!invoice) {
+                    throw new Error('Invoice not found');
+                }
+
+                // Get customer details
+                const customer = await this.getCustomerById(invoice.customer_id);
+                if (!customer) {
+                    throw new Error('Customer not found');
+                }
+
+                // Prepare invoice data for payment gateway
+                const paymentData = {
+                    id: invoice.id,
+                    invoice_number: invoice.invoice_number,
+                    amount: invoice.amount,
+                    customer_name: customer.name,
+                    customer_phone: customer.phone,
+                    customer_email: customer.email,
+                    package_name: invoice.package_name,
+                    package_id: invoice.package_id,
+                    payment_method: method // Add specific method for Tripay
+                };
+
+                // Create payment with selected gateway and method
+                const paymentResult = await this.paymentGateway.createPaymentWithMethod(paymentData, gateway, method);
+
+                // Save payment transaction to database
+                const sql = `
+                    INSERT INTO payment_gateway_transactions 
+                    (invoice_id, gateway, order_id, payment_url, token, amount, status, payment_type) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                `;
+
+                const db = this.db;
+                db.run(sql, [
+                    invoiceId,
+                    paymentResult.gateway,
+                    paymentResult.order_id,
+                    paymentResult.payment_url,
+                    paymentResult.token,
+                    invoice.amount,
+                    'pending',
+                    method || 'all'
+                ], (err) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        // Update invoice with payment gateway info
+                        const updateSql = `
+                            UPDATE invoices 
+                            SET payment_gateway = ?, payment_token = ?, payment_url = ?, payment_status = 'pending'
+                            WHERE id = ?
+                        `;
+
+                        db.run(updateSql, [
+                            paymentResult.gateway,
+                            paymentResult.token,
+                            paymentResult.payment_url,
+                            invoiceId
+                        ], (updateErr) => {
+                            if (updateErr) {
+                                reject(updateErr);
+                            } else {
+                                resolve(paymentResult);
+                            }
+                        });
+                    }
+                });
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
 async handlePaymentWebhook(payload, gateway) {
     return new Promise(async (resolve, reject) => {
         try {

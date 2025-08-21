@@ -11,10 +11,15 @@ class PaymentGatewayManager {
         // Only initialize enabled gateways
         if (this.settings.payment_gateway && this.settings.payment_gateway.midtrans && this.settings.payment_gateway.midtrans.enabled) {
             try {
+                console.log('[PAYMENT_GATEWAY] Initializing Midtrans with config:', this.settings.payment_gateway.midtrans);
                 this.gateways.midtrans = new MidtransGateway(this.settings.payment_gateway.midtrans);
+                console.log('[PAYMENT_GATEWAY] Midtrans initialized successfully');
             } catch (error) {
-                console.error('Failed to initialize Midtrans gateway:', error);
+                console.error('Failed to initialize Midtrans gateway:', error.message);
+                console.error('Midtrans config provided:', this.settings.payment_gateway.midtrans);
             }
+        } else {
+            console.log('[PAYMENT_GATEWAY] Midtrans not enabled or config missing');
         }
         
         if (this.settings.payment_gateway && this.settings.payment_gateway.xendit && this.settings.payment_gateway.xendit.enabled) {
@@ -112,6 +117,47 @@ class PaymentGatewayManager {
             };
         } catch (error) {
             console.error(`Error creating payment with ${selectedGateway}:`, error);
+            throw error;
+        }
+    }
+
+    async createPaymentWithMethod(invoice, gateway = null, method = null) {
+        const selectedGateway = gateway || this.activeGateway;
+        
+        if (!selectedGateway) {
+            throw new Error('No payment gateway is active');
+        }
+        
+        if (!this.gateways[selectedGateway]) {
+            console.error(`[PAYMENT_GATEWAY] Gateway ${selectedGateway} not found in initialized gateways`);
+            console.error(`[PAYMENT_GATEWAY] Available gateways:`, Object.keys(this.gateways));
+            console.error(`[PAYMENT_GATEWAY] Gateway config enabled:`, this.settings.payment_gateway?.[selectedGateway]?.enabled);
+            throw new Error(`Gateway ${selectedGateway} is not initialized or not available`);
+        }
+
+        if (!this.settings.payment_gateway || !this.settings.payment_gateway[selectedGateway] || !this.settings.payment_gateway[selectedGateway].enabled) {
+            throw new Error(`Gateway ${selectedGateway} is not enabled`);
+        }
+
+        try {
+            // Pass method to gateway for Tripay
+            console.log(`[PAYMENT_GATEWAY] Creating payment with gateway: ${selectedGateway}, method: ${method}`);
+            let result;
+            if (selectedGateway === 'tripay' && method && method !== 'all') {
+                console.log(`[PAYMENT_GATEWAY] Using Tripay with specific method: ${method}`);
+                result = await this.gateways[selectedGateway].createPaymentWithMethod(invoice, method);
+            } else {
+                console.log(`[PAYMENT_GATEWAY] Using default gateway method for ${selectedGateway}`);
+                result = await this.gateways[selectedGateway].createPayment(invoice);
+            }
+            
+            return {
+                ...result,
+                gateway: selectedGateway,
+                payment_method: method
+            };
+        } catch (error) {
+            console.error(`Error creating payment with ${selectedGateway} (method: ${method}):`, error);
             throw error;
         }
     }
@@ -397,6 +443,10 @@ class TripayGateway {
     }
 
     async createPayment(invoice) {
+        return this.createPaymentWithMethod(invoice, this.config.method || 'BRIVA');
+    }
+
+    async createPaymentWithMethod(invoice, method) {
         // Derive application base URL for callbacks
         const hostSetting = getSetting('server_host', 'localhost');
         const host = (hostSetting && String(hostSetting).trim()) || 'localhost';
@@ -409,8 +459,12 @@ class TripayGateway {
         }
         const appBaseUrl = baseNoSlash;
 
+        // Use method from customer choice, not admin settings
+        const selectedMethod = method || 'BRIVA'; // Default to BRIVA if no method specified
+        console.log(`[TRIPAY] Creating payment with method: ${selectedMethod} (from customer choice: ${method})`);
+
         const orderData = {
-            method: this.config.method || 'BRIVA',
+            method: selectedMethod,
             merchant_ref: `INV-${invoice.invoice_number}`,
             amount: parseInt(invoice.amount),
             customer_name: invoice.customer_name,

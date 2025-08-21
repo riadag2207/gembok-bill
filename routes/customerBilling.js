@@ -9,7 +9,14 @@ const getAppSettings = (req, res, next) => {
     req.appSettings = {
         companyHeader: getSetting('company_header', 'ISP Monitor'),
         footerInfo: getSetting('footer_info', ''),
-        logoFilename: getSetting('logo_filename', 'logo.png')
+        logoFilename: getSetting('logo_filename', 'logo.png'),
+        payment_bank_name: getSetting('payment_bank_name', 'BCA'),
+        payment_account_number: getSetting('payment_account_number', '1234567890'),
+        payment_account_holder: getSetting('payment_account_holder', 'ALIJAYA DIGITAL NETWORK'),
+        payment_cash_address: getSetting('payment_cash_address', 'Jl. Contoh No. 123'),
+        payment_cash_hours: getSetting('payment_cash_hours', '08:00 - 17:00'),
+        contact_whatsapp: getSetting('contact_whatsapp', '081947215703'),
+        contact_phone: getSetting('contact_phone', '0812-3456-7890')
     };
     next();
 };
@@ -26,7 +33,9 @@ router.get('/dashboard', getAppSettings, async (req, res) => {
         if (!customer) {
             return res.status(404).render('error', {
                 message: 'Pelanggan tidak ditemukan',
-                appSettings: req.appSettings
+                error: 'Terjadi kesalahan. Silakan coba lagi.',
+                appSettings: req.appSettings,
+                req: req
             });
         }
 
@@ -89,7 +98,9 @@ router.get('/invoices', getAppSettings, async (req, res) => {
         if (!customer) {
             return res.status(404).render('error', {
                 message: 'Pelanggan tidak ditemukan',
-                appSettings: req.appSettings
+                error: 'Terjadi kesalahan. Silakan coba lagi.',
+                appSettings: req.appSettings,
+                req: req
             });
         }
 
@@ -125,15 +136,21 @@ router.get('/invoices/:id', getAppSettings, async (req, res) => {
         if (!invoice) {
             return res.status(404).render('error', {
                 message: 'Tagihan tidak ditemukan',
-                appSettings: req.appSettings
+                error: 'Terjadi kesalahan. Silakan coba lagi.',
+                appSettings: req.appSettings,
+                req: req
             });
         }
 
+        // Check session access (removed debug logs for production)
+        
         // Pastikan tagihan milik customer yang login
-        if (invoice.username !== username) {
+        if (invoice.customer_username !== username) {
             return res.status(403).render('error', {
                 message: 'Akses ditolak',
-                appSettings: req.appSettings
+                error: `Session username: "${username}" tidak cocok dengan invoice customer_username: "${invoice.customer_username}"`,
+                appSettings: req.appSettings,
+                req: req
             });
         }
 
@@ -167,7 +184,9 @@ router.get('/payments', getAppSettings, async (req, res) => {
         if (!customer) {
             return res.status(404).render('error', {
                 message: 'Pelanggan tidak ditemukan',
-                appSettings: req.appSettings
+                error: 'Terjadi kesalahan. Silakan coba lagi.',
+                appSettings: req.appSettings,
+                req: req
             });
         }
 
@@ -207,7 +226,9 @@ router.get('/profile', getAppSettings, async (req, res) => {
         if (!customer) {
             return res.status(404).render('error', {
                 message: 'Pelanggan tidak ditemukan',
-                appSettings: req.appSettings
+                error: 'Terjadi kesalahan. Silakan coba lagi.',
+                appSettings: req.appSettings,
+                req: req
             });
         }
 
@@ -297,10 +318,12 @@ router.get('/invoices/:id/download', getAppSettings, async (req, res) => {
         const { id } = req.params;
         const invoice = await billingManager.getInvoiceById(id);
         
-        if (!invoice || invoice.username !== username) {
+        if (!invoice || invoice.customer_username !== username) {
             return res.status(404).render('error', {
                 message: 'Tagihan tidak ditemukan',
-                appSettings: req.appSettings
+                error: 'Terjadi kesalahan. Silakan coba lagi.',
+                appSettings: req.appSettings,
+                req: req
             });
         }
 
@@ -316,21 +339,34 @@ router.get('/invoices/:id/download', getAppSettings, async (req, res) => {
     }
 });
 
-// Print Invoice (placeholder)
+// Print Invoice
 router.get('/invoices/:id/print', getAppSettings, async (req, res) => {
     try {
         const username = req.session.customer_username;
+        console.log(`📄 [PRINT] Print request - username: ${username}, invoice_id: ${req.params.id}`);
+        
         if (!username) {
+            console.log(`❌ [PRINT] No customer_username in session`);
             return res.redirect('/customer/login');
         }
 
         const { id } = req.params;
         const invoice = await billingManager.getInvoiceById(id);
         
-        if (!invoice || invoice.username !== username) {
+        console.log(`📄 [PRINT] Invoice found:`, invoice ? {
+            id: invoice.id,
+            customer_username: invoice.customer_username,
+            invoice_number: invoice.invoice_number,
+            status: invoice.status
+        } : 'null');
+        
+        if (!invoice || invoice.customer_username !== username) {
+            console.log(`❌ [PRINT] Access denied - invoice.customer_username: ${invoice?.customer_username}, session username: ${username}`);
             return res.status(404).render('error', {
                 message: 'Tagihan tidak ditemukan',
-                appSettings: req.appSettings
+                error: 'Terjadi kesalahan. Silakan coba lagi.',
+                appSettings: req.appSettings,
+                req: req
             });
         }
 
@@ -348,6 +384,79 @@ router.get('/invoices/:id/print', getAppSettings, async (req, res) => {
             message: 'Error printing invoice',
             error: error.message,
             appSettings: req.appSettings
+        });
+    }
+});
+
+// Create online payment for customer
+router.post('/create-payment', async (req, res) => {
+    try {
+        const username = req.session.customer_username;
+        if (!username) {
+            return res.status(401).json({
+                success: false,
+                message: 'Unauthorized'
+            });
+        }
+
+        const { invoice_id, gateway, method } = req.body;
+        
+        // Process customer payment request
+        
+        if (!invoice_id) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invoice ID is required'
+            });
+        }
+
+        // Get invoice and verify ownership
+        const invoice = await billingManager.getInvoiceById(invoice_id);
+        if (!invoice) {
+            return res.status(404).json({
+                success: false,
+                message: 'Invoice not found'
+            });
+        }
+
+        if (invoice.customer_username !== username) {
+            return res.status(403).json({
+                success: false,
+                message: 'Access denied'
+            });
+        }
+
+        if (invoice.status === 'paid') {
+            return res.status(400).json({
+                success: false,
+                message: 'Invoice sudah dibayar'
+            });
+        }
+
+        // Validate Tripay minimum amount
+        if (gateway === 'tripay' && Number(invoice.amount) < 10000) {
+            return res.status(400).json({
+                success: false,
+                message: 'Minimal nominal pembayaran adalah Rp 10.000'
+            });
+        }
+
+        // Create online payment with specific method for Tripay
+        const result = await billingManager.createOnlinePaymentWithMethod(invoice_id, gateway, method);
+        
+        logger.info(`Customer ${username} created payment for invoice ${invoice_id} using ${gateway}${method && method !== 'all' ? ' - ' + method : ''}`);
+        
+        res.json({
+            success: true,
+            message: 'Payment created successfully',
+            data: result
+        });
+    } catch (error) {
+        console.error(`[CUSTOMER_PAYMENT] Error:`, error);
+        logger.error('Error creating customer payment:', error);
+        res.status(500).json({
+            success: false,
+            message: error.message || 'Failed to create payment'
         });
     }
 });
