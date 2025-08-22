@@ -43,8 +43,8 @@ function getPPPoENotificationSettings() {
 function saveSettings(settings) {
     try {
         // Update settings.json dengan pengaturan PPPoE notifications
-        const settingsPath = path.join(__dirname, '..', 'settings.json');
-        const currentSettings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+        const { getSettingsWithCache } = require('./settingsManager');
+        const currentSettings = getSettingsWithCache();
         
         // Update pppoe_notifications settings
         currentSettings['pppoe_notifications.enabled'] = settings.enabled.toString();
@@ -93,8 +93,8 @@ function setLogoutNotifications(enabled) {
 // Get admin numbers from settings.json
 function getAdminNumbers() {
     try {
-        const settingsPath = path.join(__dirname, '..', 'settings.json');
-        const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+        const { getSettingsWithCache } = require('./settingsManager');
+        const settings = getSettingsWithCache();
         
         // Cari admin numbers dengan format admins.0, admins.1, dst
         const adminNumbers = [];
@@ -119,8 +119,8 @@ function getAdminNumbers() {
 // Get technician numbers from settings.json
 function getTechnicianNumbers() {
     try {
-        const settingsPath = path.join(__dirname, '..', 'settings.json');
-        const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+        const { getSettingsWithCache } = require('./settingsManager');
+        const settings = getSettingsWithCache();
         
         // Cari technician numbers dengan format technician_numbers.0, technician_numbers.1, dst
         const technicianNumbers = [];
@@ -145,8 +145,8 @@ function getTechnicianNumbers() {
 // Add admin number to settings.json
 function addAdminNumber(number) {
     try {
-        const settingsPath = path.join(__dirname, '..', 'settings.json');
-        const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+        const { getSettingsWithCache } = require('./settingsManager');
+        const settings = getSettingsWithCache();
         
         if (!settings.admins) {
             settings.admins = [];
@@ -168,8 +168,8 @@ function addAdminNumber(number) {
 // Add technician number to settings.json
 function addTechnicianNumber(number) {
     try {
-        const settingsPath = path.join(__dirname, '..', 'settings.json');
-        const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+        const { getSettingsWithCache } = require('./settingsManager');
+        const settings = getSettingsWithCache();
         
         if (!settings.technician_numbers) {
             settings.technician_numbers = [];
@@ -191,8 +191,8 @@ function addTechnicianNumber(number) {
 // Remove admin number from settings.json
 function removeAdminNumber(number) {
     try {
-        const settingsPath = path.join(__dirname, '..', 'settings.json');
-        const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+        const { getSettingsWithCache } = require('./settingsManager');
+        const settings = getSettingsWithCache();
         
         if (settings.admins) {
             settings.admins = settings.admins.filter(n => n !== number);
@@ -210,8 +210,8 @@ function removeAdminNumber(number) {
 // Remove technician number from settings.json
 function removeTechnicianNumber(number) {
     try {
-        const settingsPath = path.join(__dirname, '..', 'settings.json');
-        const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+        const { getSettingsWithCache } = require('./settingsManager');
+        const settings = getSettingsWithCache();
         
         if (settings.technician_numbers) {
             settings.technician_numbers = settings.technician_numbers.filter(n => n !== number);

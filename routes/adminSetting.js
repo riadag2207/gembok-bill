@@ -99,8 +99,7 @@ router.post('/save', (req, res) => {
         // Baca settings lama
         let oldSettings = {};
         try {
-            const settingsData = fs.readFileSync(settingsPath, 'utf8');
-            oldSettings = JSON.parse(settingsData);
+            oldSettings = getSettingsWithCache();
         } catch (e) {
             console.warn('Gagal membaca settings.json lama, menggunakan default:', e.message);
             // Jika file tidak ada atau corrupt, gunakan default
@@ -206,7 +205,7 @@ router.post('/upload-logo', upload.single('logo'), (req, res) => {
         let settings = {};
         
         try {
-            settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+            settings = getSettingsWithCache();
         } catch (err) {
             console.error('Gagal membaca settings.json:', err);
             return res.status(500).json({ 

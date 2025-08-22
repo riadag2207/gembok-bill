@@ -26,10 +26,8 @@ function formatPhoneNumber(number) {
 // Helper function untuk mendapatkan header dan footer dari settings
 function getHeaderFooter() {
     try {
-        const fs = require('fs');
-        const path = require('path');
-        const settingsPath = path.join(__dirname, '../settings.json');
-        const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf-8'));
+        const { getSettingsWithCache } = require('./settingsManager');
+        const settings = getSettingsWithCache();
         
         return {
             header: settings.company_header || 'ALIJAYA BOT MANAGEMENT ISP',

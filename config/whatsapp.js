@@ -4086,10 +4086,8 @@ return;
                 await sendFormattedMessage(remoteJid, 'âŒ *Format salah!*\n\nsetheader [teks_header_baru]');
                 return;
             }
-            const settingsPath = path.join(__dirname, '../settings.json');
-            let settings = JSON.parse(fs.readFileSync(settingsPath, 'utf-8'));
-            settings.company_header = newHeader;
-            fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
+            const { setSetting } = require('./settingsManager');
+            setSetting('company_header', newHeader);
             updateConfig({ companyHeader: newHeader });
             await sendFormattedMessage(remoteJid, `✅ *Header berhasil diubah ke:*\n${newHeader}`);
             return;
@@ -4106,10 +4104,8 @@ return;
                 await sendFormattedMessage(remoteJid, 'âŒ *Format salah!*\n\nsetfooter [teks_footer_baru]');
 return;
 }
-            const settingsPath = path.join(__dirname, '../settings.json');
-            let settings = JSON.parse(fs.readFileSync(settingsPath, 'utf-8'));
-            settings.footer_info = newFooter;
-            fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
+            const { setSetting } = require('./settingsManager');
+            setSetting('footer_info', newFooter);
             updateConfig({ footerInfo: newFooter });
             await sendFormattedMessage(remoteJid, `✅ *Footer berhasil diubah ke:*\n${newFooter}`);
 return;
@@ -5376,6 +5372,32 @@ Pesan GenieACS telah diaktifkan kembali.`);
                 await mikrotikCommands.handleDebugResource(remoteJid);
                 return;
             }
+
+            // Perintah debug settings performance (admin only)
+            if (command === 'debug settings' || command === '!debug settings' || command === '/debug settings') {
+                console.log(`Admin menjalankan debug settings performance`);
+                try {
+                    const { getPerformanceReport } = require('./settingsManager');
+                    const report = getPerformanceReport();
+                    await sendFormattedMessage(remoteJid, `📊 *SETTINGS PERFORMANCE DEBUG*\n\n\`\`\`${report}\`\`\``);
+                } catch (error) {
+                    await sendFormattedMessage(remoteJid, `❌ *Error getting performance stats:* ${error.message}`);
+                }
+                return;
+            }
+
+            // Perintah quick settings stats (admin only)
+            if (command === 'settings stats' || command === '!settings stats' || command === '/settings stats') {
+                console.log(`Admin menjalankan settings stats`);
+                try {
+                    const { getQuickStats } = require('./settingsManager');
+                    const stats = getQuickStats();
+                    await sendFormattedMessage(remoteJid, `📊 *Settings Stats*\n${stats}`);
+                } catch (error) {
+                    await sendFormattedMessage(remoteJid, `❌ *Error:* ${error.message}`);
+                }
+                return;
+            }
             
             // Perintah info wifi
             if (command === 'info wifi' || command === '!info wifi' || command === '/info wifi') {
@@ -5676,7 +5698,8 @@ function getAppSettings() {
         console.error('Error getting app settings:', e);
         // Fallback ke pembacaan langsung file
         try {
-            return JSON.parse(fs.readFileSync(settingsPath, 'utf-8'));
+            const { getSettingsWithCache } = require('./settingsManager');
+            return getSettingsWithCache();
         } catch (fallbackError) {
             console.error('Error reading settings file directly:', fallbackError);
             return {};

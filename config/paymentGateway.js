@@ -43,7 +43,8 @@ class PaymentGatewayManager {
 
     loadSettings() {
         try {
-            return JSON.parse(fs.readFileSync('settings.json', 'utf8'));
+            const { getSettingsWithCache } = require('./settingsManager');
+            return getSettingsWithCache();
         } catch (error) {
             console.error('Error loading settings:', error);
             return {};

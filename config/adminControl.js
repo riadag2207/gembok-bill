@@ -1,10 +1,11 @@
 const fs = require('fs');
 const path = require('path');
+const { getSettingsWithCache } = require('./settingsManager');
 
 const settingsPath = path.join(__dirname, '../settings.json');
 
 function getSettings() {
-  const raw = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+  const raw = getSettingsWithCache();
   // Kompatibilitas: jika admins belum array, konversi dari admins.0, admins.1, dst
   if (!Array.isArray(raw.admins)) {
     const admins = [];
