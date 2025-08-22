@@ -1118,13 +1118,21 @@ router.get('/customers', getAppSettings, async (req, res) => {
 
 router.post('/customers', async (req, res) => {
     try {
-        const { name, phone, pppoe_username, email, address, package_id, pppoe_profile, auto_suspension, billing_day, create_pppoe_user, pppoe_password } = req.body;
+        const { name, username, phone, pppoe_username, email, address, package_id, pppoe_profile, auto_suspension, billing_day, create_pppoe_user, pppoe_password } = req.body;
         
         // Validate required fields
-        if (!name || !phone || !package_id) {
+        if (!name || !username || !phone || !package_id) {
             return res.status(400).json({
                 success: false,
-                message: 'Nama, telepon, dan paket harus diisi'
+                message: 'Nama, username, telepon, dan paket harus diisi'
+            });
+        }
+        
+        // Validate username format
+        if (!/^[a-z0-9_]+$/.test(username)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Username hanya boleh berisi huruf kecil, angka, dan underscore'
             });
         }
 
@@ -1137,6 +1145,7 @@ router.post('/customers', async (req, res) => {
 
         const customerData = {
             name,
+            username,
             phone,
             pppoe_username,
             email,
@@ -1377,13 +1386,21 @@ router.get('/customers/:username/test', async (req, res) => {
 router.put('/customers/:phone', async (req, res) => {
     try {
         const { phone } = req.params;
-        const { name, pppoe_username, email, address, package_id, pppoe_profile, status, auto_suspension, billing_day } = req.body;
+        const { name, username, pppoe_username, email, address, package_id, pppoe_profile, status, auto_suspension, billing_day } = req.body;
         
         // Validate required fields
-        if (!name || !package_id) {
+        if (!name || !username || !package_id) {
             return res.status(400).json({
                 success: false,
-                message: 'Nama dan paket harus diisi'
+                message: 'Nama, username, dan paket harus diisi'
+            });
+        }
+        
+        // Validate username format
+        if (!/^[a-z0-9_]+$/.test(username)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Username hanya boleh berisi huruf kecil, angka, dan underscore'
             });
         }
         
@@ -1407,6 +1424,7 @@ router.put('/customers/:phone', async (req, res) => {
 
         const customerData = {
             name: name,
+            username: username,
             phone: phone,
             pppoe_username: pppoe_username || currentCustomer.pppoe_username,
             email: email || currentCustomer.email,
@@ -1422,7 +1440,8 @@ router.put('/customers/:phone', async (req, res) => {
             })()
         };
 
-        const result = await billingManager.updateCustomer(phone, customerData);
+        // Use current phone for lookup, allow phone to be updated in customerData
+        const result = await billingManager.updateCustomerByPhone(phone, customerData);
         
         res.json({
             success: true,

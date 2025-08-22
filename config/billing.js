@@ -60,16 +60,17 @@ class BillingManager {
 
     async updateCustomerById(id, customerData) {
         return new Promise(async (resolve, reject) => {
-            const { name, pppoe_username, email, address, package_id, pppoe_profile, status, auto_suspension, billing_day } = customerData;
+            const { name, username, pppoe_username, email, address, package_id, pppoe_profile, status, auto_suspension, billing_day } = customerData;
             try {
                 const oldCustomer = await this.getCustomerById(id);
                 if (!oldCustomer) return reject(new Error('Customer not found'));
 
                 const normBillingDay = Math.min(Math.max(parseInt(billing_day !== undefined ? billing_day : (oldCustomer?.billing_day ?? 15), 10) || 15, 1), 28);
 
-                const sql = `UPDATE customers SET name = ?, pppoe_username = ?, email = ?, address = ?, package_id = ?, pppoe_profile = ?, status = ?, auto_suspension = ?, billing_day = ? WHERE id = ?`;
+                const sql = `UPDATE customers SET name = ?, username = ?, pppoe_username = ?, email = ?, address = ?, package_id = ?, pppoe_profile = ?, status = ?, auto_suspension = ?, billing_day = ? WHERE id = ?`;
                 this.db.run(sql, [
                     name ?? oldCustomer.name,
+                    username ?? oldCustomer.username,
                     pppoe_username ?? oldCustomer.pppoe_username,
                     email ?? oldCustomer.email,
                     address ?? oldCustomer.address,
@@ -251,6 +252,15 @@ class BillingManager {
                 console.log('Added billing_day column to customers table');
             }
         });
+
+        // Update existing customers to have username if null (for backward compatibility)
+        this.db.run("UPDATE customers SET username = 'cust_' || substr(phone, -4, 4) || '_' || strftime('%s','now') WHERE username IS NULL OR username = ''", (err) => {
+            if (err) {
+                console.error('Error updating null usernames:', err);
+            } else {
+                console.log('Updated null usernames for existing customers');
+            }
+        });
     }
 
     // Paket Management
@@ -329,10 +339,10 @@ class BillingManager {
     // Customer Management
     async createCustomer(customerData) {
         return new Promise(async (resolve, reject) => {
-            const { name, phone, pppoe_username, email, address, package_id, pppoe_profile, status, auto_suspension, billing_day } = customerData;
+            const { name, username, phone, pppoe_username, email, address, package_id, pppoe_profile, status, auto_suspension, billing_day } = customerData;
             
-            // Generate username dan PPPoE username otomatis
-            const username = this.generateUsername(phone);
+            // Use provided username, fallback to auto-generate if not provided
+            const finalUsername = username || this.generateUsername(phone);
             const autoPPPoEUsername = pppoe_username || this.generatePPPoEUsername(phone);
             
             // Normalisasi billing_day (1-28)
@@ -340,7 +350,7 @@ class BillingManager {
             
             const sql = `INSERT INTO customers (username, name, phone, pppoe_username, email, address, package_id, pppoe_profile, status, auto_suspension, billing_day) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
             
-            this.db.run(sql, [username, name, phone, autoPPPoEUsername, email, address, package_id, pppoe_profile, status || 'active', auto_suspension !== undefined ? auto_suspension : 1, normBillingDay], async function(err) {
+            this.db.run(sql, [finalUsername, name, phone, autoPPPoEUsername, email, address, package_id, pppoe_profile, status || 'active', auto_suspension !== undefined ? auto_suspension : 1, normBillingDay], async function(err) {
                 if (err) {
                     reject(err);
                 } else {
@@ -356,28 +366,28 @@ class BillingManager {
                             if (device) {
                                 // Tambahkan tag nomor telepon ke device
                                 await addTagToDevice(device._id, phone);
-                                console.log(`Successfully added phone tag ${phone} to device ${device._id} for customer ${username} (PPPoE: ${autoPPPoEUsername})`);
+                                console.log(`Successfully added phone tag ${phone} to device ${device._id} for customer ${finalUsername} (PPPoE: ${autoPPPoEUsername})`);
                             } else {
-                                console.warn(`No device found with PPPoE Username ${autoPPPoEUsername} for customer ${username}`);
+                                console.warn(`No device found with PPPoE Username ${autoPPPoEUsername} for customer ${finalUsername}`);
                             }
                         } catch (genieacsError) {
-                            console.error(`Error adding phone tag to GenieACS for customer ${username}:`, genieacsError.message);
+                            console.error(`Error adding phone tag to GenieACS for customer ${finalUsername}:`, genieacsError.message);
                             // Jangan reject, karena customer sudah berhasil dibuat di billing
                         }
-                    } else if (phone && username) {
+                    } else if (phone && finalUsername) {
                         // Fallback: coba dengan username jika pppoe_username tidak ada
                         try {
                             const { findDeviceByPPPoE, addTagToDevice } = require('./genieacs');
-                            const device = await findDeviceByPPPoE(username);
+                            const device = await findDeviceByPPPoE(finalUsername);
                             
                             if (device) {
                                 await addTagToDevice(device._id, phone);
-                                console.log(`Successfully added phone tag ${phone} to device ${device._id} for customer ${username} (using username as PPPoE)`);
+                                console.log(`Successfully added phone tag ${phone} to device ${device._id} for customer ${finalUsername} (using username as PPPoE)`);
                             } else {
-                                console.warn(`No device found with PPPoE Username ${username} for customer ${username}`);
+                                console.warn(`No device found with PPPoE Username ${finalUsername} for customer ${finalUsername}`);
                             }
                         } catch (genieacsError) {
-                            console.error(`Error adding phone tag to GenieACS for customer ${username}:`, genieacsError.message);
+                            console.error(`Error adding phone tag to GenieACS for customer ${finalUsername}:`, genieacsError.message);
                         }
                     }
                     
@@ -628,31 +638,39 @@ class BillingManager {
     }
 
     async updateCustomer(phone, customerData) {
+        return this.updateCustomerByPhone(phone, customerData);
+    }
+
+    async updateCustomerByPhone(oldPhone, customerData) {
         return new Promise(async (resolve, reject) => {
-            const { name, pppoe_username, email, address, package_id, pppoe_profile, status, auto_suspension, billing_day } = customerData;
+            const { name, username, phone, pppoe_username, email, address, package_id, pppoe_profile, status, auto_suspension, billing_day } = customerData;
             
             // Dapatkan data customer lama untuk membandingkan nomor telepon
             try {
-                const oldCustomer = await this.getCustomerByPhone(phone);
-                const oldPhone = oldCustomer ? oldCustomer.phone : null;
+                const oldCustomer = await this.getCustomerByPhone(oldPhone);
+                if (!oldCustomer) {
+                    return reject(new Error('Pelanggan tidak ditemukan'));
+                }
+                
                 const oldPPPoE = oldCustomer ? oldCustomer.pppoe_username : null;
                 
                 // Normalisasi billing_day (1-28) dengan fallback ke nilai lama atau 15
                 const normBillingDay = Math.min(Math.max(parseInt(billing_day !== undefined ? billing_day : (oldCustomer?.billing_day ?? 15), 10) || 15, 1), 28);
                 
-                const sql = `UPDATE customers SET name = ?, pppoe_username = ?, email = ?, address = ?, package_id = ?, pppoe_profile = ?, status = ?, auto_suspension = ?, billing_day = ? WHERE phone = ?`;
+                const sql = `UPDATE customers SET name = ?, username = ?, phone = ?, pppoe_username = ?, email = ?, address = ?, package_id = ?, pppoe_profile = ?, status = ?, auto_suspension = ?, billing_day = ? WHERE phone = ?`;
                 
-                this.db.run(sql, [name, pppoe_username, email, address, package_id, pppoe_profile, status, auto_suspension !== undefined ? auto_suspension : oldCustomer.auto_suspension, normBillingDay, phone], async function(err) {
+                this.db.run(sql, [name, username || oldCustomer.username, phone || oldPhone, pppoe_username, email, address, package_id, pppoe_profile, status, auto_suspension !== undefined ? auto_suspension : oldCustomer.auto_suspension, normBillingDay, oldPhone], async function(err) {
                     if (err) {
                         reject(err);
                     } else {
                         // Jika nomor telepon atau PPPoE username berubah, update tag di GenieACS
-                        if (phone && (phone !== oldPhone || pppoe_username !== oldPPPoE)) {
+                        const newPhone = phone || oldPhone;
+                        if (newPhone && (newPhone !== oldPhone || pppoe_username !== oldPPPoE)) {
                             try {
                                 const { findDeviceByPPPoE, addTagToDevice, removeTagFromDevice } = require('./genieacs');
                                 
                                 // Hapus tag lama jika ada
-                                if (oldPhone && oldPPPoE) {
+                                                                        if (oldPhone && oldPPPoE) {
                                     try {
                                         const oldDevice = await findDeviceByPPPoE(oldPPPoE);
                                         if (oldDevice) {
@@ -669,8 +687,8 @@ class BillingManager {
                                 const device = await findDeviceByPPPoE(pppoeToUse);
                                 
                                 if (device) {
-                                    await addTagToDevice(device._id, phone);
-                                    console.log(`Successfully updated phone tag to ${phone} for device ${device._id} and customer ${oldCustomer.username} (PPPoE: ${pppoeToUse})`);
+                                    await addTagToDevice(device._id, newPhone);
+                                    console.log(`Successfully updated phone tag to ${newPhone} for device ${device._id} and customer ${oldCustomer.username} (PPPoE: ${pppoeToUse})`);
                                 } else {
                                     console.warn(`No device found with PPPoE Username ${pppoeToUse} for customer ${oldCustomer.username}`);
                                 }
@@ -1039,14 +1057,18 @@ class BillingManager {
         // Ambil 4 digit terakhir dari nomor telepon
         const last4Digits = phone.slice(-4);
         const timestamp = Date.now().toString().slice(-6);
-        return `cust_${last4Digits}_${timestamp}`;
+        // Tambah random string untuk menghindari collision
+        const randomStr = Math.random().toString(36).substring(2, 6);
+        return `cust_${last4Digits}_${timestamp}_${randomStr}`;
     }
 
     // Generate PPPoE username otomatis
     generatePPPoEUsername(phone) {
         // Ambil 4 digit terakhir dari nomor telepon
         const last4Digits = phone.slice(-4);
-        return `pppoe_${last4Digits}`;
+        // Tambah random string untuk menghindari collision
+        const randomStr = Math.random().toString(36).substring(2, 4);
+        return `pppoe_${last4Digits}_${randomStr}`;
     }
 
     async getBillingStats() {
