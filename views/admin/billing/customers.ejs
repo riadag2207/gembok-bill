@@ -45,35 +45,7 @@
                             </button>
                         </div>
 
-    <!-- Import Customers Modal -->
-    <div class="modal fade" id="importCustomersModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Restore Data Pelanggan (Import JSON)</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <form id="importCustomersForm">
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label">Pilih File (JSON atau XLSX)</label>
-                            <input type="file" id="customersFile" name="file" accept="application/json,.json,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.xlsx" class="form-control" required>
-                            <small class="form-text text-muted">Dukungan: JSON (disarankan) atau Excel XLSX. JSON bisa berupa array atau { customers: [...] }.</small>
-                        </div>
-                        <div class="alert alert-info" role="alert">
-                            Catatan: Data dengan nomor telepon yang sama akan diupdate. Data baru akan dibuat otomatis.
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-warning">
-                            <i class="bi bi-cloud-upload"></i> Import
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+
                     </div>
                 </div>
 
@@ -229,8 +201,8 @@
                                             <!-- header checkbox already above -->
                                         </th>
                                         <th>Nama</th>
+                                        <th>Username</th>
                                         <th>Telepon</th>
-
                                         <th>PPPoE Username</th>
                                         <th>Paket</th>
                                         <th>PPPoE Profile</th>
@@ -248,8 +220,8 @@
                                                     <input type="checkbox" class="form-check-input customer-checkbox" value="<%= customer.phone %>">
                                                 </td>
                                                 <td><%= customer.name %></td>
+                                                <td><%= customer.username || '-' %></td>
                                                 <td><%= customer.phone %></td>
-
                                                 <td><%= customer.pppoe_username || '-' %></td>
                                                 <td><%= customer.package_name || '-' %></td>
                                                 <td class="pppoe-profile"><span class="badge bg-info"><%= customer.pppoe_profile || 'default' %></span></td>
@@ -398,13 +370,21 @@
                     <div class="modal-body">
                         <div class="mb-3">
                             <label for="name" class="form-label">Nama *</label>
-                            <input type="text" class="form-control" id="name" name="name" required>
+                            <input type="text" class="form-control" id="name" name="name" required onblur="generateUsernameFromName()">
+                        </div>
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username *</label>
+                            <input type="text" class="form-control" id="username" name="username" required placeholder="username untuk login dan payment gateway">
+                            <small class="form-text text-muted">Username akan digunakan untuk login pelanggan dan payment gateway. Harus unik dan tanpa spasi.</small>
                         </div>
                         <div class="mb-3">
                             <label for="phone" class="form-label">Telepon *</label>
                             <input type="text" class="form-control" id="phone" name="phone" required>
                         </div>
-
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" placeholder="customer@example.com">
+                        </div>
                         <div class="mb-3">
                             <label for="pppoe_username" class="form-label">PPPoE Username (opsional)</label>
                             <input type="text" class="form-control" id="pppoe_username" name="pppoe_username" placeholder="username@domain">
@@ -461,7 +441,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">Simpan</button>
+                        <button type="submit" class="btn btn-primary">Simpan</button>
                     </div>
                 </form>
             </div>
@@ -483,9 +463,18 @@
                             <input type="text" class="form-control" id="edit_name" name="name" required>
                         </div>
                         <div class="mb-3">
+                            <label for="edit_username" class="form-label">Username *</label>
+                            <input type="text" class="form-control" id="edit_username" name="username" required placeholder="username untuk login dan payment gateway">
+                            <small class="form-text text-muted">Username akan digunakan untuk login pelanggan dan payment gateway. Harus unik dan tanpa spasi.</small>
+                        </div>
+                        <div class="mb-3">
                             <label for="edit_phone" class="form-label">Telepon *</label>
-                            <input type="text" class="form-control" id="edit_phone" name="phone" readonly>
-                            <small class="form-text text-muted">Nomor telepon tidak dapat diubah</small>
+                            <input type="text" class="form-control" id="edit_phone" name="phone" required>
+                            <small class="form-text text-muted">Pastikan nomor telepon unik dan benar</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="edit_email" name="email" placeholder="customer@example.com">
                         </div>
                         <div class="mb-3">
                             <label for="edit_pppoe_username" class="form-label">PPPoE Username</label>
@@ -535,7 +524,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">Update</button>
+                        <button type="submit" class="btn btn-primary">Update</button>
                     </div>
                 </form>
             </div>
@@ -547,19 +536,25 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Import Pelanggan</h5>
+                    <h5 class="modal-title">Restore Data Pelanggan (Import)</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form id="importCustomersForm">
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label for="customersJsonFile" class="form-label">Pilih file JSON</label>
-                            <input type="file" class="form-control" id="customersJsonFile" name="file" accept=".json" required>
+                            <label class="form-label">Pilih File (JSON atau XLSX)</label>
+                            <input type="file" id="customersFile" name="file" accept="application/json,.json,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.xlsx" class="form-control" required>
+                            <small class="form-text text-muted">Dukungan: JSON (disarankan) atau Excel XLSX. JSON bisa berupa array atau { customers: [...] }.</small>
+                        </div>
+                        <div class="alert alert-info" role="alert">
+                            Catatan: Data dengan nomor telepon yang sama akan diupdate. Data baru akan dibuat otomatis.
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary">Import</button>
+                        <button type="submit" class="btn btn-warning">
+                            <i class="bi bi-cloud-upload"></i> Import
+                        </button>
                     </div>
                 </form>
             </div>
@@ -702,6 +697,30 @@
             });
         });
 
+        // Function to generate username from name
+        function generateUsernameFromName() {
+            const nameField = document.getElementById('name');
+            const usernameField = document.getElementById('username');
+            
+            if (nameField.value && !usernameField.value) {
+                // Convert name to username: lowercase, replace spaces with underscore, remove special chars
+                let username = nameField.value.toLowerCase()
+                    .replace(/\s+/g, '_')           // Replace spaces with underscore
+                    .replace(/[^a-z0-9_]/g, '')     // Remove special characters
+                    .replace(/_{2,}/g, '_')         // Replace multiple underscores with single
+                    .replace(/^_|_$/g, '');         // Remove leading/trailing underscores
+                
+                // Limit length to 20 characters
+                username = username.substring(0, 20);
+                
+                // Add random suffix to avoid duplicates
+                const randomSuffix = Math.random().toString(36).substring(2, 5);
+                username = username + '_' + randomSuffix;
+                
+                usernameField.value = username;
+            }
+        }
+
         // Function to update profile field when package is selected
         function updateProfileField() {
             const packageSelect = document.getElementById('package_id');
@@ -730,13 +749,20 @@
             
             // Client-side validation
             const name = $('#name').val().trim();
+            const username = $('#username').val().trim();
             const phone = $('#phone').val().trim();
             const package_id = $('#package_id').val();
             const createPppoe = $('#create_pppoe_user').is(':checked');
             const pppoeUser = $('#pppoe_username').val().trim();
             
-            if (!name || !phone || !package_id) {
-                showToast('error', 'Nama, telepon, dan paket wajib diisi');
+            if (!name || !username || !phone || !package_id) {
+                showToast('error', 'Nama, username, telepon, dan paket wajib diisi');
+                return;
+            }
+            
+            // Validate username format
+            if (!/^[a-z0-9_]+$/.test(username)) {
+                showToast('error', 'Username hanya boleh berisi huruf kecil, angka, dan underscore');
                 return;
             }
             if (createPppoe && !pppoeUser) {
@@ -751,7 +777,9 @@
             
             const formData = {
                 name: name,
+                username: username,
                 phone: phone,
+                email: $('#email').val().trim(),
                 pppoe_username: pppoeUser,
                 address: $('#address').val().trim(),
                 package_id: package_id,
@@ -813,7 +841,9 @@
                     if (data.success) {
                         const customer = data.customer;
                         $('#edit_name').val(customer.name);
-                        $('#edit_phone').val(customer.phone);
+                        $('#edit_username').val(customer.username || '');
+                        $('#edit_phone').val(customer.phone).data('original-phone', customer.phone);
+                        $('#edit_email').val(customer.email || '');
                         $('#edit_pppoe_username').val(customer.pppoe_username || '');
                         $('#edit_address').val(customer.address || '');
                         $('#edit_package_id').val(customer.package_id || '');
@@ -842,10 +872,18 @@
             
             // Client-side validation
             const name = $('#edit_name').val().trim();
+            const username = $('#edit_username').val().trim();
+            const phone = $('#edit_phone').val().trim();
             const package_id = $('#edit_package_id').val();
             
-            if (!name || !package_id) {
-                showToast('error', 'Nama dan paket wajib diisi');
+            if (!name || !username || !phone || !package_id) {
+                showToast('error', 'Nama, username, telepon, dan paket wajib diisi');
+                return;
+            }
+            
+            // Validate username format
+            if (!/^[a-z0-9_]+$/.test(username)) {
+                showToast('error', 'Username hanya boleh berisi huruf kecil, angka, dan underscore');
                 return;
             }
             
@@ -854,9 +892,12 @@
             const originalText = submitBtn.text();
             submitBtn.prop('disabled', true).text('Mengupdate...');
             
-            const phone = $('#edit_phone').val();
+            const originalPhone = $('#edit_phone').data('original-phone'); // Store original phone for API call
             const formData = {
                 name: name,
+                username: username,
+                phone: phone,
+                email: $('#edit_email').val().trim(),
                 pppoe_username: $('#edit_pppoe_username').val().trim(),
                 address: $('#edit_address').val().trim(),
                 package_id: package_id,
@@ -870,7 +911,7 @@
                 })()
             };
             
-            fetch(`/admin/billing/customers/${phone}`, {
+            fetch(`/admin/billing/customers/${originalPhone || phone}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
