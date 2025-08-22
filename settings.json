@@ -39,7 +39,7 @@
   "offline_notification_enable": true,
   "offline_notification_interval": "43200000",
   "user_auth_mode": "mikrotik",
-  "server_port": "3001",
+  "server_port": "3003",
   "logo_filename": "logo.png",
   "company_website": "https://alijaya.net",
   "company_slogan": "Solusi Internet Terdepan",
