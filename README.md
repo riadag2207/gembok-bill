@@ -456,7 +456,7 @@ Distributed under the ISC License. See `LICENSE` for more information.
 
 ## 🙏 Donasi
 
-Rekening Donasi Untuk Pembangunan Masjid:
+Rekening Donasi Untuk Pengembangan:
 - **Bank**: BRI
 - **No. Rekening**: 4206 01 003953 531
 - **Atas Nama**: WARJAYA
