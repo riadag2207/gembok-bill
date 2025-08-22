@@ -665,6 +665,47 @@ Pilih opsi di atas untuk men-generate skrip...
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 $(function() {
+    // Fungsi untuk mendapatkan label yang user-friendly
+    function getFieldLabel(key) {
+        const fieldLabels = {
+            'auto_suspension_enabled': 'Auto Suspension (Isolir Otomatis)',
+            'suspension_grace_period_days': 'Grace Period Suspension (Hari)',
+            'default_pppoe_profile': 'Profile PPPoE Default',
+            'admins.0': 'Nomor Admin Utama',
+            'admin_username': 'Username Admin',
+            'admin_password': 'Password Admin',
+            'genieacs_url': 'URL GenieACS',
+            'genieacs_username': 'Username GenieACS',
+            'genieacs_password': 'Password GenieACS',
+            'mikrotik_host': 'Host/IP Mikrotik',
+            'mikrotik_port': 'Port API Mikrotik',
+            'mikrotik_user': 'Username Mikrotik',
+            'mikrotik_password': 'Password Mikrotik',
+            'main_interface': 'Interface Utama',
+            'pppoe_monitor_enable': 'Monitor PPPoE',
+            'whatsapp_keep_alive': 'WhatsApp Keep Alive',
+            'whatsapp_restart_on_error': 'Restart WhatsApp on Error',
+            'rx_power_warning': 'RX Power Warning (dBm)',
+            'rx_power_critical': 'RX Power Critical (dBm)',
+            'rx_power_notification_enable': 'Notifikasi RX Power',
+            'rx_power_warning_interval': 'Interval Warning RX Power',
+            'company_header': 'Header Perusahaan',
+            'footer_info': 'Info Footer',
+            'customerPortalOtp': 'OTP Customer Portal',
+            'otp_length': 'Panjang OTP',
+            'otp_expiry_minutes': 'Masa Berlaku OTP (Menit)',
+            'server_host': 'Host Server',
+            'trouble_report.enabled': 'Laporan Gangguan',
+            'trouble_report.categories': 'Kategori Laporan',
+            'trouble_report.auto_ticket': 'Auto Ticket',
+            'rxpower_recap_enable': 'Recap RX Power',
+            'rxpower_recap_interval': 'Interval Recap RX Power',
+            'offline_notification_enable': 'Notifikasi Offline',
+            'offline_notification_interval': 'Interval Notifikasi Offline'
+        };
+        return fieldLabels[key] || key;
+    }
+
     // Field yang tidak perlu ditampilkan di form
     const hiddenFields = [
         'pppoe_notifications.monitorInterval',
@@ -734,14 +775,21 @@ $(function() {
                     html += '</div>';
                 } else if (typeof val === 'boolean' || val === true || val === false || val === 'true' || val === 'false') {
                     var checked = (val === true || val === 'true') ? 'checked' : '';
-                    html += '<label class="form-label">'+key+'</label>';
+                    var fieldLabel = getFieldLabel(key);
+                    html += '<label class="form-label">'+fieldLabel+'</label>';
                     html += '<div class="form-check">';
                     html += '<input class="form-check-input" type="checkbox" name="'+key+'" id="setting_'+key+'" '+checked+'> ';
                     html += '<label class="form-check-label" for="setting_'+key+'">'+(checked ? 'Aktif' : 'Tidak Aktif')+'</label>';
                     html += '</div>';
                 } else {
-                    html += '<label class="form-label">'+key+'</label>';
-                    html += '<input type="text" class="form-control" name="'+key+'" value="'+val+'">';
+                    var fieldLabel = getFieldLabel(key);
+                    html += '<label class="form-label">'+fieldLabel+'</label>';
+                    if (key === 'suspension_grace_period_days') {
+                        html += '<input type="number" class="form-control" name="'+key+'" value="'+val+'" min="1" max="365">';
+                        html += '<div class="form-text">Jumlah hari sebelum layanan disuspend setelah jatuh tempo</div>';
+                    } else {
+                        html += '<input type="text" class="form-control" name="'+key+'" value="'+val+'">';
+                    }
                 }
                 html += '</div>';
             }
