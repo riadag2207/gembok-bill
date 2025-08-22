@@ -37,7 +37,9 @@ const getAppSettings = (req, res, next) => {
         contact_phone: getSetting('contact_phone', ''),
         contact_email: getSetting('contact_email', ''),
         contact_address: getSetting('contact_address', ''),
-        contact_whatsapp: getSetting('contact_whatsapp', '')
+        contact_whatsapp: getSetting('contact_whatsapp', ''),
+        suspension_grace_period_days: getSetting('suspension_grace_period_days', '7'),
+        isolir_profile: getSetting('isolir_profile', 'isolir')
     };
     next();
 };
