@@ -269,55 +269,12 @@
                             
                             <!-- Payment Method Selection -->
                             <% if (invoice.status === 'unpaid') { %>
-                            <div class="row g-2 mb-3">
-                                <div class="col-md-6">
-                                    <button class="btn btn-outline-primary w-100 payment-method" data-gateway="midtrans" data-method="all">
-                                        <i class="bi bi-credit-card"></i><br>
-                                        <small>Kartu Kredit/Debit<br>& E-Wallet</small>
-                                        <br><small class="text-muted">(Maintenance)</small>
-                                    </button>
+                            <div id="payment-methods-container">
+                                <div class="text-center py-3">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading payment methods...</span>
                                 </div>
-                                <div class="col-md-6">
-                                    <button class="btn btn-outline-info w-100 payment-method" data-gateway="tripay" data-method="QRIS">
-                                        <i class="bi bi-qr-code"></i><br>
-                                        <small>QRIS</small>
-                                    </button>
-                                </div>
-                                <div class="col-md-6">
-                                    <button class="btn btn-outline-success w-100 payment-method" data-gateway="tripay" data-method="DANA">
-                                        <i class="bi bi-wallet2"></i><br>
-                                        <small>DANA</small>
-                                    </button>
-                                </div>
-                                <div class="col-md-6">
-                                    <button class="btn btn-outline-warning w-100 payment-method" data-gateway="tripay" data-method="GOPAY">
-                                        <i class="bi bi-wallet"></i><br>
-                                        <small>GoPay</small>
-                                    </button>
-                                </div>
-                                <div class="col-md-6">
-                                    <button class="btn btn-outline-danger w-100 payment-method" data-gateway="tripay" data-method="OVO">
-                                        <i class="bi bi-phone"></i><br>
-                                        <small>OVO</small>
-                                    </button>
-                                </div>
-                                <div class="col-md-6">
-                                    <button class="btn btn-outline-dark w-100 payment-method" data-gateway="tripay" data-method="BRIVA">
-                                        <i class="bi bi-bank"></i><br>
-                                        <small>Bank BRI</small>
-                                    </button>
-                                </div>
-                                <div class="col-md-6">
-                                    <button class="btn btn-outline-secondary w-100 payment-method" data-gateway="tripay" data-method="SHOPEEPAY">
-                                        <i class="bi bi-bag"></i><br>
-                                        <small>ShopeePay</small>
-                                    </button>
-                                </div>
-                                <div class="col-md-6">
-                                    <button class="btn btn-outline-primary w-100 payment-method" data-gateway="xendit" data-method="all">
-                                        <i class="bi bi-credit-card-2-front"></i><br>
-                                        <small>Xendit Payment</small>
-                                    </button>
+                                    <p class="mt-2 mb-0">Memuat metode pembayaran...</p>
                                 </div>
                             </div>
                             
@@ -407,16 +364,90 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
-        // Payment buttons initialization (debug removed for production)
+        // Load payment methods dynamically
+        async function loadPaymentMethods() {
+            try {
+                const response = await fetch('/customer/billing/api/payment-methods');
+                const result = await response.json();
+                
+                if (result.success && result.methods) {
+                    renderPaymentMethods(result.methods);
+                } else {
+                    showPaymentMethodsError('Gagal memuat metode pembayaran: ' + (result.message || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error loading payment methods:', error);
+                showPaymentMethodsError('Terjadi kesalahan saat memuat metode pembayaran');
+            }
+        }
+        
+        function renderPaymentMethods(methods) {
+            const container = document.getElementById('payment-methods-container');
+            
+            if (!methods || methods.length === 0) {
+                container.innerHTML = `
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        Tidak ada metode pembayaran yang tersedia saat ini.
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '<div class="row g-2 mb-3">';
+            
+            methods.forEach(method => {
+                // Check if amount meets minimum requirement
+                const invoiceAmount = <%= invoice.amount %>;
+                const isDisabled = method.minimum_amount && invoiceAmount < method.minimum_amount;
+                const disabledClass = isDisabled ? 'disabled' : '';
+                const disabledTitle = isDisabled ? `Minimal pembayaran: Rp ${method.minimum_amount?.toLocaleString('id-ID')}` : '';
+                
+                html += `
+                    <div class="col-md-6">
+                        <button class="btn btn-outline-${method.color} w-100 payment-method ${disabledClass}" 
+                                data-gateway="${method.gateway}" 
+                                data-method="${method.method}"
+                                ${isDisabled ? 'disabled' : ''}
+                                title="${disabledTitle}">
+                            <i class="${method.icon}"></i><br>
+                            <small>${method.name}</small>
+                            <br><small class="text-muted">Fee: ${method.fee_customer || 'Gratis'}</small>
+                            ${isDisabled ? `<br><small class="text-danger">Min: Rp ${method.minimum_amount?.toLocaleString('id-ID')}</small>` : ''}
+                        </button>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            container.innerHTML = html;
+            
+            // Bind event listeners to new buttons
+            bindPaymentMethodEvents();
+        }
+        
+        function showPaymentMethodsError(message) {
+            const container = document.getElementById('payment-methods-container');
+            container.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-circle"></i>
+                    ${message}
+                </div>
+                <button class="btn btn-outline-primary w-100" onclick="loadPaymentMethods()">
+                    <i class="bi bi-arrow-clockwise"></i> Coba Lagi
+                </button>
+            `;
+        }
         
         // Handle payment method selection
+        function bindPaymentMethodEvents() {
         document.querySelectorAll('.payment-method').forEach(button => {
             button.addEventListener('click', async function() {
+                    if (this.disabled) return;
+                    
                 const gateway = this.dataset.gateway;
                 const method = this.dataset.method;
                 const invoiceId = <%= invoice.id %>;
-                
-                // Process payment method selection
                 
                 // Show loading
                 document.getElementById('payment-processing').style.display = 'block';
@@ -442,8 +473,6 @@
                         if (result.data && result.data.payment_url) {
                             window.open(result.data.payment_url, '_blank');
                             
-                            // Payment URL opened in new tab
-                            
                             // Refresh page after 3 seconds
                             setTimeout(() => {
                                 window.location.reload();
@@ -464,6 +493,14 @@
                 }
             });
         });
+        }
+        
+        // Load payment methods when page loads
+        <% if (invoice.status === 'unpaid') { %>
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPaymentMethods();
+        });
+        <% } %>
     </script>
 </body>
 </html> 
