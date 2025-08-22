@@ -115,7 +115,7 @@
                         <div class="card stats-card">
                             <div class="card-body text-center">
                                 <i class="bx bx-time text-info" style="font-size: 2rem;"></i>
-                                <h3 class="text-info" id="gracePeriod">7</h3>
+                                <h3 class="text-info" id="gracePeriod"><%= appSettings.suspension_grace_period_days || '7' %></h3>
                                 <p class="text-muted mb-0">Grace Period (Hari)</p>
                             </div>
                         </div>
@@ -142,7 +142,7 @@
                                 <select id="isolirProfileSelect" class="form-select">
                                     <option value="default">Loading...</option>
                                 </select>
-                                <small class="text-muted">Dipakai saat Suspend. Default: 'isolir'.</small>
+                                <small class="text-muted">Dipakai saat Suspend. Current: <%= appSettings.isolir_profile || 'isolir' %></small>
                             </div>
                         </div>
                     </div>
