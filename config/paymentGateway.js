@@ -235,6 +235,57 @@ class PaymentGatewayManager {
         
         return status;
     }
+
+    async getAvailablePaymentMethods() {
+        const methods = [];
+        
+        // Check each enabled gateway and get their available methods
+        if (this.settings.payment_gateway) {
+            // Midtrans methods (if enabled)
+            if (this.settings.payment_gateway.midtrans && this.settings.payment_gateway.midtrans.enabled && this.gateways.midtrans) {
+                methods.push({
+                    gateway: 'midtrans',
+                    method: 'all',
+                    name: 'Kartu Kredit/Debit & E-Wallet',
+                    icon: 'bi-credit-card',
+                    color: 'primary'
+                });
+            }
+            
+            // Xendit methods (if enabled)
+            if (this.settings.payment_gateway.xendit && this.settings.payment_gateway.xendit.enabled && this.gateways.xendit) {
+                methods.push({
+                    gateway: 'xendit',
+                    method: 'all',
+                    name: 'Xendit Payment',
+                    icon: 'bi-credit-card-2-front',
+                    color: 'info'
+                });
+            }
+            
+            // Tripay methods (if enabled)
+            if (this.settings.payment_gateway.tripay && this.settings.payment_gateway.tripay.enabled && this.gateways.tripay) {
+                try {
+                    const tripayMethods = await this.gateways.tripay.getAvailablePaymentMethods();
+                    methods.push(...tripayMethods);
+                } catch (error) {
+                    console.error('Error getting Tripay payment methods:', error);
+                    // Fallback to default methods if API call fails
+                    const defaultTripayMethods = [
+                        { gateway: 'tripay', method: 'QRIS', name: 'QRIS', icon: 'bi-qr-code', color: 'info' },
+                        { gateway: 'tripay', method: 'DANA', name: 'DANA', icon: 'bi-wallet2', color: 'success' },
+                        { gateway: 'tripay', method: 'GOPAY', name: 'GoPay', icon: 'bi-wallet', color: 'warning' },
+                        { gateway: 'tripay', method: 'OVO', name: 'OVO', icon: 'bi-phone', color: 'danger' },
+                        { gateway: 'tripay', method: 'BRIVA', name: 'Bank BRI', icon: 'bi-bank', color: 'dark' },
+                        { gateway: 'tripay', method: 'SHOPEEPAY', name: 'ShopeePay', icon: 'bi-bag', color: 'secondary' }
+                    ];
+                    methods.push(...defaultTripayMethods);
+                }
+            }
+        }
+        
+        return methods;
+    }
 }
 
 class MidtransGateway {
@@ -521,6 +572,117 @@ class TripayGateway {
             };
         } else {
             throw new Error(result.message || 'Failed to create payment');
+        }
+    }
+
+    async getAvailablePaymentMethods() {
+        try {
+            // Get available payment channels from Tripay API
+            const fetchFn = typeof fetch === 'function' ? fetch : (await import('node-fetch')).default;
+            const response = await fetchFn(`${this.baseUrl}/merchant/payment-channel`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${this.config.api_key}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const result = await response.json();
+            
+            if (!response.ok || !result.success) {
+                throw new Error(result.message || 'Failed to get payment channels');
+            }
+
+            // Map Tripay channels to our format
+            const methods = [];
+            if (result.data && Array.isArray(result.data)) {
+                result.data.forEach(channel => {
+                    if (channel.active) {
+                        let icon = 'bi-credit-card';
+                        let color = 'primary';
+                        
+                        // Map specific icons and colors for known methods
+                        switch (channel.code) {
+                            case 'QRIS':
+                                icon = 'bi-qr-code';
+                                color = 'info';
+                                break;
+                            case 'DANA':
+                                icon = 'bi-wallet2';
+                                color = 'success';
+                                break;
+                            case 'GOPAY':
+                                icon = 'bi-wallet';
+                                color = 'warning';
+                                break;
+                            case 'OVO':
+                                icon = 'bi-phone';
+                                color = 'danger';
+                                break;
+                            case 'BRIVA':
+                            case 'BNIVA':
+                            case 'BSIVA':
+                            case 'BRIVA':
+                                icon = 'bi-bank';
+                                color = 'dark';
+                                break;
+                            case 'SHOPEEPAY':
+                                icon = 'bi-bag';
+                                color = 'secondary';
+                                break;
+                            default:
+                                if (channel.type === 'ewallet') {
+                                    icon = 'bi-wallet';
+                                    color = 'info';
+                                } else if (channel.type === 'bank') {
+                                    icon = 'bi-bank';
+                                    color = 'primary';
+                                }
+                        }
+                        
+                        // Format fee for display
+                        let feeDisplay = '';
+                        if (channel.fee_customer) {
+                            if (typeof channel.fee_customer === 'object') {
+                                if (channel.fee_customer.flat && channel.fee_customer.flat > 0) {
+                                    feeDisplay = `Rp ${parseInt(channel.fee_customer.flat).toLocaleString('id-ID')}`;
+                                } else if (channel.fee_customer.percent && channel.fee_customer.percent > 0) {
+                                    feeDisplay = `${channel.fee_customer.percent}%`;
+                                } else {
+                                    // Jika ada fee object tapi tidak ada nilai, tampilkan "Gratis"
+                                    feeDisplay = 'Gratis';
+                                }
+                            } else if (channel.fee_customer !== 0 && channel.fee_customer !== '0') {
+                                feeDisplay = channel.fee_customer.toString();
+                            } else {
+                                feeDisplay = 'Gratis';
+                            }
+                        } else {
+                            // Jika tidak ada fee_customer, anggap gratis
+                            feeDisplay = 'Gratis';
+                        }
+
+                        methods.push({
+                            gateway: 'tripay',
+                            method: channel.code,
+                            name: channel.name,
+                            icon: icon,
+                            color: color,
+                            type: channel.type,
+                            fee_customer: feeDisplay,
+                            fee_merchant: channel.fee_merchant,
+                            minimum_amount: channel.minimum_amount,
+                            maximum_amount: channel.maximum_amount
+                        });
+                    }
+                });
+            }
+            
+            console.log(`[TRIPAY] Found ${methods.length} active payment methods`);
+            return methods;
+        } catch (error) {
+            console.error(`[TRIPAY] Error getting payment methods:`, error);
+            throw error;
         }
     }
 

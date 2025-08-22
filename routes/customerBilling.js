@@ -388,6 +388,36 @@ router.get('/invoices/:id/print', getAppSettings, async (req, res) => {
     }
 });
 
+// Get available payment methods for customer
+router.get('/api/payment-methods', async (req, res) => {
+    try {
+        const username = req.session.customer_username;
+        if (!username) {
+            return res.status(401).json({
+                success: false,
+                message: 'Unauthorized'
+            });
+        }
+
+        const PaymentGatewayManager = require('../config/paymentGateway');
+        const paymentGateway = new PaymentGatewayManager();
+        
+        const methods = await paymentGateway.getAvailablePaymentMethods();
+        
+        res.json({
+            success: true,
+            methods: methods
+        });
+    } catch (error) {
+        logger.error('Error getting payment methods:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error getting payment methods',
+            error: error.message
+        });
+    }
+});
+
 // Create online payment for customer
 router.post('/create-payment', async (req, res) => {
     try {
