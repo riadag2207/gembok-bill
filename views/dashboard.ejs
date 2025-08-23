@@ -679,7 +679,7 @@
                       </span>
                     </div>
                     <div class="mt-3">
-                      <a href="/customer/billing" class="btn btn-primary btn-sm me-2">
+                      <a href="/customer/billing/dashboard" class="btn btn-primary btn-sm me-2">
                         <i class="bi bi-eye me-1"></i>Lihat Detail Tagihan
                       </a>
                       <% if (billingData.invoices.filter(inv => inv.status === 'unpaid').length > 0) { %>
@@ -1259,8 +1259,8 @@
           const invoiceNumber = selectedInvoice.data('invoice-number');
           const amount = selectedInvoice.data('amount');
 
-          // Redirect to billing page with specific invoice
-          window.location.href = `/customer/billing?invoice=${invoiceId}`;
+          // Redirect to billing invoice detail page
+          window.location.href = `/customer/billing/invoices/${invoiceId}`;
         });
 
         // Handle tombol konfirmasi restart di dalam modal
