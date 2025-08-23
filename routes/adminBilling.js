@@ -1424,10 +1424,13 @@ router.put('/customers/:phone', async (req, res) => {
             profileToUse = currentCustomer.pppoe_profile || 'default';
         }
 
+        // Extract new phone from request body, fallback to current if not provided
+        const newPhone = req.body.phone || currentCustomer.phone;
+        
         const customerData = {
             name: name,
             username: username,
-            phone: phone,
+            phone: newPhone,
             pppoe_username: pppoe_username || currentCustomer.pppoe_username,
             email: email || currentCustomer.email,
             address: address || currentCustomer.address,

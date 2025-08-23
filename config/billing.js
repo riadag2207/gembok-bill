@@ -657,9 +657,9 @@ class BillingManager {
                 // Normalisasi billing_day (1-28) dengan fallback ke nilai lama atau 15
                 const normBillingDay = Math.min(Math.max(parseInt(billing_day !== undefined ? billing_day : (oldCustomer?.billing_day ?? 15), 10) || 15, 1), 28);
                 
-                const sql = `UPDATE customers SET name = ?, username = ?, phone = ?, pppoe_username = ?, email = ?, address = ?, package_id = ?, pppoe_profile = ?, status = ?, auto_suspension = ?, billing_day = ? WHERE phone = ?`;
+                const sql = `UPDATE customers SET name = ?, username = ?, phone = ?, pppoe_username = ?, email = ?, address = ?, package_id = ?, pppoe_profile = ?, status = ?, auto_suspension = ?, billing_day = ? WHERE id = ?`;
                 
-                this.db.run(sql, [name, username || oldCustomer.username, phone || oldPhone, pppoe_username, email, address, package_id, pppoe_profile, status, auto_suspension !== undefined ? auto_suspension : oldCustomer.auto_suspension, normBillingDay, oldPhone], async function(err) {
+                this.db.run(sql, [name, username || oldCustomer.username, phone || oldPhone, pppoe_username, email, address, package_id, pppoe_profile, status, auto_suspension !== undefined ? auto_suspension : oldCustomer.auto_suspension, normBillingDay, oldCustomer.id], async function(err) {
                     if (err) {
                         reject(err);
                     } else {

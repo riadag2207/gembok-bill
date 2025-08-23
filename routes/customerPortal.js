@@ -1157,7 +1157,14 @@ router.post('/api/change-password', async (req, res) => {
 });
 
 // POST: Logout pelanggan
+// Logout route - support both GET and POST methods
 router.get('/logout', (req, res) => {
+  req.session.destroy(() => {
+    res.redirect('/customer/login');
+  });
+});
+
+router.post('/logout', (req, res) => {
   req.session.destroy(() => {
     res.redirect('/customer/login');
   });
