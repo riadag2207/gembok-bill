@@ -167,6 +167,29 @@ Terima kasih telah memilih layanan kami.`,
         return cleaned;
     }
 
+    // Helper method to get invoice image path with fallback handling
+    getInvoiceImagePath() {
+        const imagePaths = [
+            path.resolve(__dirname, '../public/img/tagihan.jpg'),
+            path.resolve(__dirname, '../public/img/tagihan.png'), 
+            path.resolve(__dirname, '../public/img/invoice.jpg'),
+            path.resolve(__dirname, '../public/img/invoice.png'),
+            path.resolve(__dirname, '../public/img/logo.png')
+        ];
+        
+        // Check each path and return the first one that exists
+        for (const imagePath of imagePaths) {
+            if (fs.existsSync(imagePath)) {
+                logger.info(`📸 Using invoice image: ${imagePath}`);
+                return imagePath;
+            }
+        }
+        
+        // Log if no image found (will send text-only)
+        logger.warn(`⚠️ No invoice image found, will send text-only notification`);
+        return null;
+    }
+
     // Replace template variables with actual data
     replaceTemplateVariables(template, data) {
         let message = template;
@@ -209,26 +232,29 @@ Terima kasih telah memilih layanan kami.`,
             
             const fullMessage = `${companyHeader}${message}${footerInfo}`;
             
-            // If imagePath provided and exists, send as image with caption
+            // If imagePath provided and exists, try to send as image with caption
             if (options.imagePath) {
                 try {
                     const imagePath = options.imagePath;
+                    logger.info(`📸 Mencoba mengirim dengan gambar: ${imagePath}`);
+                    
                     if (fs.existsSync(imagePath)) {
                         await this.sock.sendMessage(jid, { image: { url: imagePath }, caption: fullMessage });
-                        logger.info(`WhatsApp image notification sent to ${phoneNumber}`);
-                        return { success: true };
+                        logger.info(`✅ WhatsApp image notification sent to ${phoneNumber} with image`);
+                        return { success: true, withImage: true };
                     } else {
-                        logger.warn(`Image not found at path: ${imagePath}, falling back to text message`);
+                        logger.warn(`⚠️ Image not found at path: ${imagePath}, falling back to text message`);
                     }
                 } catch (imgErr) {
-                    logger.error(`Failed sending image, falling back to text:`, imgErr);
+                    logger.error(`❌ Failed sending image to ${phoneNumber}, falling back to text:`, imgErr);
                 }
             }
 
+            // Send as text message (fallback or when no image specified)
             await this.sock.sendMessage(jid, { text: fullMessage }, options);
             
-            logger.info(`WhatsApp notification sent to ${phoneNumber}`);
-            return { success: true };
+            logger.info(`✅ WhatsApp text notification sent to ${phoneNumber}`);
+            return { success: true, withImage: false };
         } catch (error) {
             logger.error(`Error sending WhatsApp notification to ${phoneNumber}:`, error);
             return { success: false, error: error.message };
@@ -269,7 +295,7 @@ Terima kasih telah memilih layanan kami.`,
             );
 
             // Attach invoice banner image if available
-            const imagePath = path.resolve(__dirname, '../public/img/tagihan.jpg');
+            const imagePath = this.getInvoiceImagePath();
             return await this.sendNotification(customer.phone, message, { imagePath });
         } catch (error) {
             logger.error('Error sending invoice created notification:', error);
@@ -315,7 +341,7 @@ Terima kasih telah memilih layanan kami.`,
             );
 
             // Attach same invoice banner image
-            const imagePath = path.resolve(__dirname, '../public/img/tagihan.jpg');
+            const imagePath = this.getInvoiceImagePath();
             return await this.sendNotification(customer.phone, message, { imagePath });
         } catch (error) {
             logger.error('Error sending due date reminder:', error);
@@ -356,7 +382,7 @@ Terima kasih telah memilih layanan kami.`,
             );
 
             // Attach same invoice banner image
-            const imagePath = path.resolve(__dirname, '../public/img/tagihan.jpg');
+            const imagePath = this.getInvoiceImagePath();
             return await this.sendNotification(customer.phone, message, { imagePath });
         } catch (error) {
             logger.error('Error sending payment received notification:', error);

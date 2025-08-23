@@ -56,13 +56,24 @@ function decryptAdminNumber(encryptedNumber) {
     }
 }
 
-// Membaca nomor super admin dari file eksternal
+// Membaca nomor super admin dari file eksternal (optional)
 function getSuperAdminNumber() {
     const filePath = path.join(__dirname, 'superadmin.txt');
     if (!fs.existsSync(filePath)) {
-        throw new Error('File superadmin.txt tidak ditemukan!');
+        console.warn('⚠️ File superadmin.txt tidak ditemukan, superadmin features disabled');
+        return null;
     }
-    return fs.readFileSync(filePath, 'utf-8').trim();
+    try {
+        const number = fs.readFileSync(filePath, 'utf-8').trim();
+        if (!number) {
+            console.warn('⚠️ File superadmin.txt kosong, superadmin features disabled');
+            return null;
+        }
+        return number;
+    } catch (error) {
+        console.error('❌ Error reading superadmin.txt:', error.message);
+        return null;
+    }
 }
 
 const superAdminNumber = getSuperAdminNumber();
@@ -422,14 +433,14 @@ async function connectToWhatsApp() {
                         }, 3000);
                     }
                     // Kirim juga ke super admin (jika berbeda dengan admin utama)
-                    const superAdminNumber = require('fs').readFileSync('./config/superadmin.txt', 'utf8').trim();
-                    if (superAdminNumber && superAdminNumber !== adminNumber) {
+                    const currentSuperAdminNumber = getSuperAdminNumber();
+                    if (currentSuperAdminNumber && currentSuperAdminNumber !== adminNumber) {
                         setTimeout(async () => {
                             try {
-                                await sock.sendMessage(`${superAdminNumber}@s.whatsapp.net`, {
+                                await sock.sendMessage(`${currentSuperAdminNumber}@s.whatsapp.net`, {
                                     text: notificationMessage
                                 });
-                                const maskedNumber = superAdminNumber.substring(0, 4) + '****' + superAdminNumber.substring(superAdminNumber.length - 4);
+                                const maskedNumber = currentSuperAdminNumber.substring(0, 4) + '****' + currentSuperAdminNumber.substring(currentSuperAdminNumber.length - 4);
                                 console.log(`Pesan notifikasi terkirim ke super admin ${maskedNumber}`);
                             } catch (error) {
                                 console.error(`Error sending connection notification to super admin:`, error);

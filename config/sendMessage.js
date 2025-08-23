@@ -211,15 +211,25 @@ async function sendTechnicianMessage(message, priority = 'normal') {
         
         // Kirim ke nomor teknisi jika ada
         if (technicianNumbers && technicianNumbers.length > 0) {
+            console.log(`📤 Mengirim ke ${technicianNumbers.length} nomor teknisi: ${technicianNumbers.join(', ')}`);
             const result = await sendGroupMessage(technicianNumbers, priorityMessage);
             sentToNumbers = result.success;
-            console.log(`Pesan dikirim ke nomor teknisi: ${result.sent} berhasil, ${result.failed} gagal`);
+            console.log(`📊 Hasil pengiriman ke nomor teknisi: ${result.sent} berhasil, ${result.failed} gagal`);
+            
+            if (result.sent > 0) {
+                sentToNumbers = true;
+            }
         } else {
+            console.log(`⚠️ Tidak ada nomor teknisi yang terdaftar, fallback ke admin`);
             // Jika tidak ada nomor teknisi, fallback ke admin
             const adminNumber = getSetting('admins.0', '');
             if (adminNumber) {
-                await sendMessage(adminNumber, priorityMessage);
-                sentToNumbers = true;
+                console.log(`📤 Fallback: Mengirim ke admin ${adminNumber}`);
+                const adminResult = await sendMessage(adminNumber, priorityMessage);
+                sentToNumbers = adminResult;
+                console.log(`📊 Hasil fallback admin: ${adminResult ? 'berhasil' : 'gagal'}`);
+            } else {
+                console.log(`❌ Tidak ada admin number yang tersedia untuk fallback`);
             }
         }
         return sentToGroup || sentToNumbers;

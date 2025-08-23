@@ -657,12 +657,19 @@ router.post('/login', async (req, res) => {
         const customer = await billingManager.getCustomerByPhone(phone);
         if (customer) {
           req.session.customer_username = customer.username;
+          req.session.customer_phone = phone;
           console.log(`✅ [LOGIN] Set session customer_username: ${customer.username} for phone: ${phone}`);
         } else {
-          console.log(`⚠️ [LOGIN] No billing customer found for phone: ${phone}`);
+          // Customer belum ada di billing, set temporary username
+          req.session.customer_username = `temp_${phone}`;
+          req.session.customer_phone = phone;
+          console.log(`⚠️ [LOGIN] No billing customer found for phone: ${phone}, set temp username`);
         }
       } catch (error) {
         console.error(`❌ [LOGIN] Error getting customer from billing:`, error);
+        // Fallback ke temporary username
+        req.session.customer_username = `temp_${phone}`;
+        req.session.customer_phone = phone;
       }
       
       if (req.xhr || req.headers.accept.indexOf('json') > -1) {
@@ -708,12 +715,19 @@ router.post('/otp', async (req, res) => {
     const customer = await billingManager.getCustomerByPhone(phone);
     if (customer) {
       req.session.customer_username = customer.username;
+      req.session.customer_phone = phone;
       console.log(`✅ [OTP_LOGIN] Set session customer_username: ${customer.username} for phone: ${phone}`);
     } else {
-      console.log(`⚠️ [OTP_LOGIN] No billing customer found for phone: ${phone}`);
+      // Customer belum ada di billing, set temporary username
+      req.session.customer_username = `temp_${phone}`;
+      req.session.customer_phone = phone;
+      console.log(`⚠️ [OTP_LOGIN] No billing customer found for phone: ${phone}, set temp username`);
     }
   } catch (error) {
     console.error(`❌ [OTP_LOGIN] Error getting customer from billing:`, error);
+    // Fallback ke temporary username
+    req.session.customer_username = `temp_${phone}`;
+    req.session.customer_phone = phone;
   }
   
   return res.redirect('/customer/dashboard');
@@ -727,17 +741,25 @@ router.get('/billing', async (req, res) => {
   
   try {
     const customer = await billingManager.getCustomerByPhone(phone);
+    
     if (!customer) {
-      return res.render('error', { 
-        message: 'Data pelanggan tidak ditemukan',
-        settings 
-      });
+      // Pelanggan belum ada di sistem billing, tapi tetap bisa akses halaman billing
+      console.log(`⚠️ [BILLING_REDIRECT] Customer not found in billing system for phone: ${phone}, but allowing access`);
+      
+      // Buat session customer_username sementara berdasarkan phone
+      req.session.customer_username = `temp_${phone}`;
+      req.session.customer_phone = phone; // Backup phone untuk referensi
+      
+      // Redirect ke billing dashboard yang akan menangani customer tanpa data billing
+      return res.redirect('/customer/billing/dashboard');
     }
     
     const invoices = await billingManager.getInvoicesByCustomer(customer.id);
     
     // Set customer_username session for customer billing compatibility
     req.session.customer_username = customer.username;
+    req.session.customer_phone = phone; // Backup phone untuk referensi
+    console.log(`✅ [BILLING_REDIRECT] Set session customer_username: ${customer.username} for phone: ${phone}`);
     
     // Redirect to new customer billing dashboard with payment method selection
     res.redirect('/customer/billing/dashboard');

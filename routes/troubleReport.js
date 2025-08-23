@@ -13,14 +13,30 @@ const {
 function customerAuth(req, res, next) {
   console.log('🔍 customerAuth middleware - Session:', req.session);
   console.log('🔍 customerAuth middleware - Session phone:', req.session?.phone);
+  console.log('🔍 customerAuth middleware - Session customer_username:', req.session?.customer_username);
   
-  const phone = req.session && req.session.phone;
-  if (!phone) {
-    console.log('❌ customerAuth: No session phone, redirecting to login');
+  const phone = req.session && (req.session.phone || req.session.customer_phone);
+  const username = req.session && req.session.customer_username;
+  
+  if (!phone && !username) {
+    console.log('❌ customerAuth: No session phone or username, redirecting to login');
     return res.redirect('/customer/login');
   }
   
-  console.log('✅ customerAuth: Session valid, phone:', phone);
+  // Set phone in session if not present but username is available
+  if (!req.session.phone && username) {
+    // Try to get phone from billing system
+    const billingManager = require('../config/billing');
+    billingManager.getCustomerByUsername(username).then(customer => {
+      if (customer && customer.phone) {
+        req.session.phone = customer.phone;
+      }
+    }).catch(err => {
+      console.log('Warning: Could not get customer phone from username:', err.message);
+    });
+  }
+  
+  console.log('✅ customerAuth: Session valid, phone:', phone, 'username:', username);
   next();
 }
 
@@ -50,11 +66,11 @@ router.get('/report', customerAuth, async (req, res) => {
     companyHeader: getSetting('company_header', 'ISP Monitor'),
     footerInfo: getSetting('footer_info', '')
   });
+});
 
 // Alias: /customer/trouble/simple -> redirect ke /customer/trouble/report
 router.get('/simple', (req, res) => {
   return res.redirect('/customer/trouble/report');
-});
 });
 
 // POST: Submit laporan gangguan

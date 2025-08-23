@@ -4,6 +4,57 @@ const logger = require('./logger');
 const { getSetting } = require('./settingsManager');
 const { sendMessage, setSock } = require('./sendMessage');
 
+// Helper function untuk format tanggal Indonesia yang benar
+function formatIndonesianDateTime(date = new Date()) {
+  try {
+    // Handle potential system time issues
+    let targetDate = new Date(date);
+    
+    // If system time is way off (like 2025), try to fix it
+    const currentYear = targetDate.getFullYear();
+    if (currentYear > 2024) {
+      // Assume it should be 2024 and adjust
+      const yearDiff = currentYear - 2024;
+      targetDate = new Date(targetDate.getTime() - (yearDiff * 365 * 24 * 60 * 60 * 1000));
+    }
+    
+    // Convert to Indonesian timezone (UTC+7)
+    const options = {
+      timeZone: 'Asia/Jakarta',
+      day: '2-digit',
+      month: '2-digit', 
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    };
+    
+    const formatter = new Intl.DateTimeFormat('id-ID', options);
+    const parts = formatter.formatToParts(targetDate);
+    
+    const day = parts.find(part => part.type === 'day').value;
+    const month = parts.find(part => part.type === 'month').value;
+    const year = parts.find(part => part.type === 'year').value;
+    const hour = parts.find(part => part.type === 'hour').value;
+    const minute = parts.find(part => part.type === 'minute').value;
+    const second = parts.find(part => part.type === 'second').value;
+    
+    return `${day}/${month}/${year} ${hour}:${minute}:${second}`;
+  } catch (error) {
+    // Fallback to simple format if anything fails
+    const d = new Date(date);
+    const day = d.getDate().toString().padStart(2, '0');
+    const month = (d.getMonth() + 1).toString().padStart(2, '0');
+    const year = 2024; // Force 2024 as fallback
+    const hour = d.getHours().toString().padStart(2, '0');
+    const minute = d.getMinutes().toString().padStart(2, '0');
+    const second = d.getSeconds().toString().padStart(2, '0');
+    
+    return `${day}/${month}/${year} ${hour}:${minute}:${second}`;
+  }
+}
+
 // Path untuk menyimpan data laporan gangguan
 const troubleReportPath = path.join(__dirname, '../logs/trouble_reports.json');
 
@@ -67,8 +118,12 @@ function createTroubleReport(reportData) {
     fs.writeFileSync(troubleReportPath, JSON.stringify(reports, null, 2), 'utf8');
     
     // Kirim notifikasi ke grup teknisi jika auto_ticket diaktifkan
-    if (getSetting('trouble_report.auto_ticket', 'true') === 'true') {
-      sendNotificationToTechnicians(newReport);
+    try {
+      if (getSetting('trouble_report.auto_ticket', 'true') === 'true') {
+        sendNotificationToTechnicians(newReport);
+      }
+    } catch (notificationError) {
+      logger.warn('Failed to send technician notification:', notificationError.message);
     }
     
     return newReport;
@@ -127,15 +182,15 @@ function updateTroubleReportStatus(id, status, notes, sendNotification = true) {
   }
 }
 
-// Kirim notifikasi ke grup teknisi
+// Kirim notifikasi ke teknisi dan admin
 async function sendNotificationToTechnicians(report) {
   try {
-    logger.info(`Mencoba mengirim notifikasi laporan gangguan ${report.id} ke teknisi`);
+    logger.info(`🔔 Mencoba mengirim notifikasi laporan gangguan ${report.id} ke teknisi dan admin`);
     
     const technicianGroupId = getSetting('technician_group_id', '');
     const companyHeader = getSetting('company_header', 'ALIJAYA DIGITAL NETWORK');
     
-    // Format pesan untuk teknisi
+    // Format pesan untuk teknisi dan admin
     const message = `🚨 *LAPORAN GANGGUAN BARU*
 
 *${companyHeader}*
@@ -145,7 +200,7 @@ async function sendNotificationToTechnicians(report) {
 📱 *No. HP*: ${report.phone || 'N/A'}
 📍 *Lokasi*: ${report.location || 'N/A'}
 🔧 *Kategori*: ${report.category || 'N/A'}
-🕒 *Waktu Laporan*: ${new Date(report.createdAt).toLocaleString('id-ID')}
+🕒 *Waktu Laporan*: ${formatIndonesianDateTime(new Date(report.createdAt))}
 
 💬 *Deskripsi Masalah*:
 ${report.description || 'Tidak ada deskripsi'}
@@ -154,7 +209,7 @@ ${report.description || 'Tidak ada deskripsi'}
 
 ⚠️ *PRIORITAS TINGGI* - Silakan segera ditindaklanjuti!`;
 
-    logger.info(`Pesan yang akan dikirim: ${message.substring(0, 100)}...`);
+    logger.info(`📝 Pesan yang akan dikirim: ${message.substring(0, 100)}...`);
     
     let sentSuccessfully = false;
     
@@ -175,11 +230,12 @@ ${report.description || 'Tidak ada deskripsi'}
       logger.warn(`⚠️ Technician group ID kosong, skip pengiriman ke grup`);
     }
     
-    // Kirim ke nomor teknisi individual
+    // Kirim ke nomor teknisi individual sebagai backup (selalu jalankan)
     const { sendTechnicianMessage } = require('./sendMessage');
     try {
-      const result = await sendTechnicianMessage(message, 'high');
-      if (result) {
+      logger.info(`📤 Mencoba mengirim ke nomor teknisi individual sebagai backup`);
+      const techResult = await sendTechnicianMessage(message, 'high');
+      if (techResult) {
         logger.info(`✅ Notifikasi laporan gangguan ${report.id} berhasil terkirim ke nomor teknisi`);
         sentSuccessfully = true;
       } else {
@@ -187,19 +243,98 @@ ${report.description || 'Tidak ada deskripsi'}
       }
     } catch (error) {
       logger.error(`❌ Error mengirim ke nomor teknisi: ${error.message}`);
-      // Jika gagal, coba kirim ke admin sebagai fallback
+    }
+    
+    // Fallback ke admin jika kedua metode diatas gagal
+    if (!sentSuccessfully) {
       try {
+        logger.info(`📤 Fallback: Mencoba mengirim ke admin`);
         const adminNumber = getSetting('admins.0', '');
-        if (adminNumber) {
-          const adminResult = await sendMessage(adminNumber, message);
+        if (adminNumber && adminNumber !== '') {
+          const adminMessage = `🚨 *FALLBACK NOTIFICATION*\n\n⚠️ Notifikasi teknisi gagal!\n\n${message}`;
+          const adminResult = await sendMessage(adminNumber, adminMessage);
           if (adminResult) {
             logger.info(`✅ Notifikasi laporan gangguan ${report.id} berhasil terkirim ke admin sebagai fallback`);
             sentSuccessfully = true;
           }
+        } else {
+          logger.warn(`⚠️ Admin number tidak tersedia untuk fallback`);
         }
       } catch (adminError) {
         logger.error(`❌ Error mengirim ke admin fallback: ${adminError.message}`);
       }
+    }
+    
+    // Emergency fallback ke semua admin jika masih gagal
+    if (!sentSuccessfully) {
+      try {
+        logger.info(`📤 Emergency fallback: Mencoba mengirim ke semua admin`);
+        let i = 0;
+        while (i < 5) { // Max 5 admin numbers
+          const adminNumber = getSetting(`admins.${i}`, '');
+          if (!adminNumber) break;
+          
+          try {
+            const emergencyMessage = `🆘 *EMERGENCY NOTIFICATION*\n\n❌ Semua teknisi gagal menerima notifikasi!\n\n${message}`;
+            const result = await sendMessage(adminNumber, emergencyMessage);
+            if (result) {
+              logger.info(`✅ Emergency notification berhasil dikirim ke admin ${i}`);
+              sentSuccessfully = true;
+              break; // Hanya perlu 1 admin yang berhasil
+            }
+          } catch (e) {
+            logger.error(`❌ Gagal mengirim emergency ke admin ${i}: ${e.message}`);
+          }
+          i++;
+        }
+      } catch (emergencyError) {
+        logger.error(`❌ Error emergency fallback: ${emergencyError.message}`);
+      }
+    }
+    
+    // ALWAYS send to admin (parallel notification, tidak tergantung teknisi)
+    try {
+      logger.info(`📤 Mengirim notifikasi trouble report ke admin (parallel)`);
+      
+      // Get admin numbers
+      let i = 0;
+      let adminNotified = false;
+      
+      while (i < 3) { // Try max 3 admin numbers
+        const adminNumber = getSetting(`admins.${i}`, '');
+        if (!adminNumber) break;
+        
+        try {
+          const adminMessage = `📋 *LAPORAN GANGGUAN - ADMIN NOTIFICATION*\n\n${message}\n\n💼 *Info Admin*:\nNotifikasi ini dikirim ke admin untuk monitoring dan koordinasi dengan teknisi.`;
+          const adminResult = await sendMessage(adminNumber, adminMessage);
+          
+          if (adminResult) {
+            logger.info(`✅ Notifikasi trouble report berhasil dikirim ke admin ${i}`);
+            adminNotified = true;
+            sentSuccessfully = true;
+            break; // Cukup 1 admin yang berhasil
+          } else {
+            logger.warn(`⚠️ Gagal mengirim ke admin ${i}, coba admin berikutnya`);
+          }
+        } catch (adminError) {
+          logger.error(`❌ Error mengirim ke admin ${i}: ${adminError.message}`);
+        }
+        i++;
+      }
+      
+      if (!adminNotified) {
+        logger.warn(`⚠️ Tidak ada admin yang berhasil menerima notifikasi trouble report`);
+      }
+      
+    } catch (adminError) {
+      logger.error(`❌ Error pada admin notification: ${adminError.message}`);
+    }
+    
+    // Log hasil akhir
+    if (sentSuccessfully) {
+      logger.info(`✅ Notifikasi laporan gangguan ${report.id} berhasil dikirim ke teknisi dan/atau admin`);
+    } else {
+      logger.error(`❌ CRITICAL: Gagal mengirim notifikasi laporan gangguan ${report.id} ke SEMUA target!`);
     }
     
     return sentSuccessfully;
@@ -244,7 +379,7 @@ async function sendStatusUpdateToCustomer(report) {
 *${companyHeader}*
 
 📝 *ID Tiket*: ${report.id}
-🕒 *Update Pada*: ${new Date(report.updatedAt).toLocaleString('id-ID')}
+🕒 *Update Pada*: ${formatIndonesianDateTime(new Date(report.updatedAt))}
 📌 *Status Baru*: ${statusMap[report.status] || report.status.toUpperCase()}
 
 ${latestNote ? `💬 *Catatan Teknisi*:

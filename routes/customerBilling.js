@@ -4,6 +4,52 @@ const billingManager = require('../config/billing');
 const logger = require('../config/logger');
 const { getSetting } = require('../config/settingsManager');
 
+// Middleware untuk memastikan session consistency
+const ensureCustomerSession = async (req, res, next) => {
+    try {
+        // Prioritas 1: cek customer_username
+        let username = req.session?.customer_username;
+        const phone = req.session?.phone || req.session?.customer_phone;
+
+        // Jika tidak ada customer_username tapi ada phone, ambil dari billing
+        if (!username && phone) {
+            console.log(`🔄 [SESSION_FIX] No customer_username but phone exists: ${phone}, fetching from billing`);
+            try {
+                const customer = await billingManager.getCustomerByPhone(phone);
+                if (customer) {
+                    req.session.customer_username = customer.username;
+                    req.session.customer_phone = phone;
+                    username = customer.username;
+                    console.log(`✅ [SESSION_FIX] Set customer_username: ${username} for phone: ${phone}`);
+                } else {
+                    // Customer tidak ada di billing, buat temporary username
+                    req.session.customer_username = `temp_${phone}`;
+                    req.session.customer_phone = phone;
+                    username = `temp_${phone}`;
+                    console.log(`⚠️ [SESSION_FIX] Customer not in billing, created temp username: ${username} for phone: ${phone}`);
+                }
+            } catch (error) {
+                console.error(`❌ [SESSION_FIX] Error getting customer from billing:`, error);
+                // Fallback ke temporary username
+                req.session.customer_username = `temp_${phone}`;
+                req.session.customer_phone = phone;
+                username = `temp_${phone}`;
+            }
+        }
+
+        // Jika masih tidak ada customer_username atau phone, redirect ke login
+        if (!username && !phone) {
+            console.log(`❌ [SESSION_FIX] No session found, redirecting to login`);
+            return res.redirect('/customer/login');
+        }
+
+        next();
+    } catch (error) {
+        console.error('Error in ensureCustomerSession middleware:', error);
+        return res.redirect('/customer/login');
+    }
+};
+
 // Middleware untuk mendapatkan pengaturan aplikasi
 const getAppSettings = (req, res, next) => {
     req.appSettings = {
@@ -22,15 +68,66 @@ const getAppSettings = (req, res, next) => {
 };
 
 // Dashboard Billing Customer
-router.get('/dashboard', getAppSettings, async (req, res) => {
+router.get('/dashboard', ensureCustomerSession, getAppSettings, async (req, res) => {
     try {
         const username = req.session.customer_username;
+        const phone = req.session.customer_phone || req.session.phone;
+        
         if (!username) {
             return res.redirect('/customer/login');
         }
 
+        // Handle temporary customer (belum ada di billing)
+        if (username.startsWith('temp_')) {
+            console.log(`📋 [BILLING_DASHBOARD] Temporary customer detected: ${username}, phone: ${phone}`);
+            
+            // Render dashboard dengan data kosong untuk customer tanpa billing
+            return res.render('customer/billing/dashboard', {
+                title: 'Dashboard Billing',
+                customer: null,
+                invoices: [],
+                payments: [],
+                stats: {
+                    totalInvoices: 0,
+                    paidInvoices: 0,
+                    unpaidInvoices: 0,
+                    overdueInvoices: 0,
+                    totalPaid: 0,
+                    totalUnpaid: 0
+                },
+                appSettings: req.appSettings,
+                phone: phone
+            });
+        }
+
         const customer = await billingManager.getCustomerByUsername(username);
         if (!customer) {
+            // Jika tidak ditemukan berdasarkan username, coba cari berdasarkan phone
+            if (phone) {
+                const customerByPhone = await billingManager.getCustomerByPhone(phone);
+                if (!customerByPhone) {
+                    console.log(`⚠️ [BILLING_DASHBOARD] Customer not found for username: ${username} or phone: ${phone}, treating as no billing data`);
+                    
+                    // Render dashboard dengan data kosong
+                    return res.render('customer/billing/dashboard', {
+                        title: 'Dashboard Billing',
+                        customer: null,
+                        invoices: [],
+                        payments: [],
+                        stats: {
+                            totalInvoices: 0,
+                            paidInvoices: 0,
+                            unpaidInvoices: 0,
+                            overdueInvoices: 0,
+                            totalPaid: 0,
+                            totalUnpaid: 0
+                        },
+                        appSettings: req.appSettings,
+                        phone: phone
+                    });
+                }
+            }
+            
             return res.status(404).render('error', {
                 message: 'Pelanggan tidak ditemukan',
                 error: 'Terjadi kesalahan. Silakan coba lagi.',
@@ -87,7 +184,7 @@ router.get('/dashboard', getAppSettings, async (req, res) => {
 });
 
 // Halaman Tagihan Customer
-router.get('/invoices', getAppSettings, async (req, res) => {
+router.get('/invoices', ensureCustomerSession, getAppSettings, async (req, res) => {
     try {
         const username = req.session.customer_username;
         if (!username) {
@@ -123,7 +220,7 @@ router.get('/invoices', getAppSettings, async (req, res) => {
 });
 
 // Detail Tagihan Customer
-router.get('/invoices/:id', getAppSettings, async (req, res) => {
+router.get('/invoices/:id', ensureCustomerSession, getAppSettings, async (req, res) => {
     try {
         const username = req.session.customer_username;
         if (!username) {
@@ -173,7 +270,7 @@ router.get('/invoices/:id', getAppSettings, async (req, res) => {
 });
 
 // Halaman Riwayat Pembayaran Customer
-router.get('/payments', getAppSettings, async (req, res) => {
+router.get('/payments', ensureCustomerSession, getAppSettings, async (req, res) => {
     try {
         const username = req.session.customer_username;
         if (!username) {
@@ -340,7 +437,7 @@ router.get('/invoices/:id/download', getAppSettings, async (req, res) => {
 });
 
 // Print Invoice
-router.get('/invoices/:id/print', getAppSettings, async (req, res) => {
+router.get('/invoices/:id/print', ensureCustomerSession, getAppSettings, async (req, res) => {
     try {
         const username = req.session.customer_username;
         console.log(`📄 [PRINT] Print request - username: ${username}, invoice_id: ${req.params.id}`);
