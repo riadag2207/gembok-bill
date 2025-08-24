@@ -7,6 +7,7 @@ const path = require('path');
 const { getDevices } = require('../config/genieacs');
 const { getActivePPPoEConnections, getInactivePPPoEUsers } = require('../config/mikrotik');
 const { getSettingsWithCache } = require('../config/settingsManager');
+const { getVersionInfo, getVersionBadge } = require('../config/version-utils');
 
 // GET: Dashboard admin
 router.get('/dashboard', adminAuth, async (req, res) => {
@@ -45,7 +46,9 @@ router.get('/dashboard', adminAuth, async (req, res) => {
     mikrotikTotal,
     mikrotikAktif,
     mikrotikOffline,
-    settings // Sertakan settings di sini
+    settings, // Sertakan settings di sini
+    versionInfo: getVersionInfo(),
+    versionBadge: getVersionBadge()
   });
 });
 

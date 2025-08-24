@@ -5,7 +5,8 @@ const { getDevices, setParameterValues } = require('../config/genieacs');
 const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
-const { getSettingsWithCache } = require('../config/settingsManager');
+const { getSettingsWithCache } = require('../config/settingsManager')
+const { getVersionInfo, getVersionBadge } = require('../config/version-utils');
 // Helper dan parameterPaths dari customerPortal.js
 const parameterPaths = {
   pppUsername: [

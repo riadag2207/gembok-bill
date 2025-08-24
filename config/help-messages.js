@@ -1,6 +1,6 @@
 // help-messages.js - File untuk menangani pesan help admin dan pelanggan
 
-const { getSetting } = require('./settingsManager');
+const { getSetting, getSettingsWithCache } = require('./settingsManager');
 
 // Footer info dari settings
 const FOOTER_INFO = getSetting('footer_info', 'Juragan Pulsa Wifi Hotspot');
@@ -69,10 +69,89 @@ function getAdminHelpMessage() {
     message += `• *ya/iya/yes* — Konfirmasi ya\n`;
     message += `• *tidak/no/batal* — Konfirmasi tidak\n\n`;
     
+    message += `🔧 *TROUBLE REPORT MANAGEMENT:*\n`;
+    message += `• *trouble* — Lihat daftar laporan gangguan aktif\n`;
+    message += `• *status [id]* — Lihat detail laporan gangguan\n`;
+    message += `• *update [id] [status] [catatan]* — Update status laporan\n`;
+    message += `• *selesai [id] [catatan]* — Selesaikan laporan\n`;
+    message += `• *catatan [id] [catatan]* — Tambah catatan\n`;
+    message += `• *help trouble* — Bantuan trouble report\n\n`;
+    
+    message += `🌐 *PPPoE MANAGEMENT:*\n`;
+    message += `• *addpppoe [user] [pass] [profile] [ip] [info]* — Tambah user PPPoE\n`;
+    message += `• *editpppoe [user] [field] [value]* — Edit user PPPoE\n`;
+    message += `• *delpppoe [user] [alasan]* — Hapus user PPPoE\n`;
+    message += `• *pppoe [filter]* — Lihat daftar user PPPoE\n`;
+    message += `• *checkpppoe [user]* — Cek status user PPPoE\n`;
+    message += `• *restartpppoe [user]* — Restart koneksi PPPoE\n`;
+    message += `• *help pppoe* — Bantuan PPPoE\n\n`;
+    
+    message += `ℹ️ *SYSTEM INFO:*\n`;
+    message += `• *version* — Info versi aplikasi\n`;
+    message += `• *info* — Info sistem lengkap\n\n`;
+    
     message += `💡 *TIPS:*\n`;
     message += `• Semua perintah case-insensitive\n`;
     message += `• Bisa menggunakan prefix ! atau /\n`;
     message += `• Contoh: !status atau /status\n\n`;
+    
+    message += `${FOOTER_INFO}`;
+    
+    return message;
+}
+
+/**
+ * Pesan help untuk teknisi (fokus pada tugas sehari-hari)
+ */
+function getTechnicianHelpMessage() {
+    let message = `🔧 *MENU KHUSUS TEKNISI*\n\n`;
+    
+    // Command yang paling sering digunakan teknisi
+    message += `📱 *CEK STATUS PELANGGAN*\n`;
+    message += `• *cek [nomor]* — Cek status ONU pelanggan\n`;
+    message += `• *cekstatus [nomor]* — Alias cek status pelanggan\n`;
+    message += `• *status* — Status sistem WhatsApp\n\n`;
+    
+    message += `🔧 *TROUBLE REPORT (PRIORITAS TINGGI)*\n`;
+    message += `• *trouble* — Lihat daftar laporan gangguan aktif\n`;
+    message += `• *status [id]* — Lihat detail laporan gangguan\n`;
+    message += `• *update [id] [status] [catatan]* — Update status laporan\n`;
+    message += `• *selesai [id] [catatan]* — Selesaikan laporan\n`;
+    message += `• *catatan [id] [catatan]* — Tambah catatan\n`;
+    message += `• *help trouble* — Bantuan trouble report\n\n`;
+    
+    message += `🌐 *PPPoE MANAGEMENT (PEMASANGAN BARU)*\n`;
+    message += `• *addpppoe [user] [pass] [profile] [ip] [info]* — Tambah user PPPoE\n`;
+    message += `• *editpppoe [user] [field] [value]* — Edit user PPPoE\n`;
+    message += `• *checkpppoe [user]* — Cek status user PPPoE\n`;
+    message += `• *restartpppoe [user]* — Restart koneksi PPPoE\n`;
+    message += `• *help pppoe* — Bantuan PPPoE\n\n`;
+    
+    message += `🔧 *PERANGKAT PELANGGAN*\n`;
+    message += `• *gantissid [nomor] [ssid]* — Ubah SSID WiFi\n`;
+    message += `• *gantipass [nomor] [password]* — Ubah password WiFi\n`;
+    message += `• *reboot [nomor]* — Restart ONU pelanggan\n`;
+    message += `• *refresh [device_id]* — Refresh data perangkat\n\n`;
+    
+    message += `🌐 *MIKROTIK (JIKA DIPERLUKAN)*\n`;
+    message += `• *ping [ip] [count]* — Test ping\n`;
+    message += `• *interfaces* — Daftar interface\n`;
+    message += `• *resource* — Info resource router\n\n`;
+    
+    message += `💡 *TIPS KHUSUS TEKNISI:*\n`;
+    message += `• Selalu update trouble report setelah selesai\n`;
+    message += `• Test koneksi sebelum selesai\n`;
+    message += `• Catat semua perubahan untuk audit\n`;
+    message += `• Gunakan *help trouble* atau *help pppoe* untuk bantuan detail\n\n`;
+    
+    message += `📞 *HELP KHUSUS:*\n`;
+    message += `• *help trouble* — Bantuan trouble report\n`;
+    message += `• *help pppoe* — Bantuan PPPoE\n`;
+    message += `• *admin* — Menu admin lengkap\n\n`;
+    
+    message += `ℹ️ *SYSTEM INFO:*\n`;
+    message += `• *version* — Info versi aplikasi\n`;
+    message += `• *info* — Info sistem lengkap\n\n`;
     
     message += `${FOOTER_INFO}`;
     
@@ -127,9 +206,18 @@ function getGeneralHelpMessage() {
     message += `• *admin* — Menu admin lengkap\n`;
     message += `• *help* — Bantuan umum\n\n`;
     
+    message += `🔧 *UNTUK TEKNISI*\n`;
+    message += `• *teknisi* — Menu khusus teknisi\n`;
+    message += `• *help* — Bantuan umum\n\n`;
+    
     message += `💡 *INFO:*\n`;
     message += `• Ketik *admin* untuk menu khusus admin\n`;
+    message += `• Ketik *teknisi* untuk menu khusus teknisi\n`;
     message += `• Semua perintah case-insensitive\n\n`;
+    
+    message += `ℹ️ *SYSTEM INFO:*\n`;
+    message += `• *version* — Info versi aplikasi\n`;
+    message += `• *info* — Info sistem lengkap\n\n`;
     
     message += `${FOOTER_INFO}`;
     
@@ -168,9 +256,79 @@ function getBillingHelpMessage() {
         `paidcustomers`;
 }
 
+/**
+ * Dapatkan info versi aplikasi
+ */
+function getVersionInfo() {
+    const settings = getSettingsWithCache();
+    
+    return {
+        version: settings.app_version || '1.0.0',
+        versionName: settings.version_name || 'Unknown Version',
+        versionDate: settings.version_date || 'Unknown Date',
+        versionNotes: settings.version_notes || 'No release notes',
+        buildNumber: settings.build_number || 'Unknown Build',
+        companyHeader: settings.company_header || 'ALIJAYA DIGITAL NETWORK',
+        footerInfo: settings.footer_info || 'Info Hubungi : 081947215703'
+    };
+}
+
+/**
+ * Format pesan versi untuk WhatsApp
+ */
+function getVersionMessage() {
+    const versionInfo = getVersionInfo();
+    
+    let message = `ℹ️ *INFO VERSI APLIKASI*\n\n`;
+    message += `🏢 *${versionInfo.companyHeader}*\n\n`;
+    message += `📱 *Versi:* ${versionInfo.version}\n`;
+    message += `📝 *Nama:* ${versionInfo.versionName}\n`;
+    message += `📅 *Tanggal:* ${versionInfo.versionDate}\n`;
+    message += `🔧 *Build:* ${versionInfo.buildNumber}\n`;
+    message += `📋 *Catatan:* ${versionInfo.versionNotes}\n\n`;
+    message += `${versionInfo.footerInfo}`;
+    
+    return message;
+}
+
+/**
+ * Format pesan info sistem untuk WhatsApp
+ */
+function getSystemInfoMessage() {
+    const versionInfo = getVersionInfo();
+    
+    let message = `🖥️ *INFO SISTEM LENGKAP*\n\n`;
+    message += `🏢 *${versionInfo.companyHeader}*\n\n`;
+    message += `📱 *Versi Aplikasi:* ${versionInfo.version}\n`;
+    message += `📝 *Nama Versi:* ${versionInfo.versionName}\n`;
+    message += `📅 *Tanggal Release:* ${versionInfo.versionDate}\n`;
+    message += `🔧 *Build Number:* ${versionInfo.buildNumber}\n\n`;
+    
+    message += `⚙️ *FITUR UTAMA:*\n`;
+    message += `• WhatsApp Bot dengan Role System\n`;
+    message += `• Admin, Teknisi, dan Customer Portal\n`;
+    message += `• Trouble Report Management\n`;
+    message += `• PPPoE User Management\n`;
+    message += `• GenieACS Integration\n`;
+    message += `• MikroTik Integration\n`;
+    message += `• Billing & Invoice System\n`;
+    message += `• Payment Gateway Integration\n\n`;
+    
+    message += `📋 *Catatan Release:*\n`;
+    message += `${versionInfo.versionNotes}\n\n`;
+    
+    message += `${versionInfo.footerInfo}`;
+    
+    return message;
+}
+
 module.exports = {
     getAdminHelpMessage,
+    getTechnicianHelpMessage,
     getCustomerHelpMessage,
     getGeneralHelpMessage,
-    getBillingHelpMessage
+    getBillingHelpMessage,
+    getVersionInfo,
+    getVersionMessage,
+    getSystemInfoMessage
 }; 

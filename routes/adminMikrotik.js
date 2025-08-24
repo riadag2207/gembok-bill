@@ -21,16 +21,28 @@ const { kickPPPoEUser } = require('../config/mikrotik2');
 const fs = require('fs');
 const path = require('path');
 const { getSettingsWithCache } = require('../config/settingsManager');
+const { getVersionInfo, getVersionBadge } = require('../config/version-utils');
 
 // GET: List User PPPoE
 router.get('/mikrotik', adminAuth, async (req, res) => {
   try {
     const users = await getPPPoEUsers();
     const settings = getSettingsWithCache();
-    res.render('adminMikrotik', { users, settings });
+    res.render('adminMikrotik', { 
+      users, 
+      settings,
+      versionInfo: getVersionInfo(),
+      versionBadge: getVersionBadge()
+    });
   } catch (err) {
     const settings = getSettingsWithCache();
-    res.render('adminMikrotik', { users: [], error: 'Gagal mengambil data user PPPoE.', settings });
+    res.render('adminMikrotik', { 
+      users: [], 
+      error: 'Gagal mengambil data user PPPoE.', 
+      settings,
+      versionInfo: getVersionInfo(),
+      versionBadge: getVersionBadge()
+    });
   }
 });
 
@@ -73,13 +85,30 @@ router.get('/mikrotik/profiles', adminAuth, async (req, res) => {
     const result = await getPPPoEProfiles();
     const settings = getSettingsWithCache();
     if (result.success) {
-      res.render('adminMikrotikProfiles', { profiles: result.data, settings });
+      res.render('adminMikrotikProfiles', { 
+        profiles: result.data, 
+        settings,
+        versionInfo: getVersionInfo(),
+        versionBadge: getVersionBadge()
+      });
     } else {
-      res.render('adminMikrotikProfiles', { profiles: [], error: result.message, settings });
+      res.render('adminMikrotikProfiles', { 
+        profiles: [], 
+        error: result.message, 
+        settings,
+        versionInfo: getVersionInfo(),
+        versionBadge: getVersionBadge()
+      });
     }
   } catch (err) {
     const settings = getSettingsWithCache();
-    res.render('adminMikrotikProfiles', { profiles: [], error: 'Gagal mengambil data profile PPPoE.', settings });
+    res.render('adminMikrotikProfiles', { 
+      profiles: [], 
+      error: 'Gagal mengambil data profile PPPoE.', 
+      settings,
+      versionInfo: getVersionInfo(),
+      versionBadge: getVersionBadge()
+    });
   }
 });
 

@@ -4,7 +4,8 @@ const { addHotspotUser, getActiveHotspotUsers, getHotspotProfiles, deleteHotspot
 const { getMikrotikConnection } = require('../config/mikrotik');
 const fs = require('fs');
 const path = require('path');
-const { getSettingsWithCache } = require('../config/settingsManager');
+const { getSettingsWithCache } = require('../config/settingsManager')
+const { getVersionInfo, getVersionBadge } = require('../config/version-utils');
 
 // GET: Tampilkan form tambah user hotspot dan daftar user hotspot
 router.get('/', async (req, res) => {

@@ -3,7 +3,8 @@ const fs = require('fs');
 const path = require('path');
 const router = express.Router();
 const multer = require('multer');
-const { getSettingsWithCache } = require('../config/settingsManager');
+const { getSettingsWithCache } = require('../config/settingsManager')
+const { getVersionInfo, getVersionBadge } = require('../config/version-utils');
 const logger = require('../config/logger');
 
 // Konfigurasi penyimpanan file
