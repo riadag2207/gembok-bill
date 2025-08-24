@@ -24,13 +24,58 @@
             .row.mb-4:first-of-type {
                 margin-top: 10px;
             }
-            /* Responsive notification positioning */
-            #restartNotif {
-                top: 80px !important; /* Below mobile navbar */
-                right: 10px !important;
-                left: 10px !important;
-                width: auto !important;
+                    /* Responsive notification positioning */
+        #restartNotif {
+            top: 80px !important; /* Below mobile navbar */
+            right: 10px !important;
+            left: 10px !important;
+            width: auto !important;
+        }
+        
+        /* Traffic Chart Styling */
+        .traffic-chart-card {
+            transition: all 0.3s ease;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .traffic-chart-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+        }
+        
+        .traffic-chart-card .card-header {
+            border-bottom: none;
+            background: transparent;
+            padding: 15px 20px;
+        }
+        
+        .traffic-chart-card .card-body {
+            padding: 20px;
+        }
+        
+        /* Bandwidth Status Cards */
+        .bandwidth-card {
+            transition: all 0.3s ease;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .bandwidth-card:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        /* Responsive Chart Heights */
+        @media (max-width: 768px) {
+            .traffic-chart-card .card-body {
+                padding: 15px;
             }
+            
+            .traffic-chart-card .card-body > div {
+                height: 200px !important;
+            }
+        }
         }
     </style>
 </head>
@@ -120,7 +165,7 @@
                     <!-- Real-time bandwidth info -->
                     <div class="row mb-2">
                       <div class="col-md-3">
-                        <div class="card bg-primary text-white">
+                        <div class="card bg-primary text-white bandwidth-card">
                           <div class="card-body text-center py-1">
                             <small class="d-block" style="font-size: 0.75rem;">Download</small>
                             <strong id="currentRx" style="font-size: 1.1rem;">0 Mbps</strong>
@@ -128,15 +173,15 @@
                         </div>
                       </div>
                       <div class="col-md-3">
-                        <div class="card bg-success text-white">
+                        <div class="card bg-success text-white bandwidth-card">
                           <div class="card-body text-center py-1">
                             <small class="d-block" style="font-size: 0.75rem;">Upload</small>
                             <strong id="currentTx" style="font-size: 1.1rem;">0 Mbps</strong>
-                          </div>
+                            </div>
                         </div>
                       </div>
                       <div class="col-md-3">
-                        <div class="card bg-info text-white">
+                        <div class="card bg-info text-white bandwidth-card">
                           <div class="card-body text-center py-1">
                             <small class="d-block" style="font-size: 0.75rem;">Total</small>
                             <strong id="currentTotal" style="font-size: 1.1rem;">0 Mbps</strong>
@@ -144,7 +189,7 @@
                         </div>
                       </div>
                       <div class="col-md-3">
-                        <div class="card bg-warning text-white">
+                        <div class="card bg-warning text-white bandwidth-card">
                           <div class="card-body text-center py-1">
                             <small class="d-block" style="font-size: 0.75rem;">Status</small>
                             <strong id="currentStatus" style="font-size: 1.1rem;">Idle</strong>
@@ -153,166 +198,232 @@
                       </div>
                     </div>
                     
-                    <div style="height: 300px;">
-                      <canvas id="internetChart"></canvas>
+                    <!-- Grafik Traffic Terpisah -->
+                    <div class="row">
+                      <!-- Grafik Download (RX) -->
+                      <div class="col-md-6">
+                        <div class="card bg-primary text-white traffic-chart-card">
+                          <div class="card-header">
+                            <h6 class="mb-0"><i class="bi bi-download"></i> Download Traffic (RX)</h6>
+                          </div>
+                          <div class="card-body">
+                            <div style="height: 250px;">
+                              <canvas id="rxChart"></canvas>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <!-- Grafik Upload (TX) -->
+                      <div class="col-md-6">
+                        <div class="card bg-success text-white traffic-chart-card">
+                          <div class="card-header">
+                            <h6 class="mb-0"><i class="bi bi-upload"></i> Upload Traffic (TX)</h6>
+                          </div>
+                          <div class="card-body">
+                            <div style="height: 250px;">
+                              <canvas id="txChart"></canvas>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <!-- Grafik Combined (Opsional) -->
+                    <div class="row mt-3">
+                      <div class="col-md-12">
+                        <div class="card traffic-chart-card">
+                          <div class="card-header">
+                            <h6 class="mb-0"><i class="bi bi-graph-up"></i> Combined Traffic Overview</h6>
+                          </div>
+                          <div class="card-body">
+                            <div style="height: 200px;">
+                              <canvas id="combinedChart"></canvas>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
             <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-            <script>
-            // Grafik bandwidth real-time
-const ctx = document.getElementById('internetChart').getContext('2d');
-const maxPoints = 30; // tampilkan 30 data terakhir
-let currentInterface = localStorage.getItem('selectedInterface') || 'ether1-ISP'; // Ambil dari localStorage atau default sesuai settings.json
-let chart = new Chart(ctx, {
-  type: 'line',
-  data: {
-    labels: [],
-    datasets: [
-      {
-        label: 'RX (Mbps)',
-        data: [],
-        fill: true,
-        backgroundColor: 'rgba(13,202,240,0.2)',
-        borderColor: 'rgba(13,202,240,1)',
-        tension: 0.4,
-        pointRadius: 0,
-        pointHoverRadius: 4,
-        borderWidth: 2,
-        // Tambahkan konfigurasi khusus untuk RX
-        yAxisID: 'y',
-        order: 1
-      },
-      {
-        label: 'TX (Mbps)',
-        data: [],
-        fill: true,
-        backgroundColor: 'rgba(40,167,69,0.2)',
-        borderColor: 'rgba(40,167,69,1)',
-        tension: 0.4,
-        pointRadius: 0,
-        pointHoverRadius: 4,
-        borderWidth: 2,
-        // Tambahkan konfigurasi khusus untuk TX
-        yAxisID: 'y',
-        order: 2
-      }
-    ]
-  },
-  options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    animation: {
-      duration: 750,
-      easing: 'easeInOutQuart'
-    },
-    transitions: {
-      active: {
-        animation: {
-          duration: 300
-        }
-      }
-    },
-    // Tambahkan konfigurasi untuk memastikan chart tetap update
-    responsiveAnimationDuration: 0,
-    hover: {
-      animationDuration: 0
-    },
-    plugins: { 
-      legend: { 
-        display: true,
-        position: 'top',
-        labels: {
-          padding: 10,
-          usePointStyle: true
-        }
-      },
-      tooltip: {
-        mode: 'index',
-        intersect: false,
-        backgroundColor: 'rgba(0,0,0,0.8)',
-        titleColor: 'white',
-        bodyColor: 'white',
-        callbacks: {
-          label: function(context) {
-            return context.dataset.label + ': ' + context.parsed.y + ' Mbps';
-          }
-        }
-      }
-    },
-    scales: { 
-      y: { 
-        beginAtZero: true,
-        title: {
-          display: true,
-          text: 'Bandwidth (Mbps)',
-          font: {
-            size: 12
-          }
-        },
-        ticks: {
-          callback: function(value) {
-            return value + ' Mbps';
-          },
-          font: {
-            size: 10
-          }
-        },
-        grid: {
-          color: 'rgba(0,0,0,0.1)'
-        },
-        // Tambahkan adaptive scaling untuk skala yang lebih dinamis
-        adapters: {
-          type: 'linear',
-          ticks: {
-            autoSkip: true,
-            maxTicksLimit: 8
-          }
-        }
-      },
-      x: {
-        title: {
-          display: true,
-          text: 'Time',
-          font: {
-            size: 12
-          }
-        },
-        ticks: {
-          font: {
-            size: 10
-          }
-        },
-        grid: {
-          color: 'rgba(0,0,0,0.1)'
-        },
-        // Tambahkan smooth scrolling
-        min: 0,
-        max: maxPoints - 1
-      }
-    },
-    interaction: {
-      mode: 'nearest',
-      axis: 'x',
-      intersect: false
-    },
-    elements: {
-      point: {
-        radius: 0,
-        hoverRadius: 4
-      },
-      line: {
-        borderWidth: 2
-      }
-    },
-    performance: {
-      maxDataPoints: maxPoints,
-      maxDatasetPoints: maxPoints
-    }
-  }
-});
+                        <script>
+            // Grafik bandwidth real-time dengan 3 chart terpisah
+            const maxPoints = 30; // tampilkan 30 data terakhir
+            let currentInterface = localStorage.getItem('selectedInterface') || 'ether1-ISP';
+            
+            // Utility function untuk format bandwidth
+            function formatBandwidth(bytesPerSec) {
+              if (bytesPerSec >= 1000000000) { // 1 Gbps
+                return (bytesPerSec / 1000000000).toFixed(2) + ' Gbps';
+              } else if (bytesPerSec >= 1000000) { // 1 Mbps
+                return (bytesPerSec / 1000000).toFixed(2) + ' Mbps';
+              } else if (bytesPerSec >= 1000) { // 1 Kbps
+                return (bytesPerSec / 1000).toFixed(2) + ' Kbps';
+              } else {
+                return bytesPerSec.toFixed(2) + ' bps';
+              }
+            }
+            
+            // Utility function untuk format bandwidth tanpa unit (untuk chart)
+            function formatBandwidthValue(bytesPerSec) {
+              if (bytesPerSec >= 1000000000) { // 1 Gbps
+                return (bytesPerSec / 1000000000).toFixed(3);
+              } else if (bytesPerSec >= 1000000) { // 1 Mbps
+                return (bytesPerSec / 1000000).toFixed(3);
+              } else if (bytesPerSec >= 1000) { // 1 Kbps
+                return (bytesPerSec / 1000).toFixed(3);
+              } else {
+                return bytesPerSec.toFixed(3);
+              }
+            }
+            
+            // Utility function untuk mendapatkan unit yang sesuai
+            function getBandwidthUnit(bytesPerSec) {
+              if (bytesPerSec >= 1000000000) return 'Gbps';
+              if (bytesPerSec >= 1000000) return 'Mbps';
+              if (bytesPerSec >= 1000) return 'Kbps';
+              return 'bps';
+            }
+            
+            // Chart Configuration
+            const chartConfig = {
+              type: 'line',
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: { duration: 750, easing: 'easeInOutQuart' },
+                transitions: { active: { animation: { duration: 300 } } },
+                responsiveAnimationDuration: 0,
+                hover: { animationDuration: 0 },
+                plugins: { 
+                  legend: { 
+                    display: true,
+                    position: 'top',
+                    labels: { padding: 10, usePointStyle: true }
+                  },
+                  tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                    titleColor: 'white',
+                    bodyColor: 'white',
+                    callbacks: {
+                      label: function(context) {
+                        const value = context.parsed.y;
+                        const unit = getBandwidthUnit(value * 1000000); // Convert back to bytes
+                        return context.dataset.label + ': ' + value + ' ' + unit;
+                      }
+                    }
+                  }
+                },
+                scales: { 
+                  y: { 
+                    beginAtZero: true,
+                    title: { display: true, text: 'Bandwidth', font: { size: 12 } },
+                    ticks: {
+                      callback: function(value) {
+                        const unit = getBandwidthUnit(value * 1000000);
+                        return value + ' ' + unit;
+                      },
+                      font: { size: 10 }
+                    },
+                    grid: { color: 'rgba(0,0,0,0.1)' }
+                  },
+                  x: {
+                    title: { display: true, text: 'Time', font: { size: 12 } },
+                    ticks: { font: { size: 10 } },
+                    grid: { color: 'rgba(0,0,0,0.1)' },
+                    min: 0,
+                    max: maxPoints - 1
+                  }
+                },
+                interaction: { mode: 'nearest', axis: 'x', intersect: false },
+                elements: {
+                  point: { radius: 0, hoverRadius: 4 },
+                  line: { borderWidth: 2 }
+                },
+                performance: { maxDataPoints: maxPoints, maxDatasetPoints: maxPoints }
+              }
+            };
+            
+            // Initialize Charts
+            let rxChart, txChart, combinedChart;
+            
+            // RX Chart (Download)
+            const rxCtx = document.getElementById('rxChart').getContext('2d');
+            rxChart = new Chart(rxCtx, {
+              ...chartConfig,
+              data: {
+                labels: [],
+                datasets: [{
+                  label: 'Download (RX)',
+                  data: [],
+                  fill: true,
+                  backgroundColor: 'rgba(13,202,240,0.2)',
+                  borderColor: 'rgba(13,202,240,1)',
+                  tension: 0.4,
+                  pointRadius: 0,
+                  pointHoverRadius: 4,
+                  borderWidth: 2
+                }]
+              }
+            });
+            
+            // TX Chart (Upload)
+            const txCtx = document.getElementById('txChart').getContext('2d');
+            txChart = new Chart(txCtx, {
+              ...chartConfig,
+              data: {
+                labels: [],
+                datasets: [{
+                  label: 'Upload (TX)',
+                  data: [],
+                  fill: true,
+                  backgroundColor: 'rgba(40,167,69,0.2)',
+                  borderColor: 'rgba(40,167,69,1)',
+                  tension: 0.4,
+                  pointRadius: 0,
+                  pointHoverRadius: 4,
+                  borderWidth: 2
+                }]
+              }
+            });
+            
+            // Combined Chart
+            const combinedCtx = document.getElementById('combinedChart').getContext('2d');
+            combinedChart = new Chart(combinedCtx, {
+              ...chartConfig,
+              data: {
+                labels: [],
+                datasets: [
+                  {
+                    label: 'Download (RX)',
+                    data: [],
+                    fill: false,
+                    backgroundColor: 'rgba(13,202,240,0.2)',
+                    borderColor: 'rgba(13,202,240,1)',
+                    tension: 0.4,
+                    pointRadius: 0,
+                    pointHoverRadius: 4,
+                    borderWidth: 2
+                  },
+                  {
+                    label: 'Upload (TX)',
+                    data: [],
+                    fill: false,
+                    backgroundColor: 'rgba(40,167,69,0.2)',
+                    borderColor: 'rgba(40,167,69,1)',
+                    tension: 0.4,
+                    pointRadius: 0,
+                    pointHoverRadius: 4,
+                    borderWidth: 2
+                  }
+                ]
+              }
+            });
 
 function addTrafficData(rx, tx, interface) {
   const now = new Date();
@@ -322,142 +433,173 @@ function addTrafficData(rx, tx, interface) {
   const rxBytes = parseInt(rx) || 0;
   const txBytes = parseInt(tx) || 0;
   
-  // Konversi ke Mbps dengan presisi yang lebih baik
-  const rxMbps = (rxBytes / 1000000).toFixed(3);
-  const txMbps = (txBytes / 1000000).toFixed(3);
-  const totalMbps = (parseFloat(rxMbps) + parseFloat(txMbps)).toFixed(3);
+  // Format bandwidth untuk display
+  const rxFormatted = formatBandwidth(rxBytes);
+  const txFormatted = formatBandwidth(txBytes);
+  const totalFormatted = formatBandwidth(rxBytes + txBytes);
   
   // Debug logging untuk troubleshooting
   console.log(`📊 Traffic Data [${interface}]:`, {
     raw: { rx: rxBytes, tx: txBytes },
-    converted: { rx: rxMbps, tx: txMbps, total: totalMbps },
+    formatted: { rx: rxFormatted, tx: txFormatted, total: totalFormatted },
     time: label
   });
   
-  // Update real-time info
-  document.getElementById('currentRx').textContent = rxMbps + ' Mbps';
-  document.getElementById('currentTx').textContent = txMbps + ' Mbps';
-  document.getElementById('currentTotal').textContent = totalMbps + ' Mbps';
+  // Update real-time info dengan format yang sesuai
+  document.getElementById('currentRx').textContent = rxFormatted;
+  document.getElementById('currentTx').textContent = txFormatted;
+  document.getElementById('currentTotal').textContent = totalFormatted;
   
-  // Update status berdasarkan traffic
+  // Update status berdasarkan traffic (support bandwidth tinggi)
   const statusElement = document.getElementById('currentStatus');
-  if (parseFloat(totalMbps) > 10) {
-    statusElement.textContent = 'High';
+  const totalMbps = (rxBytes + txBytes) / 1000000;
+  
+  if (totalMbps > 1000) { // > 1 Gbps
+    statusElement.textContent = 'Ultra High';
     statusElement.parentElement.parentElement.className = 'card bg-danger text-white';
-  } else if (parseFloat(totalMbps) > 1) {
-    statusElement.textContent = 'Medium';
+  } else if (totalMbps > 500) { // > 500 Mbps
+    statusElement.textContent = 'Very High';
+    statusElement.parentElement.parentElement.className = 'card bg-danger text-white';
+  } else if (totalMbps > 100) { // > 100 Mbps
+    statusElement.textContent = 'High';
     statusElement.parentElement.parentElement.className = 'card bg-warning text-white';
-  } else if (parseFloat(totalMbps) > 0.1) {
-    statusElement.textContent = 'Low';
+  } else if (totalMbps > 10) { // > 10 Mbps
+    statusElement.textContent = 'Medium';
     statusElement.parentElement.parentElement.className = 'card bg-info text-white';
+  } else if (totalMbps > 1) { // > 1 Mbps
+    statusElement.textContent = 'Low';
+    statusElement.parentElement.parentElement.className = 'card bg-secondary text-white';
   } else {
     statusElement.textContent = 'Idle';
     statusElement.parentElement.parentElement.className = 'card bg-secondary text-white';
   }
   
-  // Update chart dengan animasi smooth
+  // Update semua chart
+  updateAllCharts(label, rxBytes, txBytes);
+  
+  // Log status chart update
+  console.log(`🔄 Charts updated: RX: ${rxFormatted}, TX: ${txFormatted}`);
+}
+
+function updateAllCharts(label, rxBytes, txBytes) {
+  // Convert to appropriate unit for charts
+  const rxValue = formatBandwidthValue(rxBytes);
+  const txValue = formatBandwidthValue(txBytes);
+  
+  // Update RX Chart
+  updateChart(rxChart, label, rxValue, 'RX');
+  
+  // Update TX Chart
+  updateChart(txChart, label, txValue, 'TX');
+  
+  // Update Combined Chart
+  updateCombinedChart(label, rxValue, txValue);
+}
+
+function updateChart(chart, label, value, type) {
+  // Remove old data if needed
   if (chart.data.labels.length >= maxPoints) {
     chart.data.labels.shift();
     chart.data.datasets[0].data.shift();
-    chart.data.datasets[1].data.shift();
   }
   
-  // Validasi data sebelum ditambahkan ke chart
-  const rxValue = parseFloat(rxMbps);
-  const txValue = parseFloat(txMbps);
+  // Add new data
+  chart.data.labels.push(label);
+  chart.data.datasets[0].data.push(parseFloat(value));
   
-  // Pastikan data valid dan tidak NaN
-  if (!isNaN(rxValue) && !isNaN(txValue)) {
-    // Tambah data baru
-    chart.data.labels.push(label);
-    chart.data.datasets[0].data.push(rxValue);
-    chart.data.datasets[1].data.push(txValue);
-    
-    console.log(`✅ Data added to chart: RX=${rxValue}, TX=${txValue}`);
-  } else {
-    console.warn(`⚠️ Invalid data detected: RX=${rxValue}, TX=${txValue}`);
-    // Tetap tambahkan data dengan nilai 0 jika ada yang invalid
-    chart.data.labels.push(label);
-    chart.data.datasets[0].data.push(isNaN(rxValue) ? 0 : rxValue);
-    chart.data.datasets[1].data.push(isNaN(txValue) ? 0 : txValue);
-  }
-  
-  // Update chart dengan animasi yang lebih smooth
+  // Update chart
   chart.update('none');
   
-  // Auto-scroll ke data terbaru jika data sudah penuh
+  // Auto-scroll
   if (chart.data.labels.length >= maxPoints) {
     chart.options.scales.x.min = chart.data.labels.length - maxPoints;
     chart.options.scales.x.max = chart.data.labels.length - 1;
   }
   
-  // Auto-adjust skala Y-axis berdasarkan data yang ada
-  adjustYAxisScale();
-  
-  // Log status chart update
-  console.log(`🔄 Chart updated: ${chart.data.labels.length} data points, RX: ${chart.data.datasets[0].data.slice(-1)[0]}, TX: ${chart.data.datasets[1].data.slice(-1)[0]}`);
-  
-  // Pastikan chart tetap bergerak meskipun data = 0
-  ensureChartMovement();
+  // Auto-adjust Y-axis
+  adjustChartYAxis(chart);
 }
 
-function resetChart() {
-  // Reset chart data ketika interface berubah
-  chart.data.labels = [];
-  chart.data.datasets[0].data = [];
-  chart.data.datasets[1].data = [];
-  chart.update('none'); // Gunakan 'none' untuk reset yang lebih smooth
+function updateCombinedChart(label, rxValue, txValue) {
+  // Remove old data if needed
+  if (combinedChart.data.labels.length >= maxPoints) {
+    combinedChart.data.labels.shift();
+    combinedChart.data.datasets[0].data.shift();
+    combinedChart.data.datasets[1].data.shift();
+  }
+  
+  // Add new data
+  combinedChart.data.labels.push(label);
+  combinedChart.data.datasets[0].data.push(parseFloat(rxValue));
+  combinedChart.data.datasets[1].data.push(parseFloat(txValue));
+  
+  // Update chart
+  combinedChart.update('none');
+  
+  // Auto-scroll
+  if (combinedChart.data.labels.length >= maxPoints) {
+    combinedChart.options.scales.x.min = combinedChart.data.labels.length - maxPoints;
+    combinedChart.options.scales.x.max = combinedChart.data.labels.length - 1;
+  }
+  
+  // Auto-adjust Y-axis
+  adjustChartYAxis(combinedChart);
 }
 
-// Fungsi untuk auto-adjust skala Y-axis
-function adjustYAxisScale() {
+function adjustChartYAxis(chart) {
   if (chart.data.datasets[0].data.length === 0) return;
   
-  // Ambil semua data RX dan TX
-  const allData = [
-    ...chart.data.datasets[0].data, // RX data
-    ...chart.data.datasets[1].data  // TX data
-  ];
+  // Get all data from all datasets
+  let allData = [];
+  chart.data.datasets.forEach(dataset => {
+    allData = allData.concat(dataset.data);
+  });
   
   if (allData.length === 0) return;
   
-  // Hitung min dan max dari data
+  // Calculate min and max
   const minValue = Math.min(...allData);
   const maxValue = Math.max(...allData);
   
-  // Handle kasus ketika semua data = 0 atau sangat kecil
+  // Handle very small values
   if (maxValue <= 0.001) {
-    // Set default scale untuk data yang sangat kecil
     chart.options.scales.y.min = 0;
     chart.options.scales.y.max = 1;
-    console.log(`📏 Y-axis set to default scale: 0 - 1 Mbps (no traffic)`);
     return;
   }
   
-  // Tambahkan margin 20% di atas dan bawah
+  // Add 20% margin
   const margin = (maxValue - minValue) * 0.2;
   const newMin = Math.max(0, minValue - margin);
   const newMax = maxValue + margin;
   
-  // Update skala Y-axis jika ada perubahan signifikan
+  // Update if significant change
   if (Math.abs(chart.options.scales.y.min - newMin) > 0.1 || 
       Math.abs(chart.options.scales.y.max - newMax) > 0.1) {
     
     chart.options.scales.y.min = newMin;
     chart.options.scales.y.max = newMax;
     
-    console.log(`📏 Y-axis set to default scale: 0 - 1 Mbps (no traffic)`);
+    console.log(`📏 Y-axis adjusted: ${newMin.toFixed(3)} - ${newMax.toFixed(3)}`);
   }
 }
 
-// Fungsi untuk memastikan chart tetap bergerak meskipun data = 0
-function ensureChartMovement() {
-  // Force chart update untuk memastikan animasi tetap berjalan
-  if (chart.data.labels.length > 0) {
-    // Trigger minimal update untuk memastikan chart bergerak
-    chart.update('none');
-    console.log(`🔄 Chart movement ensured - data points: ${chart.data.labels.length}`);
-  }
+function resetAllCharts() {
+  // Reset semua chart data ketika interface berubah
+  rxChart.data.labels = [];
+  rxChart.data.datasets[0].data = [];
+  rxChart.update('none');
+  
+  txChart.data.labels = [];
+  txChart.data.datasets[0].data = [];
+  txChart.update('none');
+  
+  combinedChart.data.labels = [];
+  combinedChart.data.datasets[0].data = [];
+  combinedChart.data.datasets[1].data = [];
+  combinedChart.update('none');
+  
+  console.log('🔄 All charts reset successfully');
 }
 
 async function fetchTraffic() {
@@ -573,7 +715,7 @@ document.getElementById('interfaceSelect').addEventListener('change', function()
   localStorage.setItem('selectedInterface', currentInterface); // Simpan ke localStorage
   document.getElementById('currentInterface').textContent = currentInterface; // Update tampilan
   console.log('Interface changed to:', currentInterface);
-  resetChart();
+  resetAllCharts(); // Reset semua chart data
   fetchTraffic(); // Fetch data baru segera
 });
 

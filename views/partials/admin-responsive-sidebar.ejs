@@ -6,7 +6,12 @@
                 <i class="bi bi-list" style="font-size: 1.5rem;"></i>
             </button>
             <img src="/img/<%= typeof settings !== 'undefined' && settings.logo_filename ? settings.logo_filename : 'logo.png' %>?ts=<%= Date.now() %>" alt="Logo" style="height: 35px; border-radius: 4px;">
-            <span class="navbar-brand ms-2 mb-0">Admin Panel</span>
+            <div class="d-flex flex-column ms-2">
+                <span class="navbar-brand mb-0">GEMBOK Admin</span>
+                <small class="text-light opacity-75">
+                    <%= typeof versionInfo !== 'undefined' ? versionInfo.version : 'v1.0.0' %>
+                </small>
+            </div>
         </div>
     </div>
 </nav>
@@ -26,6 +31,16 @@
     <!-- Logo Section -->
     <div class="sidebar-header mb-4 text-center">
         <img id="logoImage" src="/img/<%= typeof settings !== 'undefined' && settings.logo_filename ? settings.logo_filename : 'logo.png' %>?v=<%= new Date().getTime() %>" alt="Logo" style="max-width:120px;max-height:60px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <div class="company-info mt-2">
+            <h6 class="company-name mb-1">
+                <%= typeof versionInfo !== 'undefined' ? versionInfo.companyHeader : 'GEMBOK' %>
+            </h6>
+            <div class="version-badge-small">
+                <span class="badge <%= typeof versionBadge !== 'undefined' ? versionBadge.class : 'badge-secondary' %>">
+                    <%= typeof versionBadge !== 'undefined' ? versionBadge.text : 'v1.0.0' %>
+                </span>
+            </div>
+        </div>
     </div>
     
     <!-- Navigation Links -->
@@ -65,6 +80,32 @@
     <a href="/admin/logout">
         <i class="bi bi-box-arrow-right"></i> Logout
     </a>
+    
+    <!-- Version Info Panel -->
+    <div class="version-info-panel">
+        <div class="version-header">
+            <i class="bi bi-info-circle"></i> Version Info
+        </div>
+        <div class="version-details">
+            <div class="version-item">
+                <span class="version-label">Version:</span>
+                <span class="version-value"><%= typeof versionInfo !== 'undefined' ? versionInfo.version : '1.0.0' %></span>
+            </div>
+            <div class="version-item">
+                <span class="version-label">Build:</span>
+                <span class="version-value"><%= typeof versionInfo !== 'undefined' ? versionInfo.buildNumber : 'Unknown' %></span>
+            </div>
+            <div class="version-item">
+                <span class="version-label">Released:</span>
+                <span class="version-value"><%= typeof versionInfo !== 'undefined' ? versionInfo.versionDate : 'Unknown' %></span>
+            </div>
+        </div>
+        <div class="version-badge">
+            <span class="badge <%= typeof versionBadge !== 'undefined' ? versionBadge.class : 'badge-secondary' %>">
+                <%= typeof versionBadge !== 'undefined' ? versionBadge.text : 'v1.0.0' %>
+            </span>
+        </div>
+    </div>
 </nav>
 
 <style>
@@ -149,6 +190,25 @@
 
 .sidebar-header img:hover {
     transform: scale(1.05);
+}
+
+.company-info {
+    color: #fff;
+}
+
+.company-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin: 0;
+    color: #fff;
+    line-height: 1.2;
+}
+
+.version-badge-small .badge {
+    font-size: 0.7rem;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-weight: 600;
 }
 
 /* Main Content */
@@ -241,6 +301,65 @@
     .main-content {
         margin-left: 16.666667%; /* col-md-2 width */
     }
+}
+
+/* Version Info Panel */
+.version-info-panel {
+    margin-top: auto;
+    padding: 20px 24px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    margin: 20px 24px 0 24px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.version-header {
+    color: #4fc3f7;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.version-header i {
+    margin-right: 8px;
+}
+
+.version-details {
+    margin-bottom: 15px;
+}
+
+.version-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 0.8rem;
+}
+
+.version-label {
+    color: #b0bec5;
+    font-weight: 500;
+}
+
+.version-value {
+    color: #fff;
+    font-weight: 600;
+}
+
+.version-badge {
+    text-align: center;
+}
+
+.version-badge .badge {
+    font-size: 0.9rem;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 </style>
 

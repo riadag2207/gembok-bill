@@ -99,6 +99,12 @@
         .alert-info {
             border-left-color: #17a2b8;
         }
+        .alert-success {
+            border-left-color: #28a745;
+        }
+        .alert-danger {
+            border-left-color: #dc3545;
+        }
         
         /* Mobile responsive fixes */
         @media (max-width: 767.98px) {
@@ -140,9 +146,36 @@
                         <h5 class="mb-3">
                             <i class="bi bi-gear text-primary"></i> Pengaturan Sistem
                         </h5>
+                        
+                        <!-- Info tentang field yang disembunyikan -->
+                        <div class="alert alert-info alert-custom mb-3">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-info-circle me-2 mt-1"></i>
+                                <div>
+                                    <strong>ℹ️ INFORMASI PENGATURAN</strong>
+                                    <br>
+                                    <small>
+                                        Beberapa field telah disembunyikan dari form ini karena:
+                                        <br>
+                                        • <strong>Version Info:</strong> Sudah ditampilkan di sidebar dan footer
+                                        • <strong>Technical Fields:</strong> Pengaturan internal sistem (port, log level, dll)
+                                        • <strong>API Keys:</strong> Payment gateway credentials (aman dari UI)
+                                        • <strong>System Files:</strong> File paths dan session settings
+                                        <br><br>
+                                        <strong>Field yang TETAP DITAMPILKAN:</strong>
+                                        • Nomor admin dan teknisi (untuk kemudahan pengaturan)
+                                        • Company info (header, footer, dll)
+                                        • Semua pengaturan bisnis dan operasional
+                                        <br><br>
+                                        Untuk mengubah field yang disembunyikan, edit langsung file <code>settings.json</code>
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        
                         <form id="settingsForm">
                             <div id="settingsFields">
-                                <!-- Semua field dari settings.json akan di-render di sini oleh JS -->
+                                <!-- Field dari settings.json akan di-render di sini oleh JS -->
                             </div>
                             <div id="settingsSuccess" class="alert alert-success d-none" role="alert"></div>
                             <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-3">
@@ -672,6 +705,11 @@ $(function() {
             'suspension_grace_period_days': 'Grace Period Suspension (Hari)',
             'default_pppoe_profile': 'Profile PPPoE Default',
             'admins.0': 'Nomor Admin Utama',
+            'admins.1': 'Nomor Admin Tambahan 1',
+            'admins.2': 'Nomor Admin Tambahan 2',
+            'technician_numbers.0': 'Nomor Teknisi 1',
+            'technician_numbers.1': 'Nomor Teknisi 2',
+            'technician_numbers.2': 'Nomor Teknisi 3',
             'admin_username': 'Username Admin',
             'admin_password': 'Password Admin',
             'genieacs_url': 'URL GenieACS',
@@ -690,6 +728,7 @@ $(function() {
             'rx_power_notification_enable': 'Notifikasi RX Power',
             'rx_power_warning_interval': 'Interval Warning RX Power',
             'company_header': 'Header Perusahaan',
+            'app_name': 'Nama Aplikasi',
             'footer_info': 'Info Footer',
             'customerPortalOtp': 'OTP Customer Portal',
             'otp_length': 'Panjang OTP',
@@ -706,8 +745,18 @@ $(function() {
         return fieldLabels[key] || key;
     }
 
-    // Field yang tidak perlu ditampilkan di form
+    // Field yang tidak perlu ditampilkan di form settings
+    // Kategori: Version Info, Technical Fields, Sensitive Data, UI Fields
     const hiddenFields = [
+        // Version Info - Sembunyikan karena sudah ada di sidebar/footer
+        'app_version',
+        'version_name', 
+        'version_date',
+        'version_notes',
+        'build_number',
+        'app_name',
+        
+        // Technical Fields - Internal system settings
         'pppoe_notifications.monitorInterval',
         'secret_key',
         'reconnect_interval',
@@ -718,6 +767,12 @@ $(function() {
         'server_port',
         'whatsapp_session_path',
         'admin_enabled',
+        
+        // Admin Numbers - Tetap ditampilkan untuk kemudahan admin
+        // 'admins.0', 'admins.1', 'admins.2' - DITAMPILKAN
+        // 'technician_numbers.0', 'technician_numbers.1', 'technician_numbers.2' - DITAMPILKAN
+        
+        // Payment Gateway Sensitive Fields - API keys & secrets
         'payment_gateway.tripay.merchant_code',
         'payment_gateway.tripay.merchant_key',
         'payment_gateway.tripay.private_key',
@@ -750,6 +805,8 @@ $(function() {
         'payment_gateway.midtrans.client_key',
         'payment_gateway.midtrans.merchant_id',
         'payment_gateway.active',
+        
+        // UI Fields - File paths & display settings
         'logo_filename'
     ];
     // Ambil data settings.json
