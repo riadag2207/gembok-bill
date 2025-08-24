@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Mapping - Admin Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/boxicons@2.0.7/css/boxicons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        #map {
+            height: 70vh;
+            width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .map-controls {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .customer-marker {
+            background-color: #28a745;
+            border: 2px solid white;
+            border-radius: 50%;
+            width: 12px;
+            height: 12px;
+            cursor: pointer;
+        }
+        
+        .onu-marker {
+            background-color: #007bff;
+            border: 2px solid white;
+            border-radius: 50%;
+            width: 10px;
+            height: 10px;
+            cursor: pointer;
+        }
+        
+        .offline-marker {
+            background-color: #dc3545;
+            border: 2px solid white;
+            border-radius: 50%;
+            width: 10px;
+            height: 10px;
+            cursor: pointer;
+        }
+        
+        .marker-cluster {
+            background-color: #ffc107;
+            border: 2px solid white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        
+        .info-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .stats-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .stats-number {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        
+        .legend {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            margin-right: 10px;
+            border: 2px solid white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <%- include('../../partials/billing-sidebar') %>
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">
+                        <i class="bx bx-map"></i> Network Mapping
+                    </h1>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-primary" onclick="refreshMap()">
+                            <i class="bx bx-refresh"></i> Refresh
+                        </button>
+                        <button class="btn btn-outline-success" onclick="exportMapData()">
+                            <i class="bx bx-download"></i> Export
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Statistics Cards -->
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="stats-card">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <div class="stats-number" id="totalCustomers">-</div>
+                                    <div>Total Pelanggan</div>
+                                </div>
+                                <i class="bx bx-user bx-lg"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stats-card">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <div class="stats-number" id="totalONU">-</div>
+                                    <div>Total ONU</div>
+                                </div>
+                                <i class="bx bx-wifi bx-lg"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stats-card">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <div class="stats-number" id="onlineONU">-</div>
+                                    <div>ONU Online</div>
+                                </div>
+                                <i class="bx bx-check-circle bx-lg"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stats-card">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <div class="stats-number" id="offlineONU">-</div>
+                                    <div>ONU Offline</div>
+                                </div>
+                                <i class="bx bx-x-circle bx-lg"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Map Controls -->
+                <div class="map-controls">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label for="filterStatus" class="form-label">Filter Status</label>
+                            <select class="form-select" id="filterStatus" onchange="filterMarkers()">
+                                <option value="all">Semua Status</option>
+                                <option value="online">Online</option>
+                                <option value="offline">Offline</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="filterPackage" class="form-label">Filter Paket</label>
+                            <select class="form-select" id="filterPackage" onchange="filterMarkers()">
+                                <option value="all">Semua Paket</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="searchLocation" class="form-label">Cari Lokasi</label>
+                            <input type="text" class="form-control" id="searchLocation" placeholder="Masukkan nama lokasi...">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Map -->
+                <div class="row">
+                    <div class="col-md-8">
+                        <div id="map"></div>
+                    </div>
+                    <div class="col-md-4">
+                        <!-- Legend -->
+                        <div class="legend">
+                            <h6><i class="bx bx-info-circle"></i> Legenda</h6>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: #28a745;"></div>
+                                <span>Pelanggan</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: #007bff;"></div>
+                                <span>ONU Online</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: #dc3545;"></div>
+                                <span>ONU Offline</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: #ffc107;"></div>
+                                <span>Cluster</span>
+                            </div>
+                        </div>
+
+                        <!-- Info Panel -->
+                        <div class="info-panel">
+                            <h6><i class="bx bx-info-circle"></i> Informasi</h6>
+                            <div id="mapInfo">
+                                <p class="text-muted">Klik marker untuk melihat detail</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Edit SSID/Password Modal -->
+    <div class="modal fade" id="editDeviceModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Perangkat</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="editSSID" class="form-label">SSID</label>
+                        <input type="text" class="form-control" id="editSSID" name="ssid">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editPassword" class="form-label">Password WiFi</label>
+                        <input type="text" class="form-control" id="editPassword" name="password">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editTag" class="form-label">Tag Customer</label>
+                        <input type="text" class="form-control" id="editTag" name="tag">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-primary" onclick="saveDeviceChanges()">Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        let map;
+        let customerMarkers = [];
+        let onuMarkers = [];
+        let currentDeviceId = null;
+
+        // Initialize map
+        function initMap() {
+            // Default location (Jakarta)
+            const defaultLat = -6.2088;
+            const defaultLng = 106.8456;
+            
+            map = L.map('map').setView([defaultLat, defaultLng], 10);
+            
+            // Add OpenStreetMap tiles
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+            
+            // Load data
+            loadMapData();
+        }
+
+        // Load map data
+        async function loadMapData() {
+            try {
+                // Load customers
+                const customersResponse = await fetch('/admin/billing/api/customers');
+                const customersData = await customersResponse.json();
+                
+                if (customersData.success) {
+                    addCustomerMarkers(customersData.customers);
+                    updateStats('totalCustomers', customersData.customers.length);
+                }
+                
+                // Load ONU devices
+                const onuResponse = await fetch('/admin/genieacs');
+                const onuData = await onuResponse.json();
+                
+                if (onuData.success) {
+                    addONUMarkers(onuData.devices);
+                    updateStats('totalONU', onuData.devices.length);
+                    
+                    // Count online/offline
+                    const onlineCount = onuData.devices.filter(d => d.status === 'Online').length;
+                    const offlineCount = onuData.devices.length - onlineCount;
+                    
+                    updateStats('onlineONU', onlineCount);
+                    updateStats('offlineONU', offlineCount);
+                }
+                
+                // Load packages for filter
+                loadPackages();
+                
+            } catch (error) {
+                console.error('Error loading map data:', error);
+                showToast('Error loading map data', 'error');
+            }
+        }
+
+        // Add customer markers
+        function addCustomerMarkers(customers) {
+            customers.forEach(customer => {
+                if (customer.latitude && customer.longitude) {
+                    const marker = L.circleMarker([customer.latitude, customer.longitude], {
+                        radius: 8,
+                        fillColor: '#28a745',
+                        color: 'white',
+                        weight: 2,
+                        opacity: 1,
+                        fillOpacity: 0.8
+                    }).addTo(map);
+                    
+                    marker.bindPopup(`
+                        <div class="text-center">
+                            <h6><strong>${customer.name}</strong></h6>
+                            <p class="mb-1"><strong>Username:</strong> ${customer.username}</p>
+                            <p class="mb-1"><strong>Phone:</strong> ${customer.phone}</p>
+                            <p class="mb-1"><strong>Package:</strong> ${customer.package_name || 'N/A'}</p>
+                            <p class="mb-1"><strong>Status:</strong> <span class="badge bg-success">${customer.status}</span></p>
+                            <p class="mb-0"><strong>Address:</strong> ${customer.address || 'N/A'}</p>
+                        </div>
+                    `);
+                    
+                    customerMarkers.push(marker);
+                }
+            });
+        }
+
+        // Add ONU markers
+        function addONUMarkers(devices) {
+            devices.forEach(device => {
+                if (device.latitude && device.longitude) {
+                    const isOnline = device.status === 'Online';
+                    const color = isOnline ? '#007bff' : '#dc3545';
+                    
+                    const marker = L.circleMarker([device.latitude, device.longitude], {
+                        radius: 6,
+                        fillColor: color,
+                        color: 'white',
+                        weight: 2,
+                        opacity: 1,
+                        fillOpacity: 0.8
+                    }).addTo(map);
+                    
+                    marker.bindPopup(`
+                        <div class="text-center">
+                            <h6><strong>ONU Device</strong></h6>
+                            <p class="mb-1"><strong>Serial:</strong> ${device.serialNumber}</p>
+                            <p class="mb-1"><strong>Model:</strong> ${device.model}</p>
+                            <p class="mb-1"><strong>Status:</strong> <span class="badge ${isOnline ? 'bg-success' : 'bg-danger'}">${device.status}</span></p>
+                            <p class="mb-1"><strong>SSID:</strong> ${device.ssid}</p>
+                            <p class="mb-1"><strong>RX Power:</strong> ${device.rxPower || 'N/A'}</p>
+                            <p class="mb-1"><strong>PPPoE:</strong> ${device.pppoeUsername}</p>
+                            <div class="mt-2">
+                                <button class="btn btn-sm btn-warning" onclick="editDevice('${device.id}', '${device.ssid}', '${device.password}', '${device.tag}')">
+                                    <i class="bx bx-edit"></i> Edit
+                                </button>
+                            </div>
+                        </div>
+                    `);
+                    
+                    onuMarkers.push(marker);
+                }
+            });
+        }
+
+        // Load packages for filter
+        async function loadPackages() {
+            try {
+                const response = await fetch('/admin/billing/api/packages');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const select = document.getElementById('filterPackage');
+                    data.packages.forEach(package => {
+                        const option = document.createElement('option');
+                        option.value = package.id;
+                        option.textContent = package.name;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading packages:', error);
+            }
+        }
+
+        // Filter markers
+        function filterMarkers() {
+            const statusFilter = document.getElementById('filterStatus').value;
+            const packageFilter = document.getElementById('filterPackage').value;
+            
+            // Show/hide markers based on filter
+            customerMarkers.forEach(marker => {
+                let show = true;
+                
+                // Apply filters here if needed
+                
+                if (show) {
+                    marker.addTo(map);
+                } else {
+                    marker.remove();
+                }
+            });
+            
+            onuMarkers.forEach(marker => {
+                let show = true;
+                
+                // Apply filters here if needed
+                
+                if (show) {
+                    marker.addTo(map);
+                } else {
+                    marker.remove();
+                }
+            });
+        }
+
+        // Edit device
+        function editDevice(deviceId, ssid, password, tag) {
+            currentDeviceId = deviceId;
+            document.getElementById('editSSID').value = ssid || '';
+            document.getElementById('editPassword').value = password || '';
+            document.getElementById('editTag').value = tag || '';
+            
+            new bootstrap.Modal(document.getElementById('editDeviceModal')).show();
+        }
+
+        // Save device changes
+        async function saveDeviceChanges() {
+            if (!currentDeviceId) return;
+            
+            const ssid = document.getElementById('editSSID').value;
+            const password = document.getElementById('editPassword').value;
+            const tag = document.getElementById('editTag').value;
+            
+            try {
+                const response = await fetch(`/admin/genieacs/devices/${currentDeviceId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        ssid,
+                        password,
+                        tag
+                    })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    showToast('Device updated successfully', 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('editDeviceModal')).hide();
+                    refreshMap();
+                } else {
+                    showToast(result.message || 'Failed to update device', 'error');
+                }
+            } catch (error) {
+                console.error('Error updating device:', error);
+                showToast('Error updating device', 'error');
+            }
+        }
+
+        // Refresh map
+        function refreshMap() {
+            // Clear existing markers
+            customerMarkers.forEach(marker => marker.remove());
+            onuMarkers.forEach(marker => marker.remove());
+            customerMarkers = [];
+            onuMarkers = [];
+            
+            // Reload data
+            loadMapData();
+        }
+
+        // Export map data
+        function exportMapData() {
+            // Implementation for exporting map data
+            showToast('Export feature coming soon', 'info');
+        }
+
+        // Update statistics
+        function updateStats(elementId, value) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.textContent = value;
+            }
+        }
+
+        // Show toast notification
+        function showToast(message, type) {
+            // Simple toast implementation
+            const toast = document.createElement('div');
+            toast.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show position-fixed`;
+            toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            toast.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 5000);
+        }
+
+        // Initialize map when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initMap();
+        });
+    </script>
+</body>
+</html>

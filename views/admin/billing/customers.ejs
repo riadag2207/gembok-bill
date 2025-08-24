@@ -8,6 +8,7 @@
     <link href="https://cdn.jsdelivr.net/npm/boxicons@2.0.7/css/boxicons.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         .toast-container {
             z-index: 9999;
@@ -409,6 +410,30 @@
                             <label for="address" class="form-label">Alamat</label>
                             <textarea class="form-control" id="address" name="address" rows="3"></textarea>
                         </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="latitude" class="form-label">Latitude (Koordinat)</label>
+                                    <input type="number" class="form-control" id="latitude" name="latitude" step="0.00000001" placeholder="-6.2088">
+                                    <small class="text-muted">Contoh: -6.2088 (Jakarta)</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="longitude" class="form-label">Longitude (Koordinat)</label>
+                                    <input type="number" class="form-control" id="longitude" name="longitude" step="0.00000001" placeholder="106.8456">
+                                    <small class="text-muted">Contoh: 106.8456 (Jakarta)</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <button type="button" class="btn btn-outline-info btn-sm" onclick="getCurrentLocation()">
+                                <i class="bx bx-location-plus"></i> Ambil Lokasi Saat Ini
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="openMapPicker()">
+                                <i class="bx bx-map"></i> Pilih dari Peta
+                            </button>
+                        </div>
                         <div class="mb-3">
                             <label for="package_id" class="form-label">Paket *</label>
                             <select class="form-control" id="package_id" name="package_id" onchange="updateProfileField()" required>
@@ -483,6 +508,30 @@
                         <div class="mb-3">
                             <label for="edit_address" class="form-label">Alamat</label>
                             <textarea class="form-control" id="edit_address" name="address" rows="3"></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="edit_latitude" class="form-label">Latitude (Koordinat)</label>
+                                    <input type="number" class="form-control" id="edit_latitude" name="latitude" step="0.00000001" placeholder="-6.2088">
+                                    <small class="text-muted">Contoh: -6.2088 (Jakarta)</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="edit_longitude" class="form-label">Longitude (Koordinat)</label>
+                                    <input type="number" class="form-control" id="edit_longitude" name="longitude" step="0.00000001" placeholder="106.8456">
+                                    <small class="text-muted">Contoh: 106.8456 (Jakarta)</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <button type="button" class="btn btn-outline-info btn-sm" onclick="getCurrentLocation()">
+                                <i class="bx bx-location-plus"></i> Ambil Lokasi Saat Ini
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="openMapPicker()">
+                                <i class="bx bx-map"></i> Pilih dari Peta
+                            </button>
                         </div>
                         <div class="mb-3">
                             <label for="edit_package_id" class="form-label">Paket *</label>
@@ -565,6 +614,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         $(document).ready(function() {
             const dt = $('#customersTable').DataTable({
@@ -791,7 +841,9 @@
                     const v = parseInt($('#billing_day').val(), 10);
                     if (Number.isFinite(v)) return Math.min(Math.max(v, 1), 28);
                     return 15;
-                })()
+                })(),
+                latitude: $('#latitude').val().trim(),
+                longitude: $('#longitude').val().trim()
             };
             
             fetch('/admin/billing/customers', {
@@ -846,6 +898,8 @@
                         $('#edit_email').val(customer.email || '');
                         $('#edit_pppoe_username').val(customer.pppoe_username || '');
                         $('#edit_address').val(customer.address || '');
+                        $('#edit_latitude').val(customer.latitude || '');
+                        $('#edit_longitude').val(customer.longitude || '');
                         $('#edit_package_id').val(customer.package_id || '');
                         $('#edit_pppoe_profile').val(customer.pppoe_profile || '');
                         $('#edit_auto_suspension').val(customer.auto_suspension !== undefined ? customer.auto_suspension : 1);
@@ -908,7 +962,9 @@
                     const v = parseInt($('#edit_billing_day').val(), 10);
                     if (Number.isFinite(v)) return Math.min(Math.max(v, 1), 28);
                     return 15;
-                })()
+                })(),
+                latitude: $('#edit_latitude').val().trim(),
+                longitude: $('#edit_longitude').val().trim()
             };
             
             fetch(`/admin/billing/customers/${originalPhone || phone}`, {
@@ -938,30 +994,207 @@
             });
         });
 
-        // Delete Customer
-        function deleteCustomer(phone) {
-            if (confirm('Apakah Anda yakin ingin menghapus pelanggan ini?')) {
-                fetch(`/admin/billing/customers/${phone}`, {
+        // Delete customer
+        async function deleteCustomer(phone) {
+            if (!confirm('Apakah Anda yakin ingin menghapus pelanggan ini?')) return;
+            
+            try {
+                const response = await fetch(`/admin/billing/api/customers/${phone}`, {
                     method: 'DELETE'
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        showToast('success', 'Pelanggan berhasil dihapus');
-                        setTimeout(() => location.reload(), 1000);
-                    } else {
-                        showToast('error', data.message || 'Gagal menghapus pelanggan');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showToast('error', 'Terjadi kesalahan');
                 });
+                
+                const result = await response.json();
+                if (result.success) {
+                    showToast(result.message, 'success');
+                    setTimeout(() => window.location.reload(), 1000);
+                } else {
+                    showToast(result.message, 'error');
+                }
+            } catch (error) {
+                showToast('Terjadi kesalahan saat menghapus data', 'error');
+            }
+        }
+
+        // Get current location using GPS
+        function getCurrentLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        
+                        // Update form fields
+                        $('#latitude').val(lat.toFixed(8));
+                        $('#longitude').val(lng.toFixed(8));
+                        
+                        // Update edit form if open
+                        if ($('#edit_latitude').length) {
+                            $('#edit_latitude').val(lat.toFixed(8));
+                            $('#edit_longitude').val(lng.toFixed(8));
+                        }
+                        
+                        showToast('Lokasi berhasil diambil dari GPS!', 'success');
+                    },
+                    function(error) {
+                        let errorMessage = 'Gagal mengambil lokasi: ';
+                        switch(error.code) {
+                            case error.PERMISSION_DENIED:
+                                errorMessage += 'Izin lokasi ditolak';
+                                break;
+                            case error.POSITION_UNAVAILABLE:
+                                errorMessage += 'Informasi lokasi tidak tersedia';
+                                break;
+                            case error.TIMEOUT:
+                                errorMessage += 'Timeout mengambil lokasi';
+                                break;
+                            default:
+                                errorMessage += 'Error tidak diketahui';
+                        }
+                        showToast(errorMessage, 'error');
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 60000
+                    }
+                );
+            } else {
+                showToast('Geolocation tidak didukung di browser ini', 'error');
+            }
+        }
+
+        // Open map picker modal
+        function openMapPicker() {
+            // Create map picker modal
+            const modalHtml = `
+                <div class="modal fade" id="mapPickerModal" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Pilih Lokasi dari Peta</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <input type="text" class="form-control" id="mapSearch" placeholder="Cari lokasi (contoh: Jakarta, Bandung)">
+                                </div>
+                                <div id="map" style="height: 400px; width: 100%; border: 1px solid #ddd;"></div>
+                                <div class="mt-3">
+                                    <strong>Koordinat yang dipilih:</strong><br>
+                                    Latitude: <span id="selectedLat">-</span><br>
+                                    Longitude: <span id="selectedLng">-</span>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                                <button type="button" class="btn btn-primary" onclick="applyMapLocation()">Gunakan Lokasi Ini</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Remove existing modal if any
+            $('#mapPickerModal').remove();
+            
+            // Add modal to body
+            $('body').append(modalHtml);
+            
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('mapPickerModal'));
+            modal.show();
+            
+            // Initialize map after modal is shown
+            setTimeout(() => {
+                initMapPicker();
+            }, 500);
+        }
+
+        // Initialize map picker
+        function initMapPicker() {
+            // Default location (Jakarta)
+            const defaultLat = -6.2088;
+            const defaultLng = 106.8456;
+            
+            // Create map using Leaflet (free alternative to Google Maps)
+            const map = L.map('map').setView([defaultLat, defaultLng], 10);
+            
+            // Add OpenStreetMap tiles
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+            
+            // Add marker
+            let marker = L.marker([defaultLat, defaultLng]).addTo(map);
+            
+            // Update coordinates display
+            document.getElementById('selectedLat').textContent = defaultLat.toFixed(8);
+            document.getElementById('selectedLng').textContent = defaultLng.toFixed(8);
+            
+            // Handle map click
+            map.on('click', function(e) {
+                const lat = e.latlng.lat;
+                const lng = e.latlng.lng;
+                
+                // Update marker
+                marker.setLatLng([lat, lng]);
+                
+                // Update coordinates display
+                document.getElementById('selectedLat').textContent = lat.toFixed(8);
+                document.getElementById('selectedLng').textContent = lng.toFixed(8);
+            });
+            
+            // Handle search
+            document.getElementById('mapSearch').addEventListener('input', function(e) {
+                const query = e.target.value;
+                if (query.length > 3) {
+                    // Simple geocoding using OpenStreetMap Nominatim
+                    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.length > 0) {
+                                const lat = parseFloat(data[0].lat);
+                                const lng = parseFloat(data[0].lon);
+                                
+                                map.setView([lat, lng], 15);
+                                marker.setLatLng([lat, lng]);
+                                
+                                document.getElementById('selectedLat').textContent = lat.toFixed(8);
+                                document.getElementById('selectedLng').textContent = lng.toFixed(8);
+                            }
+                        })
+                        .catch(error => console.error('Geocoding error:', error));
+                }
+            });
+        }
+
+        // Apply selected map location to form
+        function applyMapLocation() {
+            const lat = document.getElementById('selectedLat').textContent;
+            const lng = document.getElementById('selectedLng').textContent;
+            
+            if (lat !== '-' && lng !== '-') {
+                // Update add form
+                $('#latitude').val(lat);
+                $('#longitude').val(lng);
+                
+                // Update edit form if open
+                if ($('#edit_latitude').length) {
+                    $('#edit_latitude').val(lat);
+                    $('#edit_longitude').val(lng);
+                }
+                
+                showToast('Lokasi berhasil diterapkan!', 'success');
+                
+                // Close modal
+                bootstrap.Modal.getInstance(document.getElementById('mapPickerModal')).hide();
+            } else {
+                showToast('Pilih lokasi terlebih dahulu', 'error');
             }
         }
 
         // Toast notification function
-        function showToast(type, message) {
+        function showToast(message, type) {
             const toastContainer = document.getElementById('toastContainer') || createToastContainer();
             
             const toastHtml = `

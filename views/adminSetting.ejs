@@ -740,7 +740,11 @@ $(function() {
             'rxpower_recap_enable': 'Recap RX Power',
             'rxpower_recap_interval': 'Interval Recap RX Power',
             'offline_notification_enable': 'Notifikasi Offline',
-            'offline_notification_interval': 'Interval Notifikasi Offline'
+            'offline_notification_interval': 'Interval Notifikasi Offline',
+            'tax_settings.default_tax_rate': 'PPN Default (%)',
+            'tax_settings.tax_name': 'Nama Pajak',
+            'tax_settings.tax_enabled': 'Sistem PPN',
+            'tax_settings.tax_inclusive': 'Harga Sudah Termasuk PPN'
         };
         return fieldLabels[key] || key;
     }
@@ -844,6 +848,26 @@ $(function() {
                     if (key === 'suspension_grace_period_days') {
                         html += '<input type="number" class="form-control" name="'+key+'" value="'+val+'" min="1" max="365">';
                         html += '<div class="form-text">Jumlah hari sebelum layanan disuspend setelah jatuh tempo</div>';
+                    } else if (key === 'tax_settings.default_tax_rate') {
+                        html += '<input type="number" class="form-control" name="'+key+'" value="'+val+'" step="0.01" min="0" max="100">';
+                        html += '<div class="form-text">Persentase PPN default untuk paket internet (0-100%)</div>';
+                    } else if (key === 'tax_settings.tax_name') {
+                        html += '<input type="text" class="form-control" name="'+key+'" value="'+val+'">';
+                        html += '<div class="form-text">Nama pajak yang akan ditampilkan (contoh: PPN, VAT, dll)</div>';
+                    } else if (key === 'tax_settings.tax_enabled') {
+                        var checked = (val === true || val === 'true') ? 'checked' : '';
+                        html += '<div class="form-check">';
+                        html += '<input class="form-check-input" type="checkbox" name="'+key+'" id="setting_'+key+'" '+checked+'> ';
+                        html += '<label class="form-check-label" for="setting_'+key+'">'+(checked ? 'Aktif' : 'Tidak Aktif')+'</label>';
+                        html += '</div>';
+                        html += '<div class="form-text">Aktifkan atau nonaktifkan sistem PPN</div>';
+                    } else if (key === 'tax_settings.tax_inclusive') {
+                        var checked = (val === true || val === 'true') ? 'checked' : '';
+                        html += '<div class="form-check">';
+                        html += '<input class="form-check-input" type="checkbox" name="'+key+'" id="setting_'+key+'" '+checked+'> ';
+                        html += '<label class="form-check-label" for="setting_'+key+'">'+(checked ? 'Ya' : 'Tidak')+'</label>';
+                        html += '</div>';
+                        html += '<div class="form-text">Harga paket sudah termasuk PPN (tax inclusive) atau belum (tax exclusive)</div>';
                     } else {
                         html += '<input type="text" class="form-control" name="'+key+'" value="'+val+'">';
                     }

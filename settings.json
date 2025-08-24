@@ -82,8 +82,8 @@
   "default_pppoe_profile": "default",
   "isolir_profile": "isolir",
   "app_version": "2.1.0",
-  "version_name": "WhatsApp Modular + Role System",
+  "version_name": "WhatsApp Modular + Role System + Network Mapping",
   "version_date": "2025-01-27",
-  "version_notes": "Added technician role, trouble report & PPPoE WhatsApp commands",
+  "version_notes": "Added technician role, trouble report, PPPoE WhatsApp commands, PPN feature, and Network Mapping",
   "build_number": "20250127"
 }
