@@ -101,6 +101,7 @@ class BillingManager {
                 name TEXT NOT NULL,
                 speed TEXT NOT NULL,
                 price DECIMAL(10,2) NOT NULL,
+                tax_rate DECIMAL(5,2) DEFAULT 11.00,
                 description TEXT,
                 pppoe_profile TEXT DEFAULT 'default',
                 is_active BOOLEAN DEFAULT 1,
@@ -116,6 +117,8 @@ class BillingManager {
                 pppoe_username TEXT,
                 email TEXT,
                 address TEXT,
+                latitude DECIMAL(10,8),
+                longitude DECIMAL(11,8),
                 package_id INTEGER,
                 pppoe_profile TEXT,
                 status TEXT DEFAULT 'active',
@@ -171,6 +174,19 @@ class BillingManager {
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (invoice_id) REFERENCES invoices (id)
+            )`,
+
+            // Tabel expenses untuk pengeluaran
+            `CREATE TABLE IF NOT EXISTS expenses (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                description TEXT NOT NULL,
+                amount REAL NOT NULL,
+                category TEXT NOT NULL,
+                expense_date DATE NOT NULL,
+                payment_method TEXT,
+                notes TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )`
         ];
 
@@ -253,6 +269,31 @@ class BillingManager {
             }
         });
 
+        // Tambahkan kolom tax_rate ke packages jika belum ada
+        this.db.run("ALTER TABLE packages ADD COLUMN tax_rate DECIMAL(5,2) DEFAULT 11.00", (err) => {
+            if (err && !err.message.includes('duplicate column name')) {
+                console.error('Error adding tax_rate column to packages:', err);
+            } else if (!err) {
+                console.log('Added tax_rate column to packages table');
+            }
+        });
+
+        // Tambahkan kolom latitude dan longitude ke customers jika belum ada
+        this.db.run("ALTER TABLE customers ADD COLUMN latitude DECIMAL(10,8)", (err) => {
+            if (err && !err.message.includes('duplicate column name')) {
+                console.error('Error adding latitude column to customers:', err);
+            } else if (!err) {
+                console.log('Added latitude column to customers table');
+            }
+        });
+        this.db.run("ALTER TABLE customers ADD COLUMN longitude DECIMAL(11,8)", (err) => {
+            if (err && !err.message.includes('duplicate column name')) {
+                console.error('Error adding longitude column to customers:', err);
+            } else if (!err) {
+                console.log('Added longitude column to customers table');
+            }
+        });
+
         // Update existing customers to have username if null (for backward compatibility)
         this.db.run("UPDATE customers SET username = 'cust_' || substr(phone, -4, 4) || '_' || strftime('%s','now') WHERE username IS NULL OR username = ''", (err) => {
             if (err) {
@@ -266,10 +307,10 @@ class BillingManager {
     // Paket Management
     async createPackage(packageData) {
         return new Promise((resolve, reject) => {
-            const { name, speed, price, description, pppoe_profile } = packageData;
-            const sql = `INSERT INTO packages (name, speed, price, description, pppoe_profile) VALUES (?, ?, ?, ?, ?)`;
+            const { name, speed, price, tax_rate, description, pppoe_profile } = packageData;
+            const sql = `INSERT INTO packages (name, speed, price, tax_rate, description, pppoe_profile) VALUES (?, ?, ?, ?, ?, ?)`;
             
-            this.db.run(sql, [name, speed, price, description, pppoe_profile || 'default'], function(err) {
+            this.db.run(sql, [name, speed, price, tax_rate || 11.00, description, pppoe_profile || 'default'], function(err) {
                 if (err) {
                     reject(err);
                 } else {
@@ -309,10 +350,10 @@ class BillingManager {
 
     async updatePackage(id, packageData) {
         return new Promise((resolve, reject) => {
-            const { name, speed, price, description, pppoe_profile } = packageData;
-            const sql = `UPDATE packages SET name = ?, speed = ?, price = ?, description = ?, pppoe_profile = ? WHERE id = ?`;
+            const { name, speed, price, tax_rate, description, pppoe_profile } = packageData;
+            const sql = `UPDATE packages SET name = ?, speed = ?, price = ?, tax_rate = ?, description = ?, pppoe_profile = ? WHERE id = ?`;
             
-            this.db.run(sql, [name, speed, price, description, pppoe_profile || 'default', id], function(err) {
+            this.db.run(sql, [name, speed, price, tax_rate || 0, description, pppoe_profile || 'default', id], function(err) {
                 if (err) {
                     reject(err);
                 } else {
@@ -1418,6 +1459,188 @@ async handlePaymentWebhook(payload, gateway) {
             reject(error);
         }
     });
+    }
+
+    async getFinancialReport(startDate, endDate, type = 'all') {
+        return new Promise((resolve, reject) => {
+            try {
+                let sql = '';
+                const params = [];
+                
+                if (type === 'income') {
+                    // Laporan pemasukan dari pembayaran
+                    sql = `
+                        SELECT 
+                            'income' as type,
+                            pgt.created_at as date,
+                            pgt.amount as amount,
+                            i.payment_method,
+                            pgt.gateway as gateway_name,
+                            i.invoice_number,
+                            c.name as customer_name,
+                            c.phone as customer_phone
+                        FROM payment_gateway_transactions pgt
+                        JOIN invoices i ON pgt.invoice_id = i.id
+                        JOIN customers c ON i.customer_id = c.id
+                        WHERE pgt.status = 'success' 
+                        AND DATE(pgt.created_at) BETWEEN ? AND ?
+                        ORDER BY pgt.created_at DESC
+                    `;
+                    params.push(startDate, endDate);
+                } else if (type === 'expense') {
+                    // Laporan pengeluaran dari tabel expenses
+                    sql = `
+                        SELECT 
+                            'expense' as type,
+                            e.expense_date as date,
+                            e.amount as amount,
+                            e.payment_method,
+                            e.category as gateway_name,
+                            e.description as invoice_number,
+                            e.notes as customer_name,
+                            '' as customer_phone
+                        FROM expenses e
+                        WHERE DATE(e.expense_date) BETWEEN ? AND ?
+                        ORDER BY e.expense_date DESC
+                    `;
+                    params.push(startDate, endDate);
+                } else {
+                    // Laporan gabungan pemasukan dan pengeluaran
+                    sql = `
+                        SELECT 
+                            'income' as type,
+                            pgt.created_at as date,
+                            pgt.amount as amount,
+                            i.payment_method,
+                            pgt.gateway as gateway_name,
+                            i.invoice_number,
+                            c.name as customer_name,
+                            c.phone as customer_phone
+                        FROM payment_gateway_transactions pgt
+                        JOIN invoices i ON pgt.invoice_id = i.id
+                        JOIN customers c ON i.customer_id = c.id
+                        WHERE pgt.status = 'success' 
+                        AND DATE(pgt.created_at) BETWEEN ? AND ?
+                        
+                        UNION ALL
+                        
+                        SELECT 
+                            'expense' as type,
+                            e.expense_date as date,
+                            e.amount as amount,
+                            e.payment_method,
+                            e.category as gateway_name,
+                            e.description as invoice_number,
+                            e.notes as customer_name,
+                            '' as customer_phone
+                        FROM expenses e
+                        WHERE DATE(e.expense_date) BETWEEN ? AND ?
+                        
+                        ORDER BY date DESC
+                    `;
+                    params.push(startDate, endDate, startDate, endDate);
+                }
+
+                this.db.all(sql, params, (err, rows) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        // Hitung total dan statistik
+                        const totalIncome = rows.filter(r => r.type === 'income')
+                            .reduce((sum, r) => sum + (r.amount || 0), 0);
+                        const totalExpense = rows.filter(r => r.type === 'expense')
+                            .reduce((sum, r) => sum + (r.amount || 0), 0);
+                        const netProfit = totalIncome - totalExpense;
+                        
+                        const result = {
+                            transactions: rows,
+                            summary: {
+                                totalIncome,
+                                totalExpense,
+                                netProfit,
+                                transactionCount: rows.length,
+                                incomeCount: rows.filter(r => r.type === 'income').length,
+                                expenseCount: rows.filter(r => r.type === 'expense').length
+                            },
+                            dateRange: { startDate, endDate }
+                        };
+                        
+                        resolve(result);
+                    }
+                });
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
+    // Method untuk mengelola expenses
+    async addExpense(expenseData) {
+        return new Promise((resolve, reject) => {
+            const { description, amount, category, expense_date, payment_method, notes } = expenseData;
+            
+            const sql = `INSERT INTO expenses (description, amount, category, expense_date, payment_method, notes) VALUES (?, ?, ?, ?, ?, ?)`;
+            
+            this.db.run(sql, [description, amount, category, expense_date, payment_method, notes], function(err) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve({ id: this.lastID, ...expenseData });
+                }
+            });
+        });
+    }
+
+    async getExpenses(startDate = null, endDate = null) {
+        return new Promise((resolve, reject) => {
+            let sql = 'SELECT * FROM expenses';
+            const params = [];
+            
+            if (startDate && endDate) {
+                sql += ' WHERE expense_date BETWEEN ? AND ?';
+                params.push(startDate, endDate);
+            }
+            
+            sql += ' ORDER BY expense_date DESC';
+            
+            this.db.all(sql, params, (err, rows) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(rows);
+                }
+            });
+        });
+    }
+
+    async updateExpense(id, expenseData) {
+        return new Promise((resolve, reject) => {
+            const { description, amount, category, expense_date, payment_method, notes } = expenseData;
+            
+            const sql = `UPDATE expenses SET description = ?, amount = ?, category = ?, expense_date = ?, payment_method = ?, notes = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`;
+            
+            this.db.run(sql, [description, amount, category, expense_date, payment_method, notes, id], function(err) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve({ id, ...expenseData });
+                }
+            });
+        });
+    }
+
+    async deleteExpense(id) {
+        return new Promise((resolve, reject) => {
+            const sql = 'DELETE FROM expenses WHERE id = ?';
+            
+            this.db.run(sql, [id], function(err) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve({ id, deleted: true });
+                }
+            });
+        });
     }
 
     async getPaymentTransactions(invoiceId = null) {

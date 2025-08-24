@@ -58,6 +58,118 @@ router.get('/dashboard', getAppSettings, async (req, res) => {
             recentInvoices: recentInvoices.slice(0, 10),
             appSettings: req.appSettings
         });
+    } catch (error) {
+        logger.error('Error loading billing dashboard:', error);
+        res.status(500).render('error', { 
+            message: 'Gagal memuat dashboard billing',
+            error: error.message 
+        });
+    }
+});
+
+// Laporan Keuangan
+router.get('/financial-report', getAppSettings, async (req, res) => {
+    try {
+        const { start_date, end_date, type } = req.query;
+        
+        // Default date range: current month
+        const now = new Date();
+        const startDate = start_date || new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+        const endDate = end_date || new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+        
+        const financialData = await billingManager.getFinancialReport(startDate, endDate, type);
+        
+        res.render('admin/billing/financial-report', {
+            title: 'Laporan Keuangan',
+            financialData,
+            startDate,
+            endDate,
+            type: type || 'all',
+            appSettings: req.appSettings
+        });
+    } catch (error) {
+        logger.error('Error loading financial report:', error);
+        res.status(500).render('error', { 
+            message: 'Gagal memuat laporan keuangan',
+            error: error.message 
+        });
+    }
+});
+
+// API untuk data laporan keuangan
+router.get('/api/financial-report', async (req, res) => {
+    try {
+        const { start_date, end_date, type } = req.query;
+        const financialData = await billingManager.getFinancialReport(start_date, end_date, type);
+        res.json({ success: true, data: financialData });
+    } catch (error) {
+        logger.error('Error getting financial report data:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// Export laporan keuangan ke Excel
+router.get('/export/financial-report.xlsx', async (req, res) => {
+    try {
+        const { start_date, end_date, type } = req.query;
+        const financialData = await billingManager.getFinancialReport(start_date, end_date, type);
+        
+        // Buat workbook Excel
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Laporan Keuangan');
+        
+        // Set header
+        worksheet.columns = [
+            { header: 'Tanggal', key: 'date', width: 15 },
+            { header: 'Tipe', key: 'type', width: 12 },
+            { header: 'Jumlah', key: 'amount', width: 15 },
+            { header: 'Metode Pembayaran', key: 'payment_method', width: 20 },
+            { header: 'Gateway', key: 'gateway_name', width: 15 },
+            { header: 'No. Invoice', key: 'invoice_number', width: 20 },
+            { header: 'Pelanggan', key: 'customer_name', width: 25 },
+            { header: 'Telepon', key: 'customer_phone', width: 15 }
+        ];
+        
+        // Tambahkan data transaksi
+        financialData.transactions.forEach(transaction => {
+            worksheet.addRow({
+                date: new Date(transaction.date).toLocaleDateString('id-ID'),
+                type: transaction.type === 'income' ? 'Pemasukan' : 'Pengeluaran',
+                amount: transaction.amount || 0,
+                payment_method: transaction.payment_method || '-',
+                gateway_name: transaction.gateway_name || '-',
+                invoice_number: transaction.invoice_number || '-',
+                customer_name: transaction.customer_name || '-',
+                customer_phone: transaction.customer_phone || '-'
+            });
+        });
+        
+        // Tambahkan summary di sheet terpisah
+        const summarySheet = workbook.addWorksheet('Ringkasan');
+        summarySheet.columns = [
+            { header: 'Item', key: 'item', width: 25 },
+            { header: 'Nilai', key: 'value', width: 20 }
+        ];
+        
+        summarySheet.addRow({ item: 'Total Pemasukan', value: `Rp ${financialData.summary.totalIncome.toLocaleString('id-ID')}` });
+        summarySheet.addRow({ item: 'Total Pengeluaran', value: `Rp ${financialData.summary.totalExpense.toLocaleString('id-ID')}` });
+        summarySheet.addRow({ item: 'Laba Bersih', value: `Rp ${financialData.summary.netProfit.toLocaleString('id-ID')}` });
+        summarySheet.addRow({ item: 'Jumlah Transaksi', value: financialData.summary.transactionCount });
+        summarySheet.addRow({ item: 'Periode', value: `${financialData.dateRange.startDate} - ${financialData.dateRange.endDate}` });
+        
+        // Set response header
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', `attachment; filename=laporan-keuangan-${start_date}-${end_date}.xlsx`);
+        
+        // Write to response
+        await workbook.xlsx.write(res);
+        res.end();
+        
+    } catch (error) {
+        logger.error('Error exporting financial report:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
 
 // Update active gateway (JSON API used by page)
 router.post('/payment-settings/active-gateway', async (req, res) => {
@@ -255,15 +367,6 @@ router.post('/payment-settings', async (req, res) => {
         return res.status(500).render('error', {
             message: 'Error saving payment settings',
             error: error.message
-        });
-    }
-});
-    } catch (error) {
-        logger.error('Error loading billing dashboard:', error);
-        res.status(500).render('error', { 
-            message: 'Error loading billing dashboard',
-            error: error.message,
-            appSettings: req.appSettings
         });
     }
 });
@@ -946,11 +1049,12 @@ router.get('/packages', getAppSettings, async (req, res) => {
 
 router.post('/packages', async (req, res) => {
     try {
-        const { name, speed, price, description, pppoe_profile } = req.body;
+        const { name, speed, price, tax_rate, description, pppoe_profile } = req.body;
         const packageData = {
             name: name.trim(),
             speed: speed.trim(),
             price: parseFloat(price),
+            tax_rate: parseFloat(tax_rate) >= 0 ? parseFloat(tax_rate) : 0,
             description: description.trim(),
             pppoe_profile: pppoe_profile ? pppoe_profile.trim() : 'default'
         };
@@ -963,7 +1067,7 @@ router.post('/packages', async (req, res) => {
         }
 
         const newPackage = await billingManager.createPackage(packageData);
-        logger.info(`Package created: ${newPackage.name}`);
+        logger.info(`Package created: ${newPackage.name} with tax_rate: ${newPackage.tax_rate}`);
         
         res.json({
             success: true,
@@ -983,11 +1087,12 @@ router.post('/packages', async (req, res) => {
 router.put('/packages/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, speed, price, description, pppoe_profile } = req.body;
+        const { name, speed, price, tax_rate, description, pppoe_profile } = req.body;
         const packageData = {
             name: name.trim(),
             speed: speed.trim(),
             price: parseFloat(price),
+            tax_rate: parseFloat(tax_rate) >= 0 ? parseFloat(tax_rate) : 0,
             description: description.trim(),
             pppoe_profile: pppoe_profile ? pppoe_profile.trim() : 'default'
         };
@@ -1000,7 +1105,7 @@ router.put('/packages/:id', async (req, res) => {
         }
 
         const updatedPackage = await billingManager.updatePackage(id, packageData);
-        logger.info(`Package updated: ${updatedPackage.name}`);
+        logger.info(`Package updated: ${updatedPackage.name} with tax_rate: ${updatedPackage.tax_rate}`);
         
         res.json({
             success: true,
@@ -2411,6 +2516,115 @@ router.post('/invoices/:id/restore', async (req, res) => {
     } catch (error) {
         logger.error('Error manual restore:', error);
         return res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// Route untuk mengelola expenses
+router.get('/expenses', getAppSettings, async (req, res) => {
+    try {
+        const { start_date, end_date } = req.query;
+        const expenses = await billingManager.getExpenses(start_date, end_date);
+        
+        res.render('admin/billing/expenses', {
+            title: 'Manajemen Pengeluaran',
+            expenses,
+            startDate: start_date || '',
+            endDate: end_date || '',
+            appSettings: req.appSettings
+        });
+    } catch (error) {
+        logger.error('Error loading expenses:', error);
+        res.status(500).render('error', { 
+            message: 'Gagal memuat data pengeluaran',
+            error: error.message 
+        });
+    }
+});
+
+// API untuk menambah expense
+router.post('/api/expenses', async (req, res) => {
+    try {
+        const { description, amount, category, expense_date, payment_method, notes } = req.body;
+        
+        if (!description || !amount || !category || !expense_date) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Semua field wajib diisi' 
+            });
+        }
+        
+        const expense = await billingManager.addExpense({
+            description,
+            amount: parseFloat(amount),
+            category,
+            expense_date,
+            payment_method: payment_method || '',
+            notes: notes || ''
+        });
+        
+        res.json({ success: true, data: expense, message: 'Pengeluaran berhasil ditambahkan' });
+    } catch (error) {
+        logger.error('Error adding expense:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// API untuk update expense
+router.put('/api/expenses/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { description, amount, category, expense_date, payment_method, notes } = req.body;
+        
+        if (!description || !amount || !category || !expense_date) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Semua field wajib diisi' 
+            });
+        }
+        
+        const expense = await billingManager.updateExpense(parseInt(id), {
+            description,
+            amount: parseFloat(amount),
+            category,
+            expense_date,
+            payment_method: payment_method || '',
+            notes: notes || ''
+        });
+        
+        res.json({ success: true, data: expense, message: 'Pengeluaran berhasil diperbarui' });
+    } catch (error) {
+        logger.error('Error updating expense:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// API untuk delete expense
+router.delete('/api/expenses/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const result = await billingManager.deleteExpense(parseInt(id));
+        
+        res.json({ success: true, data: result, message: 'Pengeluaran berhasil dihapus' });
+    } catch (error) {
+        logger.error('Error deleting expense:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// Mapping page
+router.get('/mapping', getAppSettings, async (req, res) => {
+    try {
+        res.render('admin/billing/mapping', {
+            title: 'Network Mapping',
+            appSettings: req.appSettings
+        });
+    } catch (error) {
+        logger.error('Error loading mapping page:', error);
+        res.status(500).render('error', {
+            message: 'Error loading mapping page',
+            error: error.message,
+            appSettings: req.appSettings
+        });
     }
 });
 

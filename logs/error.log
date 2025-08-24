@@ -125,3 +125,937 @@
 [2025-08-22T06:05:06.400Z] [ERROR] Failed to send PPPoE notification to 62822180947 after 2 retries
 [2025-08-22T06:05:33.382Z] [ERROR] Failed to send PPPoE notification to 62838076656 after 2 retries
 [2025-08-22T06:06:06.409Z] [ERROR] Failed to send PPPoE notification to 62822180947 after 2 retries
+[2025-08-22T06:23:39.740Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-23T01:57:35.698Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-23T01:57:37.779Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T01:57:57.146Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T01:57:57.147Z] [ERROR] No Mikrotik connection available
+[2025-08-23T01:57:59.189Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T01:58:01.227Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T01:58:01.229Z] [ERROR] No Mikrotik connection available
+[2025-08-23T01:58:03.449Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T01:58:03.450Z] [ERROR] No Mikrotik connection available
+[2025-08-23T01:58:03.453Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T01:58:06.474Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T01:58:09.472Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T01:58:23.238Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T01:58:23.239Z] [ERROR] No Mikrotik connection available
+[2025-08-23T01:58:37.771Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T01:58:37.943Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T01:58:37.944Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T01:58:39.217Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T01:58:39.218Z] [ERROR] No Mikrotik connection available
+[2025-08-23T01:58:41.254Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T01:58:43.286Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T01:58:43.288Z] [ERROR] No Mikrotik connection available
+[2025-08-23T01:58:45.451Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T01:58:45.452Z] [ERROR] No Mikrotik connection available
+[2025-08-23T01:58:45.454Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T01:58:48.460Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T01:58:51.739Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T01:58:54.726Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T01:58:57.043Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T01:58:58.477Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T01:59:00.527Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T01:59:03.731Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T01:59:06.740Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T01:59:09.749Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T01:59:12.739Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T01:59:15.747Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T01:59:18.735Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T01:59:21.746Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T01:59:24.731Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T01:59:27.755Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T01:59:30.732Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T01:59:33.762Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T01:59:36.747Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T01:59:37.967Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T01:59:37.968Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T01:59:39.756Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T01:59:42.719Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T01:59:45.746Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T01:59:48.760Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T01:59:51.738Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T01:59:54.744Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T01:59:57.764Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:00:00.729Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:00:37.745Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:00:37.962Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:00:37.963Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T02:01:37.744Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:01:37.975Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:01:37.976Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T02:02:37.085Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:02:37.735Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:02:37.971Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:02:37.972Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T02:03:37.731Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:03:37.970Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:03:37.971Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T02:04:37.743Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:04:37.981Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:04:37.982Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T02:05:37.742Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:05:37.996Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:05:37.996Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T02:06:37.741Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:06:38.005Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:06:38.006Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T02:07:37.723Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:07:38.006Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:07:38.007Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T02:08:37.753Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:08:38.035Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:08:38.036Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T02:09:37.752Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:09:38.037Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:09:38.037Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T02:13:38.420Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-23T02:13:42.951Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:13:47.009Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:13:47.010Z] [ERROR] No Mikrotik connection available
+[2025-08-23T02:13:49.053Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:13:51.085Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:13:51.086Z] [ERROR] No Mikrotik connection available
+[2025-08-23T02:13:53.273Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:13:53.274Z] [ERROR] No Mikrotik connection available
+[2025-08-23T02:13:53.288Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:13:56.275Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:13:59.292Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:14:06.451Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:14:06.452Z] [ERROR] No Mikrotik connection available
+[2025-08-23T02:14:08.479Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:14:10.498Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:14:10.499Z] [ERROR] No Mikrotik connection available
+[2025-08-23T02:14:12.673Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:14:12.674Z] [ERROR] No Mikrotik connection available
+[2025-08-23T02:14:12.689Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:14:15.676Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:14:18.718Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:14:21.733Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:14:24.762Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:14:27.747Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:14:30.743Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:14:33.744Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:14:36.732Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:14:39.741Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:14:40.619Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:14:40.620Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T02:14:42.841Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:14:45.731Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:14:48.742Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:14:51.731Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:14:54.744Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:14:57.742Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:15:00.716Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:15:03.742Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:15:06.741Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:15:09.728Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:15:12.749Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:15:15.737Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:15:18.731Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:15:21.769Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:15:37.733Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:15:40.648Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:15:40.649Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T02:16:37.754Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:16:40.651Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:16:40.651Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T02:17:37.746Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:17:40.673Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:17:40.674Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T02:18:37.736Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:18:39.771Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:18:40.685Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:18:40.686Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T02:19:37.741Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:19:40.694Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:19:40.696Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T02:20:37.755Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:20:40.685Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:20:40.687Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T02:22:55.369Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-23T02:23:37.735Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:23:57.587Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:23:57.588Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T02:24:37.755Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:24:56.222Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:24:57.584Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:24:57.586Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T02:24:59.456Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:24:59.457Z] [ERROR] No Mikrotik connection available
+[2025-08-23T02:25:01.474Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:25:03.506Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:25:03.507Z] [ERROR] No Mikrotik connection available
+[2025-08-23T02:25:05.733Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:25:05.734Z] [ERROR] No Mikrotik connection available
+[2025-08-23T02:25:05.735Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:25:08.762Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:25:11.787Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:25:15.747Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:25:18.769Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:25:21.745Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:25:24.758Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:25:27.743Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:25:30.757Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:25:33.749Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:25:36.740Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:25:39.741Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:25:42.755Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:25:45.733Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:25:48.737Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:25:51.748Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:25:54.738Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:25:56.770Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:25:57.612Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:25:57.613Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T02:26:00.738Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:26:03.741Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:26:06.761Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:26:09.755Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:26:11.803Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:26:37.743Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:26:57.615Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:26:57.616Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T02:27:37.743Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:27:56.783Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:27:57.642Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:27:57.643Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T02:28:25.903Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-23T02:28:30.686Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:28:33.652Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:28:33.653Z] [ERROR] No Mikrotik connection available
+[2025-08-23T02:28:35.672Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:28:37.696Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:28:37.697Z] [ERROR] No Mikrotik connection available
+[2025-08-23T02:28:39.909Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:28:39.911Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:28:39.912Z] [ERROR] No Mikrotik connection available
+[2025-08-23T02:29:28.148Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:29:28.149Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T02:30:28.159Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:30:28.160Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T02:31:28.133Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:31:28.134Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T02:32:28.163Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:32:28.164Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T02:33:27.337Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:33:28.167Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:33:28.169Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T02:34:28.193Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:34:28.194Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T02:35:28.183Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:35:28.184Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T02:36:28.209Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:36:28.209Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T02:37:28.212Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:37:28.214Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T02:38:28.227Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:38:28.228Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T02:39:28.217Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:39:28.218Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T02:40:28.246Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:40:28.247Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T02:41:28.248Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T02:41:28.249Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T02:50:29.341Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-23T04:32:49.472Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-23T04:33:51.716Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T04:33:51.717Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T04:34:51.702Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T04:34:51.704Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T04:35:51.700Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T04:35:51.701Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T05:02:08.015Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-23T05:03:10.267Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T05:03:10.269Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T05:04:10.293Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T05:04:10.294Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T05:05:10.287Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T05:05:10.288Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T05:06:10.302Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T05:06:10.303Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T05:07:09.507Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T05:07:10.632Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T05:07:10.632Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T05:08:10.348Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T05:08:10.349Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T05:09:10.360Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T05:09:10.361Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T05:10:10.368Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T05:10:10.369Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T05:11:10.354Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T05:11:10.355Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T05:12:10.388Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T05:12:10.389Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T05:13:10.384Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T05:13:10.385Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T05:14:10.409Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T05:14:10.410Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T05:15:10.399Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T05:15:10.400Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T05:16:10.410Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T05:16:10.411Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T05:17:10.427Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T05:17:10.428Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T05:18:10.432Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T05:18:10.433Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T05:19:10.453Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T05:19:10.454Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T05:20:10.455Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T05:20:10.456Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T05:21:10.437Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T05:21:10.438Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T05:22:10.458Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T05:22:10.459Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T05:23:10.468Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T05:23:10.469Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T05:24:10.465Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T05:24:10.466Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T05:25:10.489Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T05:25:10.490Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T05:26:10.500Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T05:26:10.501Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T05:27:10.490Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T05:27:10.491Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T05:28:10.482Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T05:28:10.483Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T05:29:10.527Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T05:29:10.528Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T05:30:10.522Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T05:30:10.522Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T05:31:10.530Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T05:31:10.531Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T05:32:10.541Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T05:32:10.542Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T05:33:10.565Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T05:33:10.567Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T05:34:10.567Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T05:34:10.568Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T05:35:10.563Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T05:35:10.564Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T05:36:10.587Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T05:36:10.588Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T05:37:10.584Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T05:37:10.585Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T05:38:10.569Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T05:38:10.570Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T05:39:10.569Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T05:39:10.570Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T05:40:10.623Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T05:40:10.624Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T05:41:10.630Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T05:41:10.631Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T05:42:10.636Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T05:42:10.637Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T05:43:10.635Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T05:43:10.637Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T05:44:10.632Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T05:44:10.633Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-23T05:45:10.647Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-23T05:45:10.648Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T00:43:10.145Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-24T00:44:12.383Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T00:44:12.384Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T00:45:12.374Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T00:45:12.375Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T00:45:49.938Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T00:45:51.991Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T00:45:51.992Z] [ERROR] No Mikrotik connection available
+[2025-08-24T00:46:12.399Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T00:46:12.400Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T00:47:12.401Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T00:47:12.402Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T00:48:11.500Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T00:48:12.400Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T00:48:12.402Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T00:49:12.413Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T00:49:12.414Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T01:16:08.256Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-24T01:17:10.436Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:17:10.437Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T01:18:10.427Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:18:10.428Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T01:19:10.454Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:19:10.455Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T01:20:10.451Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:20:10.452Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T01:21:09.664Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:21:10.459Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:21:10.459Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T01:22:10.481Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:22:10.481Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T01:27:24.948Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-24T01:28:27.122Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:28:27.123Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T01:29:27.133Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:29:27.133Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T01:39:35.371Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-24T01:40:06.406Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:40:06.407Z] [ERROR] No Mikrotik connection available
+[2025-08-24T01:40:08.439Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:40:10.469Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:40:10.469Z] [ERROR] No Mikrotik connection available
+[2025-08-24T01:40:12.768Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:40:12.769Z] [ERROR] No Mikrotik connection available
+[2025-08-24T01:40:12.772Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:40:15.767Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:40:18.763Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:40:22.499Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:40:25.445Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:40:28.457Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:40:31.449Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:40:34.433Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:40:37.459Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:40:37.569Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:40:37.570Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T01:40:40.446Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:40:43.447Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:40:46.455Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:40:49.477Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:40:52.454Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:40:55.426Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:40:58.449Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:41:01.447Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:41:04.447Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:41:06.757Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:41:10.960Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:41:10.961Z] [ERROR] No Mikrotik connection available
+[2025-08-24T01:41:13.002Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:41:15.041Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:41:15.042Z] [ERROR] No Mikrotik connection available
+[2025-08-24T01:41:17.189Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:41:17.191Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:41:17.191Z] [ERROR] No Mikrotik connection available
+[2025-08-24T01:41:20.454Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:41:23.457Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:41:26.450Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:41:29.449Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:41:32.455Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:41:35.466Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:41:37.545Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:41:37.545Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T01:41:38.446Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:41:41.446Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:41:44.461Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:41:47.455Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:41:50.444Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:41:53.451Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:41:56.208Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:41:59.453Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:42:02.453Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:42:05.454Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:42:08.454Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:42:11.451Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:42:14.456Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:42:17.440Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:42:20.438Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:42:23.455Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:42:26.456Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:42:29.440Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:42:32.450Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:42:35.452Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:42:37.559Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:42:37.560Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T01:42:38.459Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:42:41.456Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:42:44.456Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:42:47.463Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:42:50.456Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:42:53.458Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:42:56.440Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:43:06.465Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:43:37.584Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:43:37.584Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T01:44:06.465Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:44:36.403Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:44:37.578Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:44:37.579Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T01:45:06.447Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:45:37.579Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:45:37.580Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T01:47:02.823Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-24T01:47:06.467Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:47:10.177Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:47:10.178Z] [ERROR] No Mikrotik connection available
+[2025-08-24T01:47:12.219Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:47:14.244Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:47:14.245Z] [ERROR] No Mikrotik connection available
+[2025-08-24T01:47:16.461Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:47:16.463Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:47:16.464Z] [ERROR] No Mikrotik connection available
+[2025-08-24T01:47:19.441Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:47:22.452Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:47:25.454Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:47:28.434Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:47:31.467Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:47:34.432Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:47:40.331Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:47:40.333Z] [ERROR] No Mikrotik connection available
+[2025-08-24T01:47:42.376Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:47:44.417Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:47:44.418Z] [ERROR] No Mikrotik connection available
+[2025-08-24T01:47:46.608Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:47:46.610Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:47:46.610Z] [ERROR] No Mikrotik connection available
+[2025-08-24T01:47:49.607Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:47:52.605Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:47:55.613Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:47:58.602Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:48:01.607Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:48:05.002Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:48:05.002Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T01:48:05.454Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:48:08.465Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:48:11.454Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:48:14.431Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:48:17.441Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:48:20.437Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:48:23.467Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:48:26.432Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:48:29.434Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:48:32.444Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:48:35.451Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:48:38.460Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:48:41.465Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:48:44.451Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:48:47.490Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:48:50.448Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:48:53.434Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:48:56.466Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:48:59.450Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:49:02.453Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:49:05.006Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:49:05.007Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T01:49:06.466Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:50:05.018Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:50:05.022Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T01:51:47.740Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-24T01:51:52.618Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:51:55.774Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:51:55.775Z] [ERROR] No Mikrotik connection available
+[2025-08-24T01:51:57.818Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:51:59.857Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:51:59.858Z] [ERROR] No Mikrotik connection available
+[2025-08-24T01:52:02.073Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:52:02.089Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:52:02.089Z] [ERROR] No Mikrotik connection available
+[2025-08-24T01:52:05.075Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:52:08.054Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:52:11.038Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:52:14.056Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:52:17.446Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:52:20.453Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:52:23.471Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:52:26.461Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:52:29.452Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:52:32.442Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:52:35.463Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:52:38.457Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:52:41.451Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:52:44.443Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:52:47.461Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:52:49.888Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:52:49.889Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T01:52:50.438Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:52:53.449Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:52:56.458Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:52:59.467Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:53:02.453Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:53:05.434Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:53:08.443Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:53:11.593Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:53:14.456Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:54:39.124Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-24T01:54:41.732Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:54:44.066Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:54:46.090Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:54:46.090Z] [ERROR] No Mikrotik connection available
+[2025-08-24T01:54:48.115Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:54:50.143Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:54:50.144Z] [ERROR] No Mikrotik connection available
+[2025-08-24T01:54:52.309Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:54:52.310Z] [ERROR] No Mikrotik connection available
+[2025-08-24T01:54:52.312Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:54:55.327Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:54:58.317Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:55:01.353Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:55:04.461Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:55:07.459Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:55:10.450Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:55:13.463Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:55:16.465Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:55:19.453Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:55:22.463Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:55:25.447Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:55:28.455Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:55:31.475Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:55:34.449Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:55:37.469Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:55:40.440Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:55:41.310Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:55:41.310Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T01:55:43.445Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:55:46.447Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:55:49.445Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:55:52.463Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:55:55.453Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:55:58.440Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:56:06.452Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:56:24.057Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:56:26.119Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:56:41.300Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:56:41.301Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T01:57:41.308Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:57:41.309Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T01:58:41.326Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T01:58:41.327Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T01:59:58.646Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-24T02:00:06.412Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:00:06.413Z] [ERROR] No Mikrotik connection available
+[2025-08-24T02:00:08.452Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:00:10.506Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:00:10.507Z] [ERROR] No Mikrotik connection available
+[2025-08-24T02:00:12.710Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:00:12.710Z] [ERROR] No Mikrotik connection available
+[2025-08-24T02:00:12.741Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:00:15.728Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:00:18.723Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:00:21.733Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:00:26.446Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:00:26.447Z] [ERROR] No Mikrotik connection available
+[2025-08-24T02:00:28.500Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:00:30.540Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:00:30.542Z] [ERROR] No Mikrotik connection available
+[2025-08-24T02:00:32.759Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:00:32.759Z] [ERROR] No Mikrotik connection available
+[2025-08-24T02:00:32.761Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:00:35.769Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:00:38.738Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:00:41.768Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:00:44.746Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:00:48.443Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:00:51.430Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:00:54.433Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:00:57.466Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:00:59.748Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:01:00.829Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:01:00.830Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T02:01:02.750Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:01:05.742Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:01:09.449Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:01:12.437Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:01:15.426Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:01:18.468Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:01:20.749Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:01:23.726Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:01:26.756Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:01:30.447Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:01:33.454Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:01:36.461Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:01:39.455Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:01:42.458Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:01:45.441Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:01:48.469Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:01:51.449Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:01:54.467Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:01:57.448Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:02:00.439Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:02:00.844Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:02:00.844Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T02:02:03.450Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:02:06.449Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:02:09.452Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:02:12.451Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:02:15.459Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:02:18.444Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:02:21.454Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:02:24.455Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:02:27.445Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:03:00.830Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:03:00.831Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T02:03:06.461Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:04:00.854Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:04:00.854Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T02:04:06.451Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:06:40.290Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-24T02:13:51.779Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-24T02:19:01.278Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-24T02:22:47.476Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-24T02:23:49.653Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:23:49.655Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T02:24:49.635Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:24:49.636Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T02:25:49.650Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:25:49.651Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T02:26:49.670Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:26:49.671Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T02:27:19.873Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:27:19.874Z] [ERROR] No Mikrotik connection available
+[2025-08-24T02:27:21.914Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:27:23.937Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:27:23.938Z] [ERROR] No Mikrotik connection available
+[2025-08-24T02:27:26.195Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:27:26.196Z] [ERROR] No Mikrotik connection available
+[2025-08-24T02:27:26.212Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:27:29.201Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:27:32.213Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:27:35.202Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:27:38.201Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:27:41.202Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:27:44.442Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:27:47.460Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:27:48.873Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:27:49.668Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:27:49.669Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T02:27:50.468Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:27:53.451Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:27:56.439Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:27:59.456Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:28:02.449Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:28:05.458Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:28:08.450Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:28:11.463Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:28:14.455Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:28:17.453Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:28:49.661Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:28:49.662Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T02:29:49.680Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:29:49.681Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T02:30:03.515Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:30:03.516Z] [ERROR] No Mikrotik connection available
+[2025-08-24T02:30:25.956Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:30:25.957Z] [ERROR] No Mikrotik connection available
+[2025-08-24T02:30:49.695Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:30:49.696Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T02:31:49.695Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:31:49.696Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T02:32:49.698Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:32:49.699Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T02:33:49.712Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:33:49.714Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T02:34:49.704Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:34:49.704Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T02:35:49.720Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:35:49.721Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T02:36:49.726Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T02:36:49.727Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T13:10:30.053Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-24T13:11:27.722Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:11:27.725Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:11:27.726Z] [ERROR] No Mikrotik connection available
+[2025-08-24T13:11:32.109Z] [ERROR] Error loading financial report:
+{
+  "name": "Error",
+  "message": "SQLITE_ERROR: no such column: pgt.payment_method",
+  "stack": "Error: SQLITE_ERROR: no such column: pgt.payment_method\n--> in Database#all('\\n' +\n  '                        SELECT \\n' +\n  \"                            'income' as type,\\n\" +\n  '                            pgt.created_at as date,\\n' +\n  '                            pgt.amount as amount,\\n' +\n  '                            pgt.payment_method,\\n' +\n  '                            pgt.gateway_name,\\n' +\n  '                            i.invoice_number,\\n' +\n  '                            c.name as customer_name,\\n' +\n  '                            c.phone as customer_phone\\n' +\n  '                        FROM payment_gateway_transactions pgt\\n' +\n  '                        JOIN invoices i ON pgt.invoice_id = i.id\\n' +\n  '                        JOIN customers c ON i.customer_id = c.id\\n' +\n  \"                        WHERE pgt.status = 'success' \\n\" +\n  '                        AND DATE(pgt.created_at) BETWEEN ? AND ?\\n' +\n  '                        \\n' +\n  '                        UNION ALL\\n' +\n  '                        \\n' +\n  '                        SELECT \\n' +\n  \"                            'expense' as type,\\n\" +\n  '                            e.expense_date as date,\\n' +\n  '                            e.amount as amount,\\n' +\n  '                            e.payment_method,\\n' +\n  '                            e.category as gateway_name,\\n' +\n  '                            e.description as invoice_number,\\n' +\n  '                            e.notes as customer_name,\\n' +\n  \"                            '' as customer_phone\\n\" +\n  '                        FROM expenses e\\n' +\n  '                        WHERE DATE(e.expense_date) BETWEEN ? AND ?\\n' +\n  '                        \\n' +\n  '                        ORDER BY date DESC\\n' +\n  '                    ', [ '2025-07-31', '2025-08-30', '2025-07-31', '2025-08-30' ], [Function (anonymous)])\n    at E:\\gembok-bill\\config\\billing.js:1516:25\n    at new Promise (<anonymous>)\n    at BillingManager.getFinancialReport (E:\\gembok-bill\\config\\billing.js:1437:16)\n    at E:\\gembok-bill\\routes\\adminBilling.js:80:52\n    at Layer.handle [as handle_request] (E:\\gembok-bill\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\gembok-bill\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at getAppSettings (E:\\gembok-bill\\routes\\adminBilling.js:44:5)\n    at Layer.handle [as handle_request] (E:\\gembok-bill\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\gembok-bill\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at Route.dispatch (E:\\gembok-bill\\node_modules\\express\\lib\\router\\route.js:119:3)\n    at Layer.handle [as handle_request] (E:\\gembok-bill\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at E:\\gembok-bill\\node_modules\\express\\lib\\router\\index.js:284:15\n    at Function.process_params (E:\\gembok-bill\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (E:\\gembok-bill\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at urlencodedParser (E:\\gembok-bill\\node_modules\\body-parser\\lib\\types\\urlencoded.js:94:7)"
+}
+[2025-08-24T13:11:32.312Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:11:32.318Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T13:11:52.135Z] [ERROR] Error loading financial report:
+{
+  "name": "Error",
+  "message": "SQLITE_ERROR: no such column: pgt.payment_method",
+  "stack": "Error: SQLITE_ERROR: no such column: pgt.payment_method\n--> in Database#all('\\n' +\n  '                        SELECT \\n' +\n  \"                            'income' as type,\\n\" +\n  '                            pgt.created_at as date,\\n' +\n  '                            pgt.amount as amount,\\n' +\n  '                            pgt.payment_method,\\n' +\n  '                            pgt.gateway_name,\\n' +\n  '                            i.invoice_number,\\n' +\n  '                            c.name as customer_name,\\n' +\n  '                            c.phone as customer_phone\\n' +\n  '                        FROM payment_gateway_transactions pgt\\n' +\n  '                        JOIN invoices i ON pgt.invoice_id = i.id\\n' +\n  '                        JOIN customers c ON i.customer_id = c.id\\n' +\n  \"                        WHERE pgt.status = 'success' \\n\" +\n  '                        AND DATE(pgt.created_at) BETWEEN ? AND ?\\n' +\n  '                        \\n' +\n  '                        UNION ALL\\n' +\n  '                        \\n' +\n  '                        SELECT \\n' +\n  \"                            'expense' as type,\\n\" +\n  '                            e.expense_date as date,\\n' +\n  '                            e.amount as amount,\\n' +\n  '                            e.payment_method,\\n' +\n  '                            e.category as gateway_name,\\n' +\n  '                            e.description as invoice_number,\\n' +\n  '                            e.notes as customer_name,\\n' +\n  \"                            '' as customer_phone\\n\" +\n  '                        FROM expenses e\\n' +\n  '                        WHERE DATE(e.expense_date) BETWEEN ? AND ?\\n' +\n  '                        \\n' +\n  '                        ORDER BY date DESC\\n' +\n  '                    ', [ '2025-07-31', '2025-08-30', '2025-07-31', '2025-08-30' ], [Function (anonymous)])\n    at E:\\gembok-bill\\config\\billing.js:1516:25\n    at new Promise (<anonymous>)\n    at BillingManager.getFinancialReport (E:\\gembok-bill\\config\\billing.js:1437:16)\n    at E:\\gembok-bill\\routes\\adminBilling.js:80:52\n    at Layer.handle [as handle_request] (E:\\gembok-bill\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\gembok-bill\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at getAppSettings (E:\\gembok-bill\\routes\\adminBilling.js:44:5)\n    at Layer.handle [as handle_request] (E:\\gembok-bill\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\gembok-bill\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at Route.dispatch (E:\\gembok-bill\\node_modules\\express\\lib\\router\\route.js:119:3)\n    at Layer.handle [as handle_request] (E:\\gembok-bill\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at E:\\gembok-bill\\node_modules\\express\\lib\\router\\index.js:284:15\n    at Function.process_params (E:\\gembok-bill\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (E:\\gembok-bill\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at urlencodedParser (E:\\gembok-bill\\node_modules\\body-parser\\lib\\types\\urlencoded.js:94:7)"
+}
+[2025-08-24T13:12:20.791Z] [ERROR] Error loading financial report:
+{
+  "name": "Error",
+  "message": "SQLITE_ERROR: no such column: pgt.payment_method",
+  "stack": "Error: SQLITE_ERROR: no such column: pgt.payment_method\n--> in Database#all('\\n' +\n  '                        SELECT \\n' +\n  \"                            'income' as type,\\n\" +\n  '                            pgt.created_at as date,\\n' +\n  '                            pgt.amount as amount,\\n' +\n  '                            pgt.payment_method,\\n' +\n  '                            pgt.gateway_name,\\n' +\n  '                            i.invoice_number,\\n' +\n  '                            c.name as customer_name,\\n' +\n  '                            c.phone as customer_phone\\n' +\n  '                        FROM payment_gateway_transactions pgt\\n' +\n  '                        JOIN invoices i ON pgt.invoice_id = i.id\\n' +\n  '                        JOIN customers c ON i.customer_id = c.id\\n' +\n  \"                        WHERE pgt.status = 'success' \\n\" +\n  '                        AND DATE(pgt.created_at) BETWEEN ? AND ?\\n' +\n  '                        \\n' +\n  '                        UNION ALL\\n' +\n  '                        \\n' +\n  '                        SELECT \\n' +\n  \"                            'expense' as type,\\n\" +\n  '                            e.expense_date as date,\\n' +\n  '                            e.amount as amount,\\n' +\n  '                            e.payment_method,\\n' +\n  '                            e.category as gateway_name,\\n' +\n  '                            e.description as invoice_number,\\n' +\n  '                            e.notes as customer_name,\\n' +\n  \"                            '' as customer_phone\\n\" +\n  '                        FROM expenses e\\n' +\n  '                        WHERE DATE(e.expense_date) BETWEEN ? AND ?\\n' +\n  '                        \\n' +\n  '                        ORDER BY date DESC\\n' +\n  '                    ', [ '2025-07-31', '2025-08-30', '2025-07-31', '2025-08-30' ], [Function (anonymous)])\n    at E:\\gembok-bill\\config\\billing.js:1516:25\n    at new Promise (<anonymous>)\n    at BillingManager.getFinancialReport (E:\\gembok-bill\\config\\billing.js:1437:16)\n    at E:\\gembok-bill\\routes\\adminBilling.js:80:52\n    at Layer.handle [as handle_request] (E:\\gembok-bill\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\gembok-bill\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at getAppSettings (E:\\gembok-bill\\routes\\adminBilling.js:44:5)\n    at Layer.handle [as handle_request] (E:\\gembok-bill\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\gembok-bill\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at Route.dispatch (E:\\gembok-bill\\node_modules\\express\\lib\\router\\route.js:119:3)\n    at Layer.handle [as handle_request] (E:\\gembok-bill\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at E:\\gembok-bill\\node_modules\\express\\lib\\router\\index.js:284:15\n    at Function.process_params (E:\\gembok-bill\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (E:\\gembok-bill\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at urlencodedParser (E:\\gembok-bill\\node_modules\\body-parser\\lib\\types\\urlencoded.js:94:7)"
+}
+[2025-08-24T13:12:32.319Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:12:32.319Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T13:13:32.342Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:13:32.342Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T13:13:36.761Z] [ERROR] Error loading financial report:
+{
+  "name": "Error",
+  "message": "SQLITE_ERROR: no such column: pgt.payment_method",
+  "stack": "Error: SQLITE_ERROR: no such column: pgt.payment_method\n--> in Database#all('\\n' +\n  '                        SELECT \\n' +\n  \"                            'income' as type,\\n\" +\n  '                            pgt.created_at as date,\\n' +\n  '                            pgt.amount as amount,\\n' +\n  '                            pgt.payment_method,\\n' +\n  '                            pgt.gateway_name,\\n' +\n  '                            i.invoice_number,\\n' +\n  '                            c.name as customer_name,\\n' +\n  '                            c.phone as customer_phone\\n' +\n  '                        FROM payment_gateway_transactions pgt\\n' +\n  '                        JOIN invoices i ON pgt.invoice_id = i.id\\n' +\n  '                        JOIN customers c ON i.customer_id = c.id\\n' +\n  \"                        WHERE pgt.status = 'success' \\n\" +\n  '                        AND DATE(pgt.created_at) BETWEEN ? AND ?\\n' +\n  '                        \\n' +\n  '                        UNION ALL\\n' +\n  '                        \\n' +\n  '                        SELECT \\n' +\n  \"                            'expense' as type,\\n\" +\n  '                            e.expense_date as date,\\n' +\n  '                            e.amount as amount,\\n' +\n  '                            e.payment_method,\\n' +\n  '                            e.category as gateway_name,\\n' +\n  '                            e.description as invoice_number,\\n' +\n  '                            e.notes as customer_name,\\n' +\n  \"                            '' as customer_phone\\n\" +\n  '                        FROM expenses e\\n' +\n  '                        WHERE DATE(e.expense_date) BETWEEN ? AND ?\\n' +\n  '                        \\n' +\n  '                        ORDER BY date DESC\\n' +\n  '                    ', [ '2025-07-31', '2025-08-30', '2025-07-31', '2025-08-30' ], [Function (anonymous)])\n    at E:\\gembok-bill\\config\\billing.js:1516:25\n    at new Promise (<anonymous>)\n    at BillingManager.getFinancialReport (E:\\gembok-bill\\config\\billing.js:1437:16)\n    at E:\\gembok-bill\\routes\\adminBilling.js:80:52\n    at Layer.handle [as handle_request] (E:\\gembok-bill\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\gembok-bill\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at getAppSettings (E:\\gembok-bill\\routes\\adminBilling.js:44:5)\n    at Layer.handle [as handle_request] (E:\\gembok-bill\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\gembok-bill\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at Route.dispatch (E:\\gembok-bill\\node_modules\\express\\lib\\router\\route.js:119:3)\n    at Layer.handle [as handle_request] (E:\\gembok-bill\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at E:\\gembok-bill\\node_modules\\express\\lib\\router\\index.js:284:15\n    at Function.process_params (E:\\gembok-bill\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (E:\\gembok-bill\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at urlencodedParser (E:\\gembok-bill\\node_modules\\body-parser\\lib\\types\\urlencoded.js:94:7)"
+}
+[2025-08-24T13:14:32.323Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:14:32.324Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T13:15:32.342Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:15:32.343Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T13:16:32.347Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:16:32.349Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T13:17:32.352Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:17:32.353Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T13:18:32.345Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:18:32.346Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T13:19:32.366Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:19:32.367Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T13:20:32.372Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:20:32.372Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T13:21:28.215Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-24T13:21:28.222Z] [ERROR] ❌ ERROR: Port 3003 sudah digunakan oleh aplikasi lain!
+[2025-08-24T13:21:28.223Z] [ERROR] 💡 Solusi: Hentikan aplikasi yang menggunakan port 3003 atau ubah port di settings.json
+[2025-08-24T13:21:28.223Z] [ERROR] 🔍 Cek aplikasi yang menggunakan port: netstat -ano | findstr :3003
+[2025-08-24T13:21:32.397Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:21:32.398Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T13:22:32.408Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:22:32.408Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T13:22:53.690Z] [ERROR] Error loading financial report:
+{
+  "name": "Error",
+  "message": "SQLITE_ERROR: no such column: pgt.payment_method",
+  "stack": "Error: SQLITE_ERROR: no such column: pgt.payment_method\n--> in Database#all('\\n' +\n  '                        SELECT \\n' +\n  \"                            'income' as type,\\n\" +\n  '                            pgt.created_at as date,\\n' +\n  '                            pgt.amount as amount,\\n' +\n  '                            pgt.payment_method,\\n' +\n  '                            pgt.gateway_name,\\n' +\n  '                            i.invoice_number,\\n' +\n  '                            c.name as customer_name,\\n' +\n  '                            c.phone as customer_phone\\n' +\n  '                        FROM payment_gateway_transactions pgt\\n' +\n  '                        JOIN invoices i ON pgt.invoice_id = i.id\\n' +\n  '                        JOIN customers c ON i.customer_id = c.id\\n' +\n  \"                        WHERE pgt.status = 'success' \\n\" +\n  '                        AND DATE(pgt.created_at) BETWEEN ? AND ?\\n' +\n  '                        \\n' +\n  '                        UNION ALL\\n' +\n  '                        \\n' +\n  '                        SELECT \\n' +\n  \"                            'expense' as type,\\n\" +\n  '                            e.expense_date as date,\\n' +\n  '                            e.amount as amount,\\n' +\n  '                            e.payment_method,\\n' +\n  '                            e.category as gateway_name,\\n' +\n  '                            e.description as invoice_number,\\n' +\n  '                            e.notes as customer_name,\\n' +\n  \"                            '' as customer_phone\\n\" +\n  '                        FROM expenses e\\n' +\n  '                        WHERE DATE(e.expense_date) BETWEEN ? AND ?\\n' +\n  '                        \\n' +\n  '                        ORDER BY date DESC\\n' +\n  '                    ', [ '2025-07-31', '2025-08-30', '2025-07-31', '2025-08-30' ], [Function (anonymous)])\n    at E:\\gembok-bill\\config\\billing.js:1516:25\n    at new Promise (<anonymous>)\n    at BillingManager.getFinancialReport (E:\\gembok-bill\\config\\billing.js:1437:16)\n    at E:\\gembok-bill\\routes\\adminBilling.js:80:52\n    at Layer.handle [as handle_request] (E:\\gembok-bill\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\gembok-bill\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at getAppSettings (E:\\gembok-bill\\routes\\adminBilling.js:44:5)\n    at Layer.handle [as handle_request] (E:\\gembok-bill\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\gembok-bill\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at Route.dispatch (E:\\gembok-bill\\node_modules\\express\\lib\\router\\route.js:119:3)\n    at Layer.handle [as handle_request] (E:\\gembok-bill\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at E:\\gembok-bill\\node_modules\\express\\lib\\router\\index.js:284:15\n    at Function.process_params (E:\\gembok-bill\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (E:\\gembok-bill\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at urlencodedParser (E:\\gembok-bill\\node_modules\\body-parser\\lib\\types\\urlencoded.js:94:7)"
+}
+[2025-08-24T13:22:54.942Z] [ERROR] Error loading financial report:
+{
+  "name": "Error",
+  "message": "SQLITE_ERROR: no such column: pgt.payment_method",
+  "stack": "Error: SQLITE_ERROR: no such column: pgt.payment_method\n--> in Database#all('\\n' +\n  '                        SELECT \\n' +\n  \"                            'income' as type,\\n\" +\n  '                            pgt.created_at as date,\\n' +\n  '                            pgt.amount as amount,\\n' +\n  '                            pgt.payment_method,\\n' +\n  '                            pgt.gateway_name,\\n' +\n  '                            i.invoice_number,\\n' +\n  '                            c.name as customer_name,\\n' +\n  '                            c.phone as customer_phone\\n' +\n  '                        FROM payment_gateway_transactions pgt\\n' +\n  '                        JOIN invoices i ON pgt.invoice_id = i.id\\n' +\n  '                        JOIN customers c ON i.customer_id = c.id\\n' +\n  \"                        WHERE pgt.status = 'success' \\n\" +\n  '                        AND DATE(pgt.created_at) BETWEEN ? AND ?\\n' +\n  '                        \\n' +\n  '                        UNION ALL\\n' +\n  '                        \\n' +\n  '                        SELECT \\n' +\n  \"                            'expense' as type,\\n\" +\n  '                            e.expense_date as date,\\n' +\n  '                            e.amount as amount,\\n' +\n  '                            e.payment_method,\\n' +\n  '                            e.category as gateway_name,\\n' +\n  '                            e.description as invoice_number,\\n' +\n  '                            e.notes as customer_name,\\n' +\n  \"                            '' as customer_phone\\n\" +\n  '                        FROM expenses e\\n' +\n  '                        WHERE DATE(e.expense_date) BETWEEN ? AND ?\\n' +\n  '                        \\n' +\n  '                        ORDER BY date DESC\\n' +\n  '                    ', [ '2025-07-31', '2025-08-30', '2025-07-31', '2025-08-30' ], [Function (anonymous)])\n    at E:\\gembok-bill\\config\\billing.js:1516:25\n    at new Promise (<anonymous>)\n    at BillingManager.getFinancialReport (E:\\gembok-bill\\config\\billing.js:1437:16)\n    at E:\\gembok-bill\\routes\\adminBilling.js:80:52\n    at Layer.handle [as handle_request] (E:\\gembok-bill\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\gembok-bill\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at getAppSettings (E:\\gembok-bill\\routes\\adminBilling.js:44:5)\n    at Layer.handle [as handle_request] (E:\\gembok-bill\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\gembok-bill\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at Route.dispatch (E:\\gembok-bill\\node_modules\\express\\lib\\router\\route.js:119:3)\n    at Layer.handle [as handle_request] (E:\\gembok-bill\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at E:\\gembok-bill\\node_modules\\express\\lib\\router\\index.js:284:15\n    at Function.process_params (E:\\gembok-bill\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (E:\\gembok-bill\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at urlencodedParser (E:\\gembok-bill\\node_modules\\body-parser\\lib\\types\\urlencoded.js:94:7)"
+}
+[2025-08-24T13:23:23.909Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:23:23.912Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:23:23.913Z] [ERROR] No Mikrotik connection available
+[2025-08-24T13:23:27.364Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:23:30.340Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:23:32.393Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:23:32.394Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T13:23:33.362Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:23:36.324Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:23:39.327Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:23:41.597Z] [ERROR] Error loading financial report:
+{
+  "name": "Error",
+  "message": "SQLITE_ERROR: no such column: pgt.payment_method",
+  "stack": "Error: SQLITE_ERROR: no such column: pgt.payment_method\n--> in Database#all('\\n' +\n  '                        SELECT \\n' +\n  \"                            'income' as type,\\n\" +\n  '                            pgt.created_at as date,\\n' +\n  '                            pgt.amount as amount,\\n' +\n  '                            pgt.payment_method,\\n' +\n  '                            pgt.gateway_name,\\n' +\n  '                            i.invoice_number,\\n' +\n  '                            c.name as customer_name,\\n' +\n  '                            c.phone as customer_phone\\n' +\n  '                        FROM payment_gateway_transactions pgt\\n' +\n  '                        JOIN invoices i ON pgt.invoice_id = i.id\\n' +\n  '                        JOIN customers c ON i.customer_id = c.id\\n' +\n  \"                        WHERE pgt.status = 'success' \\n\" +\n  '                        AND DATE(pgt.created_at) BETWEEN ? AND ?\\n' +\n  '                        \\n' +\n  '                        UNION ALL\\n' +\n  '                        \\n' +\n  '                        SELECT \\n' +\n  \"                            'expense' as type,\\n\" +\n  '                            e.expense_date as date,\\n' +\n  '                            e.amount as amount,\\n' +\n  '                            e.payment_method,\\n' +\n  '                            e.category as gateway_name,\\n' +\n  '                            e.description as invoice_number,\\n' +\n  '                            e.notes as customer_name,\\n' +\n  \"                            '' as customer_phone\\n\" +\n  '                        FROM expenses e\\n' +\n  '                        WHERE DATE(e.expense_date) BETWEEN ? AND ?\\n' +\n  '                        \\n' +\n  '                        ORDER BY date DESC\\n' +\n  '                    ', [ '2025-07-31', '2025-08-30', '2025-07-31', '2025-08-30' ], [Function (anonymous)])\n    at E:\\gembok-bill\\config\\billing.js:1516:25\n    at new Promise (<anonymous>)\n    at BillingManager.getFinancialReport (E:\\gembok-bill\\config\\billing.js:1437:16)\n    at E:\\gembok-bill\\routes\\adminBilling.js:80:52\n    at Layer.handle [as handle_request] (E:\\gembok-bill\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\gembok-bill\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at getAppSettings (E:\\gembok-bill\\routes\\adminBilling.js:44:5)\n    at Layer.handle [as handle_request] (E:\\gembok-bill\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\gembok-bill\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at Route.dispatch (E:\\gembok-bill\\node_modules\\express\\lib\\router\\route.js:119:3)\n    at Layer.handle [as handle_request] (E:\\gembok-bill\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at E:\\gembok-bill\\node_modules\\express\\lib\\router\\index.js:284:15\n    at Function.process_params (E:\\gembok-bill\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (E:\\gembok-bill\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at urlencodedParser (E:\\gembok-bill\\node_modules\\body-parser\\lib\\types\\urlencoded.js:94:7)"
+}
+[2025-08-24T13:28:57.899Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-24T13:29:38.884Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:29:38.886Z] [ERROR] No Mikrotik connection available
+[2025-08-24T13:29:38.899Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:29:42.349Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:29:45.330Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:29:48.513Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:29:51.350Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:29:54.361Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:29:57.344Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:30:00.116Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:30:00.117Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T13:30:00.352Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:30:03.337Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:30:06.351Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:30:08.900Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:30:11.917Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:30:14.869Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:31:00.069Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:31:00.069Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T13:32:00.099Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:32:00.099Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T13:33:00.107Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:33:00.108Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T13:34:00.100Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:34:00.101Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T13:35:00.131Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:35:00.131Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T13:36:00.127Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:36:00.128Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T13:37:00.139Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:37:00.139Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T13:38:00.155Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:38:00.156Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T13:39:00.171Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:39:00.172Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T13:40:00.176Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:40:00.177Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T13:41:00.175Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:41:00.176Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T13:42:00.185Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:42:00.186Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T13:43:00.191Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:43:00.192Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T13:44:00.212Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:44:00.213Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T13:45:00.171Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:45:00.171Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T13:46:00.216Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:46:00.217Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T13:47:00.192Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:47:00.192Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T13:48:00.229Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:48:00.230Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T13:49:00.256Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:49:00.257Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T13:50:00.250Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:50:00.251Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T13:51:00.264Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:51:00.265Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T13:52:00.290Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:52:00.291Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T13:53:00.293Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:53:00.294Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T13:54:00.281Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:54:00.282Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T13:55:00.316Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:55:00.317Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T13:56:00.315Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:56:00.316Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T13:57:00.319Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:57:00.320Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T13:58:00.331Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:58:00.332Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T13:59:00.356Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T13:59:00.357Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T14:19:36.250Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-24T14:20:06.392Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T14:20:06.395Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T14:20:06.396Z] [ERROR] No Mikrotik connection available
+[2025-08-24T14:20:10.344Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T14:20:13.331Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T14:20:16.343Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T14:20:19.338Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T14:20:22.352Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T14:20:25.343Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T14:20:28.331Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T14:20:31.343Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T14:20:34.332Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T14:20:37.363Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T14:20:38.487Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T14:20:38.489Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T14:20:40.343Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T14:20:42.418Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T14:20:46.614Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T14:20:46.615Z] [ERROR] No Mikrotik connection available
+[2025-08-24T14:20:48.644Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T14:20:48.645Z] [ERROR] No Mikrotik connection available
+[2025-08-24T14:21:38.508Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T14:21:38.509Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T14:22:38.515Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T14:22:38.520Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T14:23:38.523Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T14:23:38.524Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T14:24:38.512Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T14:24:38.513Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T14:25:38.532Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T14:25:38.533Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T14:26:38.532Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T14:26:38.533Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T14:27:38.569Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T14:27:38.571Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T14:28:38.592Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T14:28:38.593Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T14:37:12.273Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-24T14:37:41.980Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T14:37:41.981Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T14:37:41.982Z] [ERROR] No Mikrotik connection available
+[2025-08-24T14:37:45.017Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T14:38:14.431Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T14:38:14.432Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T14:39:14.441Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T14:39:14.442Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T14:40:14.453Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T14:40:14.453Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T14:41:14.461Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T14:41:14.461Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T14:42:14.484Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T14:42:14.485Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T14:43:14.484Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T14:43:14.485Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T14:44:14.488Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T14:44:14.489Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-24T14:45:14.497Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-24T14:45:14.498Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
