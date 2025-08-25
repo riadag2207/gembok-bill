@@ -4,191 +4,123 @@ const path = require('path');
 // Path ke database billing
 const dbPath = path.join(__dirname, '../data/billing.db');
 
-// Buat koneksi database
-const db = new sqlite3.Database(dbPath, (err) => {
-    if (err) {
-        console.error('Error opening database:', err.message);
-        process.exit(1);
-    }
-    console.log('Connected to billing database');
-});
+// Default coordinates untuk Jakarta
+const DEFAULT_LATITUDE = -6.2088;
+const DEFAULT_LONGITUDE = 106.8456;
 
-// Fungsi untuk menambahkan kolom koordinat
-function addCoordinatesColumns() {
+async function addCoordinatesToCustomers() {
     return new Promise((resolve, reject) => {
-        // Cek apakah kolom latitude sudah ada
-        db.all("PRAGMA table_info(customers)", (err, columns) => {
+        const db = new sqlite3.Database(dbPath, (err) => {
             if (err) {
+                console.error('Error opening database:', err);
                 reject(err);
                 return;
             }
-            
-            const hasLatitude = columns.some(col => col.name === 'latitude');
-            const hasLongitude = columns.some(col => col.name === 'longitude');
-            
-            if (hasLatitude && hasLongitude) {
-                console.log('✅ Kolom latitude dan longitude sudah ada di tabel customers');
-                resolve();
+            console.log('Database connected successfully');
+        });
+
+        // Cek apakah kolom latitude dan longitude sudah ada
+        db.get("PRAGMA table_info(customers)", [], (err, rows) => {
+            if (err) {
+                console.error('Error checking table structure:', err);
+                reject(err);
                 return;
             }
-            
-            // Tambahkan kolom latitude jika belum ada
-            if (!hasLatitude) {
-                db.run("ALTER TABLE customers ADD COLUMN latitude DECIMAL(10,8)", (err) => {
-                    if (err) {
-                        console.error('Error adding latitude column:', err);
-                        reject(err);
-                        return;
-                    }
-                    console.log('✅ Berhasil menambahkan kolom latitude ke tabel customers');
+
+            // Cek apakah kolom latitude dan longitude sudah ada
+            db.all("PRAGMA table_info(customers)", [], (err, columns) => {
+                if (err) {
+                    console.error('Error getting table columns:', err);
+                    reject(err);
+                    return;
+                }
+
+                const hasLatitude = columns.some(col => col.name === 'latitude');
+                const hasLongitude = columns.some(col => col.name === 'longitude');
+
+                if (!hasLatitude || !hasLongitude) {
+                    console.log('Adding latitude and longitude columns...');
                     
-                    // Tambahkan kolom longitude jika belum ada
-                    if (!hasLongitude) {
-                        db.run("ALTER TABLE customers ADD COLUMN longitude DECIMAL(11,8)", (err) => {
+                    // Tambahkan kolom latitude dan longitude
+                    const addLatitudeSQL = hasLatitude ? '' : 'ALTER TABLE customers ADD COLUMN latitude DECIMAL(10,8);';
+                    const addLongitudeSQL = hasLongitude ? '' : 'ALTER TABLE customers ADD COLUMN longitude DECIMAL(11,8);';
+                    
+                    if (addLatitudeSQL) {
+                        db.run(addLatitudeSQL, (err) => {
+                            if (err) {
+                                console.error('Error adding latitude column:', err);
+                            } else {
+                                console.log('Latitude column added successfully');
+                            }
+                        });
+                    }
+                    
+                    if (addLongitudeSQL) {
+                        db.run(addLongitudeSQL, (err) => {
                             if (err) {
                                 console.error('Error adding longitude column:', err);
-                                reject(err);
-                                return;
+                            } else {
+                                console.log('Longitude column added successfully');
                             }
-                            console.log('✅ Berhasil menambahkan kolom longitude ke tabel customers');
-                            resolve();
                         });
-                    } else {
-                        resolve();
                     }
-                });
-            } else {
-                // Hanya tambahkan longitude
-                db.run("ALTER TABLE customers ADD COLUMN longitude DECIMAL(11,8)", (err) => {
-                    if (err) {
-                        console.error('Error adding longitude column:', err);
-                        reject(err);
-                        return;
-                    }
-                    console.log('✅ Berhasil menambahkan kolom longitude ke tabel customers');
-                    resolve();
-                });
-            }
-        });
-    });
-}
-
-// Fungsi untuk menampilkan struktur tabel customers
-function showTableStructure() {
-    return new Promise((resolve, reject) => {
-        db.all("PRAGMA table_info(customers)", (err, columns) => {
-            if (err) {
-                reject(err);
-                return;
-            }
-            
-            console.log('\n📋 Struktur Tabel Customers:');
-            console.log('┌─────────────────┬─────────────┬─────────┬─────────┬─────────┐');
-            console.log('│ Nama Kolom     │ Tipe Data  │ Not Null│ Default │ Primary │');
-            console.log('├─────────────────┼─────────────┼─────────┼─────────┼─────────┤');
-            
-            columns.forEach(col => {
-                const notNull = col.notnull ? 'YES' : 'NO';
-                const primary = col.pk ? 'YES' : 'NO';
-                const defaultValue = col.dflt_value || 'NULL';
-                
-                console.log(`│ ${col.name.padEnd(15)} │ ${col.type.padEnd(11)} │ ${notNull.padEnd(7)} │ ${defaultValue.toString().padEnd(7)} │ ${primary.padEnd(7)} │`);
-            });
-            
-            console.log('└─────────────────┴─────────────┴─────────┴─────────┴─────────┘');
-            resolve();
-        });
-    });
-}
-
-// Fungsi untuk menampilkan sample data customers
-function showCustomersData() {
-    return new Promise((resolve, reject) => {
-        db.all("SELECT id, name, phone, latitude, longitude FROM customers LIMIT 5", (err, rows) => {
-            if (err) {
-                reject(err);
-                return;
-            }
-            
-            console.log('\n👥 Data Customers (Sample):');
-            console.log('┌────┬─────────────────┬─────────────┬─────────────┬─────────────┐');
-            console.log('│ ID │ Nama Customer  │ Phone      │ Latitude   │ Longitude  │');
-            console.log('├────┼─────────────────┼─────────────┼─────────────┼─────────────┤');
-            
-            rows.forEach(row => {
-                const lat = row.latitude ? row.latitude.toFixed(6) : 'NULL';
-                const lng = row.longitude ? row.longitude.toFixed(6) : 'NULL';
-                
-                console.log(`│ ${row.id.toString().padEnd(2)} │ ${row.name.padEnd(15)} │ ${row.phone.padEnd(11)} │ ${lat.padEnd(11)} │ ${lng.padEnd(11)} │`);
-            });
-            
-            console.log('└────┴─────────────────┴─────────────┴─────────────┴─────────────┘');
-            resolve();
-        });
-    });
-}
-
-// Fungsi untuk update koordinat default (Jakarta) untuk customer yang belum punya koordinat
-function updateDefaultCoordinates() {
-    return new Promise((resolve, reject) => {
-        // Jakarta coordinates
-        const defaultLat = -6.2088;
-        const defaultLng = 106.8456;
-        
-        db.run("UPDATE customers SET latitude = ?, longitude = ? WHERE latitude IS NULL OR longitude IS NULL", 
-            [defaultLat, defaultLng], (err) => {
-                if (err) {
-                    console.log('⚠️ Warning: Gagal update koordinat default:', err.message);
                 } else {
-                    console.log('✅ Berhasil update koordinat default untuk customer yang belum punya koordinat');
+                    console.log('Latitude and longitude columns already exist');
                 }
-                resolve();
-            });
-    });
-}
 
-// Main execution
-async function main() {
-    try {
-        console.log('🚀 Memulai migrasi database untuk fitur mapping...\n');
-        
-        // Tambahkan kolom koordinat
-        await addCoordinatesColumns();
-        
-        // Update koordinat default
-        await updateDefaultCoordinates();
-        
-        // Tampilkan struktur tabel
-        await showTableStructure();
-        
-        // Tampilkan data sample
-        await showCustomersData();
-        
-        console.log('\n✅ Migrasi database selesai! Fitur mapping sudah siap digunakan.');
-        console.log('\n📝 Catatan:');
-        console.log('   • Semua customer yang belum punya koordinat akan menggunakan koordinat default Jakarta');
-        console.log('   • Admin dapat mengubah koordinat per customer melalui form edit');
-        console.log('   • Fitur mapping tersedia di menu Network Mapping');
-        console.log('   • Koordinat dapat diambil dari GPS atau dipilih dari peta');
-        
-    } catch (error) {
-        console.error('❌ Error selama migrasi:', error.message);
-        process.exit(1);
-    } finally {
-        // Tutup koneksi database
-        db.close((err) => {
-            if (err) {
-                console.error('Error closing database:', err.message);
-            } else {
-                console.log('\n🔒 Database connection closed');
-            }
+                // Update customer yang belum punya koordinat
+                const updateSQL = `
+                    UPDATE customers 
+                    SET latitude = ?, longitude = ? 
+                    WHERE latitude IS NULL OR longitude IS NULL
+                `;
+
+                db.run(updateSQL, [DEFAULT_LATITUDE, DEFAULT_LONGITUDE], function(err) {
+                    if (err) {
+                        console.error('Error updating coordinates:', err);
+                        reject(err);
+                    } else {
+                        console.log(`Updated ${this.changes} customers with default coordinates`);
+                        
+                        // Tampilkan statistik
+                        db.get("SELECT COUNT(*) as total, COUNT(latitude) as with_coords FROM customers", [], (err, row) => {
+                            if (err) {
+                                console.error('Error getting statistics:', err);
+                            } else {
+                                console.log(`\n📊 Coordinate Statistics:`);
+                                console.log(`Total customers: ${row.total}`);
+                                console.log(`Customers with coordinates: ${row.with_coords}`);
+                                console.log(`Customers without coordinates: ${row.total - row.with_coords}`);
+                            }
+                            
+                            db.close((err) => {
+                                if (err) {
+                                    console.error('Error closing database:', err);
+                                } else {
+                                    console.log('Database connection closed');
+                                }
+                                resolve();
+                            });
+                        });
+                    }
+                });
+            });
         });
-    }
+    });
 }
 
 // Jalankan script
 if (require.main === module) {
-    main();
+    console.log('🚀 Starting coordinate update process...');
+    addCoordinatesToCustomers()
+        .then(() => {
+            console.log('✅ Coordinate update completed successfully!');
+            process.exit(0);
+        })
+        .catch((error) => {
+            console.error('❌ Error updating coordinates:', error);
+            process.exit(1);
+        });
 }
 
-module.exports = { addCoordinatesColumns, showTableStructure, showCustomersData };
+module.exports = addCoordinatesToCustomers;

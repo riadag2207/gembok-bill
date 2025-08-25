@@ -7,6 +7,57 @@ const path = require('path');
 const axios = require('axios');
 const { getSettingsWithCache } = require('../config/settingsManager')
 const { getVersionInfo, getVersionBadge } = require('../config/version-utils');
+
+// Test route untuk verifikasi router
+router.get('/test', (req, res) => {
+  res.json({ 
+    success: true, 
+    message: 'AdminGenieacs router is working!',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Debug route tanpa authentication untuk testing
+router.get('/debug/mapping/devices', async (req, res) => {
+  try {
+    res.json({
+      success: true,
+      message: 'Debug route accessible',
+      timestamp: new Date().toISOString(),
+      router: 'adminGenieacs',
+      path: '/admin/debug/mapping/devices'
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// Helper function untuk menentukan status device
+function getDeviceStatus(lastInform) {
+  if (!lastInform) return 'Unknown';
+  
+  try {
+    const lastInformTime = new Date(lastInform).getTime();
+    const now = Date.now();
+    const diffMs = now - lastInformTime;
+    const diffHours = diffMs / (1000 * 60 * 60);
+    
+    // Device dianggap online jika last inform < 1 jam
+    if (diffHours < 1) {
+      return 'Online';
+    } else if (diffHours < 24) {
+      return 'Offline';
+    } else {
+      return 'Offline';
+    }
+  } catch (error) {
+    return 'Unknown';
+  }
+}
+
 // Helper dan parameterPaths dari customerPortal.js
 const parameterPaths = {
   pppUsername: [
@@ -18,12 +69,44 @@ const parameterPaths = {
     'VirtualParameters.RXPower',
     'VirtualParameters.redaman',
     'InternetGatewayDevice.WANDevice.1.WANPONInterfaceConfig.RXPower'
+  ],
+  deviceTags: [
+    'Tags',
+    '_tags',
+    'VirtualParameters.Tags'
+  ],
+  serialNumber: [
+    'DeviceID.SerialNumber',
+    'InternetGatewayDevice.DeviceInfo.SerialNumber._value'
+  ],
+  model: [
+    'DeviceID.ProductClass',
+    'InternetGatewayDevice.DeviceInfo.ModelName._value'
+  ],
+  status: [
+    'InternetGatewayDevice.WANDevice.1.WANConnectionDevice.1.WANIPConnection.1.Status._value',
+    'InternetGatewayDevice.WANDevice.1.WANConnectionDevice.1.WANPPPConnection.1.Status._value',
+    'VirtualParameters.Status'
+  ],
+  ssid: [
+    'InternetGatewayDevice.LANDevice.1.WLANConfiguration.1.SSID._value',
+    'InternetGatewayDevice.LANDevice.1.WLANConfiguration.5.SSID._value',
+    'VirtualParameters.SSID'
+  ],
+  password: [
+    'InternetGatewayDevice.LANDevice.1.WLANConfiguration.1.KeyPassphrase._value',
+    'InternetGatewayDevice.LANDevice.1.WLANConfiguration.5.KeyPassphrase._value',
+    'VirtualParameters.Password'
+  ],
+  userConnected: [
+    'InternetGatewayDevice.LANDevice.1.WLANConfiguration.1.TotalAssociations'
   ]
 };
 function getParameterWithPaths(device, paths) {
   for (const path of paths) {
     const parts = path.split('.');
     let value = device;
+    
     for (const part of parts) {
       if (value && typeof value === 'object' && part in value) {
         value = value[part];
@@ -33,7 +116,18 @@ function getParameterWithPaths(device, paths) {
         break;
       }
     }
-    if (value !== undefined && value !== null && value !== '') return value;
+    
+    if (value !== undefined && value !== null && value !== '') {
+      // Handle special case for device tags
+      if (path.includes('Tags') || path.includes('_tags')) {
+        if (Array.isArray(value)) {
+          return value.filter(tag => tag && tag !== '').join(', ');
+        } else if (typeof value === 'string') {
+          return value;
+        }
+      }
+      return value;
+    }
   }
   return '-';
 }
@@ -373,6 +467,413 @@ router.post('/genieacs/restart-onu', adminAuth, async (req, res) => {
     res.status(500).json({ 
       success: false, 
       message: 'Gagal mengirim perintah restart: ' + (err.response?.data?.message || err.message)
+    });
+  }
+});
+
+// API endpoint untuk statistik GenieACS (untuk mapping page)
+router.get('/api/statistics', adminAuth, async (req, res) => {
+  try {
+    const devices = await getDevices();
+    
+    // Hitung statistik seperti di dashboard
+    const totalDevices = devices.length;
+    const now = Date.now();
+    const onlineDevices = devices.filter(dev => dev._lastInform && (now - new Date(dev._lastInform).getTime()) < 3600*1000).length;
+    const offlineDevices = totalDevices - onlineDevices;
+    
+    res.json({
+      success: true,
+      data: {
+        totalDevices,
+        onlineDevices,
+        offlineDevices,
+        lastUpdated: new Date().toISOString()
+      }
+    });
+    
+  } catch (error) {
+    console.error('Error getting GenieACS statistics:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// API endpoint untuk mapping - devices dengan koordinat customer
+router.get('/api/mapping/devices', adminAuth, async (req, res) => {
+  try {
+    const billingManager = require('../config/billing');
+    const { pppoe, phone } = req.query;
+    
+    // Jika ada parameter query, filter devices berdasarkan kriteria
+    if (pppoe || phone) {
+      let customer = null;
+      
+      // Cari customer berdasarkan parameter
+      if (pppoe) {
+        customer = await billingManager.getCustomerByPPPoE(pppoe);
+      } else if (phone) {
+        customer = await billingManager.getCustomerByPhone(phone);
+      }
+      
+      if (!customer) {
+        return res.json({
+          success: true,
+          data: {
+            devicesWithCoords: [],
+            devicesWithoutCoords: [],
+            statistics: {
+              totalDevices: 0,
+              onlineDevices: 0,
+              offlineDevices: 0
+            },
+            coordinateSources: {
+              pppoe_username: 0,
+              device_tag: 0,
+              serial_number: 0
+            }
+          }
+        });
+      }
+      
+      // Cari device berdasarkan customer yang ditemukan
+      const devicesRaw = await getDevices();
+      const devicesWithCoords = [];
+      const devicesWithoutCoords = [];
+      
+      for (const device of devicesRaw) {
+        let deviceCustomer = null;
+        let coordinateSource = 'none';
+        
+        // 1. Coba cari berdasarkan PPPoE username
+        const pppoeUsername = getParameterWithPaths(device, parameterPaths.pppUsername);
+        if (pppoeUsername && pppoeUsername !== '-' && pppoeUsername === customer.pppoe_username) {
+          deviceCustomer = customer;
+          coordinateSource = 'pppoe_username';
+        }
+        
+        // 2. Coba cari berdasarkan device tag (phone number)
+        if (!deviceCustomer && customer.phone) {
+          const deviceTags = getParameterWithPaths(device, parameterPaths.deviceTags);
+          if (deviceTags && deviceTags !== '-') {
+            // Split tags dan cari customer berdasarkan phone number
+            const tags = deviceTags.split(',').map(tag => tag.trim());
+            for (const tag of tags) {
+              if (tag && tag !== '-' && tag === customer.phone) {
+                deviceCustomer = customer;
+                coordinateSource = 'device_tag';
+                break;
+              }
+            }
+          }
+        }
+        
+        // 3. Coba cari berdasarkan serial number
+        if (!deviceCustomer) {
+          const serialNumber = getParameterWithPaths(device, parameterPaths.serialNumber);
+          if (serialNumber && serialNumber !== '-') {
+            try {
+              const customerBySerial = await billingManager.getCustomerBySerialNumber(serialNumber);
+              if (customerBySerial && customerBySerial.id === customer.id) {
+                deviceCustomer = customer;
+                coordinateSource = 'serial_number';
+              }
+            } catch (error) {
+              console.log(`Error finding customer by serial: ${error.message}`);
+            }
+          }
+        }
+        
+        if (deviceCustomer) {
+          const deviceWithCoords = {
+            id: device._id,
+            serialNumber: getParameterWithPaths(device, parameterPaths.serialNumber) || 'N/A',
+            model: getParameterWithPaths(device, parameterPaths.model) || 'N/A',
+            status: getDeviceStatus(device._lastInform),
+            ssid: getParameterWithPaths(device, parameterPaths.ssid) || 'N/A',
+            password: getParameterWithPaths(device, parameterPaths.password) || 'N/A',
+            rxPower: getParameterWithPaths(device, parameterPaths.rxPower) || 'N/A',
+            pppoeUsername: getParameterWithPaths(device, parameterPaths.pppUsername) || 'N/A',
+            userConnected: getParameterWithPaths(device, parameterPaths.userConnected) || 'N/A',
+            customerId: deviceCustomer.id,
+            customerName: deviceCustomer.name,
+            customerPhone: deviceCustomer.phone,
+            latitude: deviceCustomer.latitude,
+            longitude: deviceCustomer.longitude,
+            coordinateSource: coordinateSource,
+            lastInform: device._lastInform || 'N/A',
+            tag: getParameterWithPaths(device, parameterPaths.deviceTags) || 'N/A'
+          };
+          
+          if (deviceCustomer.latitude && deviceCustomer.longitude) {
+            devicesWithCoords.push(deviceWithCoords);
+          } else {
+            devicesWithoutCoords.push(deviceWithCoords);
+          }
+        }
+      }
+      
+      return res.json({
+        success: true,
+        data: {
+          devicesWithCoords,
+          devicesWithoutCoords,
+          statistics: {
+            totalDevices: devicesWithCoords.length + devicesWithoutCoords.length,
+            onlineDevices: devicesWithCoords.filter(d => d.status === 'Online').length,
+            offlineDevices: devicesWithCoords.filter(d => d.status === 'Offline').length
+          },
+          coordinateSources: {
+            pppoe_username: devicesWithCoords.filter(d => d.coordinateSource === 'pppoe_username').length,
+            device_tag: devicesWithCoords.filter(d => d.coordinateSource === 'device_tag').length,
+            serial_number: devicesWithCoords.filter(d => d.coordinateSource === 'serial_number').length
+          }
+        }
+      });
+    }
+    
+    // Jika tidak ada parameter query, return semua devices (existing logic)
+    const devicesRaw = await getDevices();
+    
+    // Mapping data dengan koordinat customer
+    const devicesWithCoords = await Promise.all(devicesRaw.map(async (device) => {
+      // Cari customer berdasarkan PPPoE username atau tag
+      let customer = null;
+      let coordinateSource = 'none';
+      
+      // 1. Coba cari berdasarkan PPPoE username
+      const pppoeUsername = getParameterWithPaths(device, parameterPaths.pppUsername);
+      if (pppoeUsername && pppoeUsername !== '-') {
+        customer = await billingManager.getCustomerByPPPoE(pppoeUsername);
+        if (customer) coordinateSource = 'pppoe_username';
+      }
+      
+      // 2. Coba cari berdasarkan device tag (phone number)
+      if (!customer) {
+        const deviceTags = getParameterWithPaths(device, parameterPaths.deviceTags);
+        if (deviceTags) {
+          // Split tags dan cari customer berdasarkan phone number
+          const tags = deviceTags.split(',').map(tag => tag.trim());
+          for (const tag of tags) {
+            if (tag && tag !== '-') {
+              customer = await billingManager.getCustomerByPhone(tag);
+              if (customer) {
+                coordinateSource = 'device_tag';
+                break;
+              }
+            }
+          }
+        }
+      }
+      
+      // 3. Coba cari berdasarkan serial number
+      if (!customer) {
+        const serialNumber = getParameterWithPaths(device, parameterPaths.serialNumber);
+        if (serialNumber && serialNumber !== '-') {
+          customer = await billingManager.getCustomerBySerialNumber(serialNumber);
+          if (customer) coordinateSource = 'serial_number';
+        }
+      }
+      
+      if (customer && customer.latitude && customer.longitude) {
+        return {
+          id: device._id,
+          serialNumber: getParameterWithPaths(device, parameterPaths.serialNumber) || 'N/A',
+          model: getParameterWithPaths(device, parameterPaths.model) || 'N/A',
+          status: getDeviceStatus(device._lastInform),
+          ssid: getParameterWithPaths(device, parameterPaths.ssid) || 'N/A',
+          password: getParameterWithPaths(device, parameterPaths.password) || 'N/A',
+          rxPower: getParameterWithPaths(device, parameterPaths.rxPower) || 'N/A',
+          pppoeUsername: getParameterWithPaths(device, parameterPaths.pppUsername) || 'N/A',
+          userConnected: getParameterWithPaths(device, parameterPaths.userConnected) || 'N/A',
+          customerId: customer.id,
+          customerName: customer.name,
+          customerPhone: customer.phone,
+          latitude: customer.latitude,
+          longitude: customer.longitude,
+          coordinateSource: coordinateSource,
+          lastInform: device._lastInform || 'N/A',
+          tag: getParameterWithPaths(device, parameterPaths.deviceTags) || 'N/A'
+        };
+      }
+      return null;
+    }));
+    
+    // Filter devices yang punya koordinat
+    const validDevicesWithCoords = devicesWithCoords.filter(device => device !== null);
+    const devicesWithoutCoords = devicesRaw.length - validDevicesWithCoords.length;
+    
+    // Hitung statistik
+    const totalDevices = devicesRaw.length;
+    const onlineDevices = validDevicesWithCoords.filter(device => device.status === 'Online').length;
+    const offlineDevices = validDevicesWithCoords.filter(device => device.status === 'Offline').length;
+    
+    // Hitung sumber koordinat
+    const coordinateSources = {
+      pppoe_username: validDevicesWithCoords.filter(device => device.coordinateSource === 'pppoe_username').length,
+      device_tag: validDevicesWithCoords.filter(device => device.coordinateSource === 'device_tag').length,
+      serial_number: validDevicesWithCoords.filter(device => device.coordinateSource === 'serial_number').length
+    };
+    
+    res.json({
+      success: true,
+      data: {
+        devicesWithCoords: validDevicesWithCoords,
+        devicesWithoutCoords: devicesWithoutCoords,
+        statistics: {
+          totalDevices,
+          onlineDevices,
+          offlineDevices
+        },
+        coordinateSources
+      }
+    });
+    
+  } catch (error) {
+    console.error('Error in mapping devices API:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// API endpoint untuk update device coordinates berdasarkan customer
+router.put('/api/mapping/devices/:deviceId/coordinates', adminAuth, async (req, res) => {
+  try {
+    const { deviceId } = req.params;
+    const { customerId, latitude, longitude } = req.body;
+    
+    if (!customerId || !latitude || !longitude) {
+      return res.status(400).json({
+        success: false,
+        message: 'Customer ID, latitude, dan longitude wajib diisi'
+      });
+    }
+    
+    const billingManager = require('../config/billing');
+    
+    // Update koordinat customer
+    const result = await billingManager.updateCustomerCoordinates(parseInt(customerId), {
+      latitude: parseFloat(latitude),
+      longitude: parseFloat(longitude)
+    });
+    
+    if (result) {
+      res.json({
+        success: true,
+        message: 'Koordinat device berhasil diperbarui',
+        data: {
+          deviceId,
+          customerId: parseInt(customerId),
+          latitude: parseFloat(latitude),
+          longitude: parseFloat(longitude)
+        }
+      });
+    } else {
+      res.status(404).json({
+        success: false,
+        message: 'Customer tidak ditemukan'
+      });
+    }
+    
+  } catch (error) {
+    console.error('Error updating device coordinates:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Gagal memperbarui koordinat device'
+    });
+  }
+});
+
+// API endpoint untuk bulk update device coordinates
+router.post('/api/mapping/devices/bulk-coordinates', adminAuth, async (req, res) => {
+  try {
+    const { deviceCoordinates } = req.body;
+    
+    if (!deviceCoordinates || !Array.isArray(deviceCoordinates)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Data device coordinates harus berupa array'
+      });
+    }
+    
+    const billingManager = require('../config/billing');
+    const results = [];
+    let successCount = 0;
+    let errorCount = 0;
+    
+    for (const coord of deviceCoordinates) {
+      try {
+        const { deviceId, customerId, latitude, longitude } = coord;
+        
+        if (!deviceId || !customerId || !latitude || !longitude) {
+          results.push({
+            deviceId,
+            customerId,
+            success: false,
+            message: 'Data tidak lengkap'
+          });
+          errorCount++;
+          continue;
+        }
+        
+        // Update koordinat customer
+        const result = await billingManager.updateCustomerCoordinates(parseInt(customerId), {
+          latitude: parseFloat(latitude),
+          longitude: parseFloat(longitude)
+        });
+        
+        if (result) {
+          results.push({
+            deviceId,
+            customerId,
+            success: true,
+            message: 'Koordinat berhasil diperbarui',
+            data: {
+              latitude: parseFloat(latitude),
+              longitude: parseFloat(longitude)
+            }
+          });
+          successCount++;
+        } else {
+          results.push({
+            deviceId,
+            customerId,
+            success: false,
+            message: 'Customer tidak ditemukan'
+          });
+          errorCount++;
+        }
+      } catch (error) {
+        results.push({
+          deviceId: coord.deviceId,
+          customerId: coord.customerId,
+          success: false,
+          message: error.message
+        });
+        errorCount++;
+      }
+    }
+    
+    res.json({
+      success: true,
+      message: `Bulk update selesai. ${successCount} berhasil, ${errorCount} gagal`,
+      data: {
+        total: deviceCoordinates.length,
+        success: successCount,
+        error: errorCount,
+        results
+      }
+    });
+    
+  } catch (error) {
+    console.error('Error bulk updating device coordinates:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Gagal melakukan bulk update koordinat device'
     });
   }
 });

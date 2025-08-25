@@ -93,6 +93,54 @@ class BillingManager {
         });
     }
 
+    // Update customer coordinates untuk mapping
+    async updateCustomerCoordinates(id, coordinates) {
+        return new Promise((resolve, reject) => {
+            const { latitude, longitude } = coordinates;
+            
+            if (latitude === undefined || longitude === undefined) {
+                return reject(new Error('Latitude dan longitude wajib diisi'));
+            }
+
+            const sql = `UPDATE customers SET latitude = ?, longitude = ? WHERE id = ?`;
+            this.db.run(sql, [latitude, longitude, id], function(err) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve({ id, latitude, longitude, changes: this.changes });
+                }
+            });
+        });
+    }
+
+    // Get customer by serial number (untuk mapping device)
+    async getCustomerBySerialNumber(serialNumber) {
+        return new Promise((resolve, reject) => {
+            const sql = `SELECT * FROM customers WHERE serial_number = ?`;
+            this.db.get(sql, [serialNumber], (err, row) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(row || null);
+                }
+            });
+        });
+    }
+
+    // Get customer by PPPoE username (untuk mapping device)
+    async getCustomerByPPPoE(pppoeUsername) {
+        return new Promise((resolve, reject) => {
+            const sql = `SELECT * FROM customers WHERE pppoe_username = ?`;
+            this.db.get(sql, [pppoeUsername], (err, row) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(row || null);
+                }
+            });
+        });
+    }
+
     createTables() {
         const tables = [
             // Tabel paket internet
@@ -389,9 +437,13 @@ class BillingManager {
             // Normalisasi billing_day (1-28)
             const normBillingDay = Math.min(Math.max(parseInt(billing_day ?? 15, 10) || 15, 1), 28);
             
-            const sql = `INSERT INTO customers (username, name, phone, pppoe_username, email, address, package_id, pppoe_profile, status, auto_suspension, billing_day) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+            const sql = `INSERT INTO customers (username, name, phone, pppoe_username, email, address, package_id, pppoe_profile, status, auto_suspension, billing_day, latitude, longitude) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
             
-            this.db.run(sql, [finalUsername, name, phone, autoPPPoEUsername, email, address, package_id, pppoe_profile, status || 'active', auto_suspension !== undefined ? auto_suspension : 1, normBillingDay], async function(err) {
+            // Default coordinates untuk Jakarta jika tidak ada koordinat
+            const defaultLatitude = -6.2088;
+            const defaultLongitude = 106.8456;
+            
+            this.db.run(sql, [finalUsername, name, phone, autoPPPoEUsername, email, address, package_id, pppoe_profile, status || 'active', auto_suspension !== undefined ? auto_suspension : 1, normBillingDay, defaultLatitude, defaultLongitude], async function(err) {
                 if (err) {
                     reject(err);
                 } else {
@@ -400,13 +452,13 @@ class BillingManager {
                     // Jika ada nomor telepon dan PPPoE username, coba tambahkan tag ke GenieACS
                     if (phone && autoPPPoEUsername) {
                         try {
-                            const { findDeviceByPPPoE, addTagToDevice } = require('./genieacs');
+                            const genieacs = require('./genieacs');
                             // Cari device berdasarkan PPPoE Username
-                            const device = await findDeviceByPPPoE(autoPPPoEUsername);
+                            const device = await genieacs.findDeviceByPPPoE(autoPPPoEUsername);
                             
                             if (device) {
                                 // Tambahkan tag nomor telepon ke device
-                                await addTagToDevice(device._id, phone);
+                                await genieacs.addTagToDevice(device._id, phone);
                                 console.log(`Successfully added phone tag ${phone} to device ${device._id} for customer ${finalUsername} (PPPoE: ${autoPPPoEUsername})`);
                             } else {
                                 console.warn(`No device found with PPPoE Username ${autoPPPoEUsername} for customer ${finalUsername}`);
@@ -418,11 +470,11 @@ class BillingManager {
                     } else if (phone && finalUsername) {
                         // Fallback: coba dengan username jika pppoe_username tidak ada
                         try {
-                            const { findDeviceByPPPoE, addTagToDevice } = require('./genieacs');
-                            const device = await findDeviceByPPPoE(finalUsername);
+                            const genieacs = require('./genieacs');
+                            const device = await genieacs.findDeviceByPPPoE(finalUsername);
                             
                             if (device) {
-                                await addTagToDevice(device._id, phone);
+                                await genieacs.addTagToDevice(device._id, phone);
                                 console.log(`Successfully added phone tag ${phone} to device ${device._id} for customer ${finalUsername} (using username as PPPoE)`);
                             } else {
                                 console.warn(`No device found with PPPoE Username ${finalUsername} for customer ${finalUsername}`);
@@ -442,6 +494,7 @@ class BillingManager {
         return new Promise((resolve, reject) => {
             const sql = `
                 SELECT c.*, p.name as package_name, p.price as package_price,
+                       c.latitude, c.longitude,
                        CASE 
                            WHEN EXISTS (
                                SELECT 1 FROM invoices i 
@@ -684,7 +737,7 @@ class BillingManager {
 
     async updateCustomerByPhone(oldPhone, customerData) {
         return new Promise(async (resolve, reject) => {
-            const { name, username, phone, pppoe_username, email, address, package_id, pppoe_profile, status, auto_suspension, billing_day } = customerData;
+            const { name, username, phone, pppoe_username, email, address, package_id, pppoe_profile, status, auto_suspension, billing_day, latitude, longitude } = customerData;
             
             // Dapatkan data customer lama untuk membandingkan nomor telepon
             try {
@@ -698,9 +751,24 @@ class BillingManager {
                 // Normalisasi billing_day (1-28) dengan fallback ke nilai lama atau 15
                 const normBillingDay = Math.min(Math.max(parseInt(billing_day !== undefined ? billing_day : (oldCustomer?.billing_day ?? 15), 10) || 15, 1), 28);
                 
-                const sql = `UPDATE customers SET name = ?, username = ?, phone = ?, pppoe_username = ?, email = ?, address = ?, package_id = ?, pppoe_profile = ?, status = ?, auto_suspension = ?, billing_day = ? WHERE id = ?`;
+                const sql = `UPDATE customers SET name = ?, username = ?, phone = ?, pppoe_username = ?, email = ?, address = ?, package_id = ?, pppoe_profile = ?, status = ?, auto_suspension = ?, billing_day = ?, latitude = ?, longitude = ? WHERE id = ?`;
                 
-                this.db.run(sql, [name, username || oldCustomer.username, phone || oldPhone, pppoe_username, email, address, package_id, pppoe_profile, status, auto_suspension !== undefined ? auto_suspension : oldCustomer.auto_suspension, normBillingDay, oldCustomer.id], async function(err) {
+                this.db.run(sql, [
+                    name, 
+                    username || oldCustomer.username, 
+                    phone || oldPhone, 
+                    pppoe_username, 
+                    email, 
+                    address, 
+                    package_id, 
+                    pppoe_profile, 
+                    status, 
+                    auto_suspension !== undefined ? auto_suspension : oldCustomer.auto_suspension, 
+                    normBillingDay,
+                    latitude !== undefined ? parseFloat(latitude) : oldCustomer.latitude,
+                    longitude !== undefined ? parseFloat(longitude) : oldCustomer.longitude,
+                    oldCustomer.id
+                ], async function(err) {
                     if (err) {
                         reject(err);
                     } else {
@@ -708,14 +776,14 @@ class BillingManager {
                         const newPhone = phone || oldPhone;
                         if (newPhone && (newPhone !== oldPhone || pppoe_username !== oldPPPoE)) {
                             try {
-                                const { findDeviceByPPPoE, addTagToDevice, removeTagFromDevice } = require('./genieacs');
+                                const genieacs = require('./genieacs');
                                 
                                 // Hapus tag lama jika ada
                                                                         if (oldPhone && oldPPPoE) {
                                     try {
-                                        const oldDevice = await findDeviceByPPPoE(oldPPPoE);
+                                        const oldDevice = await genieacs.findDeviceByPPPoE(oldPPPoE);
                                         if (oldDevice) {
-                                            await removeTagFromDevice(oldDevice._id, oldPhone);
+                                            await genieacs.removeTagFromDevice(oldDevice._id, oldPhone);
                                             console.log(`Removed old phone tag ${oldPhone} from device ${oldDevice._id} for customer ${oldCustomer.username}`);
                                         }
                                     } catch (error) {
@@ -725,10 +793,10 @@ class BillingManager {
                                 
                                 // Tambahkan tag baru
                                 const pppoeToUse = pppoe_username || oldCustomer.username; // Fallback ke username jika pppoe_username kosong
-                                const device = await findDeviceByPPPoE(pppoeToUse);
+                                const device = await genieacs.findDeviceByPPPoE(pppoeToUse);
                                 
                                 if (device) {
-                                    await addTagToDevice(device._id, newPhone);
+                                    await genieacs.addTagToDevice(device._id, newPhone);
                                     console.log(`Successfully updated phone tag to ${newPhone} for device ${device._id} and customer ${oldCustomer.username} (PPPoE: ${pppoeToUse})`);
                                 } else {
                                     console.warn(`No device found with PPPoE Username ${pppoeToUse} for customer ${oldCustomer.username}`);
@@ -774,12 +842,12 @@ class BillingManager {
                         // Hapus tag dari GenieACS jika ada nomor telepon
                         if (customer.phone) {
                             try {
-                                const { findDeviceByPPPoE, removeTagFromDevice } = require('./genieacs');
+                                const genieacs = require('./genieacs');
                                 const pppoeToUse = customer.pppoe_username || customer.username; // Fallback ke username jika pppoe_username kosong
-                                const device = await findDeviceByPPPoE(pppoeToUse);
+                                const device = await genieacs.findDeviceByPPPoE(pppoeToUse);
                                 
                                 if (device) {
-                                    await removeTagFromDevice(device._id, customer.phone);
+                                    await genieacs.removeTagFromDevice(device._id, customer.phone);
                                     console.log(`Removed phone tag ${customer.phone} from device ${device._id} for deleted customer ${customer.username} (PPPoE: ${pppoeToUse})`);
                                 } else {
                                     console.warn(`No device found with PPPoE Username ${pppoeToUse} for deleted customer ${customer.username}`);

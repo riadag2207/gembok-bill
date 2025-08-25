@@ -1493,7 +1493,7 @@ router.get('/customers/:username/test', async (req, res) => {
 router.put('/customers/:phone', async (req, res) => {
     try {
         const { phone } = req.params;
-        const { name, username, pppoe_username, email, address, package_id, pppoe_profile, status, auto_suspension, billing_day } = req.body;
+        const { name, username, pppoe_username, email, address, package_id, pppoe_profile, status, auto_suspension, billing_day, latitude, longitude } = req.body;
         
         // Validate required fields
         if (!name || !username || !package_id) {
@@ -1547,7 +1547,9 @@ router.put('/customers/:phone', async (req, res) => {
                 const v = parseInt(billing_day, 10);
                 if (Number.isFinite(v)) return Math.min(Math.max(v, 1), 28);
                 return currentCustomer.billing_day ?? 1;
-            })()
+            })(),
+            latitude: latitude !== undefined ? parseFloat(latitude) : currentCustomer.latitude,
+            longitude: longitude !== undefined ? parseFloat(longitude) : currentCustomer.longitude
         };
 
         // Use current phone for lookup, allow phone to be updated in customerData
@@ -2115,10 +2117,16 @@ router.get('/export/payments', getAppSettings, async (req, res) => {
 router.get('/api/packages', async (req, res) => {
     try {
         const packages = await billingManager.getPackages();
-        res.json(packages);
+        res.json({
+            success: true,
+            packages: packages
+        });
     } catch (error) {
         logger.error('Error getting packages API:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ 
+            success: false, 
+            error: error.message 
+        });
     }
 });
 
@@ -2127,10 +2135,16 @@ router.get('/api/packages', async (req, res) => {
 router.get('/api/customers', async (req, res) => {
     try {
         const customers = await billingManager.getCustomers();
-        res.json(customers);
+        res.json({
+            success: true,
+            customers: customers
+        });
     } catch (error) {
         logger.error('Error getting customers API:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ 
+            success: false, 
+            error: error.message 
+        });
     }
 });
 
@@ -2624,6 +2638,327 @@ router.get('/mapping', getAppSettings, async (req, res) => {
             message: 'Error loading mapping page',
             error: error.message,
             appSettings: req.appSettings
+        });
+    }
+});
+
+// API untuk mapping data
+router.get('/api/mapping/data', async (req, res) => {
+    try {
+        const MappingUtils = require('../utils/mappingUtils');
+        
+        // Ambil data customers dengan koordinat
+        const customers = await billingManager.getAllCustomers();
+        const customersWithCoords = customers.filter(c => c.latitude && c.longitude);
+        
+        // Validasi koordinat customer
+        const validatedCustomers = customersWithCoords.map(customer => 
+            MappingUtils.validateCustomerCoordinates(customer)
+        );
+        
+        // Hitung statistik mapping
+        const totalCustomers = validatedCustomers.length;
+        const validCoordinates = validatedCustomers.filter(c => c.coordinateStatus === 'valid').length;
+        const defaultCoordinates = validatedCustomers.filter(c => c.coordinateStatus === 'default').length;
+        const invalidCoordinates = validatedCustomers.filter(c => c.coordinateStatus === 'invalid').length;
+        
+        // Hitung area coverage jika ada minimal 3 koordinat
+        let coverageArea = 0;
+        if (validCoordinates >= 3) {
+            const validCoords = validatedCustomers
+                .filter(c => c.coordinateStatus === 'valid')
+                .map(c => ({ latitude: c.latitude, longitude: c.longitude }));
+            coverageArea = MappingUtils.calculateCoverageArea(validCoords);
+        }
+        
+        // Buat clusters untuk customer
+        const customerClusters = MappingUtils.createClusters(
+            validatedCustomers.map(c => ({ latitude: c.latitude, longitude: c.longitude })),
+            2000 // 2km cluster radius
+        );
+        
+        res.json({
+            success: true,
+            data: {
+                customers: validatedCustomers,
+                clusters: customerClusters,
+                statistics: {
+                    totalCustomers,
+                    validCoordinates,
+                    defaultCoordinates,
+                    invalidCoordinates,
+                    coverageArea: parseFloat(coverageArea)
+                }
+            }
+        });
+    } catch (error) {
+        logger.error('Error getting mapping data:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Gagal mengambil data mapping' 
+        });
+    }
+});
+
+// API untuk analisis coverage area
+router.get('/api/mapping/coverage', async (req, res) => {
+    try {
+        const MappingUtils = require('../utils/mappingUtils');
+        
+        // Ambil data customers
+        const customers = await billingManager.getAllCustomers();
+        const customersWithCoords = customers.filter(c => c.latitude && c.longitude);
+        
+        if (customersWithCoords.length < 3) {
+            return res.json({
+                success: false,
+                message: 'Minimal 3 koordinat diperlukan untuk analisis coverage'
+            });
+        }
+        
+        // Hitung bounding box
+        const coordinates = customersWithCoords.map(c => ({ 
+            latitude: c.latitude, 
+            longitude: c.longitude 
+        }));
+        
+        const boundingBox = MappingUtils.getBoundingBox(coordinates);
+        const center = MappingUtils.getCenterCoordinate(coordinates);
+        const coverageArea = MappingUtils.calculateCoverageArea(coordinates);
+        
+        // Analisis density per area
+        const clusters = MappingUtils.createClusters(coordinates, 1000); // 1km radius
+        const highDensityAreas = clusters.filter(c => c.count >= 5);
+        const mediumDensityAreas = clusters.filter(c => c.count >= 3 && c.count < 5);
+        const lowDensityAreas = clusters.filter(c => c.count < 3);
+        
+        res.json({
+            success: true,
+            data: {
+                coverageArea: parseFloat(coverageArea),
+                boundingBox,
+                center,
+                densityAnalysis: {
+                    highDensity: highDensityAreas.length,
+                    mediumDensity: mediumDensityAreas.length,
+                    lowDensity: lowDensityAreas.length,
+                    totalClusters: clusters.length
+                },
+                clusters: {
+                    high: highDensityAreas,
+                    medium: mediumDensityAreas,
+                    low: lowDensityAreas
+                }
+            }
+        });
+    } catch (error) {
+        logger.error('Error analyzing coverage:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Gagal menganalisis coverage area' 
+        });
+    }
+});
+
+// API untuk update koordinat customer
+router.put('/api/mapping/customers/:id/coordinates', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { latitude, longitude } = req.body;
+        
+        if (!latitude || !longitude) {
+            return res.status(400).json({
+                success: false,
+                message: 'Latitude dan longitude wajib diisi'
+            });
+        }
+        
+        const MappingUtils = require('../utils/mappingUtils');
+        
+        // Validasi koordinat
+        if (!MappingUtils.isValidCoordinate(latitude, longitude)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Koordinat tidak valid'
+            });
+        }
+        
+        // Update koordinat customer
+        const result = await billingManager.updateCustomerCoordinates(parseInt(id), {
+            latitude: parseFloat(latitude),
+            longitude: parseFloat(longitude)
+        });
+        
+        if (result) {
+            res.json({
+                success: true,
+                message: 'Koordinat customer berhasil diperbarui',
+                data: {
+                    id: parseInt(id),
+                    latitude: parseFloat(latitude),
+                    longitude: parseFloat(longitude),
+                    formattedCoordinates: MappingUtils.formatCoordinates(latitude, longitude)
+                }
+            });
+        } else {
+            res.status(404).json({
+                success: false,
+                message: 'Customer tidak ditemukan'
+            });
+        }
+    } catch (error) {
+        logger.error('Error updating customer coordinates:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Gagal memperbarui koordinat customer'
+        });
+    }
+});
+
+// API untuk bulk update koordinat
+router.post('/api/mapping/customers/bulk-coordinates', async (req, res) => {
+    try {
+        const { coordinates } = req.body;
+        
+        if (!coordinates || !Array.isArray(coordinates)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Data koordinat harus berupa array'
+            });
+        }
+        
+        const MappingUtils = require('../utils/mappingUtils');
+        const results = [];
+        let successCount = 0;
+        let errorCount = 0;
+        
+        for (const coord of coordinates) {
+            try {
+                const { customer_id, latitude, longitude } = coord;
+                
+                if (!customer_id || !latitude || !longitude) {
+                    results.push({
+                        customer_id,
+                        success: false,
+                        message: 'Data tidak lengkap'
+                    });
+                    errorCount++;
+                    continue;
+                }
+                
+                // Validasi koordinat
+                if (!MappingUtils.isValidCoordinate(latitude, longitude)) {
+                    results.push({
+                        customer_id,
+                        success: false,
+                        message: 'Koordinat tidak valid'
+                    });
+                    errorCount++;
+                    continue;
+                }
+                
+                // Update koordinat
+                const result = await billingManager.updateCustomerCoordinates(parseInt(customer_id), {
+                    latitude: parseFloat(latitude),
+                    longitude: parseFloat(longitude)
+                });
+                
+                if (result) {
+                    results.push({
+                        customer_id,
+                        success: true,
+                        message: 'Koordinat berhasil diperbarui',
+                        data: {
+                            latitude: parseFloat(latitude),
+                            longitude: parseFloat(longitude),
+                            formattedCoordinates: MappingUtils.formatCoordinates(latitude, longitude)
+                        }
+                    });
+                    successCount++;
+                } else {
+                    results.push({
+                        customer_id,
+                        success: false,
+                        message: 'Customer tidak ditemukan'
+                    });
+                    errorCount++;
+                }
+            } catch (error) {
+                results.push({
+                    customer_id: coord.customer_id,
+                    success: false,
+                    message: error.message
+                });
+                errorCount++;
+            }
+        }
+        
+        res.json({
+            success: true,
+            message: `Bulk update selesai. ${successCount} berhasil, ${errorCount} gagal`,
+            data: {
+                total: coordinates.length,
+                success: successCount,
+                error: errorCount,
+                results
+            }
+        });
+    } catch (error) {
+        logger.error('Error bulk updating coordinates:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Gagal melakukan bulk update koordinat'
+        });
+    }
+});
+
+// API untuk export mapping data
+router.get('/api/mapping/export', async (req, res) => {
+    try {
+        const { format = 'json' } = req.query;
+        
+        // Ambil data mapping
+        const customers = await billingManager.getAllCustomers();
+        const customersWithCoords = customers.filter(c => c.latitude && c.longitude);
+        
+        if (format === 'csv') {
+            // Export sebagai CSV
+            const csvData = customersWithCoords.map(c => ({
+                id: c.id,
+                name: c.name,
+                phone: c.phone,
+                username: c.username,
+                latitude: c.latitude,
+                longitude: c.longitude,
+                package_name: c.package_name || 'N/A',
+                status: c.status,
+                address: c.address || 'N/A'
+            }));
+            
+            res.setHeader('Content-Type', 'text/csv');
+            res.setHeader('Content-Disposition', 'attachment; filename="mapping_data.csv"');
+            
+            // CSV header
+            const headers = Object.keys(csvData[0]).join(',');
+            const rows = csvData.map(row => Object.values(row).map(val => `"${val}"`).join(','));
+            
+            res.send([headers, ...rows].join('\n'));
+        } else {
+            // Export sebagai JSON
+            res.setHeader('Content-Type', 'application/json');
+            res.setHeader('Content-Disposition', 'attachment; filename="mapping_data.json"');
+            
+            res.json({
+                exportDate: new Date().toISOString(),
+                totalCustomers: customersWithCoords.length,
+                data: customersWithCoords
+            });
+        }
+    } catch (error) {
+        logger.error('Error exporting mapping data:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Gagal export data mapping'
         });
     }
 });
