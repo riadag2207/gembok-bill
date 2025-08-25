@@ -162,15 +162,32 @@
                                 <option value="">Pilih Paket</option>
                                 <% if (packages && packages.length > 0) { %>
                                     <% packages.forEach(function(package) { %>
-                                        <option value="<%= package.id %>" data-price="<%= package.price %>">
+                                        <option value="<%= package.id %>" 
+                                                data-price="<%= package.price %>"
+                                                data-tax-rate="<%= package.tax_rate !== null && package.tax_rate !== undefined ? package.tax_rate : 11.00 %>">
                                             <%= package.name %> - Rp <%= parseFloat(package.price).toLocaleString('id-ID') %>
+                                            <% if (package.tax_rate === 0) { %>
+                                                (Tidak Ada PPN)
+                                            <% } else if (package.tax_rate) { %>
+                                                (PPN <%= package.tax_rate.toFixed(2) %>%)
+                                            <% } else { %>
+                                                (PPN 11.00%)
+                                            <% } %>
                                         </option>
                                     <% }); %>
                                 <% } %>
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label for="amount" class="form-label">Jumlah</label>
+                            <label for="base_amount" class="form-label">Harga Dasar (Sebelum PPN)</label>
+                            <input type="number" class="form-control" id="base_amount" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="tax_rate_display" class="form-label">PPN</label>
+                            <input type="text" class="form-control" id="tax_rate_display" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="amount" class="form-label">Jumlah (Setelah PPN)</label>
                             <input type="number" class="form-control" id="amount" name="amount" required>
                         </div>
                         <div class="mb-3">
@@ -208,9 +225,19 @@
             // Auto-fill amount when package is selected
             $('#package_id').on('change', function() {
                 const selectedOption = $(this).find('option:selected');
-                const price = selectedOption.data('price');
-                if (price) {
-                    $('#amount').val(price);
+                const price = parseFloat(selectedOption.data('price')) || 0;
+                const taxRate = parseFloat(selectedOption.data('tax-rate')) || 0;
+                
+                $('#base_amount').val(price);
+                
+                // Handle PPN = 0 correctly
+                if (taxRate === 0) {
+                    $('#tax_rate_display').val('0% (Tidak Ada PPN)');
+                    $('#amount').val(price); // No tax added
+                } else {
+                    $('#tax_rate_display').val(`${taxRate}%`);
+                    const amount = price * (1 + taxRate / 100);
+                    $('#amount').val(amount.toFixed(2));
                 }
             });
 
