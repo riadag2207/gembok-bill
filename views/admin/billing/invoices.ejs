@@ -190,6 +190,9 @@
                             <label for="amount" class="form-label">Jumlah (Setelah PPN)</label>
                             <input type="number" class="form-control" id="amount" name="amount" required>
                         </div>
+                        <!-- Hidden fields for PPN data -->
+                        <input type="hidden" id="base_amount_hidden" name="base_amount">
+                        <input type="hidden" id="tax_rate_hidden" name="tax_rate">
                         <div class="mb-3">
                             <label for="due_date" class="form-label">Jatuh Tempo</label>
                             <input type="date" class="form-control" id="due_date" name="due_date" required>
@@ -239,6 +242,10 @@
                     const amount = price * (1 + taxRate / 100);
                     $('#amount').val(amount.toFixed(2));
                 }
+                
+                // Set hidden fields for PPN data
+                $('#base_amount_hidden').val(price);
+                $('#tax_rate_hidden').val(taxRate);
             });
 
             // Set default due date to 30 days from now
