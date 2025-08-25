@@ -1544,25 +1544,46 @@ async handlePaymentWebhook(payload, gateway) {
                 const params = [];
                 
                 if (type === 'income') {
-                    // Laporan pemasukan dari pembayaran
+                    // Laporan pemasukan dari pembayaran online dan manual
                     sql = `
                         SELECT 
                             'income' as type,
                             pgt.created_at as date,
                             pgt.amount as amount,
-                            i.payment_method,
-                            pgt.gateway as gateway_name,
-                            i.invoice_number,
+                            COALESCE(pgt.payment_method, i.payment_method, 'Online Payment') as payment_method,
+                            COALESCE(pgt.gateway_name, pgt.gateway, 'Online Gateway') as gateway_name,
+                            i.invoice_number as invoice_number,
                             c.name as customer_name,
-                            c.phone as customer_phone
+                            c.phone as customer_phone,
+                            '' as description,
+                            '' as notes
                         FROM payment_gateway_transactions pgt
                         JOIN invoices i ON pgt.invoice_id = i.id
                         JOIN customers c ON i.customer_id = c.id
                         WHERE pgt.status = 'success' 
                         AND DATE(pgt.created_at) BETWEEN ? AND ?
-                        ORDER BY pgt.created_at DESC
+                        
+                        UNION ALL
+                        
+                        SELECT 
+                            'income' as type,
+                            p.payment_date as date,
+                            p.amount as amount,
+                            p.payment_method,
+                            'Manual Payment' as gateway_name,
+                            i.invoice_number as invoice_number,
+                            c.name as customer_name,
+                            c.phone as customer_phone,
+                            '' as description,
+                            p.notes
+                        FROM payments p
+                        JOIN invoices i ON p.invoice_id = i.id
+                        JOIN customers c ON i.customer_id = c.id
+                        WHERE DATE(p.payment_date) BETWEEN ? AND ?
+                        
+                        ORDER BY date DESC
                     `;
-                    params.push(startDate, endDate);
+                    params.push(startDate, endDate, startDate, endDate);
                 } else if (type === 'expense') {
                     // Laporan pengeluaran dari tabel expenses
                     sql = `
@@ -1572,8 +1593,10 @@ async handlePaymentWebhook(payload, gateway) {
                             e.amount as amount,
                             e.payment_method,
                             e.category as gateway_name,
-                            e.description as invoice_number,
-                            e.notes as customer_name,
+                            e.description as description,
+                            e.notes as notes,
+                            '' as invoice_number,
+                            '' as customer_name,
                             '' as customer_phone
                         FROM expenses e
                         WHERE DATE(e.expense_date) BETWEEN ? AND ?
@@ -1587,11 +1610,13 @@ async handlePaymentWebhook(payload, gateway) {
                             'income' as type,
                             pgt.created_at as date,
                             pgt.amount as amount,
-                            i.payment_method,
-                            pgt.gateway as gateway_name,
-                            i.invoice_number,
+                            COALESCE(pgt.payment_method, i.payment_method, 'Online Payment') as payment_method,
+                            COALESCE(pgt.gateway_name, pgt.gateway, 'Online Gateway') as gateway_name,
+                            i.invoice_number as invoice_number,
                             c.name as customer_name,
-                            c.phone as customer_phone
+                            c.phone as customer_phone,
+                            '' as description,
+                            '' as notes
                         FROM payment_gateway_transactions pgt
                         JOIN invoices i ON pgt.invoice_id = i.id
                         JOIN customers c ON i.customer_id = c.id
@@ -1601,20 +1626,40 @@ async handlePaymentWebhook(payload, gateway) {
                         UNION ALL
                         
                         SELECT 
+                            'income' as type,
+                            p.payment_date as date,
+                            p.amount as amount,
+                            p.payment_method,
+                            'Manual Payment' as gateway_name,
+                            i.invoice_number as invoice_number,
+                            c.name as customer_name,
+                            c.phone as customer_phone,
+                            '' as description,
+                            p.notes
+                        FROM payments p
+                        JOIN invoices i ON p.invoice_id = i.id
+                        JOIN customers c ON i.customer_id = c.id
+                        WHERE DATE(p.payment_date) BETWEEN ? AND ?
+                        
+                        UNION ALL
+                        
+                        SELECT 
                             'expense' as type,
                             e.expense_date as date,
                             e.amount as amount,
                             e.payment_method,
                             e.category as gateway_name,
-                            e.description as invoice_number,
-                            e.notes as customer_name,
+                            e.description as description,
+                            e.notes as notes,
+                            '' as invoice_number,
+                            '' as customer_name,
                             '' as customer_phone
                         FROM expenses e
                         WHERE DATE(e.expense_date) BETWEEN ? AND ?
                         
                         ORDER BY date DESC
                     `;
-                    params.push(startDate, endDate, startDate, endDate);
+                    params.push(startDate, endDate, startDate, endDate, startDate, endDate);
                 }
 
                 this.db.all(sql, params, (err, rows) => {
