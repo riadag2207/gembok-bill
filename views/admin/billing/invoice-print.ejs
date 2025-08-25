@@ -311,20 +311,64 @@
                     <tr>
                         <th>Layanan</th>
                         <th>Kecepatan</th>
-                        <th>Harga</th>
+                        <th>Harga Dasar</th>
+                        <th>PPN</th>
+                        <th>Total</th>
                     </tr>
                 </thead>
                 <tbody>
-                                            <tr>
-                            <td><%= invoice.package_name %></td>
-                            <td><%= invoice.package_speed || 'Kecepatan tidak tersedia' %></td>
-                            <td class="text-end">Rp <%= parseFloat(invoice.amount).toLocaleString('id-ID') %></td>
-                        </tr>
+                    <tr>
+                        <td><%= invoice.package_name %></td>
+                        <td><%= invoice.package_speed || 'Kecepatan tidak tersedia' %></td>
+                        <td class="text-end">
+                            <% if (invoice.base_amount) { %>
+                                Rp <%= parseFloat(invoice.base_amount).toLocaleString('id-ID') %>
+                            <% } else { %>
+                                Rp <%= parseFloat(invoice.amount).toLocaleString('id-ID') %>
+                            <% } %>
+                        </td>
+                        <td class="text-end">
+                            <% if (invoice.tax_rate !== null && invoice.tax_rate !== undefined) { %>
+                                <% if (invoice.tax_rate === 0) { %>
+                                    <span class="badge bg-secondary">0% (Tidak Ada PPN)</span>
+                                <% } else { %>
+                                    <span class="badge bg-warning"><%= invoice.tax_rate.toFixed(2) %>%</span>
+                                <% } %>
+                            <% } else { %>
+                                <span class="badge bg-warning">11.00%</span>
+                            <% } %>
+                        </td>
+                        <td class="text-end">
+                            <strong>Rp <%= parseFloat(invoice.amount).toLocaleString('id-ID') %></strong>
+                        </td>
+                    </tr>
                 </tbody>
                 <tfoot>
                     <tr class="table-primary">
-                        <th colspan="2" class="text-end">Total:</th>
-                        <th class="text-end">Rp <%= parseFloat(invoice.amount).toLocaleString('id-ID') %></th>
+                        <th colspan="2" class="text-end">Subtotal:</th>
+                        <th class="text-end">
+                            <% if (invoice.base_amount) { %>
+                                Rp <%= parseFloat(invoice.base_amount).toLocaleString('id-ID') %>
+                            <% } else { %>
+                                Rp <%= parseFloat(invoice.amount).toLocaleString('id-ID') %>
+                            <% } %>
+                        </th>
+                        <th class="text-end">
+                            <% if (invoice.tax_rate !== null && invoice.tax_rate !== undefined) { %>
+                                <% if (invoice.tax_rate === 0) { %>
+                                    Rp 0
+                                <% } else { %>
+                                    <% const taxAmount = invoice.base_amount ? (invoice.base_amount * invoice.tax_rate / 100) : 0; %>
+                                    Rp <%= taxAmount.toLocaleString('id-ID') %>
+                                <% } %>
+                            <% } else { %>
+                                <% const taxAmount = invoice.base_amount ? (invoice.base_amount * 0.11) : 0; %>
+                                Rp <%= taxAmount.toLocaleString('id-ID') %>
+                            <% } %>
+                        </th>
+                        <th class="text-end">
+                            <strong>Rp <%= parseFloat(invoice.amount).toLocaleString('id-ID') %></strong>
+                        </th>
                     </tr>
                 </tfoot>
             </table>

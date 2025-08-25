@@ -354,20 +354,64 @@
                              <tr>
                                  <th>Deskripsi</th>
                                  <th>Kecepatan</th>
-                                 <th class="text-end">Harga</th>
+                                 <th class="text-end">Harga Dasar</th>
+                                 <th class="text-end">PPN</th>
+                                 <th class="text-end">Total</th>
                              </tr>
                          </thead>
                          <tbody>
                              <tr>
                                  <td><strong><%= invoice.package_name %></strong></td>
                                  <td><%= invoice.package_speed %></td>
-                                 <td class="text-end">Rp <%= parseFloat(invoice.amount).toLocaleString('id-ID') %></td>
+                                 <td class="text-end">
+                                     <% if (invoice.base_amount) { %>
+                                         Rp <%= parseFloat(invoice.base_amount).toLocaleString('id-ID') %>
+                                     <% } else { %>
+                                         Rp <%= parseFloat(invoice.amount).toLocaleString('id-ID') %>
+                                     <% } %>
+                                 </td>
+                                 <td class="text-end">
+                                     <% if (invoice.tax_rate !== null && invoice.tax_rate !== undefined) { %>
+                                         <% if (invoice.tax_rate === 0) { %>
+                                             <span class="badge bg-secondary">0% (Tidak Ada PPN)</span>
+                                         <% } else { %>
+                                             <span class="badge bg-warning"><%= invoice.tax_rate.toFixed(2) %>%</span>
+                                         <% } %>
+                                     <% } else { %>
+                                         <span class="badge bg-warning">11.00%</span>
+                                     <% } %>
+                                 </td>
+                                 <td class="text-end">
+                                     <strong>Rp <%= parseFloat(invoice.amount).toLocaleString('id-ID') %></strong>
+                                 </td>
                              </tr>
                          </tbody>
                          <tfoot>
                              <tr>
-                                 <td colspan="2" class="text-end"><strong>Total:</strong></td>
-                                 <td class="text-end"><strong>Rp <%= parseFloat(invoice.amount).toLocaleString('id-ID') %></strong></td>
+                                 <td colspan="2" class="text-end"><strong>Subtotal:</strong></td>
+                                 <td class="text-end">
+                                     <% if (invoice.base_amount) { %>
+                                         <strong>Rp <%= parseFloat(invoice.base_amount).toLocaleString('id-ID') %></strong>
+                                     <% } else { %>
+                                         <strong>Rp <%= parseFloat(invoice.amount).toLocaleString('id-ID') %></strong>
+                                     <% } %>
+                                 </td>
+                                 <td class="text-end">
+                                     <% if (invoice.tax_rate !== null && invoice.tax_rate !== undefined) { %>
+                                         <% if (invoice.tax_rate === 0) { %>
+                                             <strong>Rp 0</strong>
+                                         <% } else { %>
+                                             <% const taxAmount = invoice.base_amount ? (invoice.base_amount * invoice.tax_rate / 100) : 0; %>
+                                             <strong>Rp <%= taxAmount.toLocaleString('id-ID') %></strong>
+                                         <% } %>
+                                     <% } else { %>
+                                         <% const taxAmount = invoice.base_amount ? (invoice.base_amount * 0.11) : 0; %>
+                                         <strong>Rp <%= taxAmount.toLocaleString('id-ID') %></strong>
+                                     <% } %>
+                                 </td>
+                                 <td class="text-end">
+                                     <strong>Rp <%= parseFloat(invoice.amount).toLocaleString('id-ID') %></strong>
+                                 </td>
                              </tr>
                          </tfoot>
                      </table>
