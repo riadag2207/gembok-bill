@@ -879,12 +879,20 @@ class BillingManager {
     // Invoice Management
     async createInvoice(invoiceData) {
         return new Promise((resolve, reject) => {
-            const { customer_id, package_id, amount, due_date, notes } = invoiceData;
+            const { customer_id, package_id, amount, due_date, notes, base_amount, tax_rate } = invoiceData;
             const invoice_number = this.generateInvoiceNumber();
             
-            const sql = `INSERT INTO invoices (customer_id, package_id, invoice_number, amount, due_date, notes) VALUES (?, ?, ?, ?, ?, ?)`;
+            // Check if base_amount and tax_rate columns exist
+            let sql, params;
+            if (base_amount !== undefined && tax_rate !== undefined) {
+                sql = `INSERT INTO invoices (customer_id, package_id, invoice_number, amount, base_amount, tax_rate, due_date, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+                params = [customer_id, package_id, invoice_number, amount, base_amount, tax_rate, due_date, notes];
+            } else {
+                sql = `INSERT INTO invoices (customer_id, package_id, invoice_number, amount, due_date, notes) VALUES (?, ?, ?, ?, ?, ?)`;
+                params = [customer_id, package_id, invoice_number, amount, due_date, notes];
+            }
             
-            this.db.run(sql, [customer_id, package_id, invoice_number, amount, due_date, notes], function(err) {
+            this.db.run(sql, params, function(err) {
                 if (err) {
                     reject(err);
                 } else {

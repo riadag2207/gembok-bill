@@ -154,7 +154,9 @@ class InvoiceScheduler {
 
                     // Create invoice data with PPN calculation
                     const basePrice = packageData.price;
-                    const taxRate = packageData.tax_rate || 11.00; // Default 11% if not set
+                    const taxRate = (packageData.tax_rate === 0 || (typeof packageData.tax_rate === 'number' && packageData.tax_rate > -1))
+                        ? Number(packageData.tax_rate)
+                        : 11.00; // Default 11% only when undefined/null/invalid
                     const amountWithTax = billingManager.calculatePriceWithTax(basePrice, taxRate);
                     
                     const invoiceData = {

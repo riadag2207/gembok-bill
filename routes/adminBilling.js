@@ -763,7 +763,9 @@ router.get('/auto-invoice/preview', async (req, res) => {
                     
                     // Calculate price with PPN
                     const basePrice = package.price;
-                    const taxRate = package.tax_rate || 11.00;
+                    const taxRate = (package.tax_rate === 0 || (typeof package.tax_rate === 'number' && package.tax_rate > -1))
+                        ? Number(package.tax_rate)
+                        : 11.00;
                     const priceWithTax = billingManager.calculatePriceWithTax(basePrice, taxRate);
                     
                     customersNeedingInvoices.push({
@@ -1667,7 +1669,7 @@ router.get('/invoices', getAppSettings, async (req, res) => {
 
 router.post('/invoices', async (req, res) => {
     try {
-        const { customer_id, package_id, amount, due_date, notes } = req.body;
+        const { customer_id, package_id, amount, due_date, notes, base_amount, tax_rate } = req.body;
         const safeNotes = (notes || '').toString().trim();
         const invoiceData = {
             customer_id: parseInt(customer_id),
@@ -1676,6 +1678,12 @@ router.post('/invoices', async (req, res) => {
             due_date: due_date,
             notes: safeNotes
         };
+        
+        // Add PPN data if available
+        if (base_amount !== undefined && tax_rate !== undefined) {
+            invoiceData.base_amount = parseFloat(base_amount);
+            invoiceData.tax_rate = parseFloat(tax_rate);
+        }
 
         if (!invoiceData.customer_id || !invoiceData.package_id || !invoiceData.amount || !invoiceData.due_date) {
             return res.status(400).json({
@@ -2984,7 +2992,9 @@ router.get('/api/packages/:id/price-with-tax', async (req, res) => {
         }
         
         const basePrice = package.price;
-        const taxRate = package.tax_rate || 11.00;
+        const taxRate = (package.tax_rate === 0 || (typeof package.tax_rate === 'number' && package.tax_rate > -1))
+            ? Number(package.tax_rate)
+            : 11.00;
         const priceWithTax = billingManager.calculatePriceWithTax(basePrice, taxRate);
         
         res.json({
