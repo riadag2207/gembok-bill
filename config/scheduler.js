@@ -152,14 +152,20 @@ class InvoiceScheduler {
                     const targetDay = Math.min(billingDay, lastDayOfMonth);
                     const dueDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), targetDay);
 
-                                            // Create invoice data
-                        const invoiceData = {
-                            customer_id: customer.id,
-                            package_id: customer.package_id,
-                            amount: packageData.price,
-                            due_date: dueDate.toISOString().split('T')[0],
-                            notes: `Tagihan bulanan ${currentDate.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}`
-                        };
+                    // Create invoice data with PPN calculation
+                    const basePrice = packageData.price;
+                    const taxRate = packageData.tax_rate || 11.00; // Default 11% if not set
+                    const amountWithTax = billingManager.calculatePriceWithTax(basePrice, taxRate);
+                    
+                    const invoiceData = {
+                        customer_id: customer.id,
+                        package_id: customer.package_id,
+                        amount: amountWithTax, // Use price with tax
+                        base_amount: basePrice, // Store base price for reference
+                        tax_rate: taxRate, // Store tax rate for reference
+                        due_date: dueDate.toISOString().split('T')[0],
+                        notes: `Tagihan bulanan ${currentDate.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}`
+                    };
 
                     // Create the invoice
                     const newInvoice = await billingManager.createInvoice(invoiceData);

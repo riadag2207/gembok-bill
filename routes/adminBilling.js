@@ -761,11 +761,18 @@ router.get('/auto-invoice/preview', async (req, res) => {
                 if (package) {
                     const dueDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 15);
                     
+                    // Calculate price with PPN
+                    const basePrice = package.price;
+                    const taxRate = package.tax_rate || 11.00;
+                    const priceWithTax = billingManager.calculatePriceWithTax(basePrice, taxRate);
+                    
                     customersNeedingInvoices.push({
                         username: customer.username,
                         name: customer.name,
                         package_name: package.name,
-                        package_price: package.price,
+                        package_price: basePrice,
+                        tax_rate: taxRate,
+                        price_with_tax: priceWithTax,
                         due_date: dueDate.toISOString().split('T')[0]
                     });
                 }
@@ -2959,6 +2966,43 @@ router.get('/api/mapping/export', async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Gagal export data mapping'
+        });
+    }
+});
+
+// Calculate price with tax for package
+router.get('/api/packages/:id/price-with-tax', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const package = await billingManager.getPackageById(parseInt(id));
+        
+        if (!package) {
+            return res.status(404).json({
+                success: false,
+                message: 'Package not found'
+            });
+        }
+        
+        const basePrice = package.price;
+        const taxRate = package.tax_rate || 11.00;
+        const priceWithTax = billingManager.calculatePriceWithTax(basePrice, taxRate);
+        
+        res.json({
+            success: true,
+            package: {
+                id: package.id,
+                name: package.name,
+                base_price: basePrice,
+                tax_rate: taxRate,
+                price_with_tax: priceWithTax
+            }
+        });
+    } catch (error) {
+        logger.error('Error calculating price with tax:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error calculating price with tax',
+            error: error.message
         });
     }
 });

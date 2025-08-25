@@ -868,6 +868,14 @@ class BillingManager {
         });
     }
 
+    // Helper function to calculate price with tax
+    calculatePriceWithTax(price, taxRate) {
+        if (!taxRate || taxRate === 0) {
+            return price;
+        }
+        return price * (1 + taxRate / 100);
+    }
+
     // Invoice Management
     async createInvoice(invoiceData) {
         return new Promise((resolve, reject) => {
