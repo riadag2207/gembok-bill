@@ -40,6 +40,13 @@
                     <i class="bx bx-bar-chart-alt-2"></i> Dashboard Billing
                 </a>
             </li>
+            
+            <!-- Customer Management Section -->
+            <li class="nav-item">
+                <div class="sidebar-section-header">
+                    <i class="bx bx-users"></i> Manajemen Pelanggan
+                </div>
+            </li>
             <li class="nav-item">
                 <a class="nav-link text-white" href="/admin/billing/customers">
                     <i class="bx bx-user"></i> Pelanggan
@@ -50,10 +57,29 @@
                     <i class="bx bx-package"></i> Paket
                 </a>
             </li>
+            
+            <!-- Invoice Management Section -->
+            <li class="nav-item">
+                <div class="sidebar-section-header">
+                    <i class="bx bx-receipt"></i> Manajemen Invoice
+                </div>
+            </li>
             <li class="nav-item">
                 <a class="nav-link text-white" href="/admin/billing/invoices">
-                    <i class="bx bx-receipt"></i> Invoice
+                    <i class="bx bx-file-plus"></i> Buat Invoice
                 </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white" href="/admin/billing/auto-invoice">
+                    <i class="bx bx-calendar-check"></i> Auto Invoice
+                </a>
+            </li>
+            
+            <!-- Payment & Financial Section -->
+            <li class="nav-item">
+                <div class="sidebar-section-header">
+                    <i class="bx bx-credit-card"></i> Pembayaran & Keuangan
+                </div>
             </li>
             <li class="nav-item">
                 <a class="nav-link text-white" href="/admin/billing/payments">
@@ -70,14 +96,16 @@
                     <i class="bx bx-money-withdraw"></i> Manajemen Pengeluaran
                 </a>
             </li>
+            
+            <!-- System & Settings Section -->
+            <li class="nav-item">
+                <div class="sidebar-section-header">
+                    <i class="bx bx-cog"></i> Sistem & Pengaturan
+                </div>
+            </li>
             <li class="nav-item">
                 <a class="nav-link text-white" href="/admin/billing/mapping">
                     <i class="bx bx-map"></i> Network Mapping
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link text-white" href="/admin/billing/auto-invoice">
-                    <i class="bx bx-calendar-check"></i> Auto Invoice
                 </a>
             </li>
             <li class="nav-item">
@@ -177,6 +205,26 @@
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
+}
+
+/* Section Headers */
+.sidebar-section-header {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 1rem 1rem 0.5rem 1rem;
+    margin: 0.5rem 0.5rem 0 0.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.sidebar-section-header i {
+    font-size: 0.9rem;
+    opacity: 0.8;
 }
 
 .sidebar .nav-link {

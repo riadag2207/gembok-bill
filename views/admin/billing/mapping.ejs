@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="theme-color" content="#007bff">
-    <title>Network Mapping - Admin Portal</title>
+    <title><%= title || 'Network Mapping' %> - <%= typeof isTechnicianView !== 'undefined' && isTechnicianView ? 'Portal Teknisi' : 'Admin Portal' %></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/boxicons@2.0.7/css/boxicons.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -131,6 +131,166 @@
         
         .coordinate-stats .small {
             color: #6c757d;
+        }
+
+        /* Mobile Responsive Styles untuk Mapping */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 10px !important;
+                margin-left: 0 !important;
+            }
+            
+            #map {
+                height: 50vh;
+                margin-bottom: 15px;
+            }
+            
+            .stats-card {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+            
+            .stats-number {
+                font-size: 1.5rem;
+            }
+            
+            .map-controls {
+                padding: 10px;
+                margin-bottom: 15px;
+            }
+            
+            .map-controls .row > div {
+                margin-bottom: 10px;
+            }
+            
+            .coordinate-stats {
+                padding: 10px;
+                margin-bottom: 15px;
+            }
+            
+            .legend {
+                padding: 10px;
+                margin-bottom: 15px;
+            }
+            
+            .info-panel {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+            
+            /* Mobile-specific button sizes */
+            .btn {
+                padding: 8px 16px;
+                font-size: 14px;
+                min-height: 42px;
+                touch-action: manipulation;
+            }
+            
+            .btn-sm {
+                padding: 6px 12px;
+                font-size: 12px;
+                min-height: 36px;
+            }
+            
+            /* Mobile header adjustments */
+            .h2 {
+                font-size: 1.5rem;
+            }
+            
+            .d-flex.justify-content-between {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            /* Mobile modal adjustments */
+            .modal-dialog {
+                margin: 10px;
+                max-width: calc(100vw - 20px);
+            }
+            
+            .modal-body {
+                padding: 15px;
+            }
+            
+            /* Form controls mobile friendly */
+            .form-control, .form-select {
+                padding: 10px 12px;
+                font-size: 16px; /* Prevent zoom on iOS */
+                min-height: 42px;
+            }
+            
+            .form-label {
+                font-size: 0.9rem;
+                margin-bottom: 6px;
+            }
+            
+            /* Stats grid mobile */
+            .row .col-md-3 {
+                margin-bottom: 10px;
+            }
+            
+            /* Legend mobile */
+            .legend-item {
+                margin-bottom: 12px;
+                font-size: 0.9rem;
+            }
+            
+            .legend-color {
+                width: 20px;
+                height: 20px;
+            }
+            
+            /* Popup adjustments for mobile */
+            .leaflet-popup-content {
+                font-size: 0.9rem;
+                line-height: 1.4;
+            }
+            
+            .leaflet-popup-content h6 {
+                font-size: 1rem;
+                margin-bottom: 8px;
+            }
+            
+            .leaflet-popup-content .btn {
+                padding: 6px 10px;
+                font-size: 11px;
+                margin: 2px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            #map {
+                height: 40vh;
+            }
+            
+            .stats-card {
+                padding: 12px;
+            }
+            
+            .stats-number {
+                font-size: 1.3rem;
+            }
+            
+            .col-md-4 {
+                order: 2; /* Move sidebar below map on very small screens */
+            }
+            
+            .col-md-8 {
+                order: 1;
+            }
+            
+            .map-controls .form-control {
+                margin-bottom: 8px;
+            }
+            
+            /* Touch-friendly popups */
+            .leaflet-popup {
+                font-size: 0.85rem;
+            }
+            
+            .leaflet-popup-content {
+                margin: 8px 12px;
+            }
         }
 
         /* Mobile Responsive Styles */
@@ -308,11 +468,16 @@
 <body>
     <div class="container-fluid">
         <div class="row">
-            <%- include('../../partials/billing-sidebar') %>
+            <!-- Sidebar -->
+            <% if (typeof isTechnicianView !== 'undefined' && isTechnicianView) { %>
+                <%- include('../../partials/technician-responsive-sidebar', { page: 'mapping', technician: technician }) %>
+            <% } else { %>
+                <%- include('../../partials/billing-sidebar') %>
+            <% } %>
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                     <h1 class="h2">
-                        <i class="bx bx-map"></i> Network Mapping
+                        <i class="bx bx-map"></i> <%= title || 'Network Mapping' %>
                     </h1>
                     <div class="d-flex gap-2">
                         <button class="btn btn-outline-primary" onclick="refreshMap()">
@@ -494,6 +659,9 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
+        // Context variables
+        const isTechnicianView = <%= typeof isTechnicianView !== 'undefined' && isTechnicianView ? 'true' : 'false' %>;
+        
         let map;
         let customerMarkers = [];
         let onuMarkers = [];
@@ -519,8 +687,12 @@
         // Load map data
         async function loadMapData() {
             try {
+                // Tentukan base path berdasarkan context (admin atau technician)
+                const basePath = (typeof isTechnicianView !== 'undefined' && isTechnicianView) ? '/technician' : '/admin/billing';
+                const baseApiPath = (typeof isTechnicianView !== 'undefined' && isTechnicianView) ? '/technician/api' : '/admin/billing/api';
+                
                 // Load customers
-                const customersResponse = await fetch('/admin/billing/api/customers');
+                const customersResponse = await fetch(`${baseApiPath}/customers`);
                 const customersData = await customersResponse.json();
                 
                 if (customersData.success) {
@@ -539,7 +711,7 @@
                 }
                 
                 // Load GenieACS statistics terlebih dahulu
-                const statsResponse = await fetch('/admin/api/statistics');
+                const statsResponse = await fetch(`${baseApiPath}/statistics`);
                 const statsData = await statsResponse.json();
                 
                 if (statsData.success) {
@@ -550,7 +722,7 @@
                 }
                 
                 // Load ONU devices dengan koordinat dari GenieACS
-                const onuResponse = await fetch('/admin/api/mapping/devices');
+                const onuResponse = await fetch(`${basePath}/api/mapping/devices`);
                 const onuData = await onuResponse.json();
                 
                 if (onuData.success) {
@@ -733,6 +905,9 @@
 
         // Add customer markers
         async function addCustomerMarkers(customers) {
+            // Tentukan endpoint berdasarkan context
+            const basePath = (typeof isTechnicianView !== 'undefined' && isTechnicianView) ? '/technician' : '/admin';
+            
             for (const customer of customers) {
                 if (customer.latitude && customer.longitude) {
                     // Cari device GenieACS berdasarkan PPPoE username atau phone
@@ -746,7 +921,7 @@
                     try {
                         // Coba cari device berdasarkan PPPoE username
                         if (customer.pppoe_username) {
-                            const deviceResponse = await fetch(`/admin/api/mapping/devices?pppoe=${encodeURIComponent(customer.pppoe_username)}`);
+                            const deviceResponse = await fetch(`${basePath}/api/mapping/devices?pppoe=${encodeURIComponent(customer.pppoe_username)}`);
                             const deviceData = await deviceResponse.json();
                             if (deviceData.success && deviceData.data.devicesWithCoords.length > 0) {
                                 deviceInfo = deviceData.data.devicesWithCoords[0];
@@ -760,7 +935,7 @@
                         
                         // Jika tidak ada device, coba cari berdasarkan phone number
                         if (!deviceInfo && customer.phone) {
-                            const deviceResponse = await fetch(`/admin/api/mapping/devices?phone=${encodeURIComponent(customer.phone)}`);
+                            const deviceResponse = await fetch(`${basePath}/api/mapping/devices?phone=${encodeURIComponent(customer.phone)}`);
                             const deviceData = await deviceResponse.json();
                             if (deviceData.success && deviceData.data.devicesWithCoords.length > 0) {
                                 deviceInfo = deviceData.data.devicesWithCoords[0];
@@ -813,11 +988,34 @@
                             <hr class="my-2">
                             <h6 class="text-primary">📡 Device Information</h6>
                             <p class="mb-1"><strong>Device Status:</strong> <span class="badge ${deviceStatus === 'Online' ? 'bg-success' : deviceStatus === 'Offline' ? 'bg-danger' : 'bg-warning'}">${deviceStatus}</span></p>
-                            <p class="mb-1"><strong>Signal Strength:</strong> <span class="badge ${getSignalStrengthBadge(signalStrength)}">${signalStrength} dBm</span></p>
+                            <p class="mb-1"><strong>Signal Strength:</strong> <span class="badge ${getSignalStrengthBadge(signalStrength)}">${signalStrength}</span></p>
                             <p class="mb-1"><strong>User Terhubung:</strong> <span class="badge bg-info">${deviceInfo.userConnected || '0'} user</span></p>
                             <p class="mb-1"><strong>Device Model:</strong> ${deviceModel}</p>
                             <p class="mb-1"><strong>PPPoE Username:</strong> ${customer.pppoe_username || 'N/A'}</p>
+                            <p class="mb-1"><strong>PPPoE IP:</strong> ${deviceInfo.pppoeIP || 'N/A'}</p>
+                            <p class="mb-1"><strong>SSID 2.4GHz:</strong> ${deviceInfo.ssid || 'N/A'}</p>
+                            <p class="mb-1"><strong>SSID 5GHz:</strong> ${deviceInfo.ssid5g || 'N/A'}</p>
+                            <p class="mb-1"><strong>Password 5GHz:</strong> ${deviceInfo.password5g || 'N/A'}</p>
+                            <p class="mb-1"><strong>Uptime:</strong> ${formatUptime(deviceInfo.uptime)}</p>
                             <p class="mb-1"><strong>Last Seen:</strong> ${formatLastSeen(lastSeen)}</p>
+                            <hr class="my-2">
+                            <div class="row g-2 text-start">
+                                <div class="col-12">
+                                    <label class="form-label small mb-1">SSID 2.4G</label>
+                                    <div class="input-group input-group-sm">
+                                        <input type="text" class="form-control" id="adminSsidInput_${deviceInfo.id}" placeholder="Nama WiFi">
+                                        <button class="btn btn-success" onclick="adminSaveSsid('${deviceInfo.id}')">Simpan SSID</button>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label small mb-1">Password</label>
+                                    <div class="input-group input-group-sm">
+                                        <input type="text" class="form-control" id="adminPassInput_${deviceInfo.id}" placeholder="Minimal 8 karakter">
+                                        <button class="btn btn-primary" onclick="adminSavePass('${deviceInfo.id}')">Simpan Password</button>
+                                    </div>
+                                    <small class="text-muted">SSID 5GHz otomatis: SSID + "-5G"</small>
+                                </div>
+                            </div>
                         `;
                     } else {
                         popupContent += `
@@ -892,7 +1090,10 @@
         // Load packages for filter
         async function loadPackages() {
             try {
-                const response = await fetch('/admin/billing/api/packages');
+                // Tentukan endpoint berdasarkan context
+                const apiPath = (typeof isTechnicianView !== 'undefined' && isTechnicianView) ? '/technician/api' : '/admin/billing/api';
+                
+                const response = await fetch(`${apiPath}/packages`);
                 const data = await response.json();
                 
                 if (data.success) {
@@ -1092,7 +1293,10 @@
             const tag = document.getElementById('editTag').value;
             
             try {
-                const response = await fetch(`/admin/genieacs/devices/${currentDeviceId}`, {
+                // Tentukan endpoint berdasarkan context
+                const endpoint = isTechnicianView ? `/technician/genieacs/devices/${currentDeviceId}` : `/admin/genieacs/devices/${currentDeviceId}`;
+                
+                const response = await fetch(endpoint, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'
@@ -1115,6 +1319,52 @@
             } catch (error) {
                 console.error('Error updating device:', error);
                 showToast('Error updating device', 'error');
+            }
+        }
+
+        // Quick save SSID via mapping popup (admin)
+        async function adminSaveSsid(deviceId) {
+            try {
+                const el = document.getElementById('adminSsidInput_' + deviceId);
+                if (!el) return showToast('Input SSID tidak ditemukan', 'error');
+                const ssid = el.value.trim();
+                if (!ssid) return showToast('SSID tidak boleh kosong', 'error');
+                const resp = await fetch('/admin/genieacs/genieacs/edit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: deviceId, ssid })
+                });
+                const data = await resp.json();
+                if (data.success) {
+                    showToast('SSID berhasil diupdate', 'success');
+                } else {
+                    showToast(data.message || 'Gagal update SSID', 'error');
+                }
+            } catch (e) {
+                showToast('Error: ' + e.message, 'error');
+            }
+        }
+
+        // Quick save Password via mapping popup (admin)
+        async function adminSavePass(deviceId) {
+            try {
+                const el = document.getElementById('adminPassInput_' + deviceId);
+                if (!el) return showToast('Input Password tidak ditemukan', 'error');
+                const password = el.value.trim();
+                if (!password || password.length < 8) return showToast('Password minimal 8 karakter', 'error');
+                const resp = await fetch('/admin/genieacs/genieacs/edit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: deviceId, password })
+                });
+                const data = await resp.json();
+                if (data.success) {
+                    showToast('Password berhasil diupdate', 'success');
+                } else {
+                    showToast(data.message || 'Gagal update password', 'error');
+                }
+            } catch (e) {
+                showToast('Error: ' + e.message, 'error');
             }
         }
 
@@ -1202,6 +1452,21 @@
             } catch (error) {
                 return lastSeen;
             }
+        }
+
+        // Helper function untuk format uptime (detik -> d h m)
+        function formatUptime(u) {
+            const seconds = parseInt(u, 10);
+            if (!Number.isFinite(seconds) || seconds < 0) return String(u || 'N/A');
+            if (seconds < 60) return `${seconds}s`;
+            const mins = Math.floor(seconds / 60);
+            if (mins < 60) return `${mins}m ${seconds % 60}s`;
+            const hours = Math.floor(mins / 60);
+            const remM = mins % 60;
+            if (hours < 24) return `${hours}h ${remM}m`;
+            const days = Math.floor(hours / 24);
+            const remH = hours % 24;
+            return `${days}d ${remH}h ${remM}m`;
         }
 
         // Initialize map when page loads

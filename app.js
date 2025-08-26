@@ -11,11 +11,45 @@ const { getSetting } = require('./config/settingsManager');
 // Import invoice scheduler
 const invoiceScheduler = require('./config/scheduler');
 
+// Import technician sync service for hot-reload
+const technicianSync = {
+    start() {
+        const fs = require('fs');
+        const sqlite3 = require('sqlite3').verbose();
+        const { getSettingsWithCache } = require('./config/settingsManager');
+        
+        const db = new sqlite3.Database('./data/billing.db');
+        
+        const sync = () => {
+            try {
+                const settings = getSettingsWithCache();
+                Object.keys(settings).filter(k => k.startsWith('technician_numbers.')).forEach(k => {
+                    const phone = settings[k];
+                    if (phone) {
+                        db.run('INSERT OR IGNORE INTO technicians (phone, name, role, is_active, created_at) VALUES (?, ?, "technician", 1, datetime("now"))', 
+                            [phone, `Teknisi ${phone.slice(-4)}`]);
+                    }
+                });
+                console.log('📱 Technician numbers synced from settings.json');
+            } catch (e) {
+                console.error('Sync error:', e.message);
+            }
+        };
+        
+        fs.watchFile('settings.json', { interval: 1000 }, sync);
+        sync(); // Initial sync
+        console.log('🔄 Technician auto-sync enabled - settings.json changes will auto-update technicians');
+    }
+};
+
+// Start technician sync service
+technicianSync.start();
+
 // Inisialisasi aplikasi Express
 const app = express();
 
 // Import route adminAuth
-const { router: adminAuthRouter } = require('./routes/adminAuth');
+const { router: adminAuthRouter, adminAuth } = require('./routes/adminAuth');
 
 // Middleware dasar - Optimized
 app.use(express.json({ limit: '10mb' }));
@@ -59,7 +93,6 @@ app.use('/admin/hotspot', adminHotspotRouter);
 
 // Import dan gunakan route adminSetting
 const adminSettingRouter = require('./routes/adminSetting');
-const { adminAuth } = require('./routes/adminAuth');
 app.use('/admin/setting', adminAuth, adminSettingRouter);
 
 // Import dan gunakan route adminTroubleReport
@@ -69,6 +102,14 @@ app.use('/admin/trouble', adminAuth, adminTroubleReportRouter);
 // Import dan gunakan route adminBilling
 const adminBillingRouter = require('./routes/adminBilling');
 app.use('/admin/billing', adminAuth, adminBillingRouter);
+
+// Import dan gunakan route adminInstallationJobs
+const adminInstallationJobsRouter = require('./routes/adminInstallationJobs');
+app.use('/admin/installations', adminAuth, adminInstallationJobsRouter);
+
+// Import dan gunakan route adminTechnicians
+const adminTechniciansRouter = require('./routes/adminTechnicians');
+app.use('/admin/technicians', adminAuth, adminTechniciansRouter);
 
 // Import dan gunakan route payment
 const paymentRouter = require('./routes/payment');
@@ -155,6 +196,18 @@ app.use('/customer', customerPortal);
 // Mount customer billing portal
 const customerBillingRouter = require('./routes/customerBilling');
 app.use('/customer/billing', customerBillingRouter);
+
+// Import dan gunakan route teknisi portal
+const { router: technicianAuthRouter } = require('./routes/technicianAuth');
+app.use('/technician', technicianAuthRouter);
+// Alias Bahasa Indonesia untuk teknisi
+app.use('/teknisi', technicianAuthRouter);
+
+// Import dan gunakan route dashboard teknisi
+const technicianDashboardRouter = require('./routes/technicianDashboard');
+app.use('/technician', technicianDashboardRouter);
+// Alias Bahasa Indonesia untuk dashboard teknisi
+app.use('/teknisi', technicianDashboardRouter);
 
 // Inisialisasi WhatsApp dan PPPoE monitoring
 try {

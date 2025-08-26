@@ -206,6 +206,64 @@
                         </div>
                     </div>
                 </div>
+                <!-- Trouble Reports Table -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header d-flex align-items-center">
+                                <h5 class="card-title mb-0">
+                                    <i class="bi bi-exclamation-triangle me-1"></i> Riwayat Laporan Gangguan
+                                </h5>
+                                <span class="badge bg-light text-dark ms-2"><%= troubleReports && troubleReports.length ? troubleReports.length : 0 %> laporan</span>
+                                <a href="/admin/trouble" class="btn btn-sm btn-outline-primary ms-auto">Kelola Semua</a>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-centered table-nowrap table-hover mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Tanggal</th>
+                                                <th>Kategori</th>
+                                                <th>Lokasi</th>
+                                                <th>Status</th>
+                                                <th>Catatan Terakhir</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <% if (typeof troubleReports !== 'undefined' && troubleReports && troubleReports.length > 0) { %>
+                                                <% troubleReports.slice().reverse().forEach(function(rep) { %>
+                                                    <tr>
+                                                        <td>#<%= rep.id %></td>
+                                                        <td><%= rep.created_at ? new Date(rep.created_at).toLocaleString('id-ID') : '-' %></td>
+                                                        <td><%= rep.category || '-' %></td>
+                                                        <td><%= rep.location || '-' %></td>
+                                                        <td>
+                                                            <span class="badge <%= 
+                                                                rep.status === 'open' ? 'bg-danger' : 
+                                                                rep.status === 'in_progress' ? 'bg-warning text-dark' : 
+                                                                rep.status === 'resolved' ? 'bg-success' : 
+                                                                'bg-secondary' %>">
+                                                                <%= rep.status || '-' %>
+                                                            </span>
+                                                        </td>
+                                                        <td style="max-width: 360px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                                            <%= rep.notes && rep.notes.length ? rep.notes[rep.notes.length - 1] : '-' %>
+                                                        </td>
+                                                    </tr>
+                                                <% }); %>
+                                            <% } else { %>
+                                                <tr>
+                                                    <td colspan="6" class="text-center text-muted">Belum ada laporan gangguan</td>
+                                                </tr>
+                                            <% } %>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </main>
         </div>
     </div>

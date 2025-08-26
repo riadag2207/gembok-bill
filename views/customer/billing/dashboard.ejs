@@ -860,6 +860,102 @@
         </div>
         <% } %>
       
+      <!-- Widget Riwayat Laporan Gangguan -->
+      <div class="row mt-4">
+        <div class="col-md-12">
+          <div class="table-container">
+            <h6><i class="bi bi-exclamation-triangle"></i>Riwayat Laporan Gangguan</h6>
+
+            <% if (typeof troubleReports !== 'undefined' && troubleReports && troubleReports.length > 0) { %>
+              <!-- Desktop/Tablet: Table -->
+              <div class="d-none d-md-block">
+                <div class="table-responsive">
+                  <table class="table table-hover" style="width:100%">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Tanggal</th>
+                        <th>Kategori</th>
+                        <th>Lokasi</th>
+                        <th>Status</th>
+                        <th>Catatan Terakhir</th>
+                        <th>Aksi</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% troubleReports.slice().reverse().forEach(function(rep){ %>
+                        <tr>
+                          <td>#<%= rep.id %></td>
+                          <td><%= rep.created_at ? new Date(rep.created_at).toLocaleString('id-ID') : '-' %></td>
+                          <td><%= rep.category || '-' %></td>
+                          <td><%= rep.location || '-' %></td>
+                          <td>
+                            <span class="badge <%= rep.status === 'open' ? 'bg-danger' : (rep.status === 'in_progress' ? 'bg-warning text-dark' : (rep.status === 'resolved' ? 'bg-success' : 'bg-secondary')) %>">
+                              <%= rep.status || '-' %>
+                            </span>
+                          </td>
+                          <td style="max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            <%= rep.notes && rep.notes.length ? rep.notes[rep.notes.length - 1] : '-' %>
+                          </td>
+                          <td>
+                            <a href="/customer/trouble/detail/<%= rep.id %>" class="btn btn-sm btn-outline-primary">Detail</a>
+                          </td>
+                        </tr>
+                      <% }); %>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Mobile: Cards -->
+              <div class="d-block d-md-none">
+                <div class="vstack gap-3">
+                  <% troubleReports.slice().reverse().forEach(function(rep){ %>
+                    <div class="card shadow-sm">
+                      <div class="card-body">
+                        <div class="d-flex justify-content-between mb-2">
+                          <div>
+                            <div class="small text-muted">ID Laporan</div>
+                            <div class="fw-bold">#<%= rep.id %></div>
+                          </div>
+                          <div class="text-end small text-muted">
+                            <%= rep.created_at ? new Date(rep.created_at).toLocaleString('id-ID') : '-' %>
+                          </div>
+                        </div>
+                        <div class="mb-2">
+                          <span class="badge bg-info"><%= rep.category || '-' %></span>
+                          <span class="badge <%= rep.status === 'open' ? 'bg-danger' : (rep.status === 'in_progress' ? 'bg-warning text-dark' : (rep.status === 'resolved' ? 'bg-success' : 'bg-secondary')) %> ms-2">
+                            <%= rep.status || '-' %>
+                          </span>
+                        </div>
+                        <div class="small text-muted mb-2">
+                          Lokasi: <%= rep.location || '-' %>
+                        </div>
+                        <div class="small" style="max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                          <em><%= rep.notes && rep.notes.length ? rep.notes[rep.notes.length - 1] : '-' %></em>
+                        </div>
+                        <a href="/customer/trouble/detail/<%= rep.id %>" class="btn btn-primary w-100 mt-2">Detail</a>
+                      </div>
+                    </div>
+                  <% }); %>
+                </div>
+              </div>
+
+              <div class="text-center mt-3">
+                <a href="/customer/trouble/list" class="btn btn-outline-primary">
+                  <i class="bi bi-arrow-right me-1"></i>Lihat Semua Laporan (<%= troubleReports.length %>)
+                </a>
+              </div>
+            <% } else { %>
+              <div class="alert alert-info">
+                <i class="bi bi-info-circle me-2"></i>
+                Belum ada riwayat laporan gangguan.
+                <a href="/customer/trouble/report" class="alert-link">Buat laporan</a> jika Anda mengalami gangguan.
+              </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
       <% } else { %>
       <div class="card">
         <div class="card-header">

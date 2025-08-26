@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Mapping - <%= settings.company_header %></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        :root {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --success-color: #06d6a0;
+            --warning-color: #ffd166;
+            --danger-color: #ef476f;
+            --info-color: #118ab2;
+            --light-bg: #f8f9fa;
+            --dark-text: #2d3436;
+        }
+
+        body {
+            background-color: var(--light-bg);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .sidebar {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            min-height: 100vh;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .sidebar .nav-link {
+            color: rgba(255,255,255,0.8);
+            padding: 1rem 1.5rem;
+            margin: 0.2rem 0;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar .nav-link:hover,
+        .sidebar .nav-link.active {
+            color: white;
+            background: rgba(255,255,255,0.1);
+            transform: translateX(5px);
+        }
+
+        .main-content {
+            padding: 2rem;
+        }
+
+        .content-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .map-container {
+            height: 70vh;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        #networkMap {
+            height: 100%;
+            width: 100%;
+        }
+
+        .user-profile {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .user-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.5rem;
+            font-size: 1.5rem;
+        }
+
+        .map-controls {
+            background: white;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .legend {
+            background: white;
+            border-radius: 10px;
+            padding: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+
+        .customer-info-popup {
+            min-width: 200px;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 0.5rem;
+        }
+
+        .status-active { background-color: var(--success-color); }
+        .status-suspended { background-color: var(--warning-color); }
+        .status-inactive { background-color: var(--danger-color); }
+
+        /* Popup sizing for better readability */
+        .tech-popup .leaflet-popup-content {
+            max-height: 380px;
+            overflow: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .tech-popup .input-group-text {
+            min-width: 90px;
+        }
+        @media (max-width: 768px) {
+            .tech-popup .leaflet-popup-content-wrapper {
+                max-width: 92vw;
+            }
+            .tech-popup .leaflet-popup-content {
+                max-height: 65vh;
+            }
+        }
+
+        /* Mobile fullscreen overlay for focused view */
+        .tech-mobile-overlay {
+            position: fixed;
+            inset: 0;
+            background: #fff;
+            z-index: 3000;
+            display: none;
+            overflow: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .tech-mobile-overlay .overlay-header {
+            position: sticky;
+            top: 0;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 1;
+        }
+        .tech-mobile-overlay .overlay-body {
+            padding: 12px;
+        }
+        .tech-mobile-overlay .overlay-footer {
+            position: sticky;
+            bottom: 0;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            padding: 10px 12px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            border: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 10px;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-top: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 1rem;
+            }
+            
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: -100%;
+                width: 280px;
+                height: 100vh;
+                z-index: 1050;
+                transition: left 0.3s ease;
+            }
+            
+            .sidebar.show {
+                left: 0;
+            }
+
+            .map-container {
+                height: 50vh;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse" id="sidebarMenu">
+                <div class="position-sticky pt-3">
+                    <!-- User Profile -->
+                    <div class="user-profile">
+                        <div class="user-avatar">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+                        <h6 class="text-white mb-1"><%= technician.name %></h6>
+                        <small class="text-white-50">
+                            <i class="bi bi-tools me-1"></i><%= technician.role %>
+                        </small>
+                    </div>
+
+                    <!-- Navigation Menu -->
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/technician/dashboard">
+                                <i class="bi bi-speedometer2"></i>Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/technician/monitoring">
+                                <i class="bi bi-activity"></i>Monitoring
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/technician/customers">
+                                <i class="bi bi-people"></i>Pelanggan
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/technician/mapping">
+                                <i class="bi bi-geo-alt"></i>Mapping
+                            </a>
+                        </li>
+                        <% if (technician.role === 'collector' || technician.role === 'field_officer') { %>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/technician/payments">
+                                <i class="bi bi-credit-card"></i>Pembayaran
+                            </a>
+                        </li>
+                        <% } %>
+                        <li class="nav-item mt-3">
+                            <a class="nav-link" href="/technician/logout">
+                                <i class="bi bi-box-arrow-right"></i>Logout
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main Content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
+                <!-- Mobile Menu Button -->
+                <div class="d-md-none mb-3">
+                    <button class="navbar-toggler btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu">
+                        <i class="bi bi-list"></i>
+                    </button>
+                </div>
+
+                <!-- Page Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h2 class="fw-bold">Network Mapping</h2>
+                        <p class="text-muted mb-0">Peta lokasi pelanggan dan status koneksi</p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-primary" onclick="refreshMap()">
+                            <i class="bi bi-arrow-clockwise me-2"></i>Refresh
+                        </button>
+                        <button class="btn btn-primary" onclick="centerMap()">
+                            <i class="bi bi-geo-alt me-2"></i>Center Map
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Statistics -->
+                <div class="content-card">
+                    <h5 class="mb-3">
+                        <i class="bi bi-bar-chart me-2"></i>Statistik Mapping
+                    </h5>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-number"><%= customers.length %></div>
+                            <div class="stat-label">Total Pelanggan</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number"><%= customers.filter(c => c.status === 'active').length %></div>
+                            <div class="stat-label">Aktif</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number"><%= customers.filter(c => c.status === 'suspended').length %></div>
+                            <div class="stat-label">Suspend</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number"><%= customers.filter(c => !c.latitude || !c.longitude).length %></div>
+                            <div class="stat-label">Belum di-mapping</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Map Controls and Legend -->
+                <div class="row mb-3">
+                    <div class="col-md-8">
+                        <div class="map-controls">
+                            <div class="row align-items-center">
+                                <div class="col-md-6">
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="bi bi-search"></i>
+                                        </span>
+                                        <input type="text" class="form-control" id="searchCustomer" 
+                                               placeholder="Cari pelanggan...">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <select class="form-select" id="filterStatus" onchange="filterByStatus()">
+                                        <option value="all">Semua Status</option>
+                                        <option value="active">Aktif</option>
+                                        <option value="suspended">Suspend</option>
+                                        <option value="inactive">Tidak Aktif</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="legend">
+                            <h6 class="mb-3">
+                                <i class="bi bi-info-circle me-2"></i>Legenda
+                            </h6>
+                            <div class="legend-item">
+                                <div class="legend-color status-active"></div>
+                                <span>Pelanggan Aktif</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color status-suspended"></div>
+                                <span>Pelanggan Suspend</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color status-inactive"></div>
+                                <span>Pelanggan Tidak Aktif</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Map Container -->
+                <div class="content-card">
+                    <div class="map-container">
+                        <div id="networkMap"></div>
+                    </div>
+                </div>
+
+                <!-- Customers Without Coordinates -->
+                <% if (customers.filter(c => !c.latitude || !c.longitude).length > 0) { %>
+                <div class="content-card">
+                    <h5 class="mb-3">
+                        <i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>
+                        Pelanggan Belum di-mapping
+                    </h5>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Nama</th>
+                                    <th>Telepon</th>
+                                    <th>Alamat</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% customers.filter(c => !c.latitude || !c.longitude).slice(0, 10).forEach(function(customer) { %>
+                                <tr>
+                                    <td><%= customer.name %></td>
+                                    <td><%= customer.phone %></td>
+                                    <td><%= customer.address || '-' %></td>
+                                    <td>
+                                        <span class="status-indicator status-<%= customer.status %>"></span>
+                                        <%= customer.status %>
+                                    </td>
+                                </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                    </div>
+                    <% if (customers.filter(c => !c.latitude || !c.longitude).length > 10) { %>
+                    <small class="text-muted">
+                        Dan <%= customers.filter(c => !c.latitude || !c.longitude).length - 10 %> pelanggan lainnya...
+                    </small>
+                    <% } %>
+                </div>
+                <% } %>
+            </main>
+        </div>
+    </div>
+
+    <!-- Mobile fullscreen overlay -->
+    <div id="techMobileOverlay" class="tech-mobile-overlay">
+        <div class="overlay-header">
+            <button class="btn btn-outline-secondary btn-sm" onclick="closeMobileOverlay()">
+                <i class="bi bi-arrow-left"></i> Kembali
+            </button>
+            <strong class="ms-2">Detail Perangkat</strong>
+        </div>
+        <div id="techMobileOverlayBody" class="overlay-body"></div>
+        <div class="overlay-footer d-grid">
+            <button class="btn btn-secondary" onclick="closeMobileOverlay()">Tutup</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Initialize map
+        let map;
+        let markers = [];
+        let customersData = <%- JSON.stringify(customers) %>;
+
+        // Mobile sidebar toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebarToggle = document.querySelector('.navbar-toggler');
+            const sidebar = document.getElementById('sidebarMenu');
+            
+            if (sidebarToggle && sidebar) {
+                sidebarToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('show');
+                });
+            }
+
+            // Initialize the map
+            initializeMap();
+
+            // Search functionality
+            const searchInput = document.getElementById('searchCustomer');
+            searchInput.addEventListener('input', function() {
+                searchCustomers(this.value);
+            });
+        });
+
+        function initializeMap() {
+            // Default center (Indonesia)
+            const defaultLat = -6.2088;
+            const defaultLng = 106.8456;
+            
+            // Initialize map
+            map = L.map('networkMap').setView([defaultLat, defaultLng], 13);
+
+            // Add tile layer
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            // Add markers for customers with coordinates
+            addCustomerMarkers();
+
+            // Auto-fit bounds if there are markers
+            if (markers.length > 0) {
+                const group = new L.featureGroup(markers);
+                map.fitBounds(group.getBounds().pad(0.1));
+            }
+        }
+
+        function addCustomerMarkers() {
+            customersData.forEach(function(customer) {
+                if (customer.latitude && customer.longitude) {
+                    const lat = parseFloat(customer.latitude);
+                    const lng = parseFloat(customer.longitude);
+                    
+                    if (!isNaN(lat) && !isNaN(lng)) {
+                        // Choose marker color based on status
+                        let markerColor = '#06d6a0'; // active (green)
+                        if (customer.status === 'suspended') markerColor = '#ffd166'; // warning (yellow)
+                        if (customer.status === 'inactive') markerColor = '#ef476f'; // danger (red)
+
+                        // Create custom marker
+                        const marker = L.circleMarker([lat, lng], {
+                            radius: 8,
+                            fillColor: markerColor,
+                            color: '#fff',
+                            weight: 2,
+                            opacity: 1,
+                            fillOpacity: 0.8
+                        }).addTo(map);
+
+                        // Initial popup (loading)
+                        const popupId = `popup_${customer.id || `${lat}_${lng}`}`;
+                        const loadingContent = `
+                            <div class="customer-info-popup" id="${popupId}">
+                                <h6 class="mb-2">${customer.name}</h6>
+                                <div class="mb-1"><strong>Username:</strong> ${customer.username || '-'}</div>
+                                <div class="mb-1"><strong>Telepon:</strong> ${customer.phone}</div>
+                                <div class="mb-1"><strong>Paket:</strong> ${customer.package_name || '-'}</div>
+                                <div class="mb-1"><strong>Status:</strong>
+                                    <span class="status-indicator status-${customer.status}"></span> ${customer.status}
+                                </div>
+                                ${customer.address ? `<div class="mb-1"><strong>Alamat:</strong> ${customer.address}</div>` : ''}
+                                <hr class="my-2"/>
+                                <div class="text-muted"><em>Memuat info perangkat...</em></div>
+                            </div>
+                        `;
+
+                        marker.bindPopup(loadingContent, { className: 'tech-popup' });
+                        markers.push(marker);
+                        
+                        // Store customer data in marker for filtering
+                        marker.customerData = customer;
+
+                        // On popup open, fetch device summary and update content
+                        marker.on('popupopen', async () => {
+                            // Auto-pan and open with larger offset so the popup card is fully visible
+                            try {
+                                const target = L.latLng(lat, lng);
+                                // Pan slightly upwards to give space for the popup card
+                                const pixel = map.latLngToContainerPoint(target);
+                                const adjusted = map.containerPointToLatLng([pixel.x, Math.max(0, pixel.y - 140)]);
+                                map.panTo(adjusted, { animate: true });
+                            } catch(_) {}
+                            try {
+                                const res = await fetch(`/technician/api/mapping/devices?phone=${encodeURIComponent(customer.phone)}`, { headers: { 'Accept': 'application/json' } });
+                                const data = await res.json();
+                                const container = document.getElementById(popupId);
+                                if (!container) return;
+
+                                // Default values
+                                let deviceStatus = '-';
+                                let signal = '-';
+                                let users = '-';
+                                let model = '-';
+                                let pppoe = (customer.pppoe_username ? String(customer.pppoe_username) : '-')
+                                let lastSeen = '-';
+
+                                const primitive = (v) => {
+                                    if (v === null || v === undefined) return '-';
+                                    if (typeof v === 'object') {
+                                        if (v._value !== undefined && v._value !== null) return String(v._value);
+                                        if (Array.isArray(v)) return v.map(primitive).join(', ');
+                                        if (v.value !== undefined) return String(v.value);
+                                        if (v.name !== undefined) return String(v.name);
+                                        try { return String(v); } catch (_) { return '-'; }
+                                    }
+                                    return String(v);
+                                };
+
+                                if (data && data.success && data.data) {
+                                    const withC = Array.isArray(data.data.devicesWithCoords) ? data.data.devicesWithCoords : [];
+                                    const withoutC = Array.isArray(data.data.devicesWithoutCoords) ? data.data.devicesWithoutCoords : [];
+                                    let list = withC.concat(withoutC);
+
+                                    // Pilih device terbaik: PPPoE match > lainnya
+                                    const pppUser = (customer.pppoe_username || '').toString();
+                                    let d = list.find(x => x.pppoeUsername && primitive(x.pppoeUsername) === pppUser) || list[0];
+
+                                    if (d) {
+                                        model = primitive(d.model) || '-';
+                                        pppoe = primitive(d.pppoeUsername) || pppoe;
+                                        signal = primitive(d.rxPower) || '-';
+                                        users = primitive(d.userConnected !== undefined ? d.userConnected : (d.userKonek !== undefined ? d.userKonek : '-'));
+
+                                        // Hitung status/last seen bila memungkinkan
+                                        if (d.lastInform) {
+                                            try {
+                                                const last = new Date(d.lastInform).getTime();
+                                                const diffMin = Math.max(0, Math.floor((Date.now() - last) / 60000));
+                                                lastSeen = diffMin === 0 ? 'Just now' : `${diffMin} minutes ago`;
+                                                deviceStatus = diffMin <= 5 ? 'Online' : 'Offline';
+                                            } catch(_) {}
+                                        }
+                                        if (!deviceStatus || deviceStatus === '-') {
+                                            deviceStatus = d.status || '-';
+                                        }
+                                        // Extra fields
+                                        const uptime = formatUptime(primitive(d.uptime));
+                                        const pppoeIP = primitive(d.pppoeIP);
+                                        const ssid24 = primitive(d.ssid);
+                                        const ssid5g = primitive(d.ssid5g);
+                                        const pass5g = primitive(d.password5g);
+
+                                        // Append extra rows + edit form
+                                        const deviceId = primitive(d.id);
+                                        const ssid24Val = primitive(d.ssid) || '';
+                                        const pass24Val = primitive(d.password) || '';
+
+                                        const contentHtml = `
+                                            <h6 class="mb-2">${customer.name}</h6>
+                                            <div class="mb-1"><strong>Username:</strong> ${customer.username || '-'}</div>
+                                            <div class="mb-1"><strong>Telepon:</strong> ${customer.phone}</div>
+                                            <div class="mb-1"><strong>Paket:</strong> ${customer.package_name || '-'}</div>
+                                            <div class="mb-1"><strong>Status:</strong>
+                                                <span class="status-indicator status-${customer.status}"></span> ${customer.status}
+                                            </div>
+                                            ${customer.address ? `<div class="mb-1"><strong>Alamat:</strong> ${customer.address}</div>` : ''}
+                                            <div class="mt-2">
+                                                <strong>📡 Device Information</strong>
+                                                <div class="mt-1"><strong>Device Status:</strong> ${deviceStatus}</div>
+                                                <div class="mt-1"><strong>Signal Strength:</strong> ${signal}</div>
+                                                <div class="mt-1"><strong>User Terhubung:</strong> ${users}</div>
+                                                <div class="mt-1"><strong>Device Model:</strong> ${model}</div>
+                                                <div class="mt-1"><strong>PPPoE Username:</strong> ${pppoe}</div>
+                                                <div class="mt-1"><strong>PPPoE IP:</strong> ${pppoeIP}</div>
+                                                <div class="mt-1"><strong>SSID 2.4GHz:</strong> ${ssid24}</div>
+                                                <div class="mt-1"><strong>SSID 5GHz:</strong> ${ssid5g}</div>
+                                                <div class="mt-1"><strong>Password 5GHz:</strong> ${pass5g}</div>
+                                                <div class="mt-1"><strong>Uptime:</strong> ${uptime}</div>
+                                                <div class="mt-1"><strong>Last Seen:</strong> ${lastSeen}</div>
+                                            </div>
+                                            <hr class="my-2"/>
+                                            <div class="mt-2">
+                                                <strong>Edit WiFi</strong>
+                                                <div class="input-group input-group-sm mt-2">
+                                                    <span class="input-group-text">SSID 2.4G</span>
+                                                    <input type="text" class="form-control" id="ssidInput_${deviceId}" value="${ssid24Val}" placeholder="Nama WiFi">
+                                                    <button class="btn btn-success" onclick="updateDeviceSsid('${deviceId}')">Simpan SSID</button>
+                                                </div>
+                                                <div class="input-group input-group-sm mt-2">
+                                                    <span class="input-group-text">Password</span>
+                                                    <input type="text" class="form-control" id="passInput_${deviceId}" value="${pass24Val}" placeholder="Minimal 8 karakter">
+                                                    <button class="btn btn-primary" onclick="updateDevicePass('${deviceId}')">Simpan Password</button>
+                                                </div>
+                                                <small class="text-muted d-block mt-1">SSID 5GHz otomatis: SSID + "-5G"</small>
+                                            </div>
+                                        `;
+                                        container.innerHTML = contentHtml;
+                                        if (window.innerWidth <= 768) {
+                                            const overlay = document.getElementById('techMobileOverlay');
+                                            const body = document.getElementById('techMobileOverlayBody');
+                                            if (overlay && body) {
+                                                body.innerHTML = contentHtml;
+                                                overlay.style.display = 'block';
+                                            }
+                                        }
+                                        return; // done
+                                    }
+                                }
+
+                                const contentHtml = `
+                                    <h6 class="mb-2">${customer.name}</h6>
+                                    <div class="mb-1"><strong>Username:</strong> ${customer.username || '-'}</div>
+                                    <div class="mb-1"><strong>Telepon:</strong> ${customer.phone}</div>
+                                    <div class="mb-1"><strong>Paket:</strong> ${customer.package_name || '-'}</div>
+                                    <div class="mb-1"><strong>Status:</strong>
+                                        <span class="status-indicator status-${customer.status}"></span> ${customer.status}
+                                    </div>
+                                    ${customer.address ? `<div class="mb-1"><strong>Alamat:</strong> ${customer.address}</div>` : ''}
+                                    <div class="mt-2">
+                                        <strong>📡 Device Information</strong>
+                                        <div class="mt-1"><strong>Device Status:</strong> ${deviceStatus}</div>
+                                        <div class="mt-1"><strong>Signal Strength:</strong> ${signal}</div>
+                                        <div class="mt-1"><strong>User Terhubung:</strong> ${users}</div>
+                                        <div class="mt-1"><strong>Device Model:</strong> ${model}</div>
+                                        <div class="mt-1"><strong>PPPoE Username:</strong> ${pppoe}</div>
+                                        <div class="mt-1"><strong>PPPoE IP:</strong> -</div>
+                                        <div class="mt-1"><strong>SSID 2.4GHz:</strong> -</div>
+                                        <div class="mt-1"><strong>SSID 5GHz:</strong> -</div>
+                                        <div class="mt-1"><strong>Password 5GHz:</strong> -</div>
+                                        <div class="mt-1"><strong>Uptime:</strong> -</div>
+                                        <div class="mt-1"><strong>Last Seen:</strong> ${lastSeen}
+                                        </div>
+                                    </div>
+                                `;
+                                container.innerHTML = contentHtml;
+                                if (window.innerWidth <= 768) {
+                                    const overlay = document.getElementById('techMobileOverlay');
+                                    const body = document.getElementById('techMobileOverlayBody');
+                                    if (overlay && body) {
+                                        body.innerHTML = contentHtml;
+                                        overlay.style.display = 'block';
+                                    }
+                                }
+                            } catch (e) {
+                                const container = document.getElementById(popupId);
+                                if (container) container.querySelector('.text-muted')?.replaceWith(document.createTextNode('Gagal memuat info perangkat'));
+                            }
+                        });
+                    }
+                }
+            });
+        }
+
+        function refreshMap() {
+            // Clear existing markers
+            markers.forEach(marker => map.removeLayer(marker));
+            markers = [];
+            
+            // Reload customer data (in real implementation, this would fetch from server)
+            addCustomerMarkers();
+            
+            // Show success message
+            alert('Peta berhasil di-refresh!');
+        }
+
+        function centerMap() {
+            if (markers.length > 0) {
+                const group = new L.featureGroup(markers);
+                map.fitBounds(group.getBounds().pad(0.1));
+            } else {
+                // Center on default location
+                map.setView([-6.2088, 106.8456], 13);
+            }
+        }
+
+        function filterByStatus() {
+            const selectedStatus = document.getElementById('filterStatus').value;
+            
+            markers.forEach(marker => {
+                if (selectedStatus === 'all' || marker.customerData.status === selectedStatus) {
+                    marker.setStyle({ opacity: 1, fillOpacity: 0.8 });
+                } else {
+                    marker.setStyle({ opacity: 0.3, fillOpacity: 0.3 });
+                }
+            });
+        }
+
+        function searchCustomers(searchTerm) {
+            const term = searchTerm.toLowerCase();
+            
+            markers.forEach(marker => {
+                const customer = marker.customerData;
+                const matchesSearch = !term || 
+                    customer.name.toLowerCase().includes(term) ||
+                    customer.phone.includes(term) ||
+                    customer.username.toLowerCase().includes(term);
+                
+                if (matchesSearch) {
+                    marker.setStyle({ opacity: 1, fillOpacity: 0.8 });
+                } else {
+                    marker.setStyle({ opacity: 0.3, fillOpacity: 0.3 });
+                }
+            });
+        }
+
+        function formatUptime(value) {
+            const seconds = parseInt(value, 10);
+            if (!Number.isFinite(seconds) || seconds < 0) return String(value || '-');
+            if (seconds < 60) return `${seconds}s`;
+            const mins = Math.floor(seconds / 60);
+            if (mins < 60) return `${mins}m ${seconds % 60}s`;
+            const hours = Math.floor(mins / 60);
+            const remM = mins % 60;
+            if (hours < 24) return `${hours}h ${remM}m`;
+            const days = Math.floor(hours / 24);
+            const remH = hours % 24;
+            return `${days}d ${remH}h ${remM}m`;
+        }
+
+        async function updateDeviceSsid(deviceId) {
+            try {
+                const ssidEl = document.getElementById(`ssidInput_${deviceId}`);
+                if (!ssidEl) return alert('SSID tidak ditemukan');
+                const ssid24 = ssidEl.value.trim();
+                if (!ssid24) return alert('SSID 2.4G tidak boleh kosong');
+
+                // SSID 5G: otomatis {SSID}-5G
+                const ssid5 = `${ssid24}-5G`;
+
+                const resp = await fetch('/technician/genieacs/devices/' + encodeURIComponent(deviceId), {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ssid: ssid24, ssid5g: ssid5 })
+                });
+                const data = await resp.json();
+                if (data.success) {
+                    if (window.innerWidth <= 768) closeMobileOverlay();
+                    alert('SSID berhasil diperbarui. Perangkat akan menerapkan perubahan dalam beberapa saat.');
+                } else {
+                    alert(data.message || 'Gagal memperbarui SSID');
+                }
+            } catch (e) {
+                alert('Error: ' + e.message);
+            }
+        }
+
+        async function updateDevicePass(deviceId) {
+            try {
+                const passEl = document.getElementById(`passInput_${deviceId}`);
+                if (!passEl) return alert('Password input tidak ditemukan');
+                const pass = (passEl.value || '').trim();
+                if (!pass || pass.length < 8) return alert('Password minimal 8 karakter');
+                const resp = await fetch('/technician/genieacs/devices/' + encodeURIComponent(deviceId), {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password: pass })
+                });
+                const data = await resp.json();
+                if (data.success) {
+                    if (window.innerWidth <= 768) closeMobileOverlay();
+                    alert('Password WiFi berhasil diperbarui.');
+                } else {
+                    alert(data.message || 'Gagal memperbarui password');
+                }
+            } catch (e) {
+                alert('Error: ' + e.message);
+            }
+        }
+
+        function closeMobileOverlay() {
+            const overlay = document.getElementById('techMobileOverlay');
+            const body = document.getElementById('techMobileOverlayBody');
+            if (overlay && body) {
+                body.innerHTML = '';
+                overlay.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

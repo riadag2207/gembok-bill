@@ -18,8 +18,19 @@
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                     <h1 class="h2">
-                        <i class="bx bx-calendar-check"></i> Pengaturan Invoice Otomatis
+                        <i class="bx bx-calendar-check"></i> Auto Invoice
                     </h1>
+                </div>
+                <div class="alert alert-info d-flex align-items-center mb-3" role="alert">
+                    <i class="bx bx-info-circle fs-3 me-2"></i>
+                    <div>
+                        Sistem auto-invoice aktif:
+                        <ul class="mb-0">
+                            <li>Generate bulanan otomatis setiap tanggal 1.</li>
+                            <li>Generate harian berdasarkan <em>billing_day</em> per pelanggan.</li>
+                            <li>Jatuh tempo invoice mengikuti <em>billing_day</em> pelanggan.</li>
+                        </ul>
+                    </div>
                 </div>
 
                 <!-- Status Card -->
@@ -131,56 +142,7 @@
                     </div>
                 </div>
 
-                <!-- Settings Section -->
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">
-                            <i class="bx bx-settings"></i> Pengaturan Auto Invoice
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <form id="autoInvoiceSettingsForm">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="autoInvoiceEnabled" class="form-label">Aktifkan Auto Invoice</label>
-                                        <select class="form-control" id="autoInvoiceEnabled" name="auto_invoice_enabled">
-                                            <option value="true" <%= settings.auto_invoice_enabled === 'true' ? 'selected' : '' %>>Ya</option>
-                                            <option value="false" <%= settings.auto_invoice_enabled === 'false' ? 'selected' : '' %>>Tidak</option>
-                                        </select>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="invoiceDay" class="form-label">Tanggal Generate Invoice</label>
-                                        <input type="number" class="form-control" id="invoiceDay" name="invoice_day" 
-                                               value="<%= settings.invoice_day || 1 %>" min="1" max="31">
-                                        <small class="text-muted">Tanggal setiap bulan untuk generate invoice (1-31)</small>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="dueDateDays" class="form-label">Jatuh Tempo (Hari)</label>
-                                        <input type="number" class="form-control" id="dueDateDays" name="due_date_days" 
-                                               value="<%= settings.due_date_days || 30 %>" min="1" max="90">
-                                        <small class="text-muted">Jumlah hari setelah generate invoice untuk jatuh tempo</small>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="sendNotification" class="form-label">Kirim Notifikasi</label>
-                                        <select class="form-control" id="sendNotification" name="send_notification">
-                                            <option value="true" <%= settings.send_notification === 'true' ? 'selected' : '' %>>Ya</option>
-                                            <option value="false" <%= settings.send_notification === 'false' ? 'selected' : '' %>>Tidak</option>
-                                        </select>
-                                        <small class="text-muted">Kirim notifikasi WhatsApp saat invoice dibuat</small>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="text-end">
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="bx bx-save"></i> Simpan Pengaturan
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+                <!-- Settings Section removed: now following per-customer billing_day and daily scheduler -->
             </main>
         </div>
     </div>
@@ -275,28 +237,7 @@
             document.getElementById('previewSection').style.display = 'none';
         });
 
-        // Save Settings
-        document.getElementById('autoInvoiceSettingsForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const formData = new FormData(this);
-            
-            fetch('/admin/billing/auto-invoice/settings', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showAlert('success', 'Pengaturan berhasil disimpan');
-                } else {
-                    showAlert('danger', data.message || 'Gagal menyimpan pengaturan');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showAlert('danger', 'Terjadi kesalahan');
-            });
-        });
+        // Settings form removed
 
         function showAlert(type, message) {
             const alertHtml = `

@@ -308,6 +308,97 @@
                             </form>
                         </div>
                     </div>
+
+                    <!-- Riwayat Laporan Gangguan -->
+                    <div class="form-card">
+                        <div class="form-header">
+                            <h2><i class="bi bi-clock-history me-2"></i>Riwayat Laporan Anda</h2>
+                            <p>Lihat status penanganan laporan yang pernah Anda kirim</p>
+                        </div>
+                        <div class="form-body">
+                            <% if (typeof previousReports !== 'undefined' && previousReports && previousReports.length > 0) { %>
+                                <div class="table-responsive d-none d-md-block">
+                                    <table class="table table-hover align-middle mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Tanggal</th>
+                                                <th>Kategori</th>
+                                                <th>Lokasi</th>
+                                                <th>Status</th>
+                                                <th>Catatan Terakhir</th>
+                                                <th>Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <% previousReports.slice().reverse().forEach(function(rep){ %>
+                                                <tr>
+                                                    <td>#<%= rep.id %></td>
+                                                    <td><%= rep.created_at ? new Date(rep.created_at).toLocaleString('id-ID') : '-' %></td>
+                                                    <td><%= rep.category || '-' %></td>
+                                                    <td><%= rep.location || '-' %></td>
+                                                    <td>
+                                                        <span class="badge <%= rep.status === 'open' ? 'bg-danger' : (rep.status === 'in_progress' ? 'bg-warning text-dark' : (rep.status === 'resolved' ? 'bg-success' : 'bg-secondary')) %>">
+                                                            <%= rep.status || '-' %>
+                                                        </span>
+                                                    </td>
+                                                    <td style="max-width: 320px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                                        <%= rep.notes && rep.notes.length ? rep.notes[rep.notes.length - 1] : '-' %>
+                                                    </td>
+                                                    <td>
+                                                        <a href="/customer/trouble/detail/<%= rep.id %>" class="btn btn-sm btn-outline-primary">Detail</a>
+                                                    </td>
+                                                </tr>
+                                            <% }) %>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <!-- Mobile cards -->
+                                <div class="d-block d-md-none">
+                                    <div class="vstack gap-3">
+                                        <% previousReports.slice().reverse().forEach(function(rep){ %>
+                                            <div class="card shadow-sm">
+                                                <div class="card-body">
+                                                    <div class="d-flex justify-content-between mb-2">
+                                                        <div>
+                                                            <div class="small text-muted">ID Laporan</div>
+                                                            <div class="fw-bold">#<%= rep.id %></div>
+                                                        </div>
+                                                        <div class="small text-muted">
+                                                            <%= rep.created_at ? new Date(rep.created_at).toLocaleString('id-ID') : '-' %>
+                                                        </div>
+                                                    </div>
+                                                    <div class="mb-2">
+                                                        <span class="badge bg-info"><%= rep.category || '-' %></span>
+                                                        <span class="badge <%= rep.status === 'open' ? 'bg-danger' : (rep.status === 'in_progress' ? 'bg-warning text-dark' : (rep.status === 'resolved' ? 'bg-success' : 'bg-secondary')) %> ms-2">
+                                                            <%= rep.status || '-' %>
+                                                        </span>
+                                                    </div>
+                                                    <div class="small text-muted mb-1">Lokasi: <%= rep.location || '-' %></div>
+                                                    <div class="small" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                                        <em><%= rep.notes && rep.notes.length ? rep.notes[rep.notes.length - 1] : '-' %></em>
+                                                    </div>
+                                                    <a href="/customer/trouble/detail/<%= rep.id %>" class="btn btn-primary w-100 mt-2">Detail</a>
+                                                </div>
+                                            </div>
+                                        <% }) %>
+                                    </div>
+                                </div>
+
+                                <div class="text-center mt-3">
+                                    <a href="/customer/trouble/list" class="btn btn-outline-primary">
+                                        <i class="bi bi-arrow-right me-1"></i>Lihat Semua Laporan (<%= previousReports.length %>)
+                                    </a>
+                                </div>
+                            <% } else { %>
+                                <div class="alert alert-info mb-0">
+                                    <i class="bi bi-info-circle me-2"></i>
+                                    Belum ada riwayat laporan. Setelah mengirim laporan, riwayat akan muncul di sini.
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
