@@ -1364,6 +1364,14 @@ router.get('/customers/:phone', getAppSettings, async (req, res) => {
 
         const invoices = await billingManager.getInvoicesByCustomer(customer.id);
         const packages = await billingManager.getPackages();
+        // Load trouble report history for this customer (by phone)
+        let troubleReports = [];
+        try {
+            const { getTroubleReportsByPhone } = require('../config/troubleReport');
+            troubleReports = getTroubleReportsByPhone(customer.phone || phone) || [];
+        } catch (e) {
+            logger.warn('Unable to load trouble reports for customer:', e.message);
+        }
         
         logger.info(`Rendering customer detail page for: ${phone}`);
         
@@ -1374,6 +1382,7 @@ router.get('/customers/:phone', getAppSettings, async (req, res) => {
                 customer,
                 invoices: invoices || [],
                 packages: packages || [],
+                troubleReports,
                 appSettings: req.appSettings
             });
         } catch (renderError) {

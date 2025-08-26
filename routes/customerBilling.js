@@ -144,6 +144,15 @@ router.get('/dashboard', ensureCustomerSession, getAppSettings, async (req, res)
             return invoices.some(invoice => invoice.id === payment.invoice_id);
         });
 
+        // Ambil riwayat laporan gangguan berdasarkan nomor telepon customer
+        let troubleReports = [];
+        try {
+            const { getTroubleReportsByPhone } = require('../config/troubleReport');
+            troubleReports = getTroubleReportsByPhone(customer.phone) || [];
+        } catch (e) {
+            logger.warn('Unable to load trouble reports for customer dashboard:', e.message);
+        }
+
         // Hitung statistik customer
         const totalInvoices = invoices.length;
         const paidInvoices = invoices.filter(inv => inv.status === 'paid').length;
@@ -163,6 +172,7 @@ router.get('/dashboard', ensureCustomerSession, getAppSettings, async (req, res)
             customer,
             invoices: invoices.slice(0, 5), // 5 tagihan terbaru
             payments: customerPayments.slice(0, 5), // 5 pembayaran terbaru
+            troubleReports: troubleReports.slice(-5), // 5 laporan terbaru
             stats: {
                 totalInvoices,
                 paidInvoices,

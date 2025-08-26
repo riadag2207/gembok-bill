@@ -117,25 +117,39 @@ function getAdminNumbers() {
 }
 
 // Get technician numbers from settings.json
-function getTechnicianNumbers() {
+async function getTechnicianNumbers() {
     try {
-        const { getSettingsWithCache } = require('./settingsManager');
-        const settings = getSettingsWithCache();
+        const sqlite3 = require('sqlite3').verbose();
+        const path = require('path');
         
-        // Cari technician numbers dengan format technician_numbers.0, technician_numbers.1, dst
-        const technicianNumbers = [];
-        let index = 0;
-        while (settings[`technician_numbers.${index}`]) {
-            technicianNumbers.push(settings[`technician_numbers.${index}`]);
-            index++;
-        }
+        const dbPath = path.join(__dirname, '../data/billing.db');
+        const db = new sqlite3.Database(dbPath);
         
-        // Jika tidak ada format technician_numbers.0, coba cari array technician_numbers
-        if (technicianNumbers.length === 0 && settings.technician_numbers) {
-            return settings.technician_numbers;
-        }
-        
-        return technicianNumbers;
+        return new Promise((resolve, reject) => {
+            // Ambil semua nomor teknisi aktif dari database
+            const query = `
+                SELECT phone, name, role 
+                FROM technicians 
+                WHERE is_active = 1 
+                ORDER BY role, name
+            `;
+            
+            db.all(query, [], (err, rows) => {
+                db.close();
+                
+                if (err) {
+                    logger.error(`Error getting technician numbers from database: ${err.message}`);
+                    resolve([]);
+                    return;
+                }
+                
+                // Extract phone numbers
+                const technicianNumbers = rows.map(row => row.phone);
+                logger.info(`Found ${technicianNumbers.length} active technicians in database`);
+                
+                resolve(technicianNumbers);
+            });
+        });
     } catch (error) {
         logger.error(`Error getting technician numbers: ${error.message}`);
         return [];
@@ -310,7 +324,9 @@ async function sendNotification(message) {
         return false;
     }
 
-    const recipients = [...getAdminNumbers(), ...getTechnicianNumbers()];
+            const adminNumbers = getAdminNumbers();
+        const technicianNumbers = await getTechnicianNumbers();
+        const recipients = [...adminNumbers, ...technicianNumbers];
     const uniqueRecipients = [...new Set(recipients)]; // Remove duplicates
 
     if (uniqueRecipients.length === 0) {

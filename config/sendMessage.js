@@ -1,4 +1,5 @@
 let sock = null;
+const { getSetting } = require('./settingsManager');
 
 // Fungsi untuk set instance sock
 function setSock(sockInstance) {
@@ -172,18 +173,29 @@ async function sendGroupMessage(numbers, message) {
 // Fungsi untuk mengirim pesan ke grup teknisi
 async function sendTechnicianMessage(message, priority = 'normal') {
     try {
-        // Ambil daftar nomor teknisi dari settings
-        const { getSetting } = require('./settingsManager');
-        const technicianNumbers = [];
+        // Ambil daftar nomor teknisi dari database
+        const sqlite3 = require('sqlite3').verbose();
+        const path = require('path');
         
-        // Ambil nomor teknisi dari settings
-        let i = 0;
-        while (true) {
-            const number = getSetting(`technician_numbers.${i}`, '');
-            if (!number) break;
-            technicianNumbers.push(number);
-            i++;
-        }
+        const dbPath = path.join(__dirname, '../data/billing.db');
+        const db = new sqlite3.Database(dbPath);
+        
+        const technicians = await new Promise((resolve, reject) => {
+            const query = `
+                SELECT phone, name, role 
+                FROM technicians 
+                WHERE is_active = 1 
+                ORDER BY role, name
+            `;
+            
+            db.all(query, [], (err, rows) => {
+                db.close();
+                if (err) reject(err);
+                else resolve(rows || []);
+            });
+        });
+        
+        const technicianNumbers = technicians.map(tech => tech.phone);
         
         const technicianGroupId = getSetting('technician_group_id', '');
         let sentToGroup = false;

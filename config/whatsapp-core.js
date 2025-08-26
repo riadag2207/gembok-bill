@@ -80,26 +80,37 @@ class WhatsAppCore {
     }
 
     // Fungsi untuk mengecek apakah nomor adalah teknisi
-    isTechnicianNumber(number) {
+    async isTechnicianNumber(number) {
         try {
             // Normalisasi nomor
             let cleanNumber = number.replace(/\D/g, '');
             if (cleanNumber.startsWith('0')) cleanNumber = '62' + cleanNumber.slice(1);
             if (!cleanNumber.startsWith('62')) cleanNumber = '62' + cleanNumber;
             
-            // Baca semua settings untuk mencari key yang dimulai dengan 'technician_numbers.'
-            const allSettings = getSettingsWithCache();
-            const technicianNumbers = [];
+            // Cek di database technicians
+            const sqlite3 = require('sqlite3').verbose();
+            const path = require('path');
             
-            // Cari semua key yang dimulai dengan 'technician_numbers.'
-            Object.keys(allSettings).forEach(key => {
-                if (key.startsWith('technician_numbers.') && allSettings[key]) {
-                    technicianNumbers.push(allSettings[key]);
-                }
+            const dbPath = path.join(__dirname, '../data/billing.db');
+            const db = new sqlite3.Database(dbPath);
+            
+            return new Promise((resolve, reject) => {
+                const query = `
+                    SELECT COUNT(*) as count 
+                    FROM technicians 
+                    WHERE phone = ? AND is_active = 1
+                `;
+                
+                db.get(query, [cleanNumber], (err, row) => {
+                    db.close();
+                    if (err) {
+                        console.error('Error checking technician number in database:', err);
+                        resolve(false);
+                    } else {
+                        resolve(row && row.count > 0);
+                    }
+                });
             });
-            
-            // Cek apakah nomor ada dalam daftar teknisi
-            return technicianNumbers.includes(cleanNumber);
         } catch (error) {
             console.error('Error checking technician number:', error);
             return false;
@@ -107,8 +118,10 @@ class WhatsAppCore {
     }
 
     // Fungsi untuk mengecek apakah nomor bisa akses fitur teknisi (admin atau teknisi)
-    canAccessTechnicianFeatures(number) {
-        return this.isAdminNumber(number) || this.isTechnicianNumber(number);
+    async canAccessTechnicianFeatures(number) {
+        const isAdmin = this.isAdminNumber(number);
+        const isTechnician = await this.isTechnicianNumber(number);
+        return isAdmin || isTechnician;
     }
 
     // Fungsi untuk mengecek apakah nomor adalah super admin

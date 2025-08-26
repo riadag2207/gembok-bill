@@ -24,6 +24,23 @@ class InvoiceScheduler {
 
         logger.info('Invoice scheduler initialized - will run on 1st of every month at 08:00');
         
+        // Schedule daily invoice generation based on customer's billing_day at 08:10
+        // This generates invoices for customers whose billing_day equals today
+        cron.schedule('10 8 * * *', async () => {
+            try {
+                logger.info('Starting daily invoice generation by billing_day (08:10)...');
+                await this.generateDailyInvoicesByBillingDay();
+                logger.info('Daily invoice generation by billing_day completed');
+            } catch (error) {
+                logger.error('Error in daily invoice generation by billing_day:', error);
+            }
+        }, {
+            scheduled: true,
+            timezone: "Asia/Jakarta"
+        });
+        
+        logger.info('Daily invoice-by-billing_day scheduler initialized - will run daily at 08:10');
+        
         // Schedule daily due date reminders at 09:00
         cron.schedule('0 9 * * *', async () => {
             try {
@@ -180,6 +197,91 @@ class InvoiceScheduler {
 
         } catch (error) {
             logger.error('Error in generateMonthlyInvoices:', error);
+            throw error;
+        }
+    }
+
+    // Generate invoices daily for customers whose billing_day is today
+    async generateDailyInvoicesByBillingDay() {
+        try {
+            // Get all active customers
+            const customers = await billingManager.getCustomers();
+            const activeCustomers = customers.filter(customer => 
+                customer.status === 'active' && customer.package_id
+            );
+
+            const today = new Date();
+            const todayDay = today.getDate();
+            const currentYear = today.getFullYear();
+            const currentMonth = today.getMonth();
+
+            // Compute start and end of current month for duplicate checks
+            const startOfMonth = new Date(currentYear, currentMonth, 1);
+            const endOfMonth = new Date(currentYear, currentMonth + 1, 0);
+
+            // For each active customer whose billing_day == today (capped 1-28)
+            for (const customer of activeCustomers) {
+                try {
+                    const normalizedBillingDay = (() => {
+                        const v = parseInt(customer.billing_day, 10);
+                        if (Number.isFinite(v)) return Math.min(Math.max(v, 1), 28);
+                        return 15;
+                    })();
+
+                    // If today matches the customer's billing day (allowing month shorter than 31)
+                    if (todayDay !== normalizedBillingDay) {
+                        continue;
+                    }
+
+                    // Get package
+                    const packageData = await billingManager.getPackageById(customer.package_id);
+                    if (!packageData) {
+                        logger.warn(`Package not found for customer ${customer.username}`);
+                        continue;
+                    }
+
+                    // Check if invoice already exists for this month
+                    const existingInvoices = await billingManager.getInvoicesByCustomerAndDateRange(
+                        customer.username,
+                        startOfMonth,
+                        endOfMonth
+                    );
+                    if (existingInvoices.length > 0) {
+                        logger.info(`Invoice already exists for customer ${customer.username} this month (daily generator)`);
+                        continue;
+                    }
+
+                    // Set due date to today's date (which equals billing_day)
+                    const dueDate = new Date(currentYear, currentMonth, normalizedBillingDay)
+                        .toISOString()
+                        .split('T')[0];
+
+                    // Calculate amount with tax
+                    const basePrice = packageData.price;
+                    const taxRate = (packageData.tax_rate === 0 || (typeof packageData.tax_rate === 'number' && packageData.tax_rate > -1))
+                        ? Number(packageData.tax_rate)
+                        : 11.00;
+                    const amountWithTax = billingManager.calculatePriceWithTax(basePrice, taxRate);
+
+                    const invoiceData = {
+                        customer_id: customer.id,
+                        package_id: customer.package_id,
+                        amount: amountWithTax,
+                        base_amount: basePrice,
+                        tax_rate: taxRate,
+                        due_date: dueDate,
+                        notes: `Tagihan bulanan ${today.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}`
+                    };
+
+                    const newInvoice = await billingManager.createInvoice(invoiceData);
+                    logger.info(`(Daily) Created invoice ${newInvoice.invoice_number} for customer ${customer.username}`);
+
+                } catch (error) {
+                    logger.error(`(Daily) Error creating invoice for customer ${customer.username}:`, error);
+                }
+            }
+        } catch (error) {
+            logger.error('Error in generateDailyInvoicesByBillingDay:', error);
             throw error;
         }
     }

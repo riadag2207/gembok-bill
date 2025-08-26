@@ -9,18 +9,46 @@ const { getSettingsWithCache, getSetting } = require('../config/settingsManager'
 const billingManager = require('../config/billing');
 const router = express.Router();
 
+// Phone helpers: normalize and variants (08..., 62..., +62...)
+function normalizePhone(input) {
+  if (!input) return '';
+  let s = String(input).replace(/[^0-9+]/g, '');
+  if (s.startsWith('+')) s = s.slice(1);
+  if (s.startsWith('0')) return '62' + s.slice(1);
+  if (s.startsWith('62')) return s;
+  // Fallback: if it looks like local without leading 0, prepend 62
+  if (/^8[0-9]{7,13}$/.test(s)) return '62' + s;
+  return s;
+}
+
+function generatePhoneVariants(input) {
+  const raw = String(input || '');
+  const norm = normalizePhone(raw);
+  const local = norm.startsWith('62') ? '0' + norm.slice(2) : raw;
+  const plus = norm.startsWith('62') ? '+62' + norm.slice(2) : raw;
+  const shortLocal = local.startsWith('0') ? local.slice(1) : local;
+  return Array.from(new Set([raw, norm, local, plus, shortLocal].filter(Boolean)));
+}
+
 // Validasi nomor pelanggan - PRIORITAS KE BILLING SYSTEM
 async function isValidCustomer(phone) {
   try {
-    // 1. Cek di database billing terlebih dahulu
-    const customer = await billingManager.getCustomerByPhone(phone);
-    if (customer) {
-      console.log(`✅ Customer found in billing database: ${phone}`);
-      return true; // Pelanggan valid jika ada di billing
+    // 1. Cek di database billing terlebih dahulu (coba semua varian)
+    const variants = generatePhoneVariants(phone);
+    for (const v of variants) {
+      const customer = await billingManager.getCustomerByPhone(v);
+      if (customer) {
+        console.log(`✅ Customer found in billing database: ${v} (input: ${phone})`);
+        return true; // Pelanggan valid jika ada di billing
+      }
     }
     
-    // 2. Jika tidak ada di billing, cek di GenieACS sebagai fallback
-    let device = await findDeviceByTag(phone);
+    // 2. Jika tidak ada di billing, cek di GenieACS sebagai fallback dengan semua varian
+    let device = null;
+    for (const v of variants) {
+      device = await findDeviceByTag(v);
+      if (device) break;
+    }
     
     // Jika tidak ditemukan di GenieACS, coba cari berdasarkan PPPoE username dari billing
     if (!device) {
@@ -102,18 +130,26 @@ async function getCustomerDeviceData(phone) {
     const customer = await billingManager.getCustomerByPhone(phone);
     let device = null;
     let billingData = null;
+    const tagVariants = generatePhoneVariants(phone);
     
     if (customer) {
       console.log(`✅ Customer found in billing: ${customer.name} (${phone})`);
       
-      // 2. Coba ambil data device dari GenieACS jika ada
-      device = await findDeviceByTag(phone);
+      // 2. Coba ambil data device dari GenieACS jika ada (coba semua varian tag)
+      for (const v of tagVariants) {
+        device = await findDeviceByTag(v);
+        if (device) {
+          console.log(`✅ Device found by tag variant: ${v}`);
+          break;
+        }
+      }
       
       // Jika tidak ditemukan, coba cari berdasarkan PPPoE username dari billing
       if (!device && customer.pppoe_username) {
         try {
           const { findDeviceByPPPoE } = require('../config/genieacs');
           device = await findDeviceByPPPoE(customer.pppoe_username);
+          if (device) console.log(`✅ Device found by PPPoE username: ${customer.pppoe_username}`);
         } catch (error) {
           console.error('Error finding device by PPPoE username:', error);
         }
@@ -134,20 +170,15 @@ async function getCustomerDeviceData(phone) {
         };
       }
     } else {
-      // Fallback: coba cari di GenieACS saja
-      device = await findDeviceByTag(phone);
-      
-      if (!device) {
-        try {
-          const customer = await billingManager.getCustomerByPhone(phone);
-          if (customer && customer.pppoe_username) {
-            const { findDeviceByPPPoE } = require('../config/genieacs');
-            device = await findDeviceByPPPoE(customer.pppoe_username);
-          }
-        } catch (error) {
-          console.error('Error finding device by PPPoE username:', error);
+      // Fallback: coba cari di GenieACS saja (semua varian tag)
+      for (const v of tagVariants) {
+        device = await findDeviceByTag(v);
+        if (device) {
+          console.log(`✅ Device found by tag variant (no billing): ${v}`);
+          break;
         }
       }
+      // Tidak ada data billing, jadi tidak bisa cari PPPoE dari billing di cabang ini
     }
     
     // 4. Jika tidak ada device di GenieACS, buat data default
@@ -601,17 +632,20 @@ router.post('/login', async (req, res) => {
     const { phone } = req.body;
     const settings = getSettingsWithCache();
     
-    // Fast validation
-    if (!phone || !phone.match(/^08[0-9]{8,13}$/)) {
+    // Fast validation: terima 08..., 62..., +62...
+    const valid = !!phone && (/^08[0-9]{8,13}$/.test(phone) || /^\+?62[0-9]{8,13}$/.test(phone));
+    if (!valid) {
       if (req.xhr || req.headers.accept.indexOf('json') > -1) {
-        return res.status(400).json({ success: false, message: 'Nomor HP harus valid (08xxxxxxxxxx)' });
+        return res.status(400).json({ success: false, message: 'Nomor HP harus valid (08..., 62..., atau +62...)' });
       } else {
         return res.render('login', { settings, error: 'Nomor HP tidak valid.' });
       }
     }
     
+    const normalizedPhone = normalizePhone(phone);
+
     // Check customer validity
-    if (!await isValidCustomer(phone)) {
+    if (!await isValidCustomer(normalizedPhone)) {
       if (req.xhr || req.headers.accept.indexOf('json') > -1) {
         return res.status(401).json({ success: false, message: 'Nomor HP tidak terdaftar.' });
       } else {
@@ -627,49 +661,49 @@ router.post('/login', async (req, res) => {
       const max = Math.pow(10, otpLength) - 1;
       const otp = Math.floor(min + Math.random() * (max - min)).toString();
       const expiryMin = parseInt(settings.otp_expiry_minutes || '5', 10);
-      otpStore[phone] = { otp, expires: Date.now() + (isNaN(expiryMin) ? 5 : expiryMin) * 60 * 1000 };
+      otpStore[normalizedPhone] = { otp, expires: Date.now() + (isNaN(expiryMin) ? 5 : expiryMin) * 60 * 1000 };
       
       // Kirim OTP ke WhatsApp pelanggan
       try {
-        const waJid = phone.replace(/^0/, '62') + '@s.whatsapp.net';
+        const waJid = normalizedPhone + '@s.whatsapp.net';
         const msg = `🔐 *KODE OTP PORTAL PELANGGAN*\n\n` +
           `Kode OTP Anda adalah: *${otp}*\n\n` +
           `⏰ Kode ini berlaku selama ${(isNaN(expiryMin) ? 5 : expiryMin)} menit\n` +
           `🔒 Jangan bagikan kode ini kepada siapapun`;
         
         await sendMessage(waJid, msg);
-        console.log(`OTP berhasil dikirim ke ${phone}: ${otp}`);
+        console.log(`OTP berhasil dikirim ke ${normalizedPhone}: ${otp}`);
       } catch (error) {
-        console.error(`Gagal mengirim OTP ke ${phone}:`, error);
+        console.error(`Gagal mengirim OTP ke ${normalizedPhone}:`, error);
       }
       
       if (req.xhr || req.headers.accept.indexOf('json') > -1) {
-        return res.json({ success: true, message: 'OTP berhasil dikirim', redirect: `/customer/otp?phone=${phone}` });
+        return res.json({ success: true, message: 'OTP berhasil dikirim', redirect: `/customer/otp?phone=${normalizedPhone}` });
       } else {
-        return res.render('otp', { phone, error: null, otp_length: otpLength, settings });
+        return res.render('otp', { phone: normalizedPhone, error: null, otp_length: otpLength, settings });
       }
     } else {
-      req.session.phone = phone;
+      req.session.phone = normalizedPhone;
       
       // Set customer_username untuk konsistensi dengan billing
       try {
         const billingManager = require('../config/billing');
-        const customer = await billingManager.getCustomerByPhone(phone);
+        const customer = await billingManager.getCustomerByPhone(normalizedPhone);
         if (customer) {
           req.session.customer_username = customer.username;
-          req.session.customer_phone = phone;
-          console.log(`✅ [LOGIN] Set session customer_username: ${customer.username} for phone: ${phone}`);
+          req.session.customer_phone = normalizedPhone;
+          console.log(`✅ [LOGIN] Set session customer_username: ${customer.username} for phone: ${normalizedPhone}`);
         } else {
           // Customer belum ada di billing, set temporary username
-          req.session.customer_username = `temp_${phone}`;
-          req.session.customer_phone = phone;
-          console.log(`⚠️ [LOGIN] No billing customer found for phone: ${phone}, set temp username`);
+          req.session.customer_username = `temp_${normalizedPhone}`;
+          req.session.customer_phone = normalizedPhone;
+          console.log(`⚠️ [LOGIN] No billing customer found for phone: ${normalizedPhone}, set temp username`);
         }
       } catch (error) {
         console.error(`❌ [LOGIN] Error getting customer from billing:`, error);
         // Fallback ke temporary username
-        req.session.customer_username = `temp_${phone}`;
-        req.session.customer_phone = phone;
+        req.session.customer_username = `temp_${normalizedPhone}`;
+        req.session.customer_phone = normalizedPhone;
       }
       
       if (req.xhr || req.headers.accept.indexOf('json') > -1) {
@@ -693,41 +727,42 @@ router.post('/login', async (req, res) => {
 router.get('/otp', (req, res) => {
   const { phone } = req.query;
   const settings = getSettingsWithCache();
-  res.render('otp', { phone, error: null, otp_length: settings.otp_length || 6, settings });
+  res.render('otp', { phone: normalizePhone(phone), error: null, otp_length: settings.otp_length || 6, settings });
 });
 
 // POST: Verifikasi OTP
 router.post('/otp', async (req, res) => {
   const { phone, otp } = req.body;
-  const data = otpStore[phone];
+  const normalizedPhone = normalizePhone(phone);
+  const data = otpStore[normalizedPhone];
   const settings = getSettingsWithCache();
   if (!data || data.otp !== otp || Date.now() > data.expires) {
-    return res.render('otp', { phone, error: 'OTP salah atau sudah kadaluarsa.', otp_length: settings.otp_length || 6, settings });
+    return res.render('otp', { phone: normalizedPhone, error: 'OTP salah atau sudah kadaluarsa.', otp_length: settings.otp_length || 6, settings });
   }
   // Sukses login
-  delete otpStore[phone];
+  delete otpStore[normalizedPhone];
   req.session = req.session || {};
-  req.session.phone = phone;
+  req.session.phone = normalizedPhone;
   
   // Set customer_username untuk konsistensi dengan billing
   try {
     const billingManager = require('../config/billing');
-    const customer = await billingManager.getCustomerByPhone(phone);
+    const customer = await billingManager.getCustomerByPhone(normalizedPhone);
     if (customer) {
       req.session.customer_username = customer.username;
-      req.session.customer_phone = phone;
-      console.log(`✅ [OTP_LOGIN] Set session customer_username: ${customer.username} for phone: ${phone}`);
+      req.session.customer_phone = normalizedPhone;
+      console.log(`✅ [OTP_LOGIN] Set session customer_username: ${customer.username} for phone: ${normalizedPhone}`);
     } else {
       // Customer belum ada di billing, set temporary username
-      req.session.customer_username = `temp_${phone}`;
-      req.session.customer_phone = phone;
-      console.log(`⚠️ [OTP_LOGIN] No billing customer found for phone: ${phone}, set temp username`);
+      req.session.customer_username = `temp_${normalizedPhone}`;
+      req.session.customer_phone = normalizedPhone;
+      console.log(`⚠️ [OTP_LOGIN] No billing customer found for phone: ${normalizedPhone}, set temp username`);
     }
   } catch (error) {
     console.error(`❌ [OTP_LOGIN] Error getting customer from billing:`, error);
     // Fallback ke temporary username
-    req.session.customer_username = `temp_${phone}`;
-    req.session.customer_phone = phone;
+    req.session.customer_username = `temp_${normalizedPhone}`;
+    req.session.customer_phone = normalizedPhone;
   }
   
   return res.redirect('/customer/dashboard');

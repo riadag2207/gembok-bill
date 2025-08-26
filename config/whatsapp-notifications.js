@@ -147,6 +147,144 @@ Selamat datang di layanan internet kami!
 
 Terima kasih telah memilih layanan kami.`,
                 enabled: true
+            },
+            installation_job_assigned: {
+                title: 'Tugas Instalasi Baru',
+                template: `🔧 *TUGAS INSTALASI BARU*
+
+Halo {technician_name},
+
+Anda telah ditugaskan untuk instalasi baru:
+
+📋 *Detail Job:*
+• No. Job: {job_number}
+• Pelanggan: {customer_name}
+• Telepon: {customer_phone}
+• Alamat: {customer_address}
+
+📦 *Paket Internet:*
+• Nama: {package_name}
+• Harga: Rp {package_price}
+
+📅 *Jadwal Instalasi:*
+• Tanggal: {installation_date}
+• Waktu: {installation_time}
+
+📝 *Catatan:* {notes}
+🛠️ *Peralatan:* {equipment_needed}
+
+📍 *Lokasi:* {customer_address}
+
+*Status:* Ditugaskan
+*Prioritas:* {priority}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📱 *MENU KONFIRMASI:*
+
+1️⃣ *KONFIRMASI PENERIMAAN*
+Balas dengan: *TERIMA* atau *OK*
+
+2️⃣ *MULAI INSTALASI*
+Balas dengan: *MULAI* atau *START*
+
+3️⃣ *SELESAI INSTALASI*
+Balas dengan: *SELESAI* atau *DONE*
+
+4️⃣ *BUTUH BANTUAN*
+Balas dengan: *BANTU* atau *HELP*
+
+5️⃣ *LAPOR MASALAH*
+Balas dengan: *MASALAH* atau *ISSUE*
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+💡 *HELPER RESPONS CEPAT:*
+• *TERIMA* - Konfirmasi menerima tugas
+• *MULAI* - Mulai proses instalasi
+• *SELESAI* - Tandai instalasi selesai
+• *BANTU* - Minta bantuan teknis
+• *MASALAH* - Laporkan kendala
+
+📞 *Support:* 081947215703
+
+Silakan konfirmasi penerimaan tugas ini dengan balasan *TERIMA*.
+
+*ALIJAYA DIGITAL NETWORK*`,
+                enabled: true
+            },
+            installation_status_update: {
+                title: 'Update Status Instalasi',
+                template: `🔄 *UPDATE STATUS INSTALASI*
+
+Halo {technician_name},
+
+Status instalasi telah diperbarui:
+
+📋 *Detail Job:*
+• No. Job: {job_number}
+• Pelanggan: {customer_name}
+• Status Baru: {new_status}
+• Waktu Update: {update_time}
+
+📝 *Catatan:* {notes}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📱 *MENU KONFIRMASI:*
+
+1️⃣ *KONFIRMASI UPDATE*
+Balas dengan: *KONFIRM* atau *OK*
+
+2️⃣ *BUTUH BANTUAN*
+Balas dengan: *BANTU* atau *HELP*
+
+3️⃣ *LAPOR MASALAH*
+Balas dengan: *MASALAH* atau *ISSUE*
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+*ALIJAYA DIGITAL NETWORK*`,
+                enabled: true
+            },
+            installation_completed: {
+                title: 'Instalasi Selesai',
+                template: `✅ *INSTALASI SELESAI*
+
+Halo {technician_name},
+
+Selamat! Instalasi telah berhasil diselesaikan:
+
+📋 *Detail Job:*
+• No. Job: {job_number}
+• Pelanggan: {customer_name}
+• Status: SELESAI ✅
+• Waktu Selesai: {completion_time}
+
+📝 *Catatan Penyelesaian:* {completion_notes}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📱 *MENU KONFIRMASI:*
+
+1️⃣ *KONFIRMASI SELESAI*
+Balas dengan: *KONFIRM* atau *OK*
+
+2️⃣ *LAPOR TAMBAHAN*
+Balas dengan: *LAPOR* atau *REPORT*
+
+3️⃣ *BUTUH BANTUAN*
+Balas dengan: *BANTU* atau *HELP*
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+💡 *HELPER RESPONS CEPAT:*
+• *KONFIRM* - Konfirmasi penyelesaian
+• *LAPOR* - Laporkan detail tambahan
+• *BANTU* - Minta bantuan teknis
+
+*ALIJAYA DIGITAL NETWORK*`,
+                enabled: true
             }
         };
     }
@@ -680,6 +818,145 @@ Terima kasih telah memilih layanan kami.`,
             return result;
         } catch (error) {
             logger.error(`Error sending welcome message to ${customer.name}:`, error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    // Send installation job assignment notification to technician
+    async sendInstallationJobNotification(technician, installationJob, customer, packageData) {
+        try {
+            // Check if template is enabled
+            if (!this.isTemplateEnabled('installation_job_assigned')) {
+                logger.info('Installation job notification is disabled, skipping...');
+                return { success: true, skipped: true, reason: 'Template disabled' };
+            }
+
+            if (!technician.phone) {
+                logger.warn(`Technician ${technician.name} has no phone number for installation job notification`);
+                return { success: false, error: 'No phone number' };
+            }
+
+            // Format installation date
+            const installationDate = installationJob.installation_date ? 
+                new Date(installationJob.installation_date).toLocaleDateString('id-ID') : 'TBD';
+
+            const message = this.replaceTemplateVariables(
+                this.templates.installation_job_assigned.template,
+                {
+                    technician_name: technician.name,
+                    job_number: installationJob.job_number || 'N/A',
+                    customer_name: customer.name || installationJob.customer_name || 'N/A',
+                    customer_phone: customer.phone || installationJob.customer_phone || 'N/A',
+                    customer_address: customer.address || installationJob.customer_address || 'N/A',
+                    package_name: packageData.name || installationJob.package_name || 'N/A',
+                    package_price: packageData.price ? new Intl.NumberFormat('id-ID').format(packageData.price) : 
+                                  installationJob.package_price ? new Intl.NumberFormat('id-ID').format(installationJob.package_price) : 'N/A',
+                    installation_date: installationDate,
+                    installation_time: installationJob.installation_time || 'TBD',
+                    notes: installationJob.notes || 'Tidak ada catatan',
+                    equipment_needed: installationJob.equipment_needed || 'Standard equipment',
+                    priority: installationJob.priority || 'Normal'
+                }
+            );
+
+            const result = await this.sendNotification(technician.phone, message);
+            if (result.success) {
+                logger.info(`Installation job notification sent to technician ${technician.name} (${technician.phone}) for job ${installationJob.job_number}`);
+            } else {
+                logger.error(`Failed to send installation job notification to technician ${technician.name}:`, result.error);
+            }
+            
+            return result;
+        } catch (error) {
+            logger.error(`Error sending installation job notification to technician ${technician.name}:`, error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    // Send installation status update notification to technician
+    async sendInstallationStatusUpdateNotification(technician, installationJob, customer, newStatus, notes) {
+        try {
+            // Check if template is enabled
+            if (!this.isTemplateEnabled('installation_status_update')) {
+                logger.info('Installation status update notification is disabled, skipping...');
+                return { success: true, skipped: true, reason: 'Template disabled' };
+            }
+
+            if (!technician.phone) {
+                logger.warn(`Technician ${technician.name} has no phone number for status update notification`);
+                return { success: false, error: 'No phone number' };
+            }
+
+            // Format status text
+            const statusText = {
+                'scheduled': 'Terjadwal',
+                'assigned': 'Ditugaskan',
+                'in_progress': 'Sedang Berlangsung',
+                'completed': 'Selesai',
+                'cancelled': 'Dibatalkan'
+            }[newStatus] || newStatus;
+
+            const message = this.replaceTemplateVariables(
+                this.templates.installation_status_update.template,
+                {
+                    technician_name: technician.name,
+                    job_number: installationJob.job_number || 'N/A',
+                    customer_name: customer.name || installationJob.customer_name || 'N/A',
+                    new_status: statusText,
+                    update_time: new Date().toLocaleString('id-ID'),
+                    notes: notes || 'Tidak ada catatan'
+                }
+            );
+
+            const result = await this.sendNotification(technician.phone, message);
+            if (result.success) {
+                logger.info(`Installation status update notification sent to technician ${technician.name} for job ${installationJob.job_number}`);
+            } else {
+                logger.error(`Failed to send status update notification to technician ${technician.name}:`, result.error);
+            }
+            
+            return result;
+        } catch (error) {
+            logger.error(`Error sending installation status update notification to technician ${technician.name}:`, error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    // Send installation completion notification to technician
+    async sendInstallationCompletionNotification(technician, installationJob, customer, completionNotes) {
+        try {
+            // Check if template is enabled
+            if (!this.isTemplateEnabled('installation_completed')) {
+                logger.info('Installation completion notification is disabled, skipping...');
+                return { success: true, skipped: true, reason: 'Template disabled' };
+            }
+
+            if (!technician.phone) {
+                logger.warn(`Technician ${technician.name} has no phone number for completion notification`);
+                return { success: false, error: 'No phone number' };
+            }
+
+            const message = this.replaceTemplateVariables(
+                this.templates.installation_completed.template,
+                {
+                    technician_name: technician.name,
+                    job_number: installationJob.job_number || 'N/A',
+                    customer_name: customer.name || installationJob.customer_name || 'N/A',
+                    completion_time: new Date().toLocaleString('id-ID'),
+                    completion_notes: completionNotes || 'Tidak ada catatan tambahan'
+                }
+            );
+
+            const result = await this.sendNotification(technician.phone, message);
+            if (result.success) {
+                logger.info(`Installation completion notification sent to technician ${technician.name} for job ${installationJob.job_number}`);
+            } else {
+                logger.error(`Failed to send completion notification to technician ${technician.name}:`, result.error);
+            }
+            
+            return result;
+        } catch (error) {
+            logger.error(`Error sending installation completion notification to technician ${technician.name}:`, error);
             return { success: false, error: error.message };
         }
     }

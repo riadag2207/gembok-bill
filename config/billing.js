@@ -1,6 +1,6 @@
-const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const fs = require('fs');
+const sqlite3 = require('sqlite3').verbose();
 const PaymentGatewayManager = require('./paymentGateway');
 const logger = require('./logger'); // Added logger import
 

@@ -165,9 +165,9 @@ router.get('/genieacs', adminAuth, async (req, res) => {
     const genieacsOnline = devicesRaw.filter(dev => dev._lastInform && (now - new Date(dev._lastInform).getTime()) < 3600*1000).length;
     const genieacsOffline = genieacsTotal - genieacsOnline;
     const settings = getSettingsWithCache();
-    res.render('adminGenieacs', { devices, settings, genieacsTotal, genieacsOnline, genieacsOffline });
+    res.render('adminGenieacs', { title: 'Device GenieACS', devices, settings, genieacsTotal, genieacsOnline, genieacsOffline });
   } catch (err) {
-    res.render('adminGenieacs', { devices: [], error: 'Gagal mengambil data device.' });
+    res.render('adminGenieacs', { title: 'Device GenieACS', devices: [], error: 'Gagal mengambil data device.' });
   }
 });
 
@@ -604,7 +604,18 @@ router.get('/api/mapping/devices', adminAuth, async (req, res) => {
             longitude: deviceCustomer.longitude,
             coordinateSource: coordinateSource,
             lastInform: device._lastInform || 'N/A',
-            tag: getParameterWithPaths(device, parameterPaths.deviceTags) || 'N/A'
+            tag: getParameterWithPaths(device, parameterPaths.deviceTags) || 'N/A',
+            // Explicit 2.4G/5G breakdown like technician
+            ssid24: (device?.InternetGatewayDevice?.LANDevice?.['1']?.WLANConfiguration?.['1']?.SSID?._value)
+              || (device?.VirtualParameters?.SSID) || 'N/A',
+            password24: (device?.InternetGatewayDevice?.LANDevice?.['1']?.WLANConfiguration?.['1']?.KeyPassphrase?._value) || 'N/A',
+            pppoeIP: (device?.InternetGatewayDevice?.WANDevice?.['1']?.WANConnectionDevice?.['1']?.WANPPPConnection?.['1']?.ExternalIPAddress?._value)
+              || getParameterWithPaths(device, ['VirtualParameters.pppoeIP']) || 'N/A',
+            uptime: (device?.InternetGatewayDevice?.DeviceInfo?.UpTime?._value)
+              || (device?.InternetGatewayDevice?.DeviceInfo?.['1']?.UpTime?._value)
+              || 'N/A',
+            ssid5g: (device?.InternetGatewayDevice?.LANDevice?.['1']?.WLANConfiguration?.['5']?.SSID?._value) || 'N/A',
+            password5g: (device?.InternetGatewayDevice?.LANDevice?.['1']?.WLANConfiguration?.['5']?.KeyPassphrase?._value) || 'N/A'
           };
           
           if (deviceCustomer.latitude && deviceCustomer.longitude) {
@@ -695,7 +706,17 @@ router.get('/api/mapping/devices', adminAuth, async (req, res) => {
           longitude: customer.longitude,
           coordinateSource: coordinateSource,
           lastInform: device._lastInform || 'N/A',
-          tag: getParameterWithPaths(device, parameterPaths.deviceTags) || 'N/A'
+          tag: getParameterWithPaths(device, parameterPaths.deviceTags) || 'N/A',
+          ssid24: (device?.InternetGatewayDevice?.LANDevice?.['1']?.WLANConfiguration?.['1']?.SSID?._value)
+            || (device?.VirtualParameters?.SSID) || 'N/A',
+          password24: (device?.InternetGatewayDevice?.LANDevice?.['1']?.WLANConfiguration?.['1']?.KeyPassphrase?._value) || 'N/A',
+          pppoeIP: (device?.InternetGatewayDevice?.WANDevice?.['1']?.WANConnectionDevice?.['1']?.WANPPPConnection?.['1']?.ExternalIPAddress?._value)
+            || getParameterWithPaths(device, ['VirtualParameters.pppoeIP']) || 'N/A',
+          uptime: (device?.InternetGatewayDevice?.DeviceInfo?.UpTime?._value)
+            || (device?.InternetGatewayDevice?.DeviceInfo?.['1']?.UpTime?._value)
+            || 'N/A',
+          ssid5g: (device?.InternetGatewayDevice?.LANDevice?.['1']?.WLANConfiguration?.['5']?.SSID?._value) || 'N/A',
+          password5g: (device?.InternetGatewayDevice?.LANDevice?.['1']?.WLANConfiguration?.['5']?.KeyPassphrase?._value) || 'N/A'
         };
       }
       return null;
