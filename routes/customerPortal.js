@@ -35,44 +35,64 @@ async function isValidCustomer(phone) {
   try {
     // 1. Cek di database billing terlebih dahulu (coba semua varian)
     const variants = generatePhoneVariants(phone);
+    console.log(`🔍 [VALIDATION] Checking customer with phone variants:`, variants);
+    
     for (const v of variants) {
-      const customer = await billingManager.getCustomerByPhone(v);
-      if (customer) {
-        console.log(`✅ Customer found in billing database: ${v} (input: ${phone})`);
-        return true; // Pelanggan valid jika ada di billing
+      try {
+        const customer = await billingManager.getCustomerByPhone(v);
+        if (customer) {
+          console.log(`✅ [VALIDATION] Customer found in billing database: ${v} (input: ${phone})`);
+          return true; // Pelanggan valid jika ada di billing
+        }
+      } catch (error) {
+        console.log(`⚠️ [VALIDATION] Error checking variant ${v}:`, error.message);
       }
     }
     
     // 2. Jika tidak ada di billing, cek di GenieACS sebagai fallback dengan semua varian
     let device = null;
     for (const v of variants) {
-      device = await findDeviceByTag(v);
-      if (device) break;
+      try {
+        device = await findDeviceByTag(v);
+        if (device) {
+          console.log(`✅ [VALIDATION] Device found in GenieACS with tag: ${v}`);
+          break;
+        }
+      } catch (error) {
+        console.log(`⚠️ [VALIDATION] Error searching GenieACS with tag ${v}:`, error.message);
+      }
     }
     
     // Jika tidak ditemukan di GenieACS, coba cari berdasarkan PPPoE username dari billing
     if (!device) {
       try {
-        const customer = await billingManager.getCustomerByPhone(phone);
-        if (customer && customer.pppoe_username) {
-          const { findDeviceByPPPoE } = require('../config/genieacs');
-          device = await findDeviceByPPPoE(customer.pppoe_username);
+        // Coba lagi dengan semua varian phone untuk PPPoE search
+        for (const v of variants) {
+          const customer = await billingManager.getCustomerByPhone(v);
+          if (customer && customer.pppoe_username) {
+            const { findDeviceByPPPoE } = require('../config/genieacs');
+            device = await findDeviceByPPPoE(customer.pppoe_username);
+            if (device) {
+              console.log(`✅ [VALIDATION] Device found by PPPoE username: ${customer.pppoe_username} (phone: ${v})`);
+              break;
+            }
+          }
         }
       } catch (error) {
-        console.error('Error finding device by PPPoE username:', error);
+        console.error('❌ [VALIDATION] Error finding device by PPPoE username:', error);
       }
     }
     
     if (device) {
-      console.log(`✅ Customer found in GenieACS: ${phone}`);
+      console.log(`✅ [VALIDATION] Customer found in GenieACS: ${phone}`);
       return true;
     }
     
-    console.log(`❌ Customer not found in billing or GenieACS: ${phone}`);
+    console.log(`❌ [VALIDATION] Customer not found in billing or GenieACS: ${phone}`);
     return false;
     
   } catch (error) {
-    console.error('Error in isValidCustomer:', error);
+    console.error('❌ [VALIDATION] Error in isValidCustomer:', error);
     return false;
   }
 }
@@ -126,36 +146,117 @@ function getParameterWithPaths(device, paths) {
 // Helper: Ambil info perangkat dan user terhubung - PRIORITAS KE BILLING SYSTEM
 async function getCustomerDeviceData(phone) {
   try {
-    // 1. Ambil data customer dari billing terlebih dahulu
-    const customer = await billingManager.getCustomerByPhone(phone);
-    let device = null;
-    let billingData = null;
-    const tagVariants = generatePhoneVariants(phone);
+    // 1. Ambil data customer dari billing terlebih dahulu (coba semua varian phone)
+    let customer = null;
+    const phoneVariants = generatePhoneVariants(phone);
     
-    if (customer) {
-      console.log(`✅ Customer found in billing: ${customer.name} (${phone})`);
-      
-      // 2. Coba ambil data device dari GenieACS jika ada (coba semua varian tag)
-      for (const v of tagVariants) {
-        device = await findDeviceByTag(v);
-        if (device) {
-          console.log(`✅ Device found by tag variant: ${v}`);
+    console.log(`🔍 [SEARCH] Searching customer with phone variants:`, phoneVariants);
+    
+    for (const variant of phoneVariants) {
+      try {
+        customer = await billingManager.getCustomerByPhone(variant);
+        if (customer) {
+          console.log(`✅ [SEARCH] Customer found in billing with variant: ${variant}`);
+          console.log(`📋 [SEARCH] Customer data:`, {
+            name: customer.name,
+            phone: customer.phone,
+            username: customer.username,
+            pppoe_username: customer.pppoe_username,
+            package_id: customer.package_id
+          });
           break;
         }
+      } catch (error) {
+        console.log(`⚠️ [SEARCH] Error searching with variant ${variant}:`, error.message);
+      }
+    }
+    
+    let device = null;
+    let billingData = null;
+    
+    if (customer) {
+      console.log(`✅ Customer found in billing: ${customer.name} (${customer.phone}) - searched with: ${phone}`);
+      
+      // 2. CUSTOMER BILLING: Cari device berdasarkan PPPoE username (FAST PATH)
+      if (customer.pppoe_username || customer.username) {
+        try {
+          const { findDeviceByPPPoE, testPPPoEUsernameSearch } = require('../config/genieacs');
+          const pppoeToSearch = customer.pppoe_username || customer.username;
+          console.log(`🔍 [BILLING] Searching device by PPPoE username: ${pppoeToSearch}`);
+          console.log(`📋 [BILLING] Customer data:`, {
+            name: customer.name,
+            phone: customer.phone,
+            username: customer.username,
+            pppoe_username: customer.pppoe_username,
+            package_id: customer.package_id
+          });
+          
+          // Debug: cek apakah username yang dicari benar
+          console.log(`🔍 [BILLING] Will search for username: "${pppoeToSearch}"`);
+          console.log(`🔍 [BILLING] Customer.pppoe_username: "${customer.pppoe_username}"`);
+          console.log(`🔍 [BILLING] Customer.username: "${customer.username}"`);
+          
+          // Test langsung untuk username server@ilik jika ini customer yang dimaksud
+          if (pppoeToSearch === 'server@ilik' || customer.pppoe_username === 'server@ilik' || customer.username === 'server@ilik') {
+            console.log(`🧪 [TEST] Testing direct search for server@ilik...`);
+            try {
+              const testResult = await testPPPoEUsernameSearch('server@ilik');
+              if (testResult) {
+                console.log(`✅ [TEST] Direct test successful for server@ilik`);
+                device = testResult;
+              } else {
+                console.log(`❌ [TEST] Direct test failed for server@ilik`);
+              }
+            } catch (testError) {
+              console.error('❌ [TEST] Direct test error:', testError.message);
+            }
+          }
+          
+          // Jika test tidak berhasil, coba search normal
+          if (!device) {
+            device = await findDeviceByPPPoE(pppoeToSearch);
+            if (device) {
+              console.log(`✅ [BILLING] Device found by PPPoE username: ${pppoeToSearch}`);
+              console.log(`📱 [BILLING] Device details:`, {
+                id: device._id,
+                serialNumber: device.DeviceID?.SerialNumber,
+                model: device.DeviceID?.ProductClass,
+                lastInform: device._lastInform
+              });
+            } else {
+              console.log(`⚠️ [BILLING] No device found by PPPoE username: ${pppoeToSearch}`);
+            }
+          }
+        } catch (error) {
+          console.error('❌ [BILLING] Error finding device by PPPoE username:', error.message);
+          console.error('❌ [BILLING] Full error:', error);
+        }
+      } else {
+        console.log(`⚠️ [BILLING] No PPPoE username or username found in customer data`);
+        console.log(`📋 [BILLING] Customer fields:`, Object.keys(customer));
+        console.log(`📋 [BILLING] Customer.pppoe_username: "${customer.pppoe_username}"`);
+        console.log(`📋 [BILLING] Customer.username: "${customer.username}"`);
       }
       
-      // Jika tidak ditemukan, coba cari berdasarkan PPPoE username dari billing
-      if (!device && customer.pppoe_username) {
-        try {
-          const { findDeviceByPPPoE } = require('../config/genieacs');
-          device = await findDeviceByPPPoE(customer.pppoe_username);
-          if (device) console.log(`✅ Device found by PPPoE username: ${customer.pppoe_username}`);
-        } catch (error) {
-          console.error('Error finding device by PPPoE username:', error);
+      // 3. Jika tidak ditemukan dengan PPPoE, coba dengan tag sebagai fallback
+      if (!device) {
+        console.log(`🔍 [BILLING] Trying tag search as fallback...`);
+        const tagVariants = generatePhoneVariants(phone);
+        
+        for (const v of tagVariants) {
+          try {
+            device = await findDeviceByTag(v);
+            if (device) {
+              console.log(`✅ [BILLING] Device found by tag fallback: ${v}`);
+              break;
+            }
+          } catch (error) {
+            console.log(`⚠️ Error searching by tag ${v}:`, error.message);
+          }
         }
       }
       
-      // 3. Siapkan data billing
+      // 4. Siapkan data billing
       try {
         const invoices = await billingManager.getInvoicesByCustomer(customer.id);
         billingData = {
@@ -169,50 +270,66 @@ async function getCustomerDeviceData(phone) {
           invoices: []
         };
       }
+      
     } else {
-      // Fallback: coba cari di GenieACS saja (semua varian tag)
+      // 5. CUSTOMER NON-BILLING: Cari device berdasarkan tag saja (FAST PATH)
+      console.log(`⚠️ Customer not found in billing, searching GenieACS by tag only`);
+      
+      const tagVariants = generatePhoneVariants(phone);
       for (const v of tagVariants) {
-        device = await findDeviceByTag(v);
-        if (device) {
-          console.log(`✅ Device found by tag variant (no billing): ${v}`);
-          break;
+        try {
+          device = await findDeviceByTag(v);
+          if (device) {
+            console.log(`✅ [NON-BILLING] Device found by tag: ${v}`);
+            break;
+          }
+        } catch (error) {
+          console.log(`⚠️ Error searching by tag ${v}:`, error.message);
         }
       }
-      // Tidak ada data billing, jadi tidak bisa cari PPPoE dari billing di cabang ini
     }
     
-    // 4. Jika tidak ada device di GenieACS, buat data default
+    // 6. Jika tidak ada device di GenieACS, buat data default yang informatif
     if (!device) {
       console.log(`⚠️ No device found in GenieACS for: ${phone}`);
       
-      // Buat data default berdasarkan customer billing
       const defaultData = {
         phone: phone,
-        ssid: customer ? 'WiFi-' + customer.username : 'WiFi-Default',
+        ssid: customer ? `WiFi-${customer.username}` : 'WiFi-Default',
         status: 'Unknown',
         lastInform: '-',
         softwareVersion: '-',
         rxPower: '-',
         pppoeIP: '-',
-        pppoeUsername: customer ? customer.pppoe_username : '-',
+        pppoeUsername: customer ? (customer.pppoe_username || customer.username) : '-',
         totalAssociations: '0',
         connectedUsers: [],
-        billingData: billingData
+        billingData: billingData,
+        deviceFound: false,
+        searchMethod: customer ? 'pppoe_username_fallback_tag' : 'tag_only',
+        message: customer ? 
+          'Device ONU tidak ditemukan di GenieACS. Silakan hubungi teknisi untuk setup device.' :
+          'Customer tidak terdaftar di sistem billing. Silakan hubungi admin.'
       };
       
       return defaultData;
     }
     
-    // 5. Jika ada device di GenieACS, ambil data lengkap
-    const ssid = device?.InternetGatewayDevice?.LANDevice?.['1']?.WLANConfiguration?.['1']?.SSID?._value || '-';
-    const lastInform =
-      device?._lastInform
-        ? new Date(device._lastInform).toLocaleString('id-ID')
-        : device?.Events?.Inform
-          ? new Date(device.Events.Inform).toLocaleString('id-ID')
-          : device?.InternetGatewayDevice?.DeviceInfo?.['1']?.LastInform?._value
-            ? new Date(device.InternetGatewayDevice.DeviceInfo['1'].LastInform._value).toLocaleString('id-ID')
-            : '-';
+    // 7. Jika ada device di GenieACS, ambil data lengkap
+    console.log(`✅ Processing device data for: ${device._id}`);
+    
+    const ssid = device?.InternetGatewayDevice?.LANDevice?.['1']?.WLANConfiguration?.['1']?.SSID?._value || 
+                 device?.VirtualParameters?.SSID || 
+                 (customer ? `WiFi-${customer.username}` : 'WiFi-Default');
+    
+    const lastInform = device?._lastInform
+      ? new Date(device._lastInform).toLocaleString('id-ID')
+      : device?.Events?.Inform
+        ? new Date(device.Events.Inform).toLocaleString('id-ID')
+        : device?.InternetGatewayDevice?.DeviceInfo?.['1']?.LastInform?._value
+          ? new Date(device.InternetGatewayDevice.DeviceInfo['1'].LastInform._value).toLocaleString('id-ID')
+          : '-';
+    
     const status = lastInform !== '-' ? 'Online' : 'Unknown';
     
     // User terhubung (WiFi)
@@ -224,42 +341,49 @@ async function getCustomerDeviceData(phone) {
           id: i + 1,
           name: `User ${i + 1}`,
           ip: `192.168.1.${100 + i}`,
-          mac: `00:11:22:33:44:${(50 + i).toString(16).padStart(2, '0')}`,
-          connected: true
+          mac: `00:00:00:00:00:${(i + 1).toString().padStart(2, '0')}`,
+          connectedTime: 'Unknown'
         }));
       }
     } catch (error) {
       console.error('Error getting connected users:', error);
     }
     
-    // Ambil data lainnya
-    const softwareVersion = device?.InternetGatewayDevice?.DeviceInfo?.['1']?.SoftwareVersion?._value || '-';
-    const rxPower = getParameterWithPaths(device, parameterPaths.rxPower);
-    const pppoeIP = getParameterWithPaths(device, parameterPaths.pppoeIP);
-    const pppoeUsername = getParameterWithPaths(device, parameterPaths.pppUsername);
-    const totalAssociations = getParameterWithPaths(device, parameterPaths.userConnected);
-    
-    return {
+    // Ambil data lengkap device
+    const deviceData = {
       phone: phone,
       ssid: ssid,
       status: status,
       lastInform: lastInform,
-      softwareVersion: softwareVersion,
-      rxPower: rxPower,
-      pppoeIP: pppoeIP,
-      pppoeUsername: pppoeUsername,
-      totalAssociations: totalAssociations,
+      softwareVersion: device?.InternetGatewayDevice?.DeviceInfo?.SoftwareVersion?._value || 
+                     device?.VirtualParameters?.softwareVersion || '-',
+      rxPower: getParameterWithPaths(device, parameterPaths.rxPower),
+      pppoeIP: device?.InternetGatewayDevice?.WANDevice?.['1']?.WANConnectionDevice?.['1']?.WANPPPConnection?.['1']?.ExternalIPAddress?._value || 
+               device?.VirtualParameters?.pppoeIP || '-',
+      pppoeUsername: customer ? (customer.pppoe_username || customer.username) : 
+                     getParameterWithPaths(device, parameterPaths.pppUsername),
+      totalAssociations: getParameterWithPaths(device, parameterPaths.userConnected) || '0',
       connectedUsers: connectedUsers,
-      billingData: billingData
+      billingData: billingData,
+      deviceFound: true,
+      deviceId: device._id,
+      serialNumber: device.DeviceID?.SerialNumber || device._id,
+      model: device.DeviceID?.ProductClass || 
+             device.InternetGatewayDevice?.DeviceInfo?.ModelName?._value || '-',
+      uptime: device?.InternetGatewayDevice?.DeviceInfo?.UpTime?._value || '-',
+      searchMethod: customer ? 'pppoe_username' : 'tag',
+      message: 'Device ONU ditemukan dan berfungsi normal'
     };
+    
+    return deviceData;
     
   } catch (error) {
     console.error('Error in getCustomerDeviceData:', error);
     
-    // Return data minimal jika terjadi error
+    // Return error data yang informatif
     return {
       phone: phone,
-      ssid: '-',
+      ssid: 'Error',
       status: 'Error',
       lastInform: '-',
       softwareVersion: '-',
@@ -268,7 +392,10 @@ async function getCustomerDeviceData(phone) {
       pppoeUsername: '-',
       totalAssociations: '0',
       connectedUsers: [],
-      billingData: null
+      billingData: null,
+      deviceFound: false,
+      error: error.message,
+      message: 'Terjadi kesalahan saat mengambil data device. Silakan coba lagi atau hubungi teknisi.'
     };
   }
 }

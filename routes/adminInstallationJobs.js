@@ -1053,4 +1053,69 @@ router.post('/assign-technician', adminAuth, async (req, res) => {
     }
 });
 
+/**
+ * Search customers for installation job creation
+ */
+router.get('/api/search-customers', adminAuth, async (req, res) => {
+    try {
+        const { q: searchTerm } = req.query;
+        
+        if (!searchTerm || searchTerm.length < 2) {
+            return res.json({
+                success: true,
+                customers: [],
+                message: 'Minimal 2 karakter untuk pencarian'
+            });
+        }
+        
+        // Search customers in billing database
+        const customers = await billingManager.searchCustomers(searchTerm);
+        
+        res.json({
+            success: true,
+            customers: customers || [],
+            count: customers ? customers.length : 0
+        });
+        
+    } catch (error) {
+        logger.error('Error searching customers:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error searching customers',
+            error: error.message
+        });
+    }
+});
+
+/**
+ * Get customer details by ID
+ */
+router.get('/api/customer/:id', adminAuth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const customer = await billingManager.getCustomerById(id);
+        
+        if (!customer) {
+            return res.status(404).json({
+                success: false,
+                message: 'Customer tidak ditemukan'
+            });
+        }
+        
+        res.json({
+            success: true,
+            customer
+        });
+        
+    } catch (error) {
+        logger.error('Error getting customer details:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error getting customer details',
+            error: error.message
+        });
+    }
+});
+
 module.exports = router;

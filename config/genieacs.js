@@ -74,40 +74,163 @@ const genieacsApi = {
 
     async findDeviceByPPPoE(pppoeUsername) {
         try {
+            console.log(`🔍 [GENIEACS] Searching device by PPPoE username: ${pppoeUsername}`);
             const axiosInstance = getAxiosInstance();
             
-            // Parameter paths untuk PPPoE Username
+            // Method 1: Gunakan path yang sama dengan parameterPaths.pppUsername yang sudah ada (FASTEST)
             const pppUsernamePaths = [
-                'InternetGatewayDevice.WANDevice.1.WANConnectionDevice.1.WANPPPConnection.1.Username',
-                'InternetGatewayDevice.WANDevice.1.WANConnectionDevice.1.WANPPPConnection.1.Username._value',
                 'VirtualParameters.pppoeUsername',
-                'VirtualParameters.pppUsername'
+                'VirtualParameters.pppUsername',
+                'InternetGatewayDevice.WANDevice.1.WANConnectionDevice.1.WANPPPConnection.1.Username'
             ];
             
-            // Buat query untuk mencari perangkat berdasarkan PPPoE Username
-            const queryObj = { $or: [] };
+            console.log(`🔍 [GENIEACS] Using standard PPPoE paths:`, pppUsernamePaths);
             
-            // Tambahkan semua kemungkinan path ke query
+            // Coba setiap path secara individual untuk exact match
             for (const path of pppUsernamePaths) {
-                const pathQuery = {};
-                pathQuery[path] = pppoeUsername;
-                queryObj.$or.push(pathQuery);
+                try {
+                    const queryObj = {};
+                    queryObj[path] = pppoeUsername;
+                    
+                    const queryJson = JSON.stringify(queryObj);
+                    const encodedQuery = encodeURIComponent(queryJson);
+                    
+                    console.log(`🔍 [GENIEACS] Trying path: ${path} with query:`, queryObj);
+                    
+                    const response = await axiosInstance.get(`/devices/?query=${encodedQuery}`, {
+                        timeout: 5000
+                    });
+                    
+                    if (response.data && response.data.length > 0) {
+                        console.log(`✅ [GENIEACS] Device found with path ${path}:`, response.data[0]._id);
+                        return response.data[0];
+                    }
+                } catch (pathError) {
+                    console.log(`⚠️ [GENIEACS] Path ${path} failed:`, pathError.message);
+                }
             }
             
-            const queryJson = JSON.stringify(queryObj);
-            const encodedQuery = encodeURIComponent(queryJson);
-            
-            // Ambil perangkat dari GenieACS
-            const response = await axiosInstance.get(`/devices/?query=${encodedQuery}`);
-            
-            if (response.data && response.data.length > 0) {
-                return response.data[0];
+            // Method 2: Coba dengan query $or untuk semua path (MEDIUM SPEED)
+            try {
+                console.log(`🔍 [GENIEACS] Trying $or query for all paths...`);
+                
+                const queryObj = { $or: [] };
+                for (const path of pppUsernamePaths) {
+                    const pathQuery = {};
+                    pathQuery[path] = pppoeUsername;
+                    queryObj.$or.push(pathQuery);
+                }
+                
+                const queryJson = JSON.stringify(queryObj);
+                const encodedQuery = encodeURIComponent(queryJson);
+                
+                console.log(`🔍 [GENIEACS] $or query:`, queryObj);
+                
+                const response = await axiosInstance.get(`/devices/?query=${encodedQuery}`, {
+                    timeout: 8000
+                });
+                
+                if (response.data && response.data.length > 0) {
+                    console.log(`✅ [GENIEACS] Device found with $or query:`, response.data[0]._id);
+                    return response.data[0];
+                }
+            } catch (orError) {
+                console.log(`⚠️ [GENIEACS] $or query failed:`, orError.message);
             }
             
+            // Method 3: Coba dengan regex search untuk partial match (SLOWEST)
+            try {
+                console.log(`🔍 [GENIEACS] Trying regex search for partial match...`);
+                
+                const regexQuery = { $or: [] };
+                for (const path of pppUsernamePaths) {
+                    const pathQuery = {};
+                    pathQuery[path] = { $regex: pppoeUsername, $options: "i" };
+                    regexQuery.$or.push(pathQuery);
+                }
+                
+                const queryJson = JSON.stringify(regexQuery);
+                const encodedQuery = encodeURIComponent(queryJson);
+                
+                console.log(`🔍 [GENIEACS] Regex query:`, regexQuery);
+                
+                const response = await axiosInstance.get(`/devices/?query=${encodedQuery}`, {
+                    timeout: 10000
+                });
+                
+                if (response.data && response.data.length > 0) {
+                    console.log(`✅ [GENIEACS] Device found with regex query:`, response.data[0]._id);
+                    return response.data[0];
+                }
+            } catch (regexError) {
+                console.log(`⚠️ [GENIEACS] Regex query failed:`, regexError.message);
+            }
+            
+            // Method 4: Manual search melalui semua devices (VERY SLOW - hanya jika < 50 devices)
+            try {
+                console.log(`🔍 [GENIEACS] Trying manual search through all devices...`);
+                
+                const allDevicesResponse = await axiosInstance.get('/devices', {
+                    timeout: 15000
+                });
+                
+                if (allDevicesResponse.data && allDevicesResponse.data.length > 0) {
+                    const totalDevices = allDevicesResponse.data.length;
+                    console.log(`📊 [GENIEACS] Total devices: ${totalDevices}`);
+                    
+                    // Skip jika terlalu banyak devices
+                    if (totalDevices > 50) {
+                        console.log(`⚠️ [GENIEACS] Too many devices (${totalDevices}), skipping manual search`);
+                        throw new Error(`No device found with PPPoE Username: ${pppoeUsername}`);
+                    }
+                    
+                    // Cari device secara manual menggunakan path yang sama
+                    for (const device of allDevicesResponse.data) {
+                        for (const path of pppUsernamePaths) {
+                            const value = this.getParameterValue(device, path);
+                            if (value === pppoeUsername) {
+                                console.log(`✅ [GENIEACS] Device found manually with path ${path}:`, device._id);
+                                return device;
+                            }
+                        }
+                    }
+                }
+            } catch (manualError) {
+                console.log(`⚠️ [GENIEACS] Manual search failed:`, manualError.message);
+            }
+            
+            console.log(`❌ [GENIEACS] No device found with PPPoE Username: ${pppoeUsername}`);
+            console.log(`🔍 [GENIEACS] Searched paths:`, pppUsernamePaths);
             throw new Error(`No device found with PPPoE Username: ${pppoeUsername}`);
+            
         } catch (error) {
-            console.error(`Error finding device with PPPoE Username ${pppoeUsername}:`, error.response?.data || error.message);
+            console.error(`❌ [GENIEACS] Error finding device with PPPoE Username ${pppoeUsername}:`, error.message);
             throw error;
+        }
+    },
+    
+    // Helper function untuk mendapatkan parameter value dari device
+    getParameterValue(device, path) {
+        try {
+            const pathParts = path.split('.');
+            let current = device;
+            
+            for (const part of pathParts) {
+                if (current && typeof current === 'object') {
+                    current = current[part];
+                } else {
+                    return null;
+                }
+            }
+            
+            // Handle _value field
+            if (current && typeof current === 'object' && current._value !== undefined) {
+                return current._value;
+            }
+            
+            return current;
+        } catch (error) {
+            return null;
         }
     },
 
@@ -342,6 +465,65 @@ const genieacsApi = {
         } catch (error) {
             console.error(`Error getting virtual parameters for device ${deviceId}:`, error.response?.data || error.message);
             throw error;
+        }
+    },
+
+    // Test function untuk memverifikasi PPPoE username search
+    async testPPPoEUsernameSearch(pppoeUsername) {
+        try {
+            console.log(`🧪 [TEST] Testing PPPoE username search for: ${pppoeUsername}`);
+            
+            const axiosInstance = getAxiosInstance();
+            const pppUsernamePaths = [
+                'VirtualParameters.pppoeUsername',
+                'VirtualParameters.pppUsername',
+                'InternetGatewayDevice.WANDevice.1.WANConnectionDevice.1.WANPPPConnection.1.Username'
+            ];
+            
+            // Test setiap path secara individual
+            for (const path of pppUsernamePaths) {
+                try {
+                    const queryObj = {};
+                    queryObj[path] = pppoeUsername;
+                    
+                    const queryJson = JSON.stringify(queryObj);
+                    const encodedQuery = encodeURIComponent(queryJson);
+                    
+                    console.log(`🧪 [TEST] Testing path: ${path}`);
+                    console.log(`🧪 [TEST] Query:`, queryObj);
+                    console.log(`🧪 [TEST] Encoded:`, encodedQuery);
+                    
+                    const response = await axiosInstance.get(`/devices/?query=${encodedQuery}`, {
+                        timeout: 10000
+                    });
+                    
+                    console.log(`🧪 [TEST] Response status:`, response.status);
+                    console.log(`🧪 [TEST] Response data length:`, response.data ? response.data.length : 0);
+                    
+                    if (response.data && response.data.length > 0) {
+                        console.log(`✅ [TEST] SUCCESS: Device found with path ${path}`);
+                        console.log(`🧪 [TEST] Device ID:`, response.data[0]._id);
+                        console.log(`🧪 [TEST] Device data sample:`, {
+                            _id: response.data[0]._id,
+                            DeviceID: response.data[0].DeviceID,
+                            VirtualParameters: response.data[0].VirtualParameters,
+                            InternetGatewayDevice: response.data[0].InternetGatewayDevice ? 'Present' : 'Not Present'
+                        });
+                        return response.data[0];
+                    } else {
+                        console.log(`❌ [TEST] FAILED: No device found with path ${path}`);
+                    }
+                } catch (pathError) {
+                    console.log(`❌ [TEST] ERROR with path ${path}:`, pathError.message);
+                }
+            }
+            
+            console.log(`❌ [TEST] All paths failed for username: ${pppoeUsername}`);
+            return null;
+            
+        } catch (error) {
+            console.error(`❌ [TEST] Test failed:`, error.message);
+            return null;
         }
     },
 };
@@ -694,6 +876,7 @@ module.exports = {
     addTagToDevice: genieacsApi.addTagToDevice,
     removeTagFromDevice: genieacsApi.removeTagFromDevice,
     getVirtualParameters: genieacsApi.getVirtualParameters,
+    testPPPoEUsernameSearch: genieacsApi.testPPPoEUsernameSearch,
     monitorRXPower,
     monitorOfflineDevices
 };

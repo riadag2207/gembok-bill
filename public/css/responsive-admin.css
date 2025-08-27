@@ -1,5 +1,12 @@
 /* Responsive sidebar & hamburger for admin panel */
 
+/* Global sidebar scrolling fix */
+.sidebar {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+}
+
 /* Hide sidebar by default on mobile */
 @media (max-width: 991.98px) {
   .sidebar {
@@ -12,6 +19,9 @@
     z-index: 1050;
     transition: left 0.3s;
     box-shadow: 2px 0 8px rgba(0,0,0,0.07);
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
   }
   .sidebar.show {
     left: 0;
@@ -37,6 +47,11 @@
   .hamburger {
     display: none;
   }
+  
+  .sidebar {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
 }
 
 /* Overlay for mobile sidebar */
@@ -49,4 +64,63 @@
 }
 .sidebar-overlay.show {
   display: block;
+}
+
+/* Mobile specific improvements */
+@media (max-width: 767.98px) {
+  .sidebar {
+    width: 280px !important;
+    left: -280px !important;
+  }
+  
+  .sidebar.show {
+    left: 0 !important;
+  }
+  
+  /* Ensure sidebar content is scrollable */
+  .sidebar > * {
+    flex-shrink: 0 !important;
+  }
+  
+  /* Fix for version info panel */
+  .sidebar .version-info-panel {
+    margin-top: auto !important;
+    flex-shrink: 0 !important;
+    position: sticky !important;
+    bottom: 0 !important;
+    background: inherit !important;
+  }
+  
+  /* Improve touch scrolling */
+  .sidebar {
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: rgba(255,255,255,0.3) transparent !important;
+  }
+  
+  /* Custom scrollbar for webkit browsers */
+  .sidebar::-webkit-scrollbar {
+    width: 6px !important;
+  }
+  
+  .sidebar::-webkit-scrollbar-track {
+    background: transparent !important;
+  }
+  
+  .sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.3) !important;
+    border-radius: 3px !important;
+  }
+  
+  .sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255,255,255,0.5) !important;
+  }
+}
+
+/* Extra small devices */
+@media (max-width: 575.98px) {
+  .sidebar {
+    width: 260px !important;
+    left: -260px !important;
+  }
 }

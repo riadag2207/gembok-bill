@@ -548,12 +548,37 @@ class BillingManager {
         });
     }
 
+    // Search customers by name, phone, or username
+    async searchCustomers(searchTerm) {
+        return new Promise((resolve, reject) => {
+            const searchPattern = `%${searchTerm}%`;
+            
+            const sql = `
+                SELECT id, username, name, phone, email, address, pppoe_username, 
+                       package_id, status, created_at, updated_at
+                FROM customers 
+                WHERE name LIKE ? OR phone LIKE ? OR username LIKE ? OR pppoe_username LIKE ?
+                ORDER BY name ASC
+                LIMIT 20
+            `;
+            
+            this.db.all(sql, [searchPattern, searchPattern, searchPattern, searchPattern], (err, rows) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(rows || []);
+                }
+            });
+        });
+    }
+
+    // Get customer by ID
     async getCustomerById(id) {
         return new Promise((resolve, reject) => {
             const sql = `
-                SELECT c.*, p.name as package_name, p.price as package_price, p.speed as package_speed
-                FROM customers c 
-                LEFT JOIN packages p ON c.package_id = p.id 
+                SELECT c.*, p.name as package_name, p.speed, p.price
+                FROM customers c
+                LEFT JOIN packages p ON c.package_id = p.id
                 WHERE c.id = ?
             `;
             
@@ -561,7 +586,7 @@ class BillingManager {
                 if (err) {
                     reject(err);
                 } else {
-                    resolve(row);
+                    resolve(row || null);
                 }
             });
         });
