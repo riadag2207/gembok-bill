@@ -61,7 +61,11 @@
                                             <span class="badge bg-primary"><%= technician.role %></span>
                                             <span class="badge <%= technician.is_active ? 'bg-success' : 'bg-secondary' %>">
                                                 <%= technician.is_active ? 'Aktif' : 'Nonaktif' %>
-                                            </span>
+                                            </span><br>
+                                            <small class="text-muted">
+                                                <i class="bi bi-chat-dots me-1"></i>
+                                                Group: <%= technician.whatsapp_group_id || 'Tidak ada' %>
+                                            </small>
                                         </p>
                                         <div class="btn-group btn-group-sm">
                                             <button class="btn btn-outline-primary" onclick="openEditModal('<%- technician.id %>')">Edit</button>
@@ -113,6 +117,13 @@
                                 <option value="collector">Kolektor</option>
                             </select>
                         </div>
+                        <div class="mb-3">
+                            <label class="form-label">WhatsApp Group ID</label>
+                            <input type="text" class="form-control" name="whatsapp_group_id" placeholder="120363xxxxxxxxx@g.us">
+                            <div class="form-text">
+                                <small>Opsional. Kosongkan jika menggunakan group default dari settings</small>
+                            </div>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
@@ -149,6 +160,13 @@
                                 <option value="field_officer">Field Officer</option>
                                 <option value="collector">Kolektor</option>
                             </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">WhatsApp Group ID</label>
+                            <input type="text" class="form-control" id="editTechWhatsAppGroup" placeholder="120363xxxxxxxxx@g.us">
+                            <div class="form-text">
+                                <small>Opsional. Kosongkan jika menggunakan group default dari settings</small>
+                            </div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Catatan/Area</label>
@@ -245,6 +263,7 @@
                 document.getElementById('editTechName').value = t.name || '';
                 document.getElementById('editTechPhone').value = t.phone || '';
                 document.getElementById('editTechRole').value = t.role || 'technician';
+                document.getElementById('editTechWhatsAppGroup').value = t.whatsapp_group_id || '';
                 document.getElementById('editTechNotes').value = t.area_coverage || '';
                 new bootstrap.Modal(document.getElementById('editTechnicianModal')).show();
             } catch (e) {
@@ -259,6 +278,7 @@
                 name: document.getElementById('editTechName').value.trim(),
                 phone: document.getElementById('editTechPhone').value.trim(),
                 role: document.getElementById('editTechRole').value,
+                whatsapp_group_id: document.getElementById('editTechWhatsAppGroup').value.trim(),
                 notes: document.getElementById('editTechNotes').value.trim()
             };
             if (!body.name || !body.phone || !body.role) return alert('Nama, Telepon, dan Role wajib diisi');

@@ -93,7 +93,7 @@ app.use('/admin/hotspot', adminHotspotRouter);
 
 // Import dan gunakan route adminSetting
 const adminSettingRouter = require('./routes/adminSetting');
-app.use('/admin/setting', adminAuth, adminSettingRouter);
+app.use('/admin/settings', adminAuth, adminSettingRouter);
 
 // Import dan gunakan route adminTroubleReport
 const adminTroubleReportRouter = require('./routes/adminTroubleReport');

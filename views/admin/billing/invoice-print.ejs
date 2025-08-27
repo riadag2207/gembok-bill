@@ -299,7 +299,7 @@
         <!-- Amount Box -->
         <div class="amount-box">
             <div class="amount-text">
-                Total Tagihan: Rp <%= parseFloat(invoice.amount).toLocaleString('id-ID') %>
+                Total Tagihan: Rp <%= Math.round(parseFloat(invoice.amount)).toLocaleString('id-ID') %>
             </div>
         </div>
 
@@ -322,9 +322,9 @@
                         <td><%= invoice.package_speed || 'Kecepatan tidak tersedia' %></td>
                         <td class="text-end">
                             <% if (invoice.base_amount) { %>
-                                Rp <%= parseFloat(invoice.base_amount).toLocaleString('id-ID') %>
+                                Rp <%= Math.round(parseFloat(invoice.base_amount)).toLocaleString('id-ID') %>
                             <% } else { %>
-                                Rp <%= parseFloat(invoice.amount).toLocaleString('id-ID') %>
+                                Rp <%= Math.round(parseFloat(invoice.amount)).toLocaleString('id-ID') %>
                             <% } %>
                         </td>
                         <td class="text-end">
@@ -339,7 +339,7 @@
                             <% } %>
                         </td>
                         <td class="text-end">
-                            <strong>Rp <%= parseFloat(invoice.amount).toLocaleString('id-ID') %></strong>
+                            <strong>Rp <%= Math.round(parseFloat(invoice.amount)).toLocaleString('id-ID') %></strong>
                         </td>
                     </tr>
                 </tbody>
@@ -348,9 +348,9 @@
                         <th colspan="2" class="text-end">Subtotal:</th>
                         <th class="text-end">
                             <% if (invoice.base_amount) { %>
-                                Rp <%= parseFloat(invoice.base_amount).toLocaleString('id-ID') %>
+                                Rp <%= Math.round(parseFloat(invoice.base_amount)).toLocaleString('id-ID') %>
                             <% } else { %>
-                                Rp <%= parseFloat(invoice.amount).toLocaleString('id-ID') %>
+                                Rp <%= Math.round(parseFloat(invoice.amount)).toLocaleString('id-ID') %>
                             <% } %>
                         </th>
                         <th class="text-end">
@@ -359,15 +359,15 @@
                                     Rp 0
                                 <% } else { %>
                                     <% const taxAmount = invoice.base_amount ? (invoice.base_amount * invoice.tax_rate / 100) : 0; %>
-                                    Rp <%= taxAmount.toLocaleString('id-ID') %>
+                                    Rp <%= Math.round(taxAmount).toLocaleString('id-ID') %>
                                 <% } %>
                             <% } else { %>
                                 <% const taxAmount = invoice.base_amount ? (invoice.base_amount * 0.11) : 0; %>
-                                Rp <%= taxAmount.toLocaleString('id-ID') %>
+                                Rp <%= Math.round(taxAmount).toLocaleString('id-ID') %>
                             <% } %>
                         </th>
                         <th class="text-end">
-                            <strong>Rp <%= parseFloat(invoice.amount).toLocaleString('id-ID') %></strong>
+                            <strong>Rp <%= Math.round(parseFloat(invoice.amount)).toLocaleString('id-ID') %></strong>
                         </th>
                     </tr>
                 </tfoot>

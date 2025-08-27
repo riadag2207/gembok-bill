@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pembayaran - <%= settings.company_header %></title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <style>
         :root {
             --primary-color: #667eea;
@@ -21,27 +21,6 @@
         body {
             background-color: var(--light-bg);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        .sidebar {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-            min-height: 100vh;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-        }
-
-        .sidebar .nav-link {
-            color: rgba(255,255,255,0.8);
-            padding: 1rem 1.5rem;
-            margin: 0.2rem 0;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-        }
-
-        .sidebar .nav-link:hover,
-        .sidebar .nav-link.active {
-            color: white;
-            background: rgba(255,255,255,0.1);
-            transform: translateX(5px);
         }
 
         .main-content {
@@ -232,64 +211,11 @@
 <body>
     <div class="container-fluid">
         <div class="row">
-            <!-- Sidebar -->
-            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse" id="sidebarMenu">
-                <div class="position-sticky pt-3">
-                    <!-- User Profile -->
-                    <div class="user-profile">
-                        <div class="user-avatar">
-                            <i class="bi bi-person-fill"></i>
-                        </div>
-                        <h6 class="text-white mb-1"><%= technician.name %></h6>
-                        <small class="text-white-50">
-                            <i class="bi bi-credit-card me-1"></i><%= technician.role %>
-                        </small>
-                    </div>
-
-                    <!-- Navigation Menu -->
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link" href="/technician/dashboard">
-                                <i class="bi bi-speedometer2"></i>Dashboard
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/technician/monitoring">
-                                <i class="bi bi-activity"></i>Monitoring
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/technician/customers">
-                                <i class="bi bi-people"></i>Pelanggan
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/technician/mapping">
-                                <i class="bi bi-geo-alt"></i>Mapping
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link active" href="/technician/payments">
-                                <i class="bi bi-credit-card"></i>Pembayaran
-                            </a>
-                        </li>
-                        <li class="nav-item mt-3">
-                            <a class="nav-link" href="/technician/logout">
-                                <i class="bi bi-box-arrow-right"></i>Logout
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
+            <%- include('partials/technician-responsive-sidebar', { page: 'payments', technician: technician, settings: settings }) %>
 
             <!-- Main Content -->
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
-                <!-- Mobile Menu Button -->
-                <div class="d-md-none mb-3">
-                    <button class="navbar-toggler btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu">
-                        <i class="bi bi-list"></i>
-                    </button>
-                </div>
+
 
                 <!-- Page Header -->
                 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -574,18 +500,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Mobile sidebar toggle
+        // Form submission
         document.addEventListener('DOMContentLoaded', function() {
-            const sidebarToggle = document.querySelector('.navbar-toggler');
-            const sidebar = document.getElementById('sidebarMenu');
-            
-            if (sidebarToggle && sidebar) {
-                sidebarToggle.addEventListener('click', function() {
-                    sidebar.classList.toggle('show');
-                });
-            }
-
-            // Form submission
             const recordPaymentForm = document.getElementById('recordPaymentForm');
             recordPaymentForm.addEventListener('submit', async function(e) {
                 e.preventDefault();

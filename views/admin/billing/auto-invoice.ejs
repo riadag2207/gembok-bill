@@ -220,7 +220,7 @@
                     <td>${customer.username}</td>
                     <td>${customer.name}</td>
                     <td>${customer.package_name || '-'}</td>
-                    <td>Rp ${parseFloat(customer.package_price || 0).toLocaleString('id-ID')}</td>
+                    <td>Rp ${Math.round(parseFloat(customer.package_price || 0)).toLocaleString('id-ID')}</td>
                     <td><span class="badge bg-success">Aktif</span></td>
                 `;
                 tbody.appendChild(row);

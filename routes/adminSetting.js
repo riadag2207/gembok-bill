@@ -512,7 +512,7 @@ router.get('/test-upload', (req, res) => {
                     const formData = new FormData(this);
                     const resultDiv = document.getElementById('result');
                     
-                    fetch('/admin/setting/upload-logo', {
+                    fetch('/admin/settings/upload-logo', {
                         method: 'POST',
                         body: formData
                     })
@@ -576,7 +576,7 @@ router.get('/test-svg', (req, res) => {
                         const formData = new FormData(this);
                         const resultDiv = document.getElementById('result');
                         
-                        fetch('/admin/setting/upload-logo', {
+                        fetch('/admin/settings/upload-logo', {
                             method: 'POST',
                             body: formData
                         })
@@ -672,7 +672,7 @@ router.get('/test-payment-notification', (req, res) => {
                     const data = {};
                     formData.forEach((value, key) => data[key] = value);
                     
-                    fetch('/admin/setting/test-payment-notification', {
+                    fetch('/admin/settings/test-payment-notification', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -753,5 +753,211 @@ router.post('/test-payment-notification', async (req, res) => {
 
 
 
+
+// GET: Ambil daftar grup WhatsApp yang sudah terkoneksi
+router.get('/whatsapp-groups', async (req, res) => {
+    // Set content type header untuk memastikan response selalu JSON
+    res.setHeader('Content-Type', 'application/json');
+
+    try {
+        console.log('🔍 Getting WhatsApp groups...');
+
+        // Import WhatsApp untuk mendapatkan koneksi
+        const whatsapp = require('../config/whatsapp');
+
+        if (!whatsapp || !whatsapp.getSock()) {
+            console.log('❌ WhatsApp not connected');
+            return res.status(400).json({
+                success: false,
+                message: 'WhatsApp belum terkoneksi. Silakan scan QR code terlebih dahulu.',
+                groups: [],
+                status: 'disconnected',
+                timestamp: new Date().toISOString()
+            });
+        }
+
+        const sock = whatsapp.getSock();
+        console.log('✅ WhatsApp connected, fetching groups...');
+
+        // Dapatkan semua grup dengan timeout
+        const groups = await Promise.race([
+            sock.groupFetchAllParticipating(),
+            new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('Timeout: Gagal mengambil grup WhatsApp')), 10000)
+            )
+        ]);
+
+        const groupList = Object.values(groups || {});
+        console.log(`📊 Found ${groupList.length} groups`);
+
+        // Format data grup
+        const formattedGroups = groupList.map(group => ({
+            id: group.id || '',
+            name: group.subject || 'Tidak ada nama',
+            description: group.desc || 'Tidak ada deskripsi',
+            owner: group.owner || 'Tidak diketahui',
+            participants: group.participants ? group.participants.length : 0,
+            created: group.creation ? new Date(group.creation * 1000).toLocaleString('id-ID') : 'Tidak diketahui',
+            isAdmin: group.participants ? group.participants.some(p => p.id === sock.user.id && p.admin) : false
+        }));
+
+        console.log('✅ Groups formatted successfully');
+
+        res.json({
+            success: true,
+            message: `Berhasil mendapatkan ${formattedGroups.length} grup WhatsApp`,
+            groups: formattedGroups,
+            status: 'connected',
+            total: formattedGroups.length,
+            timestamp: new Date().toISOString()
+        });
+
+    } catch (error) {
+        console.error('❌ Error getting WhatsApp groups:', error);
+        logger.error('Error getting WhatsApp groups:', error);
+
+        // Pastikan selalu return JSON response
+        res.status(500).json({
+            success: false,
+            message: error.message.includes('Timeout')
+                ? 'Timeout: Gagal mengambil grup WhatsApp'
+                : 'Gagal mengambil daftar grup WhatsApp',
+            error: error.message,
+            groups: [],
+            status: 'error',
+            timestamp: new Date().toISOString()
+        });
+    }
+});
+
+// POST: Refresh daftar grup WhatsApp
+router.post('/whatsapp-groups/refresh', async (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+
+    try {
+        console.log('🔄 Refreshing WhatsApp groups...');
+
+        // Import WhatsApp untuk mendapatkan koneksi
+        const whatsapp = require('../config/whatsapp');
+
+        if (!whatsapp || !whatsapp.getSock()) {
+            console.log('❌ WhatsApp not connected');
+            return res.status(400).json({
+                success: false,
+                message: 'WhatsApp belum terkoneksi. Silakan scan QR code terlebih dahulu.',
+                timestamp: new Date().toISOString()
+            });
+        }
+
+        const sock = whatsapp.getSock();
+
+        // Refresh data grup dengan timeout
+        await Promise.race([
+            sock.groupFetchAllParticipating(),
+            new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('Timeout: Gagal refresh grup WhatsApp')), 5000)
+            )
+        ]);
+
+        console.log('✅ WhatsApp groups refreshed successfully');
+
+        res.json({
+            success: true,
+            message: 'Daftar grup WhatsApp berhasil direfresh',
+            timestamp: new Date().toISOString()
+        });
+
+    } catch (error) {
+        console.error('❌ Error refreshing WhatsApp groups:', error);
+        logger.error('Error refreshing WhatsApp groups:', error);
+
+        res.status(500).json({
+            success: false,
+            message: error.message.includes('Timeout')
+                ? 'Timeout: Gagal refresh grup WhatsApp'
+                : 'Gagal refresh daftar grup WhatsApp',
+            error: error.message,
+            timestamp: new Date().toISOString()
+        });
+    }
+});
+
+// GET: Detail grup WhatsApp tertentu
+router.get('/whatsapp-groups/:groupId', async (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+
+    try {
+        const { groupId } = req.params;
+        console.log(`🔍 Getting details for group: ${groupId}`);
+
+        // Import WhatsApp untuk mendapatkan koneksi
+        const whatsapp = require('../config/whatsapp');
+
+        if (!whatsapp || !whatsapp.getSock()) {
+            console.log('❌ WhatsApp not connected');
+            return res.status(400).json({
+                success: false,
+                message: 'WhatsApp belum terkoneksi.',
+                timestamp: new Date().toISOString()
+            });
+        }
+
+        const sock = whatsapp.getSock();
+
+        // Dapatkan detail grup dengan timeout
+        const group = await Promise.race([
+            sock.groupMetadata(groupId),
+            new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('Timeout: Gagal mengambil detail grup')), 8000)
+            )
+        ]);
+
+        if (!group) {
+            console.log('❌ Group not found');
+            return res.status(404).json({
+                success: false,
+                message: 'Grup tidak ditemukan',
+                timestamp: new Date().toISOString()
+            });
+        }
+
+        // Dapatkan informasi partisipan
+        const participants = group.participants.map(p => ({
+            id: p.id,
+            isAdmin: p.admin === 'admin' || p.admin === 'superadmin',
+            isSuperAdmin: p.admin === 'superadmin'
+        }));
+
+        console.log(`✅ Group details retrieved: ${group.subject}`);
+
+        res.json({
+            success: true,
+            group: {
+                id: group.id,
+                name: group.subject || 'Tidak ada nama',
+                description: group.desc || 'Tidak ada deskripsi',
+                owner: group.owner || 'Tidak diketahui',
+                participants: participants,
+                totalParticipants: participants.length,
+                created: group.creation ? new Date(group.creation * 1000).toLocaleString('id-ID') : 'Tidak diketahui',
+                isAdmin: participants.some(p => p.id === sock.user.id && p.isAdmin)
+            },
+            timestamp: new Date().toISOString()
+        });
+
+    } catch (error) {
+        console.error('❌ Error getting WhatsApp group detail:', error);
+        logger.error('Error getting WhatsApp group detail:', error);
+
+        res.status(500).json({
+            success: false,
+            message: error.message.includes('Timeout')
+                ? 'Timeout: Gagal mengambil detail grup WhatsApp'
+                : 'Gagal mengambil detail grup WhatsApp',
+            error: error.message,
+            timestamp: new Date().toISOString()
+        });
+    }
+});
 
 module.exports = router;

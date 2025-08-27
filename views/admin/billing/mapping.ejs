@@ -451,16 +451,230 @@
             }
         }
         
+        /* Popup Cards Styles */
+        .popup-cards-container {
+            max-width: 350px;
+            min-width: 280px;
+        }
+
+        .popup-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            margin-bottom: 12px;
+            overflow: hidden;
+            border: 1px solid #e0e0e0;
+        }
+
+        .popup-card:last-child {
+            margin-bottom: 0;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .card-header i {
+            font-size: 16px;
+        }
+
+        .card-title {
+            flex: 1;
+        }
+
+        .device-status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .device-status-badge.online {
+            background: rgba(40, 167, 69, 0.9);
+        }
+
+        .device-status-badge.offline {
+            background: rgba(220, 53, 69, 0.9);
+        }
+
+        .card-content {
+            padding: 15px;
+        }
+
+        /* Customer Card Styles */
+        .customer-card .customer-name {
+            color: #2c3e50;
+            margin-bottom: 12px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-row .label {
+            font-weight: 500;
+            color: #666;
+            font-size: 13px;
+        }
+
+        .info-row .value {
+            color: #333;
+            font-size: 13px;
+            text-align: right;
+            max-width: 140px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* Device Card Styles */
+        .device-quick-info {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .info-item i {
+            font-size: 14px;
+            color: #007bff;
+        }
+
+        .device-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .control-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 2px;
+        }
+
+        .device-controls .form-control:not(:placeholder-shown) {
+            border-color: #28a745;
+            box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+        }
+
+        .device-controls .form-control[value]:not([value=""]) {
+            border-color: #28a745;
+            background-color: #f8fff9;
+        }
+
+        .control-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 8px;
+        }
+
+        .device-details {
+            margin-top: 12px;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 12px;
+        }
+
+        .detail-item .label {
+            font-weight: 500;
+            color: #666;
+        }
+
+        .detail-item .value {
+            color: #333;
+            text-align: right;
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* Mobile responsive untuk popup cards */
+        @media (max-width: 768px) {
+            .popup-cards-container {
+                max-width: 320px;
+                min-width: 260px;
+            }
+
+            .card-header {
+                padding: 10px 12px;
+                font-size: 13px;
+            }
+
+            .card-content {
+                padding: 12px;
+            }
+
+            .device-quick-info {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .info-row .value {
+                max-width: 120px;
+            }
+
+            .detail-item .value {
+                max-width: 100px;
+            }
+        }
+
         /* Print styles */
         @media print {
             #map {
                 height: 400px;
                 page-break-inside: avoid;
             }
-            
+
             .map-controls,
             .btn {
                 display: none;
+            }
+
+            .device-details {
+                display: block !important;
             }
         }
     </style>
@@ -470,7 +684,7 @@
         <div class="row">
             <!-- Sidebar -->
             <% if (typeof isTechnicianView !== 'undefined' && isTechnicianView) { %>
-                <%- include('../../partials/technician-responsive-sidebar', { page: 'mapping', technician: technician }) %>
+                <%- include('../partials/technician-responsive-sidebar', { page: 'mapping', technician: technician }) %>
             <% } else { %>
                 <%- include('../../partials/billing-sidebar') %>
             <% } %>
@@ -659,8 +873,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // Context variables
-        const isTechnicianView = <%= typeof isTechnicianView !== 'undefined' && isTechnicianView ? 'true' : 'false' %>;
+        // Context variables - will be set by server-side rendering
+        let isTechnicianView = false; // Default value
         
         let map;
         let customerMarkers = [];
@@ -915,6 +1129,7 @@
                     let deviceStatus = 'Unknown';
                     let signalStrength = 'N/A';
                     let ssid = 'N/A';
+                    let password = 'N/A';
                     let deviceModel = 'N/A';
                     let lastSeen = 'N/A';
                     
@@ -923,13 +1138,22 @@
                         if (customer.pppoe_username) {
                             const deviceResponse = await fetch(`${basePath}/api/mapping/devices?pppoe=${encodeURIComponent(customer.pppoe_username)}`);
                             const deviceData = await deviceResponse.json();
+
+                            // Debug: Log data yang dikembalikan
+                            console.log('Admin Mapping - Device data for customer:', customer.name, deviceData);
+
                             if (deviceData.success && deviceData.data.devicesWithCoords.length > 0) {
                                 deviceInfo = deviceData.data.devicesWithCoords[0];
+                                console.log('Admin Mapping - Device info:', deviceInfo);
+
                                 deviceStatus = deviceInfo.status || 'Unknown';
                                 signalStrength = deviceInfo.rxPower || 'N/A';
                                 ssid = deviceInfo.ssid || 'N/A';
+                                password = deviceInfo.password || deviceInfo.password5g || 'N/A';
                                 deviceModel = deviceInfo.model || 'N/A';
                                 lastSeen = deviceInfo.lastInform || 'N/A';
+
+                                console.log('Admin Mapping - Extracted data:', { ssid, password, signalStrength, deviceStatus });
                             }
                         }
                         
@@ -937,13 +1161,22 @@
                         if (!deviceInfo && customer.phone) {
                             const deviceResponse = await fetch(`${basePath}/api/mapping/devices?phone=${encodeURIComponent(customer.phone)}`);
                             const deviceData = await deviceResponse.json();
+
+                            // Debug: Log data yang dikembalikan
+                            console.log('Admin Mapping - Device data by phone for customer:', customer.name, deviceData);
+
                             if (deviceData.success && deviceData.data.devicesWithCoords.length > 0) {
                                 deviceInfo = deviceData.data.devicesWithCoords[0];
+                                console.log('Admin Mapping - Device info by phone:', deviceInfo);
+
                                 deviceStatus = deviceInfo.status || 'Unknown';
                                 signalStrength = deviceInfo.rxPower || 'N/A';
                                 ssid = deviceInfo.ssid || 'N/A';
+                                password = deviceInfo.password || deviceInfo.password5g || 'N/A';
                                 deviceModel = deviceInfo.model || 'N/A';
                                 lastSeen = deviceInfo.lastInform || 'N/A';
+
+                                console.log('Admin Mapping - Extracted data by phone:', { ssid, password, signalStrength, deviceStatus });
                             }
                         }
                     } catch (error) {
@@ -971,59 +1204,138 @@
                         fillOpacity: 0.8
                     }).addTo(map);
                     
-                    // Buat popup content dengan informasi lengkap
+                    // Buat popup content dengan struktur 2-card yang sama seperti teknisi
+                    console.log('Admin Mapping - Creating popup for customer:', customer.name);
+                    console.log('Admin Mapping - Device info for popup:', deviceInfo);
+                    console.log('Admin Mapping - SSID:', deviceInfo?.ssid, 'Password:', deviceInfo?.password || deviceInfo?.password5g);
+
                     let popupContent = `
-                        <div class="text-center">
-                            <h6><strong>${customer.name}</strong></h6>
-                            <p class="mb-1"><strong>Username:</strong> ${customer.username}</p>
-                            <p class="mb-1"><strong>Phone:</strong> ${customer.phone}</p>
-                            <p class="mb-1"><strong>Package:</strong> ${customer.package_name || 'N/A'}</p>
-                            <p class="mb-1"><strong>Status:</strong> <span class="badge bg-success">${customer.status}</span></p>
-                            <p class="mb-1"><strong>Address:</strong> ${customer.address || 'N/A'}</p>
-                    `;
-                    
-                    // Tambahkan informasi device jika ada
-                    if (deviceInfo) {
-                        popupContent += `
-                            <hr class="my-2">
-                            <h6 class="text-primary">📡 Device Information</h6>
-                            <p class="mb-1"><strong>Device Status:</strong> <span class="badge ${deviceStatus === 'Online' ? 'bg-success' : deviceStatus === 'Offline' ? 'bg-danger' : 'bg-warning'}">${deviceStatus}</span></p>
-                            <p class="mb-1"><strong>Signal Strength:</strong> <span class="badge ${getSignalStrengthBadge(signalStrength)}">${signalStrength}</span></p>
-                            <p class="mb-1"><strong>User Terhubung:</strong> <span class="badge bg-info">${deviceInfo.userConnected || '0'} user</span></p>
-                            <p class="mb-1"><strong>Device Model:</strong> ${deviceModel}</p>
-                            <p class="mb-1"><strong>PPPoE Username:</strong> ${customer.pppoe_username || 'N/A'}</p>
-                            <p class="mb-1"><strong>PPPoE IP:</strong> ${deviceInfo.pppoeIP || 'N/A'}</p>
-                            <p class="mb-1"><strong>SSID 2.4GHz:</strong> ${deviceInfo.ssid || 'N/A'}</p>
-                            <p class="mb-1"><strong>SSID 5GHz:</strong> ${deviceInfo.ssid5g || 'N/A'}</p>
-                            <p class="mb-1"><strong>Password 5GHz:</strong> ${deviceInfo.password5g || 'N/A'}</p>
-                            <p class="mb-1"><strong>Uptime:</strong> ${formatUptime(deviceInfo.uptime)}</p>
-                            <p class="mb-1"><strong>Last Seen:</strong> ${formatLastSeen(lastSeen)}</p>
-                            <hr class="my-2">
-                            <div class="row g-2 text-start">
-                                <div class="col-12">
-                                    <label class="form-label small mb-1">SSID 2.4G</label>
-                                    <div class="input-group input-group-sm">
-                                        <input type="text" class="form-control" id="adminSsidInput_${deviceInfo.id}" placeholder="Nama WiFi">
-                                        <button class="btn btn-success" onclick="adminSaveSsid('${deviceInfo.id}')">Simpan SSID</button>
+                        <div class="popup-cards-container">
+                            <!-- Card 1: Customer Info -->
+                            <div class="popup-card customer-card">
+                                <div class="card-header">
+                                    <i class="bi bi-person"></i>
+                                    <span class="card-title">Informasi Pelanggan</span>
+                                </div>
+                                <div class="card-content">
+                                    <h6 class="customer-name">${customer.name}</h6>
+                                    <div class="info-row">
+                                        <span class="label">Username:</span>
+                                        <span class="value">${customer.username || '-'}</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="label">Phone:</span>
+                                        <span class="value">${customer.phone}</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="label">Package:</span>
+                                        <span class="value">${customer.package_name || '-'}</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="label">Status:</span>
+                                        <span class="badge bg-success">${customer.status}</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="label">Address:</span>
+                                        <span class="value">${customer.address || 'N/A'}</span>
                                     </div>
                                 </div>
-                                <div class="col-12">
-                                    <label class="form-label small mb-1">Password</label>
-                                    <div class="input-group input-group-sm">
-                                        <input type="text" class="form-control" id="adminPassInput_${deviceInfo.id}" placeholder="Minimal 8 karakter">
-                                        <button class="btn btn-primary" onclick="adminSavePass('${deviceInfo.id}')">Simpan Password</button>
+                            </div>
+                    `;
+
+                    // Card 2: Device Control (hanya jika ada device)
+                    if (deviceInfo) {
+                        popupContent += `
+                            <!-- Card 2: Device Control -->
+                            <div class="popup-card device-card">
+                                <div class="card-header">
+                                    <i class="bi bi-cog"></i>
+                                    <span class="card-title">Kontrol Device</span>
+                                    <span class="device-status-badge ${deviceStatus === 'Online' ? 'online' : 'offline'}">
+                                        ${deviceStatus}
+                                    </span>
+                                </div>
+                                <div class="card-content">
+                                    <div class="device-quick-info">
+                                        <div class="info-item">
+                                            <i class="bi bi-signal-4"></i>
+                                            <span>Signal: ${signalStrength}</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <i class="bi bi-wifi"></i>
+                                            <span>SSID 2.4G: ${deviceInfo.ssid || 'N/A'}</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <i class="bi bi-people"></i>
+                                            <span>${deviceInfo.userConnected || '0'} user</span>
+                                        </div>
                                     </div>
-                                    <small class="text-muted">SSID 5GHz otomatis: SSID + "-5G"</small>
+
+                                    <div class="device-controls">
+                                        <div class="control-group">
+                                            <label class="control-label">SSID WiFi 2.4GHz</label>
+                                            <div class="input-group input-group-sm">
+                                                <input type="text" class="form-control" id="adminSsidInput_${deviceInfo.id}" value="${deviceInfo.ssid || ''}" placeholder="Nama WiFi">
+                                                <button class="btn btn-success btn-sm" onclick="adminSaveSsid('${deviceInfo.id}')">
+                                                    <i class="bi bi-save"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div class="control-group">
+                                            <label class="control-label">Password WiFi 2.4GHz</label>
+                                            <div class="input-group input-group-sm">
+                                                <input type="text" class="form-control" id="adminPassInput_${deviceInfo.id}" value="${deviceInfo.password || deviceInfo.password5g || ''}" placeholder="Minimal 8 karakter">
+                                                <button class="btn btn-primary btn-sm" onclick="adminSavePass('${deviceInfo.id}')">
+                                                    <i class="bi bi-save"></i>
+                                                </button>
+                                            </div>
+                                            <small class="text-muted" style="font-size: 10px;">Password 5GHz otomatis: sama dengan 2.4GHz</small>
+                                        </div>
+
+                                        <div class="control-buttons">
+                                            <button class="btn btn-warning btn-sm" onclick="rebootDevice('${deviceInfo.id}')">
+                                                <i class="bi bi-power-off"></i> Restart
+                                            </button>
+                                            <button class="btn btn-info btn-sm" onclick="toggleDeviceDetails('${deviceInfo.id}')" id="detailsBtn_${deviceInfo.id}">
+                                                <i class="bi bi-info-circle"></i> Detail
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Hidden Device Details -->
+                                    <div class="device-details" id="deviceDetails_${deviceInfo.id}" style="display: none;">
+                                        <hr>
+                                        <div class="detail-item">
+                                            <span class="label">PPPoE Username:</span>
+                                            <span class="value">${customer.pppoe_username || 'N/A'}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="label">PPPoE IP:</span>
+                                            <span class="value">${deviceInfo.pppoeIP || 'N/A'}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="label">SSID 5GHz:</span>
+                                            <span class="value">${deviceInfo.ssid5g || 'N/A'}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="label">Password 5GHz:</span>
+                                            <span class="value">${deviceInfo.password5g || 'N/A'}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="label">Uptime:</span>
+                                            <span class="value">${formatUptime(deviceInfo.uptime)}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="label">Last Seen:</span>
+                                            <span class="value">${formatLastSeen(lastSeen)}</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         `;
-                    } else {
-                        popupContent += `
-                            <hr class="my-2">
-                            <p class="text-muted"><small>📡 Device information not available</small></p>
-                        `;
                     }
-                    
+
                     popupContent += `
                         </div>
                     `;
@@ -1872,6 +2184,63 @@
             `;
             document.head.appendChild(style);
         }
+
+
+
+
+
+
+
+        // Toggle device details visibility
+        function toggleDeviceDetails(deviceId) {
+            const detailsContainer = document.getElementById(`deviceDetails_${deviceId}`);
+            const detailsBtn = document.getElementById(`detailsBtn_${deviceId}`);
+
+            if (detailsContainer.style.display === 'none') {
+                // Show device details
+                detailsContainer.style.display = 'block';
+                detailsBtn.innerHTML = '<i class="bi bi-info-circle"></i> Sembunyikan';
+                detailsBtn.classList.remove('btn-info');
+                detailsBtn.classList.add('btn-secondary');
+            } else {
+                // Hide device details
+                detailsContainer.style.display = 'none';
+                detailsBtn.innerHTML = '<i class="bi bi-info-circle"></i> Detail';
+                detailsBtn.classList.remove('btn-secondary');
+                detailsBtn.classList.add('btn-info');
+            }
+        }
+
+        // Reboot device function
+        async function rebootDevice(deviceId) {
+            if (!confirm('Apakah Anda yakin ingin me-restart device ini?')) {
+                return;
+            }
+
+            try {
+                showToast('Mengirim perintah restart...', 'info');
+
+                const response = await fetch('/admin/genieacs/genieacs/reboot', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ id: deviceId })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    showToast('Perintah restart berhasil dikirim!', 'success');
+                } else {
+                    showToast(result.message || 'Gagal mengirim perintah restart', 'error');
+                }
+            } catch (error) {
+                console.error('Error rebooting device:', error);
+                showToast('Error restarting device', 'error');
+            }
+        }
+
+
 
         // Mobile-specific functions
         function addCustomerMarkerAt(lat, lng) {

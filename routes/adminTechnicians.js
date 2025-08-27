@@ -23,10 +23,10 @@ router.get('/', adminAuth, async (req, res) => {
         // Get technicians with pagination
         const technicians = await new Promise((resolve, reject) => {
             const query = `
-                SELECT id, name, phone, role, is_active, created_at, last_login, area_coverage, join_date
-                FROM technicians 
+                SELECT id, name, phone, role, is_active, created_at, last_login, area_coverage, join_date, whatsapp_group_id
+                FROM technicians
                 ${statusFilter === 'active' ? 'WHERE is_active = 1' : ''}
-                ORDER BY created_at DESC 
+                ORDER BY created_at DESC
                 LIMIT ? OFFSET ?
             `;
             const params = [limit, offset];
@@ -105,7 +105,7 @@ router.get('/', adminAuth, async (req, res) => {
  */
 router.post('/add', adminAuth, async (req, res) => {
     try {
-        const { name, phone, role, notes } = req.body;
+        const { name, phone, role, notes, whatsapp_group_id } = req.body;
 
         // Validasi input
         if (!name || !phone || !role) {
@@ -148,11 +148,11 @@ router.post('/add', adminAuth, async (req, res) => {
         // Insert new technician
         const result = await new Promise((resolve, reject) => {
             const sql = `
-                INSERT INTO technicians (name, phone, role, area_coverage, is_active, created_at, updated_at)
-                VALUES (?, ?, ?, ?, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                INSERT INTO technicians (name, phone, role, area_coverage, whatsapp_group_id, is_active, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
             `;
-            
-            db.run(sql, [name, cleanPhone, role, notes || 'Area Default'], function(err) {
+
+            db.run(sql, [name, cleanPhone, role, notes || 'Area Default', whatsapp_group_id || null], function(err) {
                 if (err) reject(err);
                 else resolve({ id: this.lastID, changes: this.changes });
             });
@@ -196,7 +196,7 @@ router.get('/:id', adminAuth, async (req, res) => {
         const technicianId = req.params.id;
 
         const technician = await new Promise((resolve, reject) => {
-            db.get('SELECT * FROM technicians WHERE id = ?', [technicianId], (err, row) => {
+            db.get('SELECT *, whatsapp_group_id FROM technicians WHERE id = ?', [technicianId], (err, row) => {
                 if (err) reject(err);
                 else resolve(row);
             });
@@ -229,13 +229,13 @@ router.get('/:id', adminAuth, async (req, res) => {
 router.put('/:id/update', adminAuth, async (req, res) => {
     try {
         const technicianId = req.params.id;
-        const { name, phone, role, notes } = req.body;
+        const { name, phone, role, notes, whatsapp_group_id } = req.body;
 
         // Validasi input
         if (!name || !phone || !role) {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'Nama, nomor telepon, dan role wajib diisi' 
+            return res.status(400).json({
+                success: false,
+                message: 'Nama, nomor telepon, dan role wajib diisi'
             });
         }
 
@@ -272,12 +272,12 @@ router.put('/:id/update', adminAuth, async (req, res) => {
         // Update technician
         const result = await new Promise((resolve, reject) => {
             const sql = `
-                UPDATE technicians 
-                SET name = ?, phone = ?, role = ?, area_coverage = ?, updated_at = CURRENT_TIMESTAMP
+                UPDATE technicians
+                SET name = ?, phone = ?, role = ?, area_coverage = ?, whatsapp_group_id = ?, updated_at = CURRENT_TIMESTAMP
                 WHERE id = ?
             `;
-            
-            db.run(sql, [name, cleanPhone, role, notes || 'Area Default', technicianId], function(err) {
+
+            db.run(sql, [name, cleanPhone, role, notes || 'Area Default', whatsapp_group_id || null, technicianId], function(err) {
                 if (err) reject(err);
                 else resolve({ changes: this.changes });
             });

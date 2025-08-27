@@ -24,27 +24,6 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        .sidebar {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-            min-height: 100vh;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-        }
-
-        .sidebar .nav-link {
-            color: rgba(255,255,255,0.8);
-            padding: 1rem 1.5rem;
-            margin: 0.2rem 0;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-        }
-
-        .sidebar .nav-link:hover,
-        .sidebar .nav-link.active {
-            color: white;
-            background: rgba(255,255,255,0.1);
-            transform: translateX(5px);
-        }
-
         .main-content {
             padding: 2rem;
         }
@@ -115,6 +94,206 @@
             height: 20px;
             border-radius: 50%;
             margin-right: 0.5rem;
+        }
+
+        /* Popup Cards Styles */
+        .popup-cards-container {
+            max-width: 350px;
+            min-width: 280px;
+        }
+
+        .popup-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            margin-bottom: 12px;
+            overflow: hidden;
+            border: 1px solid #e0e0e0;
+        }
+
+        .popup-card:last-child {
+            margin-bottom: 0;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .card-header i {
+            font-size: 16px;
+        }
+
+        .card-title {
+            flex: 1;
+        }
+
+        .device-status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .device-status-badge.online {
+            background: rgba(40, 167, 69, 0.9);
+        }
+
+        .device-status-badge.offline {
+            background: rgba(220, 53, 69, 0.9);
+        }
+
+        .card-content {
+            padding: 15px;
+        }
+
+        /* Customer Card Styles */
+        .customer-card .customer-name {
+            color: #2c3e50;
+            margin-bottom: 12px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-row .label {
+            font-weight: 500;
+            color: #666;
+            font-size: 13px;
+        }
+
+        .info-row .value {
+            color: #333;
+            font-size: 13px;
+            text-align: right;
+            max-width: 140px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* Device Card Styles */
+        .device-quick-info {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .info-item i {
+            font-size: 14px;
+            color: #007bff;
+        }
+
+        .device-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .control-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 2px;
+        }
+
+        .control-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 8px;
+        }
+
+        .device-details {
+            margin-top: 12px;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 12px;
+        }
+
+        .detail-item .label {
+            font-weight: 500;
+            color: #666;
+        }
+
+        .detail-item .value {
+            color: #333;
+            text-align: right;
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* Mobile responsive untuk popup cards */
+        @media (max-width: 768px) {
+            .popup-cards-container {
+                max-width: 320px;
+                min-width: 260px;
+            }
+
+            .card-header {
+                padding: 10px 12px;
+                font-size: 13px;
+            }
+
+            .card-content {
+                padding: 12px;
+            }
+
+            .device-quick-info {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .info-row .value {
+                max-width: 120px;
+            }
+
+            .detail-item .value {
+                max-width: 100px;
+            }
         }
 
         .customer-info-popup {
@@ -253,66 +432,11 @@
 <body>
     <div class="container-fluid">
         <div class="row">
-            <!-- Sidebar -->
-            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse" id="sidebarMenu">
-                <div class="position-sticky pt-3">
-                    <!-- User Profile -->
-                    <div class="user-profile">
-                        <div class="user-avatar">
-                            <i class="bi bi-person-fill"></i>
-                        </div>
-                        <h6 class="text-white mb-1"><%= technician.name %></h6>
-                        <small class="text-white-50">
-                            <i class="bi bi-tools me-1"></i><%= technician.role %>
-                        </small>
-                    </div>
-
-                    <!-- Navigation Menu -->
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link" href="/technician/dashboard">
-                                <i class="bi bi-speedometer2"></i>Dashboard
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/technician/monitoring">
-                                <i class="bi bi-activity"></i>Monitoring
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/technician/customers">
-                                <i class="bi bi-people"></i>Pelanggan
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link active" href="/technician/mapping">
-                                <i class="bi bi-geo-alt"></i>Mapping
-                            </a>
-                        </li>
-                        <% if (technician.role === 'collector' || technician.role === 'field_officer') { %>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/technician/payments">
-                                <i class="bi bi-credit-card"></i>Pembayaran
-                            </a>
-                        </li>
-                        <% } %>
-                        <li class="nav-item mt-3">
-                            <a class="nav-link" href="/technician/logout">
-                                <i class="bi bi-box-arrow-right"></i>Logout
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
+            <%- include('partials/technician-responsive-sidebar', { page: 'mapping', technician: technician, settings: settings }) %>
 
             <!-- Main Content -->
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
-                <!-- Mobile Menu Button -->
-                <div class="d-md-none mb-3">
-                    <button class="navbar-toggler btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu">
-                        <i class="bi bi-list"></i>
-                    </button>
-                </div>
+
 
                 <!-- Page Header -->
                 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -473,18 +597,8 @@
         let markers = [];
         let customersData = <%- JSON.stringify(customers) %>;
 
-        // Mobile sidebar toggle
+        // Initialize the map
         document.addEventListener('DOMContentLoaded', function() {
-            const sidebarToggle = document.querySelector('.navbar-toggler');
-            const sidebar = document.getElementById('sidebarMenu');
-            
-            if (sidebarToggle && sidebar) {
-                sidebarToggle.addEventListener('click', function() {
-                    sidebar.classList.toggle('show');
-                });
-            }
-
-            // Initialize the map
             initializeMap();
 
             // Search functionality
@@ -539,20 +653,54 @@
                             fillOpacity: 0.8
                         }).addTo(map);
 
-                        // Initial popup (loading)
+                        // Initial popup (loading) dengan struktur 2-card
                         const popupId = `popup_${customer.id || `${lat}_${lng}`}`;
                         const loadingContent = `
-                            <div class="customer-info-popup" id="${popupId}">
-                                <h6 class="mb-2">${customer.name}</h6>
-                                <div class="mb-1"><strong>Username:</strong> ${customer.username || '-'}</div>
-                                <div class="mb-1"><strong>Telepon:</strong> ${customer.phone}</div>
-                                <div class="mb-1"><strong>Paket:</strong> ${customer.package_name || '-'}</div>
-                                <div class="mb-1"><strong>Status:</strong>
-                                    <span class="status-indicator status-${customer.status}"></span> ${customer.status}
+                            <div class="popup-cards-container" id="${popupId}">
+                                <!-- Card 1: Customer Info -->
+                                <div class="popup-card customer-card">
+                                    <div class="card-header">
+                                        <i class="bi bi-person"></i>
+                                        <span class="card-title">Informasi Pelanggan</span>
+                                    </div>
+                                    <div class="card-content">
+                                        <h6 class="customer-name">${customer.name}</h6>
+                                        <div class="info-row">
+                                            <span class="label">Username:</span>
+                                            <span class="value">${customer.username || '-'}</span>
+                                        </div>
+                                        <div class="info-row">
+                                            <span class="label">Phone:</span>
+                                            <span class="value">${customer.phone}</span>
+                                        </div>
+                                        <div class="info-row">
+                                            <span class="label">Package:</span>
+                                            <span class="value">${customer.package_name || '-'}</span>
+                                        </div>
+                                        <div class="info-row">
+                                            <span class="label">Status:</span>
+                                            <span class="badge bg-success">${customer.status}</span>
+                                        </div>
+                                        <div class="info-row">
+                                            <span class="label">Address:</span>
+                                            <span class="value">${customer.address || 'N/A'}</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                ${customer.address ? `<div class="mb-1"><strong>Alamat:</strong> ${customer.address}</div>` : ''}
-                                <hr class="my-2"/>
-                                <div class="text-muted"><em>Memuat info perangkat...</em></div>
+
+                                <!-- Card 2: Device Control (akan diupdate setelah load data) -->
+                                <div class="popup-card device-card">
+                                    <div class="card-header">
+                                        <i class="bi bi-cog"></i>
+                                        <span class="card-title">Kontrol Device</span>
+                                    </div>
+                                    <div class="card-content">
+                                        <div class="text-center text-muted">
+                                            <i class="bi bi-arrow-clockwise bi-spin me-2"></i>
+                                            Memuat info perangkat...
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         `;
 
@@ -638,42 +786,125 @@
                                         const pass24Val = primitive(d.password) || '';
 
                                         const contentHtml = `
-                                            <h6 class="mb-2">${customer.name}</h6>
-                                            <div class="mb-1"><strong>Username:</strong> ${customer.username || '-'}</div>
-                                            <div class="mb-1"><strong>Telepon:</strong> ${customer.phone}</div>
-                                            <div class="mb-1"><strong>Paket:</strong> ${customer.package_name || '-'}</div>
-                                            <div class="mb-1"><strong>Status:</strong>
-                                                <span class="status-indicator status-${customer.status}"></span> ${customer.status}
-                                            </div>
-                                            ${customer.address ? `<div class="mb-1"><strong>Alamat:</strong> ${customer.address}</div>` : ''}
-                                            <div class="mt-2">
-                                                <strong>📡 Device Information</strong>
-                                                <div class="mt-1"><strong>Device Status:</strong> ${deviceStatus}</div>
-                                                <div class="mt-1"><strong>Signal Strength:</strong> ${signal}</div>
-                                                <div class="mt-1"><strong>User Terhubung:</strong> ${users}</div>
-                                                <div class="mt-1"><strong>Device Model:</strong> ${model}</div>
-                                                <div class="mt-1"><strong>PPPoE Username:</strong> ${pppoe}</div>
-                                                <div class="mt-1"><strong>PPPoE IP:</strong> ${pppoeIP}</div>
-                                                <div class="mt-1"><strong>SSID 2.4GHz:</strong> ${ssid24}</div>
-                                                <div class="mt-1"><strong>SSID 5GHz:</strong> ${ssid5g}</div>
-                                                <div class="mt-1"><strong>Password 5GHz:</strong> ${pass5g}</div>
-                                                <div class="mt-1"><strong>Uptime:</strong> ${uptime}</div>
-                                                <div class="mt-1"><strong>Last Seen:</strong> ${lastSeen}</div>
-                                            </div>
-                                            <hr class="my-2"/>
-                                            <div class="mt-2">
-                                                <strong>Edit WiFi</strong>
-                                                <div class="input-group input-group-sm mt-2">
-                                                    <span class="input-group-text">SSID 2.4G</span>
-                                                    <input type="text" class="form-control" id="ssidInput_${deviceId}" value="${ssid24Val}" placeholder="Nama WiFi">
-                                                    <button class="btn btn-success" onclick="updateDeviceSsid('${deviceId}')">Simpan SSID</button>
+                                            <div class="popup-cards-container">
+                                                <!-- Card 1: Customer Info -->
+                                                <div class="popup-card customer-card">
+                                                    <div class="card-header">
+                                                        <i class="bi bi-person"></i>
+                                                        <span class="card-title">Informasi Pelanggan</span>
+                                                    </div>
+                                                    <div class="card-content">
+                                                        <h6 class="customer-name">${customer.name}</h6>
+                                                        <div class="info-row">
+                                                            <span class="label">Username:</span>
+                                                            <span class="value">${customer.username || '-'}</span>
+                                                        </div>
+                                                        <div class="info-row">
+                                                            <span class="label">Phone:</span>
+                                                            <span class="value">${customer.phone}</span>
+                                                        </div>
+                                                        <div class="info-row">
+                                                            <span class="label">Package:</span>
+                                                            <span class="value">${customer.package_name || '-'}</span>
+                                                        </div>
+                                                        <div class="info-row">
+                                                            <span class="label">Status:</span>
+                                                            <span class="badge bg-success">${customer.status}</span>
+                                                        </div>
+                                                        <div class="info-row">
+                                                            <span class="label">Address:</span>
+                                                            <span class="value">${customer.address || 'N/A'}</span>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <div class="input-group input-group-sm mt-2">
-                                                    <span class="input-group-text">Password</span>
-                                                    <input type="text" class="form-control" id="passInput_${deviceId}" value="${pass24Val}" placeholder="Minimal 8 karakter">
-                                                    <button class="btn btn-primary" onclick="updateDevicePass('${deviceId}')">Simpan Password</button>
+
+                                                <!-- Card 2: Device Control -->
+                                                <div class="popup-card device-card">
+                                                    <div class="card-header">
+                                                        <i class="bi bi-cog"></i>
+                                                        <span class="card-title">Kontrol Device</span>
+                                                        <span class="device-status-badge ${deviceStatus === 'Online' ? 'online' : 'offline'}">
+                                                            ${deviceStatus}
+                                                        </span>
+                                                    </div>
+                                                    <div class="card-content">
+                                                        <div class="device-quick-info">
+                                                            <div class="info-item">
+                                                                <i class="bi bi-signal-4"></i>
+                                                                <span>Signal: ${signal}</span>
+                                                            </div>
+                                                            <div class="info-item">
+                                                                <i class="bi bi-wifi"></i>
+                                                                <span>SSID 2.4G: ${ssid24}</span>
+                                                            </div>
+                                                            <div class="info-item">
+                                                                <i class="bi bi-people"></i>
+                                                                <span>${users} user</span>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="device-controls">
+                                                            <div class="control-group">
+                                                                <label class="control-label">SSID WiFi 2.4GHz</label>
+                                                                <div class="input-group input-group-sm">
+                                                                    <input type="text" class="form-control" id="ssidInput_${deviceId}" value="${ssid24Val}" placeholder="Nama WiFi">
+                                                                    <button class="btn btn-success btn-sm" onclick="updateDeviceSsid('${deviceId}')">
+                                                                        <i class="bi bi-save"></i>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="control-group">
+                                                                <label class="control-label">Password WiFi 2.4GHz</label>
+                                                                <div class="input-group input-group-sm">
+                                                                    <input type="text" class="form-control" id="passInput_${deviceId}" value="${pass24Val}" placeholder="Minimal 8 karakter">
+                                                                    <button class="btn btn-primary btn-sm" onclick="updateDevicePass('${deviceId}')">
+                                                                        <i class="bi bi-save"></i>
+                                                                    </button>
+                                                                </div>
+                                                                <small class="text-muted" style="font-size: 10px;">Password 5GHz otomatis: sama dengan 2.4GHz</small>
+                                                            </div>
+
+                                                            <div class="control-buttons">
+                                                                <button class="btn btn-warning btn-sm" onclick="rebootDevice('${deviceId}')">
+                                                                    <i class="bi bi-power-off"></i> Restart
+                                                                </button>
+                                                                <button class="btn btn-info btn-sm" onclick="toggleDeviceDetails('${deviceId}')" id="detailsBtn_${deviceId}">
+                                                                    <i class="bi bi-info-circle"></i> Detail
+                                                                </button>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Hidden Device Details -->
+                                                        <div class="device-details" id="deviceDetails_${deviceId}" style="display: none;">
+                                                            <hr>
+                                                            <div class="detail-item">
+                                                                <span class="label">PPPoE Username:</span>
+                                                                <span class="value">${pppoe}</span>
+                                                            </div>
+                                                            <div class="detail-item">
+                                                                <span class="label">PPPoE IP:</span>
+                                                                <span class="value">${pppoeIP}</span>
+                                                            </div>
+                                                            <div class="detail-item">
+                                                                <span class="label">SSID 5GHz:</span>
+                                                                <span class="value">${ssid5g}</span>
+                                                            </div>
+                                                            <div class="detail-item">
+                                                                <span class="label">Password 5GHz:</span>
+                                                                <span class="value">${pass5g}</span>
+                                                            </div>
+                                                            <div class="detail-item">
+                                                                <span class="label">Uptime:</span>
+                                                                <span class="value">${uptime}</span>
+                                                            </div>
+                                                            <div class="detail-item">
+                                                                <span class="label">Last Seen:</span>
+                                                                <span class="value">${lastSeen}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <small class="text-muted d-block mt-1">SSID 5GHz otomatis: SSID + "-5G"</small>
                                             </div>
                                         `;
                                         container.innerHTML = contentHtml;
@@ -690,27 +921,52 @@
                                 }
 
                                 const contentHtml = `
-                                    <h6 class="mb-2">${customer.name}</h6>
-                                    <div class="mb-1"><strong>Username:</strong> ${customer.username || '-'}</div>
-                                    <div class="mb-1"><strong>Telepon:</strong> ${customer.phone}</div>
-                                    <div class="mb-1"><strong>Paket:</strong> ${customer.package_name || '-'}</div>
-                                    <div class="mb-1"><strong>Status:</strong>
-                                        <span class="status-indicator status-${customer.status}"></span> ${customer.status}
-                                    </div>
-                                    ${customer.address ? `<div class="mb-1"><strong>Alamat:</strong> ${customer.address}</div>` : ''}
-                                    <div class="mt-2">
-                                        <strong>📡 Device Information</strong>
-                                        <div class="mt-1"><strong>Device Status:</strong> ${deviceStatus}</div>
-                                        <div class="mt-1"><strong>Signal Strength:</strong> ${signal}</div>
-                                        <div class="mt-1"><strong>User Terhubung:</strong> ${users}</div>
-                                        <div class="mt-1"><strong>Device Model:</strong> ${model}</div>
-                                        <div class="mt-1"><strong>PPPoE Username:</strong> ${pppoe}</div>
-                                        <div class="mt-1"><strong>PPPoE IP:</strong> -</div>
-                                        <div class="mt-1"><strong>SSID 2.4GHz:</strong> -</div>
-                                        <div class="mt-1"><strong>SSID 5GHz:</strong> -</div>
-                                        <div class="mt-1"><strong>Password 5GHz:</strong> -</div>
-                                        <div class="mt-1"><strong>Uptime:</strong> -</div>
-                                        <div class="mt-1"><strong>Last Seen:</strong> ${lastSeen}
+                                    <div class="popup-cards-container">
+                                        <!-- Card 1: Customer Info -->
+                                        <div class="popup-card customer-card">
+                                            <div class="card-header">
+                                                <i class="bi bi-person"></i>
+                                                <span class="card-title">Informasi Pelanggan</span>
+                                            </div>
+                                            <div class="card-content">
+                                                <h6 class="customer-name">${customer.name}</h6>
+                                                <div class="info-row">
+                                                    <span class="label">Username:</span>
+                                                    <span class="value">${customer.username || '-'}</span>
+                                                </div>
+                                                <div class="info-row">
+                                                    <span class="label">Phone:</span>
+                                                    <span class="value">${customer.phone}</span>
+                                                </div>
+                                                <div class="info-row">
+                                                    <span class="label">Package:</span>
+                                                    <span class="value">${customer.package_name || '-'}</span>
+                                                </div>
+                                                <div class="info-row">
+                                                    <span class="label">Status:</span>
+                                                    <span class="badge bg-success">${customer.status}</span>
+                                                </div>
+                                                <div class="info-row">
+                                                    <span class="label">Address:</span>
+                                                    <span class="value">${customer.address || 'N/A'}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Card 2: Device Info (No Device) -->
+                                        <div class="popup-card device-card">
+                                            <div class="card-header">
+                                                <i class="bi bi-cog"></i>
+                                                <span class="card-title">Kontrol Device</span>
+                                                <span class="device-status-badge offline">No Device</span>
+                                            </div>
+                                            <div class="card-content">
+                                                <div class="text-center text-muted">
+                                                    <i class="bi bi-wifi-off mb-2" style="font-size: 24px;"></i>
+                                                    <p class="mb-0">Tidak ada device yang terhubung</p>
+                                                    <small>Perangkat belum dikonfigurasi atau offline</small>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 `;
@@ -846,6 +1102,53 @@
                 }
             } catch (e) {
                 alert('Error: ' + e.message);
+            }
+        }
+
+        // Toggle device details visibility
+        function toggleDeviceDetails(deviceId) {
+            const detailsContainer = document.getElementById(`deviceDetails_${deviceId}`);
+            const detailsBtn = document.getElementById(`detailsBtn_${deviceId}`);
+
+            if (detailsContainer.style.display === 'none') {
+                // Show device details
+                detailsContainer.style.display = 'block';
+                detailsBtn.innerHTML = '<i class="bi bi-info-circle"></i> Sembunyikan';
+                detailsBtn.classList.remove('btn-info');
+                detailsBtn.classList.add('btn-secondary');
+            } else {
+                // Hide device details
+                detailsContainer.style.display = 'none';
+                detailsBtn.innerHTML = '<i class="bi bi-info-circle"></i> Detail';
+                detailsBtn.classList.remove('btn-secondary');
+                detailsBtn.classList.add('btn-info');
+            }
+        }
+
+        // Reboot device function
+        async function rebootDevice(deviceId) {
+            if (!confirm('Apakah Anda yakin ingin me-restart device ini?')) {
+                return;
+            }
+
+            try {
+                alert('Mengirim perintah restart...');
+
+                const response = await fetch('/technician/genieacs/devices/' + encodeURIComponent(deviceId), {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reboot: true })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    alert('Perintah restart berhasil dikirim!');
+                } else {
+                    alert(result.message || 'Gagal mengirim perintah restart');
+                }
+            } catch (error) {
+                console.error('Error rebooting device:', error);
+                alert('Error restarting device');
             }
         }
 

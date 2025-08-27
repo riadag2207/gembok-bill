@@ -141,9 +141,18 @@
                             <input type="number" class="form-control" id="price" name="price" required>
                         </div>
                         <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="enable_tax" name="enable_tax" checked>
+                                <label class="form-check-label" for="enable_tax">
+                                    Aktifkan PPN
+                                </label>
+                                <small class="form-text text-muted d-block">Centang untuk mengaktifkan PPN, kosongkan untuk tidak ada PPN</small>
+                            </div>
+                        </div>
+                        <div class="mb-3" id="tax_rate_group">
                             <label for="tax_rate" class="form-label">PPN (%)</label>
                             <input type="number" class="form-control" id="tax_rate" name="tax_rate" step="0.01" min="0" max="100" value="11.00">
-                            <small class="form-text text-muted">Persentase PPN yang akan ditambahkan ke harga paket. Masukkan 0 untuk tidak ada PPN.</small>
+                            <small class="form-text text-muted">Persentase PPN yang akan ditambahkan ke harga paket.</small>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Harga Setelah PPN</label>
@@ -200,9 +209,18 @@
                             <input type="number" class="form-control" id="edit_price" name="price" required>
                         </div>
                         <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="edit_enable_tax" name="enable_tax">
+                                <label class="form-check-label" for="edit_enable_tax">
+                                    Aktifkan PPN
+                                </label>
+                                <small class="form-text text-muted d-block">Centang untuk mengaktifkan PPN, kosongkan untuk tidak ada PPN</small>
+                            </div>
+                        </div>
+                        <div class="mb-3" id="edit_tax_rate_group">
                             <label for="edit_tax_rate" class="form-label">PPN (%)</label>
                             <input type="number" class="form-control" id="edit_tax_rate" name="tax_rate" step="0.01" min="0" max="100">
-                            <small class="form-text text-muted">Persentase PPN yang akan ditambahkan ke harga paket. Masukkan 0 untuk tidak ada PPN.</small>
+                            <small class="form-text text-muted">Persentase PPN yang akan ditambahkan ke harga paket.</small>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Harga Setelah PPN</label>
@@ -295,22 +313,59 @@
             $('#edit_price, #edit_tax_rate').on('input', function() {
                 calculatePriceWithTax('edit_price', 'edit_tax_rate', 'edit_price_with_tax');
             });
+            
+            // Checkbox PPN event handlers
+            $('#enable_tax').on('change', function() {
+                toggleTaxRateGroup('tax_rate_group', this.checked);
+                calculatePriceWithTax('price', 'tax_rate', 'price_with_tax');
+            });
+            
+            $('#edit_enable_tax').on('change', function() {
+                toggleTaxRateGroup('edit_tax_rate_group', this.checked);
+                calculatePriceWithTax('edit_price', 'edit_tax_rate', 'edit_price_with_tax');
+            });
+        }
+
+        function toggleTaxRateGroup(groupId, enabled) {
+            const group = $('#' + groupId);
+            const inputs = group.find('input, select');
+            
+            if (enabled) {
+                group.show();
+                inputs.prop('disabled', false);
+            } else {
+                group.hide();
+                inputs.prop('disabled', true);
+                // Set tax rate to 0 when disabled
+                if (groupId === 'tax_rate_group') {
+                    $('#tax_rate').val(0);
+                } else {
+                    $('#edit_tax_rate').val(0);
+                }
+            }
         }
 
         function calculatePriceWithTax(priceId, taxId, resultId) {
             const price = parseFloat($('#' + priceId).val()) || 0;
-            const taxRate = parseFloat($('#' + taxId).val()) || 0;
+            let taxRate = 0;
             
-            // Jika PPN = 0, harga tidak berubah
+            // Check if tax is enabled
+            if (priceId === 'price') {
+                taxRate = $('#enable_tax').is(':checked') ? (parseFloat($('#' + taxId).val()) || 0) : 0;
+            } else {
+                taxRate = $('#edit_enable_tax').is(':checked') ? (parseFloat($('#' + taxId).val()) || 0) : 0;
+            }
+            
+            // Jika PPN = 0 atau tidak diaktifkan, harga tidak berubah
             if (taxRate === 0) {
-                $('#' + resultId).val(price.toLocaleString('id-ID'));
+                $('#' + resultId).val(Math.round(price).toLocaleString('id-ID'));
                 // Tambahkan class atau style untuk menunjukkan tidak ada PPN
                 $('#' + resultId).addClass('text-muted');
                 // Tambahkan tooltip atau info
                 $('#' + resultId).attr('title', 'Tidak ada PPN (0%)');
             } else {
                 const priceWithTax = price * (1 + taxRate / 100);
-                $('#' + resultId).val(priceWithTax.toLocaleString('id-ID'));
+                $('#' + resultId).val(Math.round(priceWithTax).toLocaleString('id-ID'));
                 // Hapus class dan tooltip
                 $('#' + resultId).removeClass('text-muted');
                 $('#' + resultId).removeAttr('title');
@@ -319,7 +374,7 @@
 
         function setDefaultTaxRate() {
             // Fetch tax settings from server
-            fetch('/admin/setting/data')
+            fetch('/admin/settings/data')
                 .then(response => response.json())
                 .then(data => {
                     if (data.tax_settings && data.tax_settings.default_tax_rate) {
@@ -387,7 +442,7 @@
                 name: $('#name').val().trim(),
                 speed: $('#speed').val().trim(),
                 price: parseFloat($('#price').val()),
-                tax_rate: parseFloat($('#tax_rate').val()) >= 0 ? parseFloat($('#tax_rate').val()) : 11.00,
+                tax_rate: $('#enable_tax').is(':checked') ? parseFloat($('#tax_rate').val()) : 0,
                 description: $('#description').val().trim(),
                 pppoe_profile: $('#pppoe_profile').val().trim() || 'default'
             };
@@ -395,6 +450,12 @@
             // Validate required fields
             if (!formData.name || !formData.speed || !formData.price || formData.price <= 0) {
                 showAlert('danger', 'Nama, kecepatan, dan harga harus diisi dengan benar');
+                return;
+            }
+            
+            // Validate tax rate if enabled
+            if ($('#enable_tax').is(':checked') && (formData.tax_rate < 0 || formData.tax_rate > 100)) {
+                showAlert('danger', 'PPN harus antara 0% dan 100%');
                 return;
             }
             
@@ -444,7 +505,21 @@
                         $('#edit_name').val(package.name);
                         $('#edit_speed').val(package.speed);
                         $('#edit_price').val(package.price);
-                        $('#edit_tax_rate').val(package.tax_rate || 11.00);
+                        
+                        // Set tax rate and checkbox based on package data
+                        const taxRate = package.tax_rate || 0;
+                        if (taxRate > 0) {
+                            $('#edit_enable_tax').prop('checked', true);
+                            $('#edit_tax_rate').val(taxRate);
+                            $('#edit_tax_rate_group').show();
+                            $('#edit_tax_rate_group input').prop('disabled', false);
+                        } else {
+                            $('#edit_enable_tax').prop('checked', false);
+                            $('#edit_tax_rate').val(0);
+                            $('#edit_tax_rate_group').hide();
+                            $('#edit_tax_rate_group input').prop('disabled', true);
+                        }
+                        
                         $('#edit_description').val(package.description || '');
                         
                         // Calculate and display price with tax
@@ -474,7 +549,7 @@
                 name: $('#edit_name').val().trim(),
                 speed: $('#edit_speed').val().trim(),
                 price: parseFloat($('#edit_price').val()),
-                tax_rate: parseFloat($('#edit_tax_rate').val()) >= 0 ? parseFloat($('#edit_tax_rate').val()) : 11.00,
+                tax_rate: $('#edit_enable_tax').is(':checked') ? parseFloat($('#edit_tax_rate').val()) : 0,
                 description: $('#edit_description').val().trim(),
                 pppoe_profile: $('#edit_pppoe_profile').val().trim() || 'default'
             };
@@ -482,6 +557,12 @@
             // Validate required fields
             if (!formData.name || !formData.speed || !formData.price || formData.price <= 0) {
                 showAlert('danger', 'Nama, kecepatan, dan harga harus diisi dengan benar');
+                return;
+            }
+            
+            // Validate tax rate if enabled
+            if ($('#edit_enable_tax').is(':checked') && (formData.tax_rate < 0 || formData.tax_rate > 100)) {
+                showAlert('danger', 'PPN harus antara 0% dan 100%');
                 return;
             }
             
@@ -629,5 +710,8 @@
                      message);
         }
     </script>
+    
+    <!-- Currency Helper -->
+    <%- include('../../partials/currency-helper') %>
 </body>
 </html> 

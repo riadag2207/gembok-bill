@@ -81,7 +81,9 @@
                                                     <small class="text-muted"><%= invoice.customer_phone %></small>
                                                 </td>
                                                 <td><%= invoice.package_name %></td>
-                                                <td>Rp <%= parseFloat(invoice.amount).toLocaleString('id-ID') %></td>
+                                                <td class="currency-format" data-amount="<%= invoice.amount %>">
+                                                    Rp <%= Math.round(parseFloat(invoice.amount)).toLocaleString('id-ID') %>
+                                                </td>
                                                 <td>
                                                     <% if (invoice.status === 'paid') { %>
                                                         <span class="badge bg-success">Lunas</span>
@@ -165,7 +167,7 @@
                                         <option value="<%= package.id %>" 
                                                 data-price="<%= package.price %>"
                                                 data-tax-rate="<%= package.tax_rate !== null && package.tax_rate !== undefined ? package.tax_rate : 11.00 %>">
-                                            <%= package.name %> - Rp <%= parseFloat(package.price).toLocaleString('id-ID') %>
+                                            <%= package.name %> - Rp <%= Math.round(parseFloat(package.price)).toLocaleString('id-ID') %>
                                             <% if (package.tax_rate === 0) { %>
                                                 (Tidak Ada PPN)
                                             <% } else if (package.tax_rate) { %>
@@ -240,7 +242,8 @@
                 } else {
                     $('#tax_rate_display').val(`${taxRate}%`);
                     const amount = price * (1 + taxRate / 100);
-                    $('#amount').val(amount.toFixed(2));
+                    // Round to integer (hilangkan desimal)
+                    $('#amount').val(Math.round(amount));
                 }
                 
                 // Set hidden fields for PPN data
@@ -459,5 +462,8 @@
             });
         }
     </script>
+    
+    <!-- Currency Helper -->
+    <%- include('../../partials/currency-helper') %>
 </body>
 </html>

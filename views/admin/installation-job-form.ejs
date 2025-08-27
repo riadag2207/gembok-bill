@@ -289,44 +289,90 @@
     function searchCustomer() {
         const searchTerm = document.getElementById('customerSearch').value;
         if (!searchTerm) {
-            alert('Mohon masukkan kata kunci pencarian');
+            showToast('Mohon masukkan kata kunci pencarian', 'warning');
             return;
         }
         
-        // TODO: Implement customer search API call
-        console.log('Searching for customer:', searchTerm);
+        if (searchTerm.length < 2) {
+            showToast('Minimal 2 karakter untuk pencarian', 'warning');
+            return;
+        }
         
-        // Show mock results for now
-        showMockCustomerResults(searchTerm);
-    }
-    
-    function showMockCustomerResults(searchTerm) {
+        // Show loading state
         const resultDiv = document.getElementById('customerSearchResult');
         resultDiv.style.display = 'block';
         resultDiv.innerHTML = `
-            <h6>Hasil Pencarian untuk "${searchTerm}":</h6>
+            <div class="text-center py-3">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Mencari...</span>
+                </div>
+                <p class="mt-2 text-muted">Mencari pelanggan...</p>
+            </div>
+        `;
+        
+        // Call real API
+        fetch(`/admin/installations/api/search-customers?q=${encodeURIComponent(searchTerm)}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (data.customers && data.customers.length > 0) {
+                        showCustomerResults(searchTerm, data.customers);
+                    } else {
+                        showNoCustomerResults(searchTerm);
+                    }
+                } else {
+                    showCustomerSearchError(data.message || 'Error searching customers');
+                }
+            })
+            .catch(error => {
+                console.error('Error searching customers:', error);
+                showCustomerSearchError('Terjadi kesalahan saat mencari pelanggan');
+            });
+    }
+    
+    function showCustomerResults(searchTerm, customers) {
+        const resultDiv = document.getElementById('customerSearchResult');
+        resultDiv.innerHTML = `
+            <h6>Hasil Pencarian untuk "${searchTerm}" (${customers.length} pelanggan):</h6>
             <div class="list-group">
-                <a href="#" class="list-group-item list-group-item-action" onclick="selectCustomer(1, 'John Doe', '08123456789', 'john@example.com', 'Jl. Example No. 123')">
-                    <div class="d-flex w-100 justify-content-between">
-                        <h6 class="mb-1">John Doe</h6>
-                        <small>08123456789</small>
-                    </div>
-                    <p class="mb-1">john@example.com</p>
-                    <small>Jl. Example No. 123</small>
-                </a>
-                <a href="#" class="list-group-item list-group-item-action" onclick="selectCustomer(2, 'Jane Smith', '08987654321', 'jane@example.com', 'Jl. Sample No. 456')">
-                    <div class="d-flex w-100 justify-content-between">
-                        <h6 class="mb-1">Jane Smith</h6>
-                        <small>08987654321</small>
-                    </div>
-                    <p class="mb-1">jane@example.com</p>
-                    <small>Jl. Sample No. 456</small>
-                </a>
+                ${customers.map(customer => `
+                    <a href="#" class="list-group-item list-group-item-action" 
+                       onclick="selectCustomerFromSearch(${customer.id}, '${customer.name}', '${customer.phone}', '${customer.email || ''}', '${customer.address || ''}', '${customer.pppoe_username || ''}')">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">${customer.name}</h6>
+                            <small class="text-primary">${customer.phone}</small>
+                        </div>
+                        ${customer.email ? `<p class="mb-1 text-muted">${customer.email}</p>` : ''}
+                        ${customer.address ? `<small class="text-muted">${customer.address}</small>` : ''}
+                        ${customer.pppoe_username ? `<br><small class="badge bg-info">PPPoE: ${customer.pppoe_username}</small>` : ''}
+                    </a>
+                `).join('')}
             </div>
         `;
     }
     
-    function selectCustomer(id, name, phone, email, address) {
+    function showNoCustomerResults(searchTerm) {
+        const resultDiv = document.getElementById('customerSearchResult');
+        resultDiv.innerHTML = `
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle me-2"></i>
+                Tidak ada pelanggan ditemukan untuk "${searchTerm}"
+                <br><small>Silakan buat pelanggan baru atau coba kata kunci lain</small>
+            </div>
+        `;
+    }
+    
+    function showCustomerSearchError(message) {
+        const resultDiv = document.getElementById('customerSearchResult');
+        resultDiv.innerHTML = `
+            <div class="alert alert-danger">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                ${message}
+            </div>
+        `;
+    }
+    
+    function selectCustomerFromSearch(id, name, phone, email, address, pppoeUsername) {
         // Hide search results
         document.getElementById('customerSearchResult').style.display = 'none';
         
@@ -334,25 +380,39 @@
         const customerInfo = document.getElementById('customerInfo');
         customerInfo.style.display = 'block';
         customerInfo.innerHTML = `
-            <h6><i class="bi bi-person-check me-2"></i>Pelanggan yang Dipilih:</h6>
-            <div class="row">
-                <div class="col-md-6">
-                    <strong>Nama:</strong> ${name}<br>
-                    <strong>Telepon:</strong> ${phone}
+            <div class="alert alert-success">
+                <h6><i class="bi bi-person-check me-2"></i>Pelanggan yang Dipilih:</h6>
+                <div class="row">
+                    <div class="col-md-6">
+                        <strong>Nama:</strong> ${name}<br>
+                        <strong>Telepon:</strong> ${phone}
+                        ${pppoeUsername ? `<br><strong>PPPoE:</strong> ${pppoeUsername}` : ''}
+                    </div>
+                    <div class="col-md-6">
+                        ${email ? `<strong>Email:</strong> ${email}<br>` : ''}
+                        <strong>Alamat:</strong> ${address || 'Tidak ada alamat'}
+                    </div>
                 </div>
-                <div class="col-md-6">
-                    <strong>Email:</strong> ${email}<br>
-                    <strong>Alamat:</strong> ${address}
-                </div>
+                <input type="hidden" name="customer_id" value="${id}">
+                <input type="hidden" name="customer_name" value="${name}">
+                <input type="hidden" name="customer_phone" value="${phone}">
+                <input type="hidden" name="customer_address" value="${address || ''}">
+                <button type="button" class="btn btn-sm btn-outline-secondary mt-2" onclick="changeCustomer()">
+                    <i class="bi bi-arrow-repeat me-1"></i>Ganti Pelanggan
+                </button>
             </div>
-            <input type="hidden" name="customer_id" value="${id}">
-            <button type="button" class="btn btn-sm btn-outline-secondary mt-2" onclick="changeCustomer()">
-                <i class="bi bi-arrow-repeat me-1"></i>Ganti Pelanggan
-            </button>
         `;
         
         // Clear search input
         document.getElementById('customerSearch').value = '';
+        
+        // Show success toast
+        showToast(`Pelanggan ${name} berhasil dipilih`, 'success');
+    }
+    
+    function selectCustomer(id, name, phone, email, address) {
+        // Legacy function - redirect to new function
+        selectCustomerFromSearch(id, name, phone, email, address, '');
     }
     
     function changeCustomer() {
@@ -464,6 +524,61 @@
         searchPackages();
     });
     
+    // Toast notification function
+    function showToast(message, type = 'info') {
+        // Create toast container if not exists
+        let toastContainer = document.getElementById('toastContainer');
+        if (!toastContainer) {
+            toastContainer = document.createElement('div');
+            toastContainer.id = 'toastContainer';
+            toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+            toastContainer.style.zIndex = '9999';
+            document.body.appendChild(toastContainer);
+        }
+        
+        const toastId = 'toast-' + Date.now();
+        const toastHtml = `
+            <div id="${toastId}" class="toast align-items-center text-white bg-${type === 'success' ? 'success' : type === 'error' ? 'danger' : type === 'warning' ? 'warning' : 'info'} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>
+        `;
+        
+        toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+        
+        const toastElement = document.getElementById(toastId);
+        const toast = new bootstrap.Toast(toastElement, { delay: 3000 });
+        toast.show();
+        
+        // Auto remove after hide
+        toastElement.addEventListener('hidden.bs.toast', () => {
+            toastElement.remove();
+        });
+    }
+    
+    // Auto-search customers when typing
+    let searchTimeout;
+    document.getElementById('customerSearch').addEventListener('input', function() {
+        const searchTerm = this.value.trim();
+        
+        // Clear previous timeout
+        clearTimeout(searchTimeout);
+        
+        // Hide previous results
+        document.getElementById('customerSearchResult').style.display = 'none';
+        
+        if (searchTerm.length >= 2) {
+            // Delay search to avoid too many API calls
+            searchTimeout = setTimeout(() => {
+                searchCustomer();
+            }, 500);
+        }
+    });
+    
     // Submit handler via button to avoid native submit navigation
     // Fallback attach if onclick removed by browser
     const _btn = document.getElementById('submitBtn');
@@ -509,15 +624,6 @@
         }).catch(() => {
             showToast('Terjadi kesalahan jaringan', 'error');
         });
-    }
-
-    function showToast(message, type = 'success') {
-        const container = document.getElementById('toastContainer');
-        const el = document.createElement('div');
-        el.className = `toast-item ${type}`;
-        el.textContent = message;
-        container.appendChild(el);
-        setTimeout(() => { el.remove(); }, 3500);
     }
 </script>
 </body>

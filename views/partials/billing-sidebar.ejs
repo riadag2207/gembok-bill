@@ -322,16 +322,35 @@
         overflow-x: hidden !important;
         -webkit-overflow-scrolling: touch !important;
         padding-bottom: 20px !important;
+        max-height: 100vh !important;
     }
     
     #sidebar .nav {
         padding-bottom: 20px !important;
         min-height: auto !important;
+        flex-wrap: nowrap !important;
     }
     
     #sidebar .sidebar-header {
         margin-top: 20px !important;
         flex-shrink: 0 !important;
+        position: sticky !important;
+        top: 0 !important;
+        background: #111827 !important;
+        z-index: 10 !important;
+        padding: 15px 0 !important;
+    }
+    
+    /* Ensure navigation items are properly spaced */
+    #sidebar .nav-item {
+        margin-bottom: 5px !important;
+    }
+    
+    #sidebar .nav-link {
+        padding: 12px 20px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
     }
     
     /* Adjust content for better mobile view */
@@ -356,6 +375,28 @@
     
     .mobile-navbar .navbar-brand {
         font-size: 1rem;
+    }
+    
+    #sidebar .nav-link {
+        padding: 10px 15px !important;
+        font-size: 0.9rem !important;
+    }
+}
+
+/* Desktop specific */
+@media (min-width: 768px) {
+    .main-content {
+        margin-left: 25%; /* col-md-3 width */
+    }
+    
+    #sidebar {
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+    }
+    
+    #sidebar .position-sticky {
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
     }
 }
 </style>

@@ -106,7 +106,7 @@
                                                     <strong><%= invoice.invoice_number %></strong>
                                                 </td>
                                                 <td><%= invoice.package_name %></td>
-                                                <td>Rp <%= parseFloat(invoice.amount).toLocaleString('id-ID') %></td>
+                                                <td>Rp <%= Math.round(parseFloat(invoice.amount)).toLocaleString('id-ID') %></td>
                                                 <td>
                                                     <% if (invoice.status === 'paid') { %>
                                                         <span class="badge bg-success">Lunas</span>

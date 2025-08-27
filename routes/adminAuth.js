@@ -54,14 +54,14 @@ router.post('/login', async (req, res) => {
       req.session.adminUser = username;
       
       // Fast response untuk AJAX
-      if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+      if (req.xhr || (req.headers.accept && req.headers.accept.indexOf('json') > -1)) {
         res.json({ success: true, message: 'Login berhasil!' });
       } else {
         res.redirect('/admin/dashboard');
       }
     } else {
       // Fast error response
-      if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+      if (req.xhr || (req.headers.accept && req.headers.accept.indexOf('json') > -1)) {
         res.status(401).json({ success: false, message: 'Username atau password salah!' });
       } else {
         res.render('adminLogin', { error: 'Username atau password salah.' });
@@ -70,7 +70,7 @@ router.post('/login', async (req, res) => {
   } catch (error) {
     console.error('Login error:', error);
     
-    if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+    if (req.xhr || (req.headers.accept && req.headers.accept.indexOf('json') > -1)) {
       res.status(500).json({ success: false, message: 'Terjadi kesalahan saat login!' });
     } else {
       res.render('adminLogin', { error: 'Terjadi kesalahan saat login.' });

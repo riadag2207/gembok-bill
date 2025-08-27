@@ -334,16 +334,69 @@
                                             <% previousReports.slice().reverse().forEach(function(rep){ %>
                                                 <tr>
                                                     <td>#<%= rep.id %></td>
-                                                    <td><%= rep.created_at ? new Date(rep.created_at).toLocaleString('id-ID') : '-' %></td>
-                                                    <td><%= rep.category || '-' %></td>
-                                                    <td><%= rep.location || '-' %></td>
                                                     <td>
-                                                        <span class="badge <%= rep.status === 'open' ? 'bg-danger' : (rep.status === 'in_progress' ? 'bg-warning text-dark' : (rep.status === 'resolved' ? 'bg-success' : 'bg-secondary')) %>">
-                                                            <%= rep.status || '-' %>
+                                                        <% if (rep.createdAt) { %>
+                                                            <%= new Date(rep.createdAt).toLocaleDateString('id-ID') %>
+                                                            <br><small class="text-muted">
+                                                                <%= new Date(rep.createdAt).toLocaleTimeString('id-ID') %>
+                                                            </small>
+                                                        <% } else if (rep.created_at) { %>
+                                                            <%= new Date(rep.created_at).toLocaleDateString('id-ID') %>
+                                                            <br><small class="text-muted">
+                                                                <%= new Date(rep.created_at).toLocaleTimeString('id-ID') %>
+                                                            </small>
+                                                        <% } else { %>
+                                                            -
+                                                        <% } %>
+                                                    </td>
+                                                    <td><%= rep.category || '-' %></td>
+                                                    <td>
+                                                        <% if (rep.location && rep.location.length > 50) { %>
+                                                            <span title="<%= rep.location %>">
+                                                                <%= rep.location.substring(0, 50) %>...
+                                                            </span>
+                                                        <% } else { %>
+                                                            <%= rep.location || '-' %>
+                                                        <% } %>
+                                                    </td>
+                                                    <td>
+                                                        <% 
+                                                        let statusText = 'Unknown';
+                                                        let statusClass = 'bg-secondary';
+                                                        if (rep.status === 'open') {
+                                                            statusText = 'Dibuka';
+                                                            statusClass = 'bg-danger';
+                                                        } else if (rep.status === 'in_progress') {
+                                                            statusText = 'Sedang Ditangani';
+                                                            statusClass = 'bg-warning text-dark';
+                                                        } else if (rep.status === 'resolved') {
+                                                            statusText = 'Terselesaikan';
+                                                            statusClass = 'bg-success';
+                                                        } else if (rep.status === 'closed') {
+                                                            statusText = 'Ditutup';
+                                                            statusClass = 'bg-secondary';
+                                                        }
+                                                        %>
+                                                        <span class="badge <%= statusClass %>">
+                                                            <%= statusText %>
                                                         </span>
                                                     </td>
-                                                    <td style="max-width: 320px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                                        <%= rep.notes && rep.notes.length ? rep.notes[rep.notes.length - 1] : '-' %>
+                                                    <td style="max-width: 320px;">
+                                                        <% 
+                                                        let lastNote = '-';
+                                                        if (rep.notes && Array.isArray(rep.notes) && rep.notes.length > 0) {
+                                                            const lastNoteObj = rep.notes[rep.notes.length - 1];
+                                                            if (typeof lastNoteObj === 'object' && lastNoteObj.content) {
+                                                                lastNote = lastNoteObj.content;
+                                                            } else if (typeof lastNoteObj === 'string') {
+                                                                lastNote = lastNoteObj;
+                                                            }
+                                                        }
+                                                        if (lastNote.length > 50) {
+                                                            lastNote = lastNote.substring(0, 50) + '...';
+                                                        }
+                                                        %>
+                                                        <span title="<%= lastNote %>"><%= lastNote %></span>
                                                     </td>
                                                     <td>
                                                         <a href="/customer/trouble/detail/<%= rep.id %>" class="btn btn-sm btn-outline-primary">Detail</a>
@@ -365,19 +418,68 @@
                                                             <div class="small text-muted">ID Laporan</div>
                                                             <div class="fw-bold">#<%= rep.id %></div>
                                                         </div>
-                                                        <div class="small text-muted">
-                                                            <%= rep.created_at ? new Date(rep.created_at).toLocaleString('id-ID') : '-' %>
+                                                        <div class="text-end small text-muted">
+                                                            <% if (rep.createdAt) { %>
+                                                                <%= new Date(rep.createdAt).toLocaleDateString('id-ID') %>
+                                                                <br><%= new Date(rep.createdAt).toLocaleTimeString('id-ID') %>
+                                                            <% } else if (rep.created_at) { %>
+                                                                <%= new Date(rep.created_at).toLocaleDateString('id-ID') %>
+                                                                <br><%= new Date(rep.created_at).toLocaleTimeString('id-ID') %>
+                                                            <% } else { %>
+                                                                -
+                                                            <% } %>
                                                         </div>
                                                     </div>
                                                     <div class="mb-2">
                                                         <span class="badge bg-info"><%= rep.category || '-' %></span>
-                                                        <span class="badge <%= rep.status === 'open' ? 'bg-danger' : (rep.status === 'in_progress' ? 'bg-warning text-dark' : (rep.status === 'resolved' ? 'bg-success' : 'bg-secondary')) %> ms-2">
-                                                            <%= rep.status || '-' %>
+                                                        <% 
+                                                        let mobileStatusText = 'Unknown';
+                                                        let mobileStatusClass = 'bg-secondary';
+                                                        if (rep.status === 'open') {
+                                                            mobileStatusText = 'Dibuka';
+                                                            mobileStatusClass = 'bg-danger';
+                                                        } else if (rep.status === 'in_progress') {
+                                                            mobileStatusText = 'Sedang Ditangani';
+                                                            mobileStatusClass = 'bg-warning text-dark';
+                                                        } else if (rep.status === 'resolved') {
+                                                            mobileStatusText = 'Terselesaikan';
+                                                            mobileStatusClass = 'bg-success';
+                                                        } else if (rep.status === 'closed') {
+                                                            mobileStatusText = 'Ditutup';
+                                                            mobileStatusClass = 'bg-secondary';
+                                                        }
+                                                        %>
+                                                        <span class="badge <%= mobileStatusClass %> ms-2">
+                                                            <%= mobileStatusText %>
                                                         </span>
                                                     </div>
-                                                    <div class="small text-muted mb-1">Lokasi: <%= rep.location || '-' %></div>
-                                                    <div class="small" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                                        <em><%= rep.notes && rep.notes.length ? rep.notes[rep.notes.length - 1] : '-' %></em>
+                                                    <div class="small text-muted mb-1">
+                                                        Lokasi: 
+                                                        <% if (rep.location && rep.location.length > 40) { %>
+                                                            <span title="<%= rep.location %>">
+                                                                <%= rep.location.substring(0, 40) %>...
+                                                            </span>
+                                                        <% } else { %>
+                                                            <%= rep.location || '-' %>
+                                                        <% } %>
+                                                    </div>
+                                                    <div class="small mb-2" style="max-width: 100%;">
+                                                        <strong>Catatan:</strong><br>
+                                                        <% 
+                                                        let mobileLastNote = '-';
+                                                        if (rep.notes && Array.isArray(rep.notes) && rep.notes.length > 0) {
+                                                            const lastNoteObj = rep.notes[rep.notes.length - 1];
+                                                            if (typeof lastNoteObj === 'object' && lastNoteObj.content) {
+                                                                mobileLastNote = lastNoteObj.content;
+                                                            } else if (typeof lastNoteObj === 'string') {
+                                                                mobileLastNote = lastNoteObj;
+                                                            }
+                                                        }
+                                                        if (mobileLastNote.length > 80) {
+                                                            mobileLastNote = mobileLastNote.substring(0, 80) + '...';
+                                                        }
+                                                        %>
+                                                        <em><%= mobileLastNote %></em>
                                                     </div>
                                                     <a href="/customer/trouble/detail/<%= rep.id %>" class="btn btn-primary w-100 mt-2">Detail</a>
                                                 </div>

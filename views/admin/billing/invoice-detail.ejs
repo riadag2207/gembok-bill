@@ -66,7 +66,7 @@
                                             </tr>
                                             <tr>
                                                 <td class="fw-bold">Jumlah:</td>
-                                                <td class="h5 text-primary">Rp <%= parseFloat(invoice.amount).toLocaleString('id-ID') %></td>
+                                                <td class="h5 text-primary">Rp <%= Math.round(parseFloat(invoice.amount)).toLocaleString('id-ID') %></td>
                                             </tr>
                                             <tr>
                                                 <td class="fw-bold">Jatuh Tempo:</td>
