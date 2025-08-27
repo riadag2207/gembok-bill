@@ -173,33 +173,33 @@ async function sendGroupMessage(numbers, message) {
 // Fungsi untuk mengirim pesan ke grup teknisi
 async function sendTechnicianMessage(message, priority = 'normal') {
     try {
-        // Ambil daftar nomor teknisi dari database
+        // Ambil daftar teknisi dari database dengan whatsapp_group_id
         const sqlite3 = require('sqlite3').verbose();
         const path = require('path');
-        
+
         const dbPath = path.join(__dirname, '../data/billing.db');
         const db = new sqlite3.Database(dbPath);
-        
+
         const technicians = await new Promise((resolve, reject) => {
             const query = `
-                SELECT phone, name, role 
-                FROM technicians 
-                WHERE is_active = 1 
+                SELECT phone, name, role, whatsapp_group_id
+                FROM technicians
+                WHERE is_active = 1
                 ORDER BY role, name
             `;
-            
+
             db.all(query, [], (err, rows) => {
                 db.close();
                 if (err) reject(err);
                 else resolve(rows || []);
             });
         });
-        
+
         const technicianNumbers = technicians.map(tech => tech.phone);
-        
         const technicianGroupId = getSetting('technician_group_id', '');
         let sentToGroup = false;
         let sentToNumbers = false;
+        let sentToIndividualGroups = false;
 
         // Penambahan prioritas pesan
         let priorityIcon = '';
@@ -210,24 +210,40 @@ async function sendTechnicianMessage(message, priority = 'normal') {
         }
         const priorityMessage = priorityIcon + message;
 
-        // Kirim ke grup jika ada
+        // 1. Kirim ke grup utama (dari settings.json) jika ada
         if (technicianGroupId) {
             try {
                 await sendMessage(technicianGroupId, priorityMessage);
                 sentToGroup = true;
-                console.log(`Pesan dikirim ke grup teknisi: ${technicianGroupId}`);
+                console.log(`✅ Pesan dikirim ke grup teknisi utama: ${technicianGroupId}`);
             } catch (e) {
-                console.error('Gagal mengirim ke grup teknisi:', e);
+                console.error('❌ Gagal mengirim ke grup teknisi utama:', e);
             }
         }
-        
-        // Kirim ke nomor teknisi jika ada
+
+        // 2. Kirim ke grup individual teknisi jika ada
+        const techniciansWithGroups = technicians.filter(tech => tech.whatsapp_group_id && tech.whatsapp_group_id.trim() !== '');
+        if (techniciansWithGroups.length > 0) {
+            console.log(`📱 Mengirim ke ${techniciansWithGroups.length} grup teknisi individual...`);
+
+            for (const tech of techniciansWithGroups) {
+                try {
+                    await sendMessage(tech.whatsapp_group_id, priorityMessage);
+                    console.log(`✅ Pesan dikirim ke grup ${tech.name}: ${tech.whatsapp_group_id}`);
+                    sentToIndividualGroups = true;
+                } catch (e) {
+                    console.error(`❌ Gagal mengirim ke grup ${tech.name} (${tech.whatsapp_group_id}):`, e);
+                }
+            }
+        }
+
+        // 3. Kirim ke nomor teknisi individual jika ada
         if (technicianNumbers && technicianNumbers.length > 0) {
             console.log(`📤 Mengirim ke ${technicianNumbers.length} nomor teknisi: ${technicianNumbers.join(', ')}`);
             const result = await sendGroupMessage(technicianNumbers, priorityMessage);
             sentToNumbers = result.success;
             console.log(`📊 Hasil pengiriman ke nomor teknisi: ${result.sent} berhasil, ${result.failed} gagal`);
-            
+
             if (result.sent > 0) {
                 sentToNumbers = true;
             }
@@ -244,7 +260,16 @@ async function sendTechnicianMessage(message, priority = 'normal') {
                 console.log(`❌ Tidak ada admin number yang tersedia untuk fallback`);
             }
         }
-        return sentToGroup || sentToNumbers;
+
+        const overallSuccess = sentToGroup || sentToIndividualGroups || sentToNumbers;
+
+        console.log(`\n📊 RINGKASAN PENGIRIMAN TEKNISI:`);
+        console.log(`   - Grup utama: ${sentToGroup ? '✅' : '❌'}`);
+        console.log(`   - Grup individual: ${sentToIndividualGroups ? '✅' : '❌'} (${techniciansWithGroups.length} grup)`);
+        console.log(`   - Nomor individual: ${sentToNumbers ? '✅' : '❌'} (${technicianNumbers.length} nomor)`);
+        console.log(`   - Status keseluruhan: ${overallSuccess ? '✅ BERHASIL' : '❌ GAGAL'}`);
+
+        return overallSuccess;
     } catch (error) {
         console.error('Error sending message to technician group:', error);
         return false;
