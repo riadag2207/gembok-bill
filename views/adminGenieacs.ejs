@@ -81,11 +81,26 @@
             border-radius: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.04);
         }
-        /* Mobile responsive table styles */
+        /* Full width table container */
         .table-responsive {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
+            width: 100%;
+            margin: 0;
         }
+        .table {
+            width: 100%;
+            margin-bottom: 0;
+            table-layout: auto;
+        }
+        /* Optimize column widths for better space usage */
+        .table th:nth-child(1), .table td:nth-child(1) { width: 5%; min-width: 50px; }
+        .table th:nth-child(2), .table td:nth-child(2) { width: 25%; min-width: 150px; }
+        .table th:nth-child(3), .table td:nth-child(3) { width: 20%; min-width: 120px; }
+        .table th:nth-child(4), .table td:nth-child(4) { width: 10%; min-width: 80px; text-align: center; }
+        .table th:nth-child(5), .table td:nth-child(5) { width: 15%; min-width: 100px; }
+        .table th:nth-child(6), .table td:nth-child(6) { width: 10%; min-width: 80px; text-align: center; }
+        .table th:nth-child(7), .table td:nth-child(7) { width: 15%; min-width: 150px; }
         @media (max-width: 768px) {
             .table td, .table th {
                 white-space: nowrap;
@@ -534,6 +549,33 @@
             position: relative;
             z-index: 1;
         }
+        
+        /* Better space utilization without breaking Bootstrap layout */
+        @media (min-width: 768px) {
+            .main-content {
+                padding-left: 2rem;
+                padding-right: 2rem;
+            }
+        }
+        
+        /* Ensure table uses available space properly */
+        .card .table-responsive {
+            margin: -1.25rem;
+            margin-top: 0;
+            border-radius: 0;
+        }
+        
+        .card .table-responsive .table {
+            margin-bottom: 0;
+        }
+        
+        .card .card-body {
+            padding-bottom: 0;
+        }
+        
+        .card h4 {
+            margin-bottom: 1.25rem;
+        }
     </style>
 </head>
 <body>
@@ -685,6 +727,7 @@ $(document).ready(function(){
     var table = $('#genieacsTable').DataTable({
         "responsive": true,
         "scrollX": true,
+        "autoWidth": false,
         "lengthMenu": [[20, 50, 100, -1], [20, 50, 100, "All"]],
         "pageLength": 20,
         "language": {
@@ -701,9 +744,13 @@ $(document).ready(function(){
             }
         },
         "columnDefs": [
-            { "targets": [0], "responsivePriority": 1 },
-            { "targets": [1], "responsivePriority": 2 },
-            { "targets": [-1], "responsivePriority": 3, "orderable": false }
+            { "targets": [0], "responsivePriority": 1, "width": "5%" },
+            { "targets": [1], "responsivePriority": 2, "width": "25%" },
+            { "targets": [2], "responsivePriority": 4, "width": "20%" },
+            { "targets": [3], "responsivePriority": 5, "width": "10%", "className": "text-center" },
+            { "targets": [4], "responsivePriority": 6, "width": "15%" },
+            { "targets": [5], "responsivePriority": 7, "width": "10%", "className": "text-center" },
+            { "targets": [-1], "responsivePriority": 3, "orderable": false, "width": "15%" }
         ]
     });
     
