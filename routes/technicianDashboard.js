@@ -433,7 +433,7 @@ router.get('/customers/:id', technicianAuth, async (req, res) => {
 router.put('/customers/:id', technicianAuth, async (req, res) => {
     try {
         const id = parseInt(req.params.id);
-        const { name, phone, email, address, package_id, pppoe_username, pppoe_profile, status } = req.body;
+        const { name, phone, email, address, latitude, longitude, package_id, pppoe_username, pppoe_profile, status } = req.body;
         if (!id) return res.status(400).json({ success: false, message: 'ID tidak valid' });
 
         const existing = await billingManager.getCustomerById(id);
@@ -447,6 +447,8 @@ router.put('/customers/:id', technicianAuth, async (req, res) => {
             phone: normalizedPhone,
             email: email ?? existing.email,
             address: address ?? existing.address,
+            latitude: latitude ?? existing.latitude,
+            longitude: longitude ?? existing.longitude,
             package_id: package_id ? parseInt(package_id) : existing.package_id,
             pppoe_username: pppoe_username ?? existing.pppoe_username,
             pppoe_profile: pppoe_profile ?? existing.pppoe_profile,

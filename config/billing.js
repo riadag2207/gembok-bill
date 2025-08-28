@@ -60,20 +60,22 @@ class BillingManager {
 
     async updateCustomerById(id, customerData) {
         return new Promise(async (resolve, reject) => {
-            const { name, username, pppoe_username, email, address, package_id, pppoe_profile, status, auto_suspension, billing_day } = customerData;
+            const { name, username, pppoe_username, email, address, latitude, longitude, package_id, pppoe_profile, status, auto_suspension, billing_day } = customerData;
             try {
                 const oldCustomer = await this.getCustomerById(id);
                 if (!oldCustomer) return reject(new Error('Customer not found'));
 
                 const normBillingDay = Math.min(Math.max(parseInt(billing_day !== undefined ? billing_day : (oldCustomer?.billing_day ?? 15), 10) || 15, 1), 28);
 
-                const sql = `UPDATE customers SET name = ?, username = ?, pppoe_username = ?, email = ?, address = ?, package_id = ?, pppoe_profile = ?, status = ?, auto_suspension = ?, billing_day = ? WHERE id = ?`;
+                const sql = `UPDATE customers SET name = ?, username = ?, pppoe_username = ?, email = ?, address = ?, latitude = ?, longitude = ?, package_id = ?, pppoe_profile = ?, status = ?, auto_suspension = ?, billing_day = ? WHERE id = ?`;
                 this.db.run(sql, [
                     name ?? oldCustomer.name,
                     username ?? oldCustomer.username,
                     pppoe_username ?? oldCustomer.pppoe_username,
                     email ?? oldCustomer.email,
                     address ?? oldCustomer.address,
+                    latitude !== undefined ? parseFloat(latitude) : oldCustomer.latitude,
+                    longitude !== undefined ? parseFloat(longitude) : oldCustomer.longitude,
                     package_id ?? oldCustomer.package_id,
                     pppoe_profile ?? oldCustomer.pppoe_profile,
                     status ?? oldCustomer.status,
