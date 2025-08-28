@@ -433,9 +433,9 @@
                                                 <td>
                                                     <input type="checkbox" class="form-check-input customer-checkbox" value="<%= customer.phone %>">
                                                 </td>
-                                                <td><%= customer.name %></td>
+                                                <td><a href="/admin/billing/customers/<%= customer.phone %>" class="text-decoration-none fw-bold"><%= customer.name %></a></td>
                                                 <td><%= customer.username || '-' %></td>
-                                                <td><%= customer.phone %></td>
+                                                <td><a href="/admin/billing/customers/<%= customer.phone %>" class="text-decoration-none text-primary"><%= customer.phone %></a></td>
                                                 <td><%= customer.pppoe_username || '-' %></td>
                                                 <td><%= customer.package_name || '-' %></td>
                                                 <td class="pppoe-profile"><span class="badge bg-info"><%= customer.pppoe_profile || 'default' %></span></td>
@@ -468,6 +468,9 @@
                                                 </td>
                                                 <td>
                                                     <div class="btn-group" role="group">
+                                                        <button class="btn btn-sm btn-info" onclick="viewCustomerDetail('<%= customer.phone %>')" title="Lihat Detail">
+                                                            <i class="bx bx-show"></i>
+                                                        </button>
                                                         <button class="btn btn-sm btn-primary" onclick="editCustomer('<%= customer.phone %>')">
                                                             <i class="bx bx-edit"></i>
                                                         </button>
@@ -528,50 +531,6 @@
     });
     </script>
 
-    <script>
-    // Live update table rows
-    function renderStatusBadge(status) {
-        if (status === 'active') return '<span class="badge bg-success">Aktif</span>';
-        if (status === 'suspended') return '<span class="badge bg-danger">Isolir</span>';
-        return '<span class="badge bg-secondary">Nonaktif</span>';
-    }
-    function renderPayBadge(p) {
-        if (p === 'paid') return '<span class="badge bg-success">Lunas</span>';
-        if (p === 'unpaid') return '<span class="badge bg-warning">Belum Lunas</span>';
-        if (p === 'overdue') return '<span class="badge bg-danger">Terlambat</span>';
-        return '<span class="badge bg-info">Belum Ada Tagihan</span>';
-    }
-    async function refreshCustomersTable() {
-        try {
-            const resp = await fetch('/admin/billing/customers/list');
-            const res = await resp.json();
-            if (!res.success || !Array.isArray(res.customers)) return;
-
-            const byUser = new Map(res.customers.filter(c => c.pppoe_username).map(c => [String(c.pppoe_username), c]));
-            const byPhone = new Map(res.customers.filter(c => c.phone).map(c => [String(c.phone), c]));
-            document.querySelectorAll('#customersTable tbody tr[data-phone],#customersTable tbody tr[data-username]')
-                .forEach(tr => {
-                    const uname = tr.getAttribute('data-username');
-                    const phone = tr.getAttribute('data-phone');
-                    const c = (uname && byUser.get(uname)) || (phone && byPhone.get(phone));
-                    if (!c) return;
-                    const statusTd = tr.querySelector('td.cust-status');
-                    const payTd = tr.querySelector('td.pay-status');
-                    const profTd = tr.querySelector('td.pppoe-profile');
-                    if (statusTd) statusTd.innerHTML = renderStatusBadge(c.status);
-                    if (payTd) payTd.innerHTML = renderPayBadge(c.payment_status);
-                    if (profTd) profTd.innerHTML = `<span class="badge bg-info">${c.pppoe_profile || 'default'}</span>`;
-                });
-        } catch (e) {
-            console.warn('Failed to refresh customers table:', e);
-        }
-    }
-    document.addEventListener('DOMContentLoaded', () => {
-        refreshCustomersTable();
-        setInterval(refreshCustomersTable, 5000);
-    });
-    </script>
-
     <!-- Add Customer Modal -->
     <div class="modal fade" id="addCustomerModal" tabindex="-1">
         <div class="modal-dialog">
@@ -583,13 +542,13 @@
                 <form id="addCustomerForm">
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label for="name" class="form-label">Nama *</label>
-                            <input type="text" class="form-control" id="name" name="name" required onblur="generateUsernameFromName()">
+                            <label for="name" class="form-label">Nama * <small class="text-muted">(username & email akan auto-generate dari nama)</small></label>
+                            <input type="text" class="form-control" id="name" name="name" required onblur="generateCredentialsFromName()" oninput="generateCredentialsFromName()">
                         </div>
                         <div class="mb-3">
                             <label for="username" class="form-label">Username *</label>
-                            <input type="text" class="form-control" id="username" name="username" required placeholder="username untuk login dan payment gateway">
-                            <small class="form-text text-muted">Username akan digunakan untuk login pelanggan dan payment gateway. Harus unik dan tanpa spasi.</small>
+                            <input type="text" class="form-control" id="username" name="username" required placeholder="Akan otomatis terisi dari nama + tanggal (contoh: test_280825)">
+                            <small class="form-text text-muted">Username akan digunakan untuk login pelanggan dan payment gateway. Format otomatis: nama_DDMMYY</small>
                         </div>
                         <div class="mb-3">
                             <label for="phone" class="form-label">Telepon *</label>
@@ -597,7 +556,8 @@
                         </div>
                         <div class="mb-3">
                             <label for="email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="email" name="email" placeholder="customer@example.com">
+                            <input type="email" class="form-control" id="email" name="email" placeholder="Akan otomatis terisi dari nama (contoh: test@gembok.com)">
+                            <small class="form-text text-muted">Email akan digunakan untuk notifikasi. Format otomatis: nama@gembok.com</small>
                         </div>
                         <div class="mb-3">
                             <label for="pppoe_username" class="form-label">PPPoE Username (opsional)</label>
@@ -972,27 +932,120 @@
             });
         });
 
-        // Function to generate username from name
-        function generateUsernameFromName() {
+        // Test function to manually set credentials
+        function testGenerateCredentials() {
             const nameField = document.getElementById('name');
             const usernameField = document.getElementById('username');
+            const emailField = document.getElementById('email');
             
-            if (nameField.value && !usernameField.value) {
-                // Convert name to username: lowercase, replace spaces with underscore, remove special chars
-                let username = nameField.value.toLowerCase()
-                    .replace(/\s+/g, '_')           // Replace spaces with underscore
-                    .replace(/[^a-z0-9_]/g, '')     // Remove special characters
-                    .replace(/_{2,}/g, '_')         // Replace multiple underscores with single
-                    .replace(/^_|_$/g, '');         // Remove leading/trailing underscores
+            if (nameField && usernameField && emailField) {
+                const testValue = "jajaltest";
+                usernameField.value = testValue + "_280825";
+                emailField.value = testValue + "@gembok.com";
+                console.log("Manually set test values");
+            }
+        }
+
+        // Final clean function to generate both username and email from name
+        function generateCredentialsFromName() {
+            try {
+                const nameField = document.getElementById('name');
+                const usernameField = document.getElementById('username');
+                const emailField = document.getElementById('email');
                 
-                // Limit length to 20 characters
-                username = username.substring(0, 20);
-                
-                // Add random suffix to avoid duplicates
-                const randomSuffix = Math.random().toString(36).substring(2, 5);
-                username = username + '_' + randomSuffix;
-                
-                usernameField.value = username;
+                // Only proceed if name field has value
+                if (nameField && nameField.value) {
+                    const fullName = nameField.value;
+                    
+                    // Generate username if field is empty
+                    if (usernameField && !usernameField.value) {
+                        // Process character by character for username
+                        let cleanUsername = '';
+                        for (let i = 0; i < fullName.length && i < 15; i++) {
+                            const char = fullName[i].toLowerCase();
+                            if (char >= 'a' && char <= 'z') {
+                                cleanUsername += char;
+                            } else if (char >= '0' && char <= '9') {
+                                cleanUsername += char;
+                            } else if (char === ' ') {
+                                cleanUsername += '_';
+                            } else if (char === '_' && cleanUsername.length > 0 && cleanUsername[cleanUsername.length - 1] !== '_') {
+                                cleanUsername += char;
+                            }
+                            // Skip all other characters
+                        }
+                        
+                        // Remove trailing underscores
+                        cleanUsername = cleanUsername.replace(/_+$/, '');
+                        
+                        // If result is empty, use default
+                        if (!cleanUsername) {
+                            cleanUsername = 'user';
+                        }
+                        
+                        // Add date
+                        const now = new Date();
+                        const dateStr = String(now.getDate()).padStart(2, '0') + 
+                                       String(now.getMonth() + 1).padStart(2, '0') + 
+                                       String(now.getFullYear()).slice(-2);
+                        const finalUsername = cleanUsername + '_' + dateStr;
+                        
+                        usernameField.value = finalUsername;
+                    }
+                    
+                    // Generate email if field is empty
+                    if (emailField && !emailField.value) {
+                        // Process character by character for email
+                        let cleanEmail = '';
+                        for (let i = 0; i < fullName.length && i < 30; i++) {
+                            const char = fullName[i].toLowerCase();
+                            if (char >= 'a' && char <= 'z') {
+                                cleanEmail += char;
+                            } else if (char >= '0' && char <= '9') {
+                                cleanEmail += char;
+                            } else if (char === ' ') {
+                                cleanEmail += '.';
+                            } else if (char === '.' && cleanEmail.length > 0 && cleanEmail[cleanEmail.length - 1] !== '.') {
+                                cleanEmail += char;
+                            }
+                            // Skip all other characters
+                        }
+                        
+                        // Remove trailing dots
+                        cleanEmail = cleanEmail.replace(/\.+$/, '');
+                        
+                        // If result is empty, use default
+                        if (!cleanEmail) {
+                            cleanEmail = 'user';
+                        }
+                        
+                        const finalEmail = cleanEmail + '@gembok.com';
+                        emailField.value = finalEmail;
+                    }
+                }
+            } catch (error) {
+                console.error('Error in generateCredentialsFromName:', error);
+            }
+        }
+
+        function generateUsernameFromName() {
+            generateCredentialsFromName();
+        }
+        
+        function generateEmailFromName() {
+            generateCredentialsFromName();
+        }
+
+        // Debug function to test name value retrieval
+        function debugNameValue() {
+            const nameField = document.getElementById('name');
+            if (nameField) {
+                console.log('=== DEBUG NAME VALUE ===');
+                console.log('Raw value:', '"' + nameField.value + '"');
+                console.log('Length:', nameField.value.length);
+                console.log('Trimmed:', '"' + nameField.value.trim() + '"');
+                console.log('Char codes:', Array.from(nameField.value).map(c => c.charCodeAt(0)));
+                console.log('========================');
             }
         }
 
@@ -1219,12 +1272,18 @@
             });
         });
 
+        // View customer detail
+        function viewCustomerDetail(phone) {
+            // Navigate to customer detail page
+            window.location.href = `/admin/billing/customers/${phone}`;
+        }
+
         // Delete customer
         async function deleteCustomer(phone) {
             if (!confirm('Apakah Anda yakin ingin menghapus pelanggan ini?')) return;
             
             try {
-                const response = await fetch(`/admin/billing/api/customers/${phone}`, {
+                const response = await fetch(`/admin/billing/customers/${phone}`, {
                     method: 'DELETE'
                 });
                 
@@ -1708,6 +1767,48 @@
             container.style.zIndex = '9999';
             document.body.appendChild(container);
             return container;
+        }
+        
+        // Function to generate username and email from name
+        function generateCredentialsFromName() {
+            const nameInput = document.getElementById('name');
+            const usernameInput = document.getElementById('username');
+            const emailInput = document.getElementById('email');
+            
+            if (!nameInput || !usernameInput) return;
+            
+            const name = nameInput.value.trim();
+            if (!name) {
+                usernameInput.value = '';
+                if (emailInput) emailInput.value = '';
+                return;
+            }
+            
+            // Get current date in DDMMYY format
+            const now = new Date();
+            const day = String(now.getDate()).padStart(2, '0');
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const year = String(now.getFullYear()).slice(-2);
+            const dateStr = day + month + year;
+            
+            // Process name: remove special characters, replace spaces with underscores
+            let processedName = name.toLowerCase()
+                .replace(/[^a-z0-9\s]/g, '')  // Remove special characters
+                .replace(/\s+/g, '_')         // Replace spaces with underscores
+                .replace(/_+/g, '_')          // Replace multiple underscores with single
+                .replace(/^_|_$/g, '');       // Remove leading/trailing underscores
+            
+            // If processed name is empty, use 'user'
+            if (!processedName) processedName = 'user';
+            
+            // Generate username
+            const baseUsername = processedName + '_' + dateStr;
+            usernameInput.value = baseUsername;
+            
+            // Generate email if email field exists
+            if (emailInput) {
+                emailInput.value = processedName + '@gembok.com';
+            }
         }
     </script>
 </body>

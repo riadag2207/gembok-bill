@@ -276,15 +276,16 @@
                                     <td>
                                         <div class="btn-group btn-group-sm">
                                             <button class="btn btn-outline-primary" title="Lihat Detail" 
-                                                    onclick="viewCustomer(<%= customer.id %>)">
+                                                    data-action="view" data-customer-id="<%= customer.id %>">
                                                 <i class="bi bi-eye"></i>
                                             </button>
                                             <button class="btn btn-outline-secondary" title="Edit" 
-                                                    onclick="editCustomer(<%= customer.id %>)">
+                                                    data-action="edit" data-customer-id="<%= customer.id %>">
                                                 <i class="bi bi-pencil"></i>
                                             </button>
                                             <button class="btn btn-outline-danger" title="Hapus" 
-                                                    onclick="deleteCustomer(<%= customer.id %>, '<%- customer.name.replace(/'/g, "\'") %>')">
+                                                    data-action="delete" data-customer-id="<%= customer.id %>" 
+                                                    data-customer-name="<%- customer.name %>">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </div>
@@ -550,52 +551,55 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-
-
+        document.addEventListener('DOMContentLoaded', function() {
             // Search functionality
             const searchInput = document.getElementById('searchInput');
             let searchTimeout;
             
-            searchInput.addEventListener('input', function() {
-                clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(() => {
-                    const searchValue = this.value;
-                    const currentPage = new URLSearchParams(window.location.search).get('page') || 1;
-                    window.location.href = `?search=${encodeURIComponent(searchValue)}&page=1`;
-                }, 500);
-            });
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(() => {
+                        const searchValue = this.value;
+                        const currentPage = new URLSearchParams(window.location.search).get('page') || 1;
+                        window.location.href = `?search=${encodeURIComponent(searchValue)}&page=1`;
+                    }, 500);
+                });
+            }
 
             // Form submission
             const addCustomerForm = document.getElementById('addCustomerForm');
-            addCustomerForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                const formData = new FormData(this);
-                const data = Object.fromEntries(formData.entries());
-                // Checkbox boolean
-                data.create_pppoe_now = document.getElementById('createPPPoENow').checked ? 'true' : 'false';
-                
-                try {
-                    const response = await fetch('/technician/customers/add', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(data)
-                    });
+            if (addCustomerForm) {
+                addCustomerForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
                     
-                    const result = await response.json();
+                    const formData = new FormData(this);
+                    const data = Object.fromEntries(formData.entries());
+                    // Checkbox boolean
+                    data.create_pppoe_now = document.getElementById('createPPPoENow').checked ? 'true' : 'false';
                     
-                    if (result.success) {
-                        alert('Pelanggan berhasil ditambahkan!');
-                        window.location.reload();
-                    } else {
-                        alert('Error: ' + result.message);
+                    try {
+                        const response = await fetch('/technician/customers/add', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(data)
+                        });
+                        
+                        const result = await response.json();
+                        
+                        if (result.success) {
+                            alert('Pelanggan berhasil ditambahkan!');
+                            window.location.reload();
+                        } else {
+                            alert('Error: ' + result.message);
+                        }
+                    } catch (error) {
+                        alert('Terjadi kesalahan: ' + error.message);
                     }
-                } catch (error) {
-                    alert('Terjadi kesalahan: ' + error.message);
-                }
-            });
+                });
+            }
 
             // Load PPPoE Profiles from Mikrotik
             fetch('/technician/api/mikrotik/pppoe-profiles')
@@ -603,17 +607,81 @@
                 .then(res => {
                     if (!res.success) return;
                     const sel = document.getElementById('customerProfile');
-                    const current = sel.value;
-                    res.profiles.forEach(p => {
-                        if (p.name === 'default') return; // sudah ada
-                        const opt = document.createElement('option');
-                        opt.value = p.name;
-                        opt.textContent = p.name;
-                        sel.appendChild(opt);
-                    });
-                    sel.value = current;
+                    if (sel) {
+                        const current = sel.value;
+                        res.profiles.forEach(p => {
+                            if (p.name === 'default') return; // sudah ada
+                            const opt = document.createElement('option');
+                            opt.value = p.name;
+                            opt.textContent = p.name;
+                            sel.appendChild(opt);
+                        });
+                        sel.value = current;
+                    }
                 })
                 .catch(() => {});
+
+            // Setup edit form submission
+            const editCustomerForm = document.getElementById('editCustomerForm');
+            if (editCustomerForm) {
+                editCustomerForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    const id = document.getElementById('editCustomerId').value;
+                    const body = {
+                        name: document.getElementById('editCustomerName').value.trim(),
+                        phone: document.getElementById('editCustomerPhone').value.trim(),
+                        email: document.getElementById('editCustomerEmail').value.trim() || null,
+                        address: document.getElementById('editCustomerAddress').value.trim() || null,
+                        latitude: document.getElementById('editLatitude').value.trim() || null,
+                        longitude: document.getElementById('editLongitude').value.trim() || null,
+                        pppoe_username: document.getElementById('editCustomerPPPoE').value.trim() || null,
+                        pppoe_profile: document.getElementById('editCustomerProfile').value.trim() || 'default'
+                    };
+
+                    if (!body.name || !body.phone) {
+                        alert('Nama dan Telepon wajib diisi');
+                        return;
+                    }
+
+                    try {
+                        const up = await fetch(`/technician/customers/${id}`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                            body: JSON.stringify(body)
+                        });
+                        const upd = await up.json();
+                        if (upd.success) {
+                            const modalEl = document.getElementById('editCustomerModal');
+                            const modal = bootstrap.Modal.getInstance(modalEl);
+                            modal?.hide();
+                            alert('Pelanggan berhasil diperbarui');
+                            window.location.reload();
+                        } else {
+                            alert(upd.message || 'Gagal memperbarui pelanggan');
+                        }
+                    } catch (e) {
+                        alert('Error: ' + e.message);
+                    }
+                });
+            }
+
+            // Handle action buttons with event delegation
+            document.addEventListener('click', function(e) {
+                const button = e.target.closest('button[data-action]');
+                if (!button) return;
+
+                const action = button.getAttribute('data-action');
+                const customerId = button.getAttribute('data-customer-id');
+                const customerName = button.getAttribute('data-customer-name');
+
+                if (action === 'view' && customerId) {
+                    viewCustomer(parseInt(customerId));
+                } else if (action === 'edit' && customerId) {
+                    editCustomer(parseInt(customerId));
+                } else if (action === 'delete' && customerId && customerName) {
+                    deleteCustomer(parseInt(customerId), customerName);
+                }
+            });
         });
 
         // Map/GPS helpers
@@ -726,6 +794,8 @@
                 document.getElementById('editCustomerUsername').value = c.username || '';
                 document.getElementById('editCustomerEmail').value = c.email || '';
                 document.getElementById('editCustomerAddress').value = c.address || '';
+                document.getElementById('editLatitude').value = c.latitude || '';
+                document.getElementById('editLongitude').value = c.longitude || '';
                 document.getElementById('editCustomerPPPoE').value = c.pppoe_username || '';
                 document.getElementById('editCustomerProfile').value = c.pppoe_profile || 'default';
 
@@ -735,45 +805,6 @@
                 alert('Error: ' + e.message);
             }
         }
-
-        // Submit edit modal
-        document.getElementById('editCustomerForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const id = document.getElementById('editCustomerId').value;
-            const body = {
-                name: document.getElementById('editCustomerName').value.trim(),
-                phone: document.getElementById('editCustomerPhone').value.trim(),
-                email: document.getElementById('editCustomerEmail').value.trim() || null,
-                address: document.getElementById('editCustomerAddress').value.trim() || null,
-                pppoe_username: document.getElementById('editCustomerPPPoE').value.trim() || null,
-                pppoe_profile: document.getElementById('editCustomerProfile').value.trim() || 'default'
-            };
-
-            if (!body.name || !body.phone) {
-                alert('Nama dan Telepon wajib diisi');
-                return;
-            }
-
-            try {
-                const up = await fetch(`/technician/customers/${id}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                    body: JSON.stringify(body)
-                });
-                const upd = await up.json();
-                if (upd.success) {
-                    const modalEl = document.getElementById('editCustomerModal');
-                    const modal = bootstrap.Modal.getInstance(modalEl);
-                    modal?.hide();
-                    alert('Pelanggan berhasil diperbarui');
-                    window.location.reload();
-                } else {
-                    alert(upd.message || 'Gagal memperbarui pelanggan');
-                }
-            } catch (e) {
-                alert('Error: ' + e.message);
-            }
-        });
 
         async function deleteCustomer(id, name) {
             if (!confirm(`Hapus pelanggan "${name}"? Tindakan ini tidak bisa dibatalkan.`)) return;
