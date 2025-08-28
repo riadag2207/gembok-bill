@@ -157,7 +157,7 @@
     <div class="row">
         <!-- Include Responsive Sidebar -->
         <% if (typeof isTechnicianView !== 'undefined' && isTechnicianView) { %>
-            <%- include('partials/technician-responsive-sidebar', { page: 'troubletickets', technician: technician }) %>
+            <%- include('../partials/technician-responsive-sidebar', { page: 'troubletickets', technician: technician }) %>
         <% } else { %>
             <%- include('../partials/admin-responsive-sidebar', { page: 'trouble', settings: settings }) %>
         <% } %>
