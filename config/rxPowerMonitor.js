@@ -151,7 +151,10 @@ async function sendCriticalNotification(device, rxPowerValue, threshold) {
   const deviceId = device._id;
   const cacheKey = `${deviceId}_critical`;
   const now = Date.now();
-  const interval = getSetting('rx_power_notification_interval', 300000); // 5 menit
+  
+  // Ambil interval dalam jam, konversi ke milidetik (untuk caching notification)
+  const intervalHours = parseFloat(getSetting('rx_power_notification_interval_hours', '1'));
+  const interval = intervalHours * 60 * 60 * 1000; // Convert hours to milliseconds
   
   // Cek apakah sudah pernah notifikasi dalam interval waktu
   if (notificationCache[cacheKey] && (now - notificationCache[cacheKey]) < interval) {
@@ -188,7 +191,10 @@ async function sendWarningNotification(device, rxPowerValue, threshold) {
   const deviceId = device._id;
   const cacheKey = `${deviceId}_warning`;
   const now = Date.now();
-  const interval = getSetting('rx_power_notification_interval', 300000); // 5 menit
+  
+  // Ambil interval dalam jam, konversi ke milidetik (untuk caching notification)
+  const intervalHours = parseFloat(getSetting('rx_power_notification_interval_hours', '1'));
+  const interval = intervalHours * 60 * 60 * 1000; // Convert hours to milliseconds
   
   // Cek apakah sudah pernah notifikasi dalam interval waktu
   if (notificationCache[cacheKey] && (now - notificationCache[cacheKey]) < interval) {
@@ -303,14 +309,17 @@ async function sendToTechnicians(message, priority = 'normal') {
 // Fungsi untuk memulai monitoring RX Power
 function startRXPowerMonitoring() {
   const notificationEnabled = getSetting('rx_power_notification_enable', true);
-  const interval = getSetting('rx_power_notification_interval', 3600000); // 1 menit
+  
+  // Ambil interval dalam jam, konversi ke milidetik
+  const intervalHours = parseFloat(getSetting('rx_power_notification_interval_hours', '1'));
+  const interval = intervalHours * 60 * 60 * 1000; // Convert hours to milliseconds
   
   if (!notificationEnabled) {
     console.log('📊 RX Power monitoring is DISABLED in settings');
     return;
   }
   
-  console.log(`📊 Starting RX Power monitoring (interval: ${interval/1000}s)`);
+  console.log(`📊 Starting RX Power monitoring (interval: ${intervalHours} jam / ${interval/1000}s)`);
   
   // Jalankan pengecekan pertama dengan delay
   setTimeout(() => {

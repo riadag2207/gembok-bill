@@ -16,10 +16,11 @@ const otpStore = {};
 // WhatsApp integration untuk kirim OTP (following customer portal pattern)
 let sendMessage;
 try {
-    const { sendMessage: whatsappSendMessage } = require('../config/whatsapp');
-    sendMessage = whatsappSendMessage;
+    const sendMessageModule = require('../config/sendMessage');
+    sendMessage = sendMessageModule.sendMessage;
 } catch (error) {
     console.log('WhatsApp not available for OTP sending');
+    sendMessage = null;
 }
 
 /**

@@ -607,8 +607,11 @@ async function monitorPPPoEConnections() {
             logger.info('PPPoE monitoring is DISABLED by ENV');
             return;
         }
-        // Dapatkan interval monitoring dari konfigurasi
-        const interval = parseInt(getSetting('pppoe_monitor_interval', '60000'));
+        // Dapatkan interval monitoring dari konfigurasi dalam menit, konversi ke milidetik
+        const intervalMinutes = parseFloat(getSetting('pppoe_monitor_interval_minutes', '1'));
+        const interval = intervalMinutes * 60 * 1000; // Convert minutes to milliseconds
+        
+        console.log(`📋 Starting PPPoE monitoring (interval: ${intervalMinutes} menit / ${interval/1000}s)`);
         
         // Bersihkan interval sebelumnya jika ada
         if (monitorInterval) {

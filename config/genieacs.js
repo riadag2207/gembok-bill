@@ -832,9 +832,19 @@ const deviceInfo = {
 function scheduleMonitoring() {
     // Ambil pengaturan dari settings.json
     const rxPowerRecapEnabled = getSetting('rxpower_recap_enable', true) !== false;
-    const rxPowerRecapInterval = getSetting('rxpower_recap_interval', 6 * 60 * 60 * 1000);
+    
+    // Ambil interval dalam jam, konversi ke milidetik
+    const rxPowerRecapHours = parseFloat(getSetting('rxpower_recap_interval_hours', '6'));
+    const rxPowerRecapInterval = rxPowerRecapHours * 60 * 60 * 1000;
+    
     const offlineNotifEnabled = getSetting('offline_notification_enable', true) !== false;
-    const offlineNotifInterval = getSetting('offline_notification_interval', 12 * 60 * 60 * 1000);
+    
+    // Ambil interval offline dalam jam, konversi ke milidetik
+    const offlineNotifHours = parseFloat(getSetting('offline_notification_interval_hours', '12'));
+    const offlineNotifInterval = offlineNotifHours * 60 * 60 * 1000;
+
+    console.log(`📊 Scheduling RX Power recap: ${rxPowerRecapHours} jam (${rxPowerRecapInterval/1000}s)`);
+    console.log(`📋 Scheduling offline monitoring: ${offlineNotifHours} jam (${offlineNotifInterval/1000}s)`);
 
     setTimeout(async () => {
         if (rxPowerRecapEnabled) {

@@ -1508,15 +1508,11 @@ async function updateTroubleTicketStatus(ticketId, status, notes, technicianId) 
     try {
         const { updateTroubleReportStatus } = require('../config/troubleReport');
         
-        // Update status dengan informasi teknisi
-        const updateData = {
-            status: status,
-            technician_notes: notes,
-            assigned_technician_id: technicianId,
-            updated_at: new Date().toISOString()
-        };
+        // Format catatan dengan informasi teknisi
+        const technicianNote = notes ? `[Teknisi]: ${notes}` : '';
         
-        return updateTroubleReportStatus(ticketId, updateData);
+        // Call the function with the correct parameter signature
+        return updateTroubleReportStatus(ticketId, status, technicianNote, true);
     } catch (error) {
         console.error('Error updating trouble ticket:', error);
         return false;

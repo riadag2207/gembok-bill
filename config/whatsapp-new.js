@@ -114,8 +114,8 @@ async function connectToWhatsApp() {
                     qrCode: null
                 });
                 
-                // Kirim notifikasi ke admin
-                await sendAdminNotifications(sock);
+                // Kirim notifikasi ke admin - DISABLED
+                // await sendAdminNotifications(sock);
                 
                 // Handle welcome message untuk super admin
                 await messageHandlers.handleSuperAdminWelcome(sock);
