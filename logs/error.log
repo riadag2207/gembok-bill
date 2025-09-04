@@ -1059,3 +1059,597 @@
 [2025-08-24T14:44:14.489Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
 [2025-08-24T14:45:14.497Z] [ERROR] Error connecting to Mikrotik: 
 [2025-08-24T14:45:14.498Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-25T01:39:34.703Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-25T01:49:13.230Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-25T01:49:55.418Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-25T01:49:55.422Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-25T01:49:55.423Z] [ERROR] No Mikrotik connection available
+[2025-08-25T01:49:59.337Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-25T01:50:02.346Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-25T01:50:05.333Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-25T01:50:08.362Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-25T01:50:11.345Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-25T01:50:14.362Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-25T01:50:15.531Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-25T01:50:15.532Z] [ERROR] No Mikrotik connection available for PPPoE monitoring
+[2025-08-25T01:50:17.337Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-25T01:50:20.360Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-25T01:50:23.370Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-25T01:50:26.373Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-25T01:50:29.358Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-25T01:50:32.360Z] [ERROR] Error connecting to Mikrotik: 
+[2025-08-25T02:04:54.806Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-25T02:09:12.768Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-25T02:17:06.664Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-25T02:22:21.770Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-25T02:29:26.293Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-25T02:36:03.410Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-25T02:39:43.701Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-25T02:45:52.871Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-25T02:49:15.250Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-25T02:55:22.579Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-25T03:02:47.899Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-25T03:04:23.850Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-25T03:11:41.398Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-25T03:27:07.429Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-25T03:45:40.926Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-25T06:15:49.496Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-25T06:25:27.699Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-25T06:33:30.652Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-25T06:58:45.332Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-25T07:04:24.209Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-25T07:20:09.702Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-25T07:25:34.191Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-25T11:53:28.192Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-25T12:18:02.548Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-25T12:19:34.955Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-25T12:20:07.988Z] [ERROR] Failed to send PPPoE notification to 62838076656 after 2 retries
+[2025-08-25T12:20:34.907Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-25T12:20:41.022Z] [ERROR] Failed to send PPPoE notification to 62822180947 after 2 retries
+[2025-08-25T12:21:07.936Z] [ERROR] Failed to send PPPoE notification to 62838076656 after 2 retries
+[2025-08-25T12:21:40.959Z] [ERROR] Failed to send PPPoE notification to 62822180947 after 2 retries
+[2025-08-25T12:34:29.917Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-25T12:36:02.277Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-25T12:36:35.309Z] [ERROR] Failed to send PPPoE notification to 62838076656 after 2 retries
+[2025-08-25T12:37:02.263Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-25T12:37:08.334Z] [ERROR] Failed to send PPPoE notification to 62822180947 after 2 retries
+[2025-08-25T12:37:35.293Z] [ERROR] Failed to send PPPoE notification to 62838076656 after 2 retries
+[2025-08-25T12:38:08.321Z] [ERROR] Failed to send PPPoE notification to 62822180947 after 2 retries
+[2025-08-25T12:38:38.878Z] [ERROR] WhatsApp sock not initialized
+[2025-08-25T12:41:44.363Z] [ERROR] ❌ Gagal mengirim update status laporan TR756171FCJ ke pelanggan 081234567890
+[2025-08-25T12:51:41.594Z] [ERROR] Error creating customer payment:
+{
+  "name": "Error",
+  "message": "Tripay API error 400: {\"success\":false,\"message\":\"Invalid API Key\"}",
+  "stack": "Error: Tripay API error 400: {\"success\":false,\"message\":\"Invalid API Key\"}\n    at TripayGateway.createPaymentWithMethod (E:\\gembok-bill\\config\\paymentGateway.js:565:19)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async PaymentGatewayManager.createPaymentWithMethod (E:\\gembok-bill\\config\\paymentGateway.js:149:26)\n    at async E:\\gembok-bill\\config\\billing.js:1367:39"
+}
+[2025-08-26T00:37:34.136Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-26T00:39:09.310Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T00:39:42.330Z] [ERROR] Failed to send PPPoE notification to 62838076656 after 2 retries
+[2025-08-26T00:40:08.009Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T00:40:15.346Z] [ERROR] Failed to send PPPoE notification to 62822180947 after 2 retries
+[2025-08-26T00:40:41.037Z] [ERROR] Failed to send PPPoE notification to 62838076656 after 2 retries
+[2025-08-26T00:41:14.082Z] [ERROR] Failed to send PPPoE notification to 62822180947 after 2 retries
+[2025-08-26T01:05:38.034Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T01:05:41.055Z] [ERROR] Failed to send PPPoE notification to 62838076656 after 2 retries
+[2025-08-26T01:05:44.084Z] [ERROR] Failed to send PPPoE notification to 62822180947 after 2 retries
+[2025-08-26T01:17:56.320Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-26T01:19:09.280Z] [ERROR] Failed to send OTP:
+{
+  "name": "Error",
+  "message": "WhatsApp service not available",
+  "stack": "Error: WhatsApp service not available\n    at TechnicianAuthManager.sendOTPViaWhatsApp (E:\\gembok-bill\\routes\\technicianAuth.js:82:19)\n    at E:\\gembok-bill\\routes\\technicianAuth.js:295:31"
+}
+[2025-08-26T01:19:28.699Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T01:20:01.733Z] [ERROR] Failed to send PPPoE notification to 62838076656 after 2 retries
+[2025-08-26T01:20:28.665Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T01:20:34.750Z] [ERROR] Failed to send PPPoE notification to 62822180947 after 2 retries
+[2025-08-26T01:21:01.701Z] [ERROR] Failed to send PPPoE notification to 62838076656 after 2 retries
+[2025-08-26T01:21:34.730Z] [ERROR] Failed to send PPPoE notification to 62822180947 after 2 retries
+[2025-08-26T01:22:22.316Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-26T01:22:22.325Z] [ERROR] ❌ ERROR: Port 3003 sudah digunakan oleh aplikasi lain!
+[2025-08-26T01:22:22.332Z] [ERROR] 💡 Solusi: Hentikan aplikasi yang menggunakan port 3003 atau ubah port di settings.json
+[2025-08-26T01:22:22.333Z] [ERROR] 🔍 Cek aplikasi yang menggunakan port: netstat -ano | findstr :3003
+[2025-08-26T01:22:44.794Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-26T01:24:17.186Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T01:24:50.213Z] [ERROR] Failed to send PPPoE notification to 62838076656111 after 2 retries
+[2025-08-26T01:25:17.199Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T01:25:23.256Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T01:25:50.233Z] [ERROR] Failed to send PPPoE notification to 62838076656111 after 2 retries
+[2025-08-26T01:26:17.199Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T01:26:20.219Z] [ERROR] Failed to send PPPoE notification to 62838076656111 after 2 retries
+[2025-08-26T01:26:23.244Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T01:26:23.263Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T01:26:28.188Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-26T01:26:28.196Z] [ERROR] ❌ ERROR: Port 3003 sudah digunakan oleh aplikasi lain!
+[2025-08-26T01:26:28.197Z] [ERROR] 💡 Solusi: Hentikan aplikasi yang menggunakan port 3003 atau ubah port di settings.json
+[2025-08-26T01:26:28.198Z] [ERROR] 🔍 Cek aplikasi yang menggunakan port: netstat -ano | findstr :3003
+[2025-08-26T01:29:03.774Z] [ERROR] Failed to send OTP via WhatsApp:
+{
+  "name": "TypeError",
+  "message": "sendMessage is not a function",
+  "stack": "TypeError: sendMessage is not a function\n    at TechnicianAuthManager.sendOTPViaWhatsApp (E:\\gembok-bill\\routes\\technicianAuth.js:79:19)\n    at E:\\gembok-bill\\routes\\technicianAuth.js:266:31"
+}
+[2025-08-26T01:29:03.776Z] [ERROR] Failed to send OTP:
+{
+  "name": "TypeError",
+  "message": "sendMessage is not a function",
+  "stack": "TypeError: sendMessage is not a function\n    at TechnicianAuthManager.sendOTPViaWhatsApp (E:\\gembok-bill\\routes\\technicianAuth.js:79:19)\n    at E:\\gembok-bill\\routes\\technicianAuth.js:266:31"
+}
+[2025-08-26T01:31:24.432Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-26T01:32:02.010Z] [ERROR] Error loading technician customers:
+{
+  "name": "Error",
+  "message": "SQLITE_ERROR: no such column: c.created_at",
+  "stack": "Error: SQLITE_ERROR: no such column: c.created_at\n--> in Database#all('\\n' +\n  '            SELECT c.*, p.name as package_name, p.speed as package_speed\\n' +\n  '            FROM customers c\\n' +\n  '            LEFT JOIN packages p ON c.package_id = p.id\\n' +\n  '         ORDER BY c.created_at DESC LIMIT ? OFFSET ?', [ 20, 0 ], [Function (anonymous)])\n    at E:\\gembok-bill\\routes\\technicianDashboard.js:394:12\n    at new Promise (<anonymous>)\n    at getCustomersForTechnician (E:\\gembok-bill\\routes\\technicianDashboard.js:377:12)\n    at E:\\gembok-bill\\routes\\technicianDashboard.js:87:33\n    at Layer.handle [as handle_request] (E:\\gembok-bill\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\gembok-bill\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at E:\\gembok-bill\\routes\\technicianAuth.js:196:13"
+}
+[2025-08-26T01:32:56.873Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T01:33:20.198Z] [ERROR] Error loading technician customers:
+{
+  "name": "Error",
+  "message": "SQLITE_ERROR: no such column: c.created_at",
+  "stack": "Error: SQLITE_ERROR: no such column: c.created_at\n--> in Database#all('\\n' +\n  '            SELECT c.*, p.name as package_name, p.speed as package_speed\\n' +\n  '            FROM customers c\\n' +\n  '            LEFT JOIN packages p ON c.package_id = p.id\\n' +\n  '         ORDER BY c.created_at DESC LIMIT ? OFFSET ?', [ 20, 0 ], [Function (anonymous)])\n    at E:\\gembok-bill\\routes\\technicianDashboard.js:394:12\n    at new Promise (<anonymous>)\n    at getCustomersForTechnician (E:\\gembok-bill\\routes\\technicianDashboard.js:377:12)\n    at E:\\gembok-bill\\routes\\technicianDashboard.js:87:33\n    at Layer.handle [as handle_request] (E:\\gembok-bill\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\gembok-bill\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at E:\\gembok-bill\\routes\\technicianAuth.js:196:13"
+}
+[2025-08-26T01:33:29.903Z] [ERROR] Failed to send PPPoE notification to 62838076656111 after 2 retries
+[2025-08-26T01:33:56.865Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T01:34:02.921Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T01:34:29.928Z] [ERROR] Failed to send PPPoE notification to 62838076656111 after 2 retries
+[2025-08-26T01:35:02.954Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T01:37:48.375Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-26T01:39:20.804Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T01:39:53.832Z] [ERROR] Failed to send PPPoE notification to 62838076656111 after 2 retries
+[2025-08-26T01:40:10.723Z] [ERROR] Error loading technician customers:
+{
+  "name": "Error",
+  "message": "SQLITE_ERROR: no such column: c.created_at",
+  "stack": "Error: SQLITE_ERROR: no such column: c.created_at\n--> in Database#all('\\n' +\n  '            SELECT c.*, p.name as package_name, p.speed as package_speed\\n' +\n  '            FROM customers c\\n' +\n  '            LEFT JOIN packages p ON c.package_id = p.id\\n' +\n  '         ORDER BY c.created_at DESC LIMIT ? OFFSET ?', [ 20, 0 ], [Function (anonymous)])\n    at E:\\gembok-bill\\routes\\technicianDashboard.js:525:12\n    at new Promise (<anonymous>)\n    at getCustomersForTechnician (E:\\gembok-bill\\routes\\technicianDashboard.js:508:12)\n    at E:\\gembok-bill\\routes\\technicianDashboard.js:87:33\n    at Layer.handle [as handle_request] (E:\\gembok-bill\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\gembok-bill\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at E:\\gembok-bill\\routes\\technicianAuth.js:196:13"
+}
+[2025-08-26T01:40:20.806Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T01:40:26.858Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T01:40:53.842Z] [ERROR] Failed to send PPPoE notification to 62838076656111 after 2 retries
+[2025-08-26T01:41:26.863Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T01:42:50.998Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T01:42:54.033Z] [ERROR] Failed to send PPPoE notification to 62838076656111 after 2 retries
+[2025-08-26T01:42:57.057Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T01:43:50.804Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T01:43:53.821Z] [ERROR] Failed to send PPPoE notification to 62838076656111 after 2 retries
+[2025-08-26T01:43:56.853Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T01:46:03.518Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-26T01:46:57.705Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-26T01:48:30.123Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T01:49:03.135Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T01:49:30.083Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T01:49:36.178Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T01:50:03.098Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T01:50:30.079Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T01:50:33.103Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T01:50:36.117Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T01:50:36.121Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T01:51:00.114Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T01:51:03.134Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T01:51:06.162Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T01:51:17.304Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-26T01:51:35.285Z] [ERROR] Error loading technician customers:
+{
+  "name": "Error",
+  "message": "SQLITE_ERROR: no such column: c.created_at",
+  "stack": "Error: SQLITE_ERROR: no such column: c.created_at\n--> in Database#all('\\n' +\n  '            SELECT c.*, p.name as package_name, p.speed as package_speed\\n' +\n  '            FROM customers c\\n' +\n  '            LEFT JOIN packages p ON c.package_id = p.id\\n' +\n  '         ORDER BY c.created_at DESC LIMIT ? OFFSET ?', [ 20, 0 ], [Function (anonymous)])\n    at E:\\gembok-bill\\routes\\technicianDashboard.js:525:12\n    at new Promise (<anonymous>)\n    at getCustomersForTechnician (E:\\gembok-bill\\routes\\technicianDashboard.js:508:12)\n    at E:\\gembok-bill\\routes\\technicianDashboard.js:87:33\n    at Layer.handle [as handle_request] (E:\\gembok-bill\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\gembok-bill\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at E:\\gembok-bill\\routes\\technicianAuth.js:196:13"
+}
+[2025-08-26T01:51:38.240Z] [ERROR] Error loading technician installations:
+{
+  "name": "Error",
+  "message": "SQLITE_ERROR: no such column: c.created_at",
+  "stack": "Error: SQLITE_ERROR: no such column: c.created_at\n--> in Database#all('\\n' +\n  '            SELECT c.*, p.name as package_name, p.speed as package_speed\\n' +\n  '            FROM customers c\\n' +\n  '            LEFT JOIN packages p ON c.package_id = p.id\\n' +\n  '            WHERE c.status = ?\\n' +\n  '         ORDER BY c.created_at DESC LIMIT ? OFFSET ?', [ 'pending', 20, 0 ], [Function (anonymous)])\n    at E:\\gembok-bill\\routes\\technicianDashboard.js:595:12\n    at new Promise (<anonymous>)\n    at getInstallationRequests (E:\\gembok-bill\\routes\\technicianDashboard.js:577:12)\n    at E:\\gembok-bill\\routes\\technicianDashboard.js:213:37\n    at Layer.handle [as handle_request] (E:\\gembok-bill\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\gembok-bill\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at E:\\gembok-bill\\routes\\technicianAuth.js:196:13"
+}
+[2025-08-26T01:52:16.284Z] [ERROR] Error loading technician customers:
+{
+  "name": "Error",
+  "message": "SQLITE_ERROR: no such column: c.created_at",
+  "stack": "Error: SQLITE_ERROR: no such column: c.created_at\n--> in Database#all('\\n' +\n  '            SELECT c.*, p.name as package_name, p.speed as package_speed\\n' +\n  '            FROM customers c\\n' +\n  '            LEFT JOIN packages p ON c.package_id = p.id\\n' +\n  '         ORDER BY c.created_at DESC LIMIT ? OFFSET ?', [ 20, 0 ], [Function (anonymous)])\n    at E:\\gembok-bill\\routes\\technicianDashboard.js:525:12\n    at new Promise (<anonymous>)\n    at getCustomersForTechnician (E:\\gembok-bill\\routes\\technicianDashboard.js:508:12)\n    at E:\\gembok-bill\\routes\\technicianDashboard.js:87:33\n    at Layer.handle [as handle_request] (E:\\gembok-bill\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\gembok-bill\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at E:\\gembok-bill\\routes\\technicianAuth.js:196:13"
+}
+[2025-08-26T01:52:49.696Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T01:53:22.724Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T01:53:49.668Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T01:53:55.755Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T01:54:22.703Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T01:54:55.724Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T01:56:55.180Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-26T01:57:12.918Z] [ERROR] Error loading technician customers:
+{
+  "name": "Error",
+  "message": "SQLITE_ERROR: no such column: c.created_at",
+  "stack": "Error: SQLITE_ERROR: no such column: c.created_at\n--> in Database#all('\\n' +\n  '            SELECT c.*, p.name as package_name, p.speed as package_speed\\n' +\n  '            FROM customers c\\n' +\n  '            LEFT JOIN packages p ON c.package_id = p.id\\n' +\n  '         ORDER BY c.created_at DESC LIMIT ? OFFSET ?', [ 20, 0 ], [Function (anonymous)])\n    at E:\\gembok-bill\\routes\\technicianDashboard.js:608:12\n    at new Promise (<anonymous>)\n    at getCustomersForTechnician (E:\\gembok-bill\\routes\\technicianDashboard.js:591:12)\n    at E:\\gembok-bill\\routes\\technicianDashboard.js:170:33\n    at Layer.handle [as handle_request] (E:\\gembok-bill\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\gembok-bill\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at E:\\gembok-bill\\routes\\technicianAuth.js:196:13"
+}
+[2025-08-26T01:57:22.810Z] [ERROR] Error loading technician customers:
+{
+  "name": "Error",
+  "message": "SQLITE_ERROR: no such column: c.created_at",
+  "stack": "Error: SQLITE_ERROR: no such column: c.created_at\n--> in Database#all('\\n' +\n  '            SELECT c.*, p.name as package_name, p.speed as package_speed\\n' +\n  '            FROM customers c\\n' +\n  '            LEFT JOIN packages p ON c.package_id = p.id\\n' +\n  '         ORDER BY c.created_at DESC LIMIT ? OFFSET ?', [ 20, 0 ], [Function (anonymous)])\n    at E:\\gembok-bill\\routes\\technicianDashboard.js:608:12\n    at new Promise (<anonymous>)\n    at getCustomersForTechnician (E:\\gembok-bill\\routes\\technicianDashboard.js:591:12)\n    at E:\\gembok-bill\\routes\\technicianDashboard.js:170:33\n    at Layer.handle [as handle_request] (E:\\gembok-bill\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\gembok-bill\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at E:\\gembok-bill\\routes\\technicianAuth.js:196:13"
+}
+[2025-08-26T01:57:25.225Z] [ERROR] Error loading technician installations:
+{
+  "name": "Error",
+  "message": "SQLITE_ERROR: no such column: c.created_at",
+  "stack": "Error: SQLITE_ERROR: no such column: c.created_at\n--> in Database#all('\\n' +\n  '            SELECT c.*, p.name as package_name, p.speed as package_speed\\n' +\n  '            FROM customers c\\n' +\n  '            LEFT JOIN packages p ON c.package_id = p.id\\n' +\n  '            WHERE c.status = ?\\n' +\n  '         ORDER BY c.created_at DESC LIMIT ? OFFSET ?', [ 'pending', 20, 0 ], [Function (anonymous)])\n    at E:\\gembok-bill\\routes\\technicianDashboard.js:678:12\n    at new Promise (<anonymous>)\n    at getInstallationRequests (E:\\gembok-bill\\routes\\technicianDashboard.js:660:12)\n    at E:\\gembok-bill\\routes\\technicianDashboard.js:296:37\n    at Layer.handle [as handle_request] (E:\\gembok-bill\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\gembok-bill\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at E:\\gembok-bill\\routes\\technicianAuth.js:196:13"
+}
+[2025-08-26T01:57:58.317Z] [ERROR] Error loading technician installations:
+{
+  "name": "Error",
+  "message": "SQLITE_ERROR: no such column: c.created_at",
+  "stack": "Error: SQLITE_ERROR: no such column: c.created_at\n--> in Database#all('\\n' +\n  '            SELECT c.*, p.name as package_name, p.speed as package_speed\\n' +\n  '            FROM customers c\\n' +\n  '            LEFT JOIN packages p ON c.package_id = p.id\\n' +\n  '            WHERE c.status = ?\\n' +\n  '         ORDER BY c.created_at DESC LIMIT ? OFFSET ?', [ 'pending', 20, 0 ], [Function (anonymous)])\n    at E:\\gembok-bill\\routes\\technicianDashboard.js:678:12\n    at new Promise (<anonymous>)\n    at getInstallationRequests (E:\\gembok-bill\\routes\\technicianDashboard.js:660:12)\n    at E:\\gembok-bill\\routes\\technicianDashboard.js:296:37\n    at Layer.handle [as handle_request] (E:\\gembok-bill\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\gembok-bill\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at E:\\gembok-bill\\routes\\technicianAuth.js:196:13"
+}
+[2025-08-26T01:58:01.266Z] [ERROR] Error loading technician customers:
+{
+  "name": "Error",
+  "message": "SQLITE_ERROR: no such column: c.created_at",
+  "stack": "Error: SQLITE_ERROR: no such column: c.created_at\n--> in Database#all('\\n' +\n  '            SELECT c.*, p.name as package_name, p.speed as package_speed\\n' +\n  '            FROM customers c\\n' +\n  '            LEFT JOIN packages p ON c.package_id = p.id\\n' +\n  '         ORDER BY c.created_at DESC LIMIT ? OFFSET ?', [ 20, 0 ], [Function (anonymous)])\n    at E:\\gembok-bill\\routes\\technicianDashboard.js:608:12\n    at new Promise (<anonymous>)\n    at getCustomersForTechnician (E:\\gembok-bill\\routes\\technicianDashboard.js:591:12)\n    at E:\\gembok-bill\\routes\\technicianDashboard.js:170:33\n    at Layer.handle [as handle_request] (E:\\gembok-bill\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\gembok-bill\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at E:\\gembok-bill\\routes\\technicianAuth.js:196:13"
+}
+[2025-08-26T01:58:27.527Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T01:59:00.565Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T01:59:27.592Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T01:59:33.593Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T02:00:00.613Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T02:00:33.635Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T02:02:54.412Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-26T02:03:21.466Z] [ERROR] Error loading technician installations:
+{
+  "name": "Error",
+  "message": "SQLITE_ERROR: no such column: c.created_at",
+  "stack": "Error: SQLITE_ERROR: no such column: c.created_at\n--> in Database#all('\\n' +\n  '            SELECT c.*, p.name as package_name, p.speed as package_speed\\n' +\n  '            FROM customers c\\n' +\n  '            LEFT JOIN packages p ON c.package_id = p.id\\n' +\n  '            WHERE c.status = ?\\n' +\n  '         ORDER BY c.created_at DESC LIMIT ? OFFSET ?', [ 'pending', 20, 0 ], [Function (anonymous)])\n    at E:\\gembok-bill\\routes\\technicianDashboard.js:673:12\n    at new Promise (<anonymous>)\n    at getInstallationRequests (E:\\gembok-bill\\routes\\technicianDashboard.js:655:12)\n    at E:\\gembok-bill\\routes\\technicianDashboard.js:291:37\n    at Layer.handle [as handle_request] (E:\\gembok-bill\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\gembok-bill\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at E:\\gembok-bill\\routes\\technicianAuth.js:196:13"
+}
+[2025-08-26T02:03:56.424Z] [ERROR] Error loading technician installations:
+{
+  "name": "Error",
+  "message": "SQLITE_ERROR: no such column: c.created_at",
+  "stack": "Error: SQLITE_ERROR: no such column: c.created_at\n--> in Database#all('\\n' +\n  '            SELECT c.*, p.name as package_name, p.speed as package_speed\\n' +\n  '            FROM customers c\\n' +\n  '            LEFT JOIN packages p ON c.package_id = p.id\\n' +\n  '            WHERE c.status = ?\\n' +\n  '         ORDER BY c.created_at DESC LIMIT ? OFFSET ?', [ 'pending', 20, 0 ], [Function (anonymous)])\n    at E:\\gembok-bill\\routes\\technicianDashboard.js:673:12\n    at new Promise (<anonymous>)\n    at getInstallationRequests (E:\\gembok-bill\\routes\\technicianDashboard.js:655:12)\n    at E:\\gembok-bill\\routes\\technicianDashboard.js:291:37\n    at Layer.handle [as handle_request] (E:\\gembok-bill\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\gembok-bill\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at E:\\gembok-bill\\routes\\technicianAuth.js:196:13"
+}
+[2025-08-26T02:04:26.797Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T02:04:59.842Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T02:05:26.787Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T02:05:32.869Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T02:05:59.823Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T02:06:32.856Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T02:07:31.145Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-26T02:08:27.127Z] [ERROR] Error loading technician installations:
+{
+  "name": "Error",
+  "message": "SQLITE_ERROR: no such column: c.created_at",
+  "stack": "Error: SQLITE_ERROR: no such column: c.created_at\n--> in Database#all('\\n' +\n  '            SELECT c.*, p.name as package_name, p.speed as package_speed\\n' +\n  '            FROM customers c\\n' +\n  '            LEFT JOIN packages p ON c.package_id = p.id\\n' +\n  '            WHERE c.status = ?\\n' +\n  '         ORDER BY c.created_at DESC LIMIT ? OFFSET ?', [ 'pending', 20, 0 ], [Function (anonymous)])\n    at E:\\gembok-bill\\routes\\technicianDashboard.js:682:12\n    at new Promise (<anonymous>)\n    at getInstallationRequests (E:\\gembok-bill\\routes\\technicianDashboard.js:664:12)\n    at E:\\gembok-bill\\routes\\technicianDashboard.js:291:37\n    at Layer.handle [as handle_request] (E:\\gembok-bill\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\gembok-bill\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at E:\\gembok-bill\\routes\\technicianAuth.js:196:13"
+}
+[2025-08-26T02:09:03.541Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T02:09:36.579Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T02:10:03.539Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T02:10:09.603Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T02:10:36.566Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T02:11:09.598Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T02:13:16.408Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-26T02:14:48.903Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T02:15:21.921Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T02:15:48.785Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T02:15:54.939Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T02:16:21.851Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T02:16:54.873Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T02:17:13.662Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-26T02:18:21.925Z] [ERROR] Error loading technician installations:
+{
+  "name": "Error",
+  "message": "SQLITE_ERROR: no such column: c.created_at",
+  "stack": "Error: SQLITE_ERROR: no such column: c.created_at\n--> in Database#all('\\n' +\n  '            SELECT c.*, p.name as package_name, p.speed as package_speed\\n' +\n  '            FROM customers c\\n' +\n  '            LEFT JOIN packages p ON c.package_id = p.id\\n' +\n  '            WHERE c.status = ?\\n' +\n  '         ORDER BY c.created_at DESC LIMIT ? OFFSET ?', [ 'pending', 20, 0 ], [Function (anonymous)])\n    at E:\\gembok-bill\\routes\\technicianDashboard.js:763:12\n    at new Promise (<anonymous>)\n    at getInstallationRequests (E:\\gembok-bill\\routes\\technicianDashboard.js:745:12)\n    at E:\\gembok-bill\\routes\\technicianDashboard.js:372:37\n    at Layer.handle [as handle_request] (E:\\gembok-bill\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\gembok-bill\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at E:\\gembok-bill\\routes\\technicianAuth.js:196:13"
+}
+[2025-08-26T02:18:41.379Z] [ERROR] Error loading technician installations:
+{
+  "name": "Error",
+  "message": "SQLITE_ERROR: no such column: c.created_at",
+  "stack": "Error: SQLITE_ERROR: no such column: c.created_at\n--> in Database#all('\\n' +\n  '            SELECT c.*, p.name as package_name, p.speed as package_speed\\n' +\n  '            FROM customers c\\n' +\n  '            LEFT JOIN packages p ON c.package_id = p.id\\n' +\n  '            WHERE c.status = ?\\n' +\n  '         ORDER BY c.created_at DESC LIMIT ? OFFSET ?', [ 'pending', 20, 0 ], [Function (anonymous)])\n    at E:\\gembok-bill\\routes\\technicianDashboard.js:763:12\n    at new Promise (<anonymous>)\n    at getInstallationRequests (E:\\gembok-bill\\routes\\technicianDashboard.js:745:12)\n    at E:\\gembok-bill\\routes\\technicianDashboard.js:372:37\n    at Layer.handle [as handle_request] (E:\\gembok-bill\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\gembok-bill\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at E:\\gembok-bill\\routes\\technicianAuth.js:196:13"
+}
+[2025-08-26T02:18:46.022Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T02:19:19.060Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T02:19:46.017Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T02:19:52.074Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T02:20:19.044Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T02:20:52.063Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T02:25:16.089Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T02:25:19.098Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T02:25:22.131Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T02:26:16.078Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T02:26:19.099Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T02:26:22.113Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T02:26:52.899Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-26T02:28:25.245Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T02:28:58.257Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T02:29:25.270Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T02:29:31.313Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T02:29:58.430Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T02:30:31.456Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T02:44:35.627Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-26T02:46:08.173Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T02:46:41.201Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T02:47:08.113Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T02:47:14.214Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T02:47:41.147Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T02:48:14.457Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T03:06:43.136Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-26T03:08:15.491Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T03:08:48.527Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T03:09:15.511Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T03:09:21.551Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T03:09:48.631Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T03:10:15.589Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T03:10:18.630Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T03:10:21.668Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T03:10:21.671Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T03:12:45.523Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T03:12:48.546Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T03:12:51.573Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T03:18:45.570Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T03:18:48.596Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T03:18:51.608Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T03:21:34.771Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-26T03:23:07.228Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T03:23:40.254Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T03:24:07.136Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T03:24:13.323Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T03:24:40.179Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T03:25:13.219Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T03:26:37.241Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T03:26:40.270Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T03:26:43.297Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T03:31:07.094Z] [ERROR] Error loading technician installations:
+{
+  "name": "Error",
+  "message": "SQLITE_ERROR: no such column: c.created_at",
+  "stack": "Error: SQLITE_ERROR: no such column: c.created_at\n--> in Database#all('\\n' +\n  '            SELECT c.*, p.name as package_name, p.speed as package_speed\\n' +\n  '            FROM customers c\\n' +\n  '            LEFT JOIN packages p ON c.package_id = p.id\\n' +\n  '            WHERE c.status = ?\\n' +\n  '         ORDER BY c.created_at DESC LIMIT ? OFFSET ?', [ 'pending', 20, 0 ], [Function (anonymous)])\n    at E:\\gembok-bill\\routes\\technicianDashboard.js:1143:12\n    at new Promise (<anonymous>)\n    at getInstallationRequests (E:\\gembok-bill\\routes\\technicianDashboard.js:1125:12)\n    at E:\\gembok-bill\\routes\\technicianDashboard.js:695:37\n    at Layer.handle [as handle_request] (E:\\gembok-bill\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\gembok-bill\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at E:\\gembok-bill\\routes\\technicianAuth.js:196:13"
+}
+[2025-08-26T03:53:37.389Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-26T03:55:10.112Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T03:56:00.262Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-26T03:57:32.682Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T03:58:05.712Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T03:58:32.667Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T03:58:38.742Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T03:59:05.712Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T03:59:38.736Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T04:07:39.051Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-26T04:09:11.423Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T04:09:44.440Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T04:10:11.422Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T04:10:17.464Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T04:10:44.450Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T04:11:17.482Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T04:11:49.822Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-26T04:13:22.225Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T04:13:55.256Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T04:14:22.285Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T04:14:28.313Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T04:14:55.315Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T04:15:28.350Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T04:22:45.115Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-26T04:24:17.481Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T04:24:50.513Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T04:25:17.454Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T04:25:23.549Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T04:25:50.553Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T04:26:23.640Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T04:27:28.463Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-26T04:27:49.433Z] [ERROR] Error viewing job details:
+{
+  "name": "Error",
+  "message": "SQLITE_ERROR: no such column: ij.customer_id",
+  "stack": "Error: SQLITE_ERROR: no such column: ij.customer_id\n--> in Database#get('\\n' +\n  '                SELECT ij.*, \\n' +\n  '                       p.name as package_name, p.price as package_price,\\n' +\n  '                       t.name as technician_name, t.phone as technician_phone,\\n' +\n  '                       c.name as customer_name, c.phone as customer_phone, c.address as customer_address\\n' +\n  '                FROM installation_jobs ij\\n' +\n  '                LEFT JOIN packages p ON ij.package_id = p.id\\n' +\n  '                LEFT JOIN technicians t ON ij.assigned_technician_id = t.id\\n' +\n  '                LEFT JOIN customers c ON ij.customer_id = c.id\\n' +\n  '                WHERE ij.id = ?\\n' +\n  '            ', [ '3' ], [Function (anonymous)])\n    at job (E:\\gembok-bill\\routes\\adminInstallationJobs.js:570:16)\n    at new Promise (<anonymous>)\n    at E:\\gembok-bill\\routes\\adminInstallationJobs.js:569:27\n    at Layer.handle [as handle_request] (E:\\gembok-bill\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\gembok-bill\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at adminAuth (E:\\gembok-bill\\routes\\adminAuth.js:25:5)\n    at Layer.handle [as handle_request] (E:\\gembok-bill\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\gembok-bill\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at Route.dispatch (E:\\gembok-bill\\node_modules\\express\\lib\\router\\route.js:119:3)\n    at Layer.handle [as handle_request] (E:\\gembok-bill\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at E:\\gembok-bill\\node_modules\\express\\lib\\router\\index.js:284:15\n    at param (E:\\gembok-bill\\node_modules\\express\\lib\\router\\index.js:365:14)\n    at param (E:\\gembok-bill\\node_modules\\express\\lib\\router\\index.js:376:14)\n    at Function.process_params (E:\\gembok-bill\\node_modules\\express\\lib\\router\\index.js:421:3)\n    at next (E:\\gembok-bill\\node_modules\\express\\lib\\router\\index.js:280:10)"
+}
+[2025-08-26T04:28:50.619Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-26T04:31:15.427Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-26T04:32:47.806Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T04:33:20.859Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T04:33:47.809Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T04:33:53.899Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T04:34:20.829Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T04:34:53.863Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T04:37:06.518Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-26T04:38:38.889Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T04:39:11.908Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T04:39:38.904Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T04:39:44.939Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T04:40:11.933Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T04:40:44.954Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T04:41:24.898Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-26T04:42:57.289Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T04:43:30.349Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T04:43:57.254Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T04:44:03.379Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T04:44:30.299Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T04:45:03.393Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T04:46:53.014Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-26T04:48:25.365Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T04:48:58.397Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T04:49:25.370Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T04:49:31.426Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T04:49:58.407Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T04:53:41.217Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-26T04:55:13.588Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T04:55:46.618Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T04:56:13.567Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T04:56:19.661Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T04:56:46.589Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T04:57:19.618Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T05:35:40.451Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-26T05:37:12.823Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T05:37:45.843Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T05:38:12.817Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T05:38:18.868Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T05:38:45.849Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T05:39:18.866Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T05:45:31.238Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-26T06:02:43.995Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-26T06:04:21.660Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-26T06:05:54.008Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T06:06:27.045Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T06:06:54.022Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T06:07:00.071Z] [ERROR] Failed to send PPPoE notification to 62838076656111 after 2 retries
+[2025-08-26T06:07:27.058Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T06:07:33.097Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T06:07:54.044Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T06:07:57.051Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T06:08:00.080Z] [ERROR] Failed to send PPPoE notification to 62838076656111 after 2 retries
+[2025-08-26T06:08:00.082Z] [ERROR] Failed to send PPPoE notification to 62838076656111 after 2 retries
+[2025-08-26T06:08:03.111Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T06:08:03.114Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T06:41:52.790Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-26T06:43:19.678Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-26T06:44:52.174Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T06:45:25.235Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T06:45:44.991Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-26T06:47:17.385Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T06:47:50.412Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T06:48:17.368Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T06:48:23.536Z] [ERROR] Failed to send PPPoE notification to 62838076656111 after 2 retries
+[2025-08-26T06:48:50.402Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T06:48:56.574Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T06:49:17.396Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T06:49:20.408Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T06:49:23.429Z] [ERROR] Failed to send PPPoE notification to 62838076656111 after 2 retries
+[2025-08-26T06:49:23.433Z] [ERROR] Failed to send PPPoE notification to 62838076656111 after 2 retries
+[2025-08-26T06:49:26.444Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T06:49:26.459Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T07:08:46.721Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-26T07:10:19.187Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T07:10:52.217Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T07:11:19.081Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T07:11:25.241Z] [ERROR] Failed to send PPPoE notification to 62838076656111 after 2 retries
+[2025-08-26T07:11:52.111Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T07:11:58.265Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T07:12:19.117Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T07:12:22.133Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T07:12:25.130Z] [ERROR] Failed to send PPPoE notification to 62838076656111 after 2 retries
+[2025-08-26T07:12:25.161Z] [ERROR] Failed to send PPPoE notification to 62838076656111 after 2 retries
+[2025-08-26T07:12:28.154Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T07:12:28.182Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T08:44:04.041Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-26T08:45:38.178Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T08:51:40.924Z] [ERROR] Error starting PPPoE monitoring: getSetting(...).toLowerCase is not a function
+[2025-08-26T08:53:13.368Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T08:53:43.283Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T08:53:46.315Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T08:53:46.390Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T08:53:49.337Z] [ERROR] Failed to send PPPoE notification to 62838076656111 after 2 retries
+[2025-08-26T08:53:49.412Z] [ERROR] Failed to send PPPoE notification to 62838076656111 after 2 retries
+[2025-08-26T08:53:52.369Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T08:53:52.444Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T08:54:49.288Z] [ERROR] Error adding hotspot user: input does not match any value of profile
+[2025-08-26T08:56:43.361Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T08:56:46.382Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T08:56:49.411Z] [ERROR] Failed to send PPPoE notification to 62838076656111 after 2 retries
+[2025-08-26T08:56:52.421Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T08:57:43.365Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T08:57:46.391Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T08:57:49.415Z] [ERROR] Failed to send PPPoE notification to 62838076656111 after 2 retries
+[2025-08-26T08:57:52.448Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T08:57:55.479Z] [ERROR] Failed to send PPPoE notification to 083807665697 after 2 retries
+[2025-08-26T09:10:43.451Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T09:10:46.482Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T09:10:49.512Z] [ERROR] Failed to send PPPoE notification to 62838076656111 after 2 retries
+[2025-08-26T09:10:52.541Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T09:10:55.565Z] [ERROR] Failed to send PPPoE notification to 083807665697 after 2 retries
+[2025-08-26T09:14:43.494Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-08-26T09:14:46.521Z] [ERROR] Failed to send PPPoE notification to 6287828060333 after 2 retries
+[2025-08-26T09:14:49.550Z] [ERROR] Failed to send PPPoE notification to 62838076656111 after 2 retries
+[2025-08-26T09:14:52.580Z] [ERROR] Failed to send PPPoE notification to 62822180947111 after 2 retries
+[2025-08-26T09:14:55.612Z] [ERROR] Failed to send PPPoE notification to 083807665697 after 2 retries
+[2025-08-26T09:21:53.574Z] [ERROR] Error creating installation job:
+{
+  "name": "Error",
+  "message": "SQLITE_CONSTRAINT: NOT NULL constraint failed: installation_jobs.installation_date",
+  "stack": "Error: SQLITE_CONSTRAINT: NOT NULL constraint failed: installation_jobs.installation_date"
+}
+[2025-08-26T10:08:23.153Z] [ERROR] Error adding customer by technician:
+{
+  "name": "Error",
+  "message": "SQLITE_CONSTRAINT: UNIQUE constraint failed: customers.username",
+  "stack": "Error: SQLITE_CONSTRAINT: UNIQUE constraint failed: customers.username"
+}
+[2025-08-27T01:38:53.020Z] [ERROR] Error adding hotspot user: failure: already have user with this name for this server
+[2025-08-27T05:16:09.317Z] [ERROR] Error getting WhatsApp groups:
+{
+  "name": "TypeError",
+  "message": "whatsappCore.getSock is not a function",
+  "stack": "TypeError: whatsappCore.getSock is not a function\n    at E:\\gembok-bill\\routes\\adminSetting.js:768:44\n    at Layer.handle [as handle_request] (E:\\gembok-bill\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\gembok-bill\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at Route.dispatch (E:\\gembok-bill\\node_modules\\express\\lib\\router\\route.js:119:3)\n    at Layer.handle [as handle_request] (E:\\gembok-bill\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at E:\\gembok-bill\\node_modules\\express\\lib\\router\\index.js:284:15\n    at Function.process_params (E:\\gembok-bill\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (E:\\gembok-bill\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at Layer.handle [as handle_request] (E:\\gembok-bill\\node_modules\\express\\lib\\router\\layer.js:91:12)\n    at trim_prefix (E:\\gembok-bill\\node_modules\\express\\lib\\router\\index.js:328:13)\n    at E:\\gembok-bill\\node_modules\\express\\lib\\router\\index.js:286:9\n    at Function.process_params (E:\\gembok-bill\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (E:\\gembok-bill\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at Function.handle (E:\\gembok-bill\\node_modules\\express\\lib\\router\\index.js:175:3)\n    at router (E:\\gembok-bill\\node_modules\\express\\lib\\router\\index.js:47:12)\n    at Layer.handle [as handle_request] (E:\\gembok-bill\\node_modules\\express\\lib\\router\\layer.js:95:5)"
+}
+[2025-08-27T05:18:55.745Z] [ERROR] Error getting WhatsApp groups:
+{
+  "name": "TypeError",
+  "message": "whatsappCore.getSock is not a function",
+  "stack": "TypeError: whatsappCore.getSock is not a function\n    at E:\\gembok-bill\\routes\\adminSetting.js:768:44\n    at Layer.handle [as handle_request] (E:\\gembok-bill\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (E:\\gembok-bill\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at Route.dispatch (E:\\gembok-bill\\node_modules\\express\\lib\\router\\route.js:119:3)\n    at Layer.handle [as handle_request] (E:\\gembok-bill\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at E:\\gembok-bill\\node_modules\\express\\lib\\router\\index.js:284:15\n    at Function.process_params (E:\\gembok-bill\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (E:\\gembok-bill\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at Layer.handle [as handle_request] (E:\\gembok-bill\\node_modules\\express\\lib\\router\\layer.js:91:12)\n    at trim_prefix (E:\\gembok-bill\\node_modules\\express\\lib\\router\\index.js:328:13)\n    at E:\\gembok-bill\\node_modules\\express\\lib\\router\\index.js:286:9\n    at Function.process_params (E:\\gembok-bill\\node_modules\\express\\lib\\router\\index.js:346:12)\n    at next (E:\\gembok-bill\\node_modules\\express\\lib\\router\\index.js:280:10)\n    at Function.handle (E:\\gembok-bill\\node_modules\\express\\lib\\router\\index.js:175:3)\n    at router (E:\\gembok-bill\\node_modules\\express\\lib\\router\\index.js:47:12)\n    at Layer.handle [as handle_request] (E:\\gembok-bill\\node_modules\\express\\lib\\router\\layer.js:95:5)"
+}
+[2025-08-29T04:02:28.329Z] [ERROR] ❌ ERROR: Port 3004 sudah digunakan oleh aplikasi lain!
+[2025-08-29T04:02:28.351Z] [ERROR] 💡 Solusi: Hentikan aplikasi yang menggunakan port 3004 atau ubah port di settings.json
+[2025-08-29T04:02:28.352Z] [ERROR] 🔍 Cek aplikasi yang menggunakan port: netstat -ano | findstr :3004
+[2025-08-29T07:07:03.836Z] [ERROR] ❌ Error mengirim update status ke pelanggan: report.status.toUpperCase is not a function
+[2025-08-29T07:07:03.878Z] [ERROR] Stack trace: TypeError: report.status.toUpperCase is not a function
+    at sendStatusUpdateToCustomer (E:\gembok-bill\config\troubleReport.js:383:63)
+    at updateTroubleReportStatus (E:\gembok-bill\config\troubleReport.js:172:7)
+    at updateTroubleTicketStatus (E:\gembok-bill\routes\technicianDashboard.js:1519:16)
+    at E:\gembok-bill\routes\technicianDashboard.js:1130:31
+    at Layer.handle [as handle_request] (E:\gembok-bill\node_modules\express\lib\router\layer.js:95:5)
+    at next (E:\gembok-bill\node_modules\express\lib\router\route.js:149:13)
+    at E:\gembok-bill\routes\technicianAuth.js:232:13
+[2025-08-29T07:11:57.232Z] [ERROR] ❌ Gagal mengirim update status laporan TR833424MTG ke pelanggan 081321960111
+[2025-08-29T07:11:57.249Z] [ERROR] ❌ Gagal mengirim update status laporan TR833424MTG ke pelanggan 081321960111
+[2025-08-29T07:11:57.260Z] [ERROR] ❌ Gagal mengirim update status laporan TR833424MTG ke pelanggan 081321960111
+[2025-08-29T07:11:57.282Z] [ERROR] ❌ Gagal mengirim update status laporan TR833424MTG ke pelanggan 081321960111
+[2025-08-29T07:14:40.244Z] [ERROR] ❌ Gagal mengirim update status laporan TR833424MTG ke pelanggan 081321960111
+[2025-08-29T07:14:40.251Z] [ERROR] ❌ Gagal mengirim update status laporan TR833424MTG ke pelanggan 081321960111
+[2025-08-29T07:14:40.257Z] [ERROR] ❌ Gagal mengirim update status laporan TR833424MTG ke pelanggan 081321960111
+[2025-08-29T07:14:40.266Z] [ERROR] ❌ Gagal mengirim update status laporan TR833424MTG ke pelanggan 081321960111
+[2025-08-29T07:22:18.000Z] [ERROR] ❌ ERROR: Port 3004 sudah digunakan oleh aplikasi lain!
+[2025-08-29T07:22:18.001Z] [ERROR] 💡 Solusi: Hentikan aplikasi yang menggunakan port 3004 atau ubah port di settings.json
+[2025-08-29T07:22:18.001Z] [ERROR] 🔍 Cek aplikasi yang menggunakan port: netstat -ano | findstr :3004
+[2025-09-04T04:02:03.369Z] [ERROR] Error updating customer status in billing:
+{
+  "name": "Error",
+  "message": "Customer not found",
+  "stack": "Error: Customer not found\n    at E:\\gembok-bill\\config\\billing.js:29:46"
+}
+[2025-09-04T04:02:03.461Z] [ERROR] Error in suspendByDHCPBlock:
+{
+  "name": "Error",
+  "message": "DHCP lease not found for MAC 00:11:22:33:44:55",
+  "stack": "Error: DHCP lease not found for MAC 00:11:22:33:44:55\n    at StaticIPSuspensionManager.suspendByDHCPBlock (E:\\gembok-bill\\config\\staticIPSuspension.js:165:23)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async StaticIPSuspensionManager.suspendStaticIPCustomer (E:\\gembok-bill\\config\\staticIPSuspension.js:59:40)\n    at async testStaticIPSuspension (E:\\gembok-bill\\test-static-ip-functionality.js:73:32)\n    at async runAllTests (E:\\gembok-bill\\test-static-ip-functionality.js:247:9)"
+}
+[2025-09-04T04:02:03.602Z] [ERROR] Error updating customer status in billing:
+{
+  "name": "Error",
+  "message": "Customer not found",
+  "stack": "Error: Customer not found\n    at E:\\gembok-bill\\config\\billing.js:29:46"
+}
+[2025-09-04T04:02:03.732Z] [ERROR] Error updating customer status in billing:
+{
+  "name": "Error",
+  "message": "Customer not found",
+  "stack": "Error: Customer not found\n    at E:\\gembok-bill\\config\\billing.js:29:46"
+}
+[2025-09-04T04:02:03.791Z] [ERROR] Error in suspendByDHCPBlock:
+{
+  "name": "Error",
+  "message": "DHCP lease not found for MAC 00:11:22:33:44:56",
+  "stack": "Error: DHCP lease not found for MAC 00:11:22:33:44:56\n    at StaticIPSuspensionManager.suspendByDHCPBlock (E:\\gembok-bill\\config\\staticIPSuspension.js:165:23)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async StaticIPSuspensionManager.suspendStaticIPCustomer (E:\\gembok-bill\\config\\staticIPSuspension.js:59:40)\n    at async testStaticIPSuspension (E:\\gembok-bill\\test-static-ip-functionality.js:101:28)\n    at async runAllTests (E:\\gembok-bill\\test-static-ip-functionality.js:247:9)"
+}
+[2025-09-04T04:02:04.121Z] [ERROR] Error updating customer status in billing:
+{
+  "name": "Error",
+  "message": "Customer not found",
+  "stack": "Error: Customer not found\n    at E:\\gembok-bill\\config\\billing.js:29:46"
+}
+[2025-09-04T04:02:21.404Z] [ERROR] Billing update failed for customer_mixed_1: - Customer not found
+[2025-09-04T04:02:21.409Z] [ERROR] WhatsApp sock not initialized
+[2025-09-04T04:02:21.416Z] [ERROR] Failed to send service suspension notification to Customer Mixed 1: - WhatsApp not connected
+[2025-09-04T04:02:23.335Z] [ERROR] Billing restore update failed for customer_mixed_1: - Customer not found
+[2025-09-04T04:02:23.337Z] [ERROR] WhatsApp sock not initialized
+[2025-09-04T04:02:23.338Z] [ERROR] Failed to send service restoration notification to Customer Mixed 1: - WhatsApp not connected
+[2025-09-04T04:06:01.747Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-09-04T04:06:04.771Z] [ERROR] Failed to send PPPoE notification to 6283807665111 after 2 retries
+[2025-09-04T04:06:07.800Z] [ERROR] Failed to send PPPoE notification to 6282218094111 after 2 retries
+[2025-09-04T04:06:10.826Z] [ERROR] Failed to send PPPoE notification to 6281234567890 after 2 retries
+[2025-09-04T04:18:20.374Z] [ERROR] Failed to send PPPoE notification to 6281947215703 after 2 retries
+[2025-09-04T04:18:23.398Z] [ERROR] Failed to send PPPoE notification to 6283807665111 after 2 retries
+[2025-09-04T04:18:26.422Z] [ERROR] Failed to send PPPoE notification to 6282218094111 after 2 retries
+[2025-09-04T04:18:29.487Z] [ERROR] Failed to send PPPoE notification to 6281234567890 after 2 retries

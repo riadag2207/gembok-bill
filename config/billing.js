@@ -430,7 +430,7 @@ class BillingManager {
     // Customer Management
     async createCustomer(customerData) {
         return new Promise(async (resolve, reject) => {
-            const { name, username, phone, pppoe_username, email, address, package_id, pppoe_profile, status, auto_suspension, billing_day } = customerData;
+            const { name, username, phone, pppoe_username, email, address, package_id, pppoe_profile, status, auto_suspension, billing_day, static_ip, assigned_ip, mac_address, latitude, longitude } = customerData;
             
             // Use provided username, fallback to auto-generate if not provided
             const finalUsername = username || this.generateUsername(phone);
@@ -439,13 +439,13 @@ class BillingManager {
             // Normalisasi billing_day (1-28)
             const normBillingDay = Math.min(Math.max(parseInt(billing_day ?? 15, 10) || 15, 1), 28);
             
-            const sql = `INSERT INTO customers (username, name, phone, pppoe_username, email, address, package_id, pppoe_profile, status, auto_suspension, billing_day, latitude, longitude) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+            const sql = `INSERT INTO customers (username, name, phone, pppoe_username, email, address, package_id, pppoe_profile, status, auto_suspension, billing_day, static_ip, assigned_ip, mac_address, latitude, longitude) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
             
             // Default coordinates untuk Jakarta jika tidak ada koordinat
-            const defaultLatitude = -6.2088;
-            const defaultLongitude = 106.8456;
+            const finalLatitude = latitude !== undefined ? parseFloat(latitude) : -6.2088;
+            const finalLongitude = longitude !== undefined ? parseFloat(longitude) : 106.8456;
             
-            this.db.run(sql, [finalUsername, name, phone, autoPPPoEUsername, email, address, package_id, pppoe_profile, status || 'active', auto_suspension !== undefined ? auto_suspension : 1, normBillingDay, defaultLatitude, defaultLongitude], async function(err) {
+            this.db.run(sql, [finalUsername, name, phone, autoPPPoEUsername, email, address, package_id, pppoe_profile, status || 'active', auto_suspension !== undefined ? auto_suspension : 1, normBillingDay, static_ip || null, assigned_ip || null, mac_address || null, finalLatitude, finalLongitude], async function(err) {
                 if (err) {
                     reject(err);
                 } else {

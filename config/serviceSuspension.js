@@ -3,6 +3,7 @@ const billingManager = require('./billing');
 const { getMikrotikConnection } = require('./mikrotik');
 const { findDeviceByPhoneNumber, findDeviceByPPPoE, setParameterValues } = require('./genieacs');
 const { getSetting } = require('./settingsManager');
+const staticIPSuspension = require('./staticIPSuspension');
 
 class ServiceSuspensionManager {
     constructor() {
@@ -56,6 +57,7 @@ class ServiceSuspensionManager {
 
     /**
      * Suspend layanan pelanggan (blokir internet)
+     * Mendukung PPPoE dan IP statik
      */
     async suspendCustomerService(customer, reason = 'Telat bayar') {
         try {
@@ -64,11 +66,18 @@ class ServiceSuspensionManager {
             const results = {
                 mikrotik: false,
                 genieacs: false,
-                billing: false
+                billing: false,
+                suspension_type: null
             };
 
-            // 1. Suspend via Mikrotik (gunakan profile isolir yang dipilih)
-            if (customer.pppoe_username) {
+            // Tentukan tipe koneksi pelanggan
+            const hasPPPoE = customer.pppoe_username && customer.pppoe_username.trim();
+            const hasStaticIP = customer.static_ip || customer.ip_address || customer.assigned_ip;
+            const hasMacAddress = customer.mac_address;
+
+            // 1. Prioritas suspend PPPoE jika tersedia
+            if (hasPPPoE) {
+                results.suspension_type = 'pppoe';
                 try {
                     const mikrotik = await getMikrotikConnection();
                     
@@ -114,8 +123,37 @@ class ServiceSuspensionManager {
                     results.mikrotik = true;
                     logger.info(`Mikrotik: Successfully suspended PPPoE user ${customer.pppoe_username} with isolir profile`);
                 } catch (mikrotikError) {
-                    logger.error(`Mikrotik suspension failed for ${customer.username}:`, mikrotikError.message);
+                    logger.error(`Mikrotik PPPoE suspension failed for ${customer.username}:`, mikrotikError.message);
                 }
+            }
+            // 2. Jika tidak ada PPPoE, coba suspend IP statik
+            else if (hasStaticIP || hasMacAddress) {
+                results.suspension_type = 'static_ip';
+                try {
+                    // Tentukan metode suspend dari setting (default: address_list)
+                    const suspensionMethod = getSetting('static_ip_suspension_method', 'address_list');
+                    
+                    const staticResult = await staticIPSuspension.suspendStaticIPCustomer(
+                        customer, 
+                        reason, 
+                        suspensionMethod
+                    );
+                    
+                    if (staticResult.success) {
+                        results.mikrotik = true;
+                        results.static_ip_method = staticResult.results?.method_used;
+                        logger.info(`Static IP suspension successful for ${customer.username} using ${staticResult.results?.method_used}`);
+                    } else {
+                        logger.error(`Static IP suspension failed for ${customer.username}: ${staticResult.error}`);
+                    }
+                } catch (staticIPError) {
+                    logger.error(`Static IP suspension failed for ${customer.username}:`, staticIPError.message);
+                }
+            }
+            // 3. Jika tidak ada PPPoE atau IP statik, coba cari device untuk suspend WAN
+            else {
+                results.suspension_type = 'wan_disable';
+                logger.warn(`Customer ${customer.username} has no PPPoE username or static IP, trying WAN disable method`);
             }
 
             // 2. Suspend via GenieACS (disable WAN connection)
@@ -213,19 +251,27 @@ class ServiceSuspensionManager {
 
     /**
      * Restore layanan pelanggan (aktifkan kembali internet)
+     * Mendukung PPPoE dan IP statik
      */
     async restoreCustomerService(customer, reason = 'Manual restore') {
         try {
-            logger.info(`Restoring service for customer: ${customer.username}`);
+            logger.info(`Restoring service for customer: ${customer.username} (${reason})`);
 
             const results = {
                 mikrotik: false,
                 genieacs: false,
-                billing: false
+                billing: false,
+                restoration_type: null
             };
 
-            // 1. Restore via Mikrotik (kembalikan ke profile normal)
-            if (customer.pppoe_username) {
+            // Tentukan tipe koneksi pelanggan
+            const hasPPPoE = customer.pppoe_username && customer.pppoe_username.trim();
+            const hasStaticIP = customer.static_ip || customer.ip_address || customer.assigned_ip;
+            const hasMacAddress = customer.mac_address;
+
+            // 1. Prioritas restore PPPoE jika tersedia
+            if (hasPPPoE) {
+                results.restoration_type = 'pppoe';
                 try {
                     const mikrotik = await getMikrotikConnection();
                     
@@ -275,8 +321,30 @@ class ServiceSuspensionManager {
                     results.mikrotik = true;
                     logger.info(`Mikrotik: Successfully restored PPPoE user ${customer.pppoe_username} with ${profileToUse} profile`);
                 } catch (mikrotikError) {
-                    logger.error(`Mikrotik restoration failed for ${customer.username}:`, mikrotikError.message);
+                    logger.error(`Mikrotik PPPoE restoration failed for ${customer.username}:`, mikrotikError.message);
                 }
+            }
+            // 2. Jika tidak ada PPPoE, coba restore IP statik
+            else if (hasStaticIP || hasMacAddress) {
+                results.restoration_type = 'static_ip';
+                try {
+                    const staticResult = await staticIPSuspension.restoreStaticIPCustomer(customer, reason);
+                    
+                    if (staticResult.success) {
+                        results.mikrotik = true;
+                        results.static_ip_methods = staticResult.results?.methods_tried;
+                        logger.info(`Static IP restoration successful for ${customer.username}. Methods: ${staticResult.results?.methods_tried?.join(', ')}`);
+                    } else {
+                        logger.error(`Static IP restoration failed for ${customer.username}: ${staticResult.error}`);
+                    }
+                } catch (staticIPError) {
+                    logger.error(`Static IP restoration failed for ${customer.username}:`, staticIPError.message);
+                }
+            }
+            // 3. Jika tidak ada PPPoE atau IP statik, coba enable WAN
+            else {
+                results.restoration_type = 'wan_enable';
+                logger.warn(`Customer ${customer.username} has no PPPoE username or static IP, trying WAN enable method`);
             }
 
             // 2. Restore via GenieACS (enable WAN connection)
