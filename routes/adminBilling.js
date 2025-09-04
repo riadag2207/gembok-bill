@@ -1234,7 +1234,7 @@ router.get('/customers', getAppSettings, async (req, res) => {
 
 router.post('/customers', async (req, res) => {
     try {
-        const { name, username, phone, pppoe_username, email, address, package_id, pppoe_profile, auto_suspension, billing_day, create_pppoe_user, pppoe_password } = req.body;
+        const { name, username, phone, pppoe_username, email, address, package_id, pppoe_profile, auto_suspension, billing_day, create_pppoe_user, pppoe_password, static_ip, assigned_ip, mac_address, latitude, longitude } = req.body;
         
         // Validate required fields
         if (!name || !username || !phone || !package_id) {
@@ -1274,7 +1274,12 @@ router.post('/customers', async (req, res) => {
                 const v = parseInt(billing_day, 10);
                 if (Number.isFinite(v)) return Math.min(Math.max(v, 1), 28);
                 return 15;
-            })()
+            })(),
+            static_ip: static_ip || null,
+            assigned_ip: assigned_ip || null,
+            mac_address: mac_address || null,
+            latitude: latitude !== undefined && latitude !== '' ? parseFloat(latitude) : undefined,
+            longitude: longitude !== undefined && longitude !== '' ? parseFloat(longitude) : undefined
         };
 
         const result = await billingManager.createCustomer(customerData);
@@ -1511,7 +1516,7 @@ router.get('/customers/:username/test', async (req, res) => {
 router.put('/customers/:phone', async (req, res) => {
     try {
         const { phone } = req.params;
-        const { name, username, pppoe_username, email, address, package_id, pppoe_profile, status, auto_suspension, billing_day, latitude, longitude } = req.body;
+        const { name, username, pppoe_username, email, address, package_id, pppoe_profile, status, auto_suspension, billing_day, latitude, longitude, static_ip, assigned_ip, mac_address } = req.body;
         
         // Validate required fields
         if (!name || !username || !package_id) {
@@ -1567,7 +1572,10 @@ router.put('/customers/:phone', async (req, res) => {
                 return currentCustomer.billing_day ?? 1;
             })(),
             latitude: latitude !== undefined ? parseFloat(latitude) : currentCustomer.latitude,
-            longitude: longitude !== undefined ? parseFloat(longitude) : currentCustomer.longitude
+            longitude: longitude !== undefined ? parseFloat(longitude) : currentCustomer.longitude,
+            static_ip: static_ip !== undefined ? static_ip : currentCustomer.static_ip,
+            assigned_ip: assigned_ip !== undefined ? assigned_ip : currentCustomer.assigned_ip,
+            mac_address: mac_address !== undefined ? mac_address : currentCustomer.mac_address
         };
 
         // Use current phone for lookup, allow phone to be updated in customerData

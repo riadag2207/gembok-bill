@@ -309,7 +309,7 @@ router.get('/customers', technicianAuth, async (req, res) => {
  */
 router.post('/customers/add', technicianAuth, async (req, res) => {
     try {
-        const { name, username: reqUsername, phone, email, address, package_id, pppoe_username, pppoe_profile, create_pppoe_now, create_pppoe_user, pppoe_password, auto_suspension, billing_day, latitude, longitude } = req.body;
+        const { name, username: reqUsername, phone, email, address, package_id, pppoe_username, pppoe_profile, create_pppoe_now, create_pppoe_user, pppoe_password, auto_suspension, billing_day, latitude, longitude, static_ip, assigned_ip, mac_address } = req.body;
 
         // Validasi input
         if (!name || !phone || !package_id) {
@@ -339,6 +339,9 @@ router.post('/customers/add', technicianAuth, async (req, res) => {
             billing_day: billing_day ? parseInt(billing_day) : 15,
             latitude: latitude !== undefined && latitude !== '' ? parseFloat(latitude) : undefined,
             longitude: longitude !== undefined && longitude !== '' ? parseFloat(longitude) : undefined,
+            static_ip: static_ip || null,
+            assigned_ip: assigned_ip || null,
+            mac_address: mac_address || null,
             created_by_technician_id: req.technician.id
         };
 
