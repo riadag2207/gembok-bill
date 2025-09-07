@@ -1043,6 +1043,16 @@ class BillingManager {
                 if (err) {
                     reject(err);
                 } else {
+                    // Check if this is a voucher invoice by looking at invoice_number pattern
+                    if (row && row.invoice_number && row.invoice_number.includes('INV-VCR-')) {
+                        // Extract voucher package name from notes field
+                        // Format: "Voucher Hotspot 10rb - 5 Hari x1"
+                        const notes = row.notes || '';
+                        const voucherMatch = notes.match(/Voucher Hotspot (.+?) x\d+/);
+                        if (voucherMatch) {
+                            row.package_name = voucherMatch[1]; // e.g., "10rb - 5 Hari"
+                        }
+                    }
                     resolve(row);
                 }
             });
@@ -1362,7 +1372,7 @@ class BillingManager {
     }
 
     // Create online payment with specific method (for customer choice)
-    async createOnlinePaymentWithMethod(invoiceId, gateway = null, method = null) {
+    async createOnlinePaymentWithMethod(invoiceId, gateway = null, method = null, paymentType = 'invoice') {
         return new Promise(async (resolve, reject) => {
             try {
                 // Get invoice details
@@ -1391,7 +1401,7 @@ class BillingManager {
                 };
 
                 // Create payment with selected gateway and method
-                const paymentResult = await this.paymentGateway.createPaymentWithMethod(paymentData, gateway, method);
+                const paymentResult = await this.paymentGateway.createPaymentWithMethod(paymentData, gateway, method, paymentType);
 
                 // Save payment transaction to database
                 const sql = `

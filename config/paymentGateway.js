@@ -122,7 +122,7 @@ class PaymentGatewayManager {
         }
     }
 
-    async createPaymentWithMethod(invoice, gateway = null, method = null) {
+    async createPaymentWithMethod(invoice, gateway = null, method = null, paymentType = 'invoice') {
         const selectedGateway = gateway || this.activeGateway;
         
         if (!selectedGateway) {
@@ -142,14 +142,14 @@ class PaymentGatewayManager {
 
         try {
             // Pass method to gateway for Tripay
-            console.log(`[PAYMENT_GATEWAY] Creating payment with gateway: ${selectedGateway}, method: ${method}`);
+            console.log(`[PAYMENT_GATEWAY] Creating payment with gateway: ${selectedGateway}, method: ${method}, type: ${paymentType}`);
             let result;
             if (selectedGateway === 'tripay' && method && method !== 'all') {
                 console.log(`[PAYMENT_GATEWAY] Using Tripay with specific method: ${method}`);
-                result = await this.gateways[selectedGateway].createPaymentWithMethod(invoice, method);
+                result = await this.gateways[selectedGateway].createPaymentWithMethod(invoice, method, paymentType);
             } else {
                 console.log(`[PAYMENT_GATEWAY] Using default gateway method for ${selectedGateway}`);
-                result = await this.gateways[selectedGateway].createPayment(invoice);
+                result = await this.gateways[selectedGateway].createPayment(invoice, paymentType);
             }
             
             return {
@@ -494,11 +494,11 @@ class TripayGateway {
         this.baseUrl = config.production ? 'https://tripay.co.id/api' : 'https://tripay.co.id/api-sandbox';
     }
 
-    async createPayment(invoice) {
-        return this.createPaymentWithMethod(invoice, this.config.method || 'BRIVA');
+    async createPayment(invoice, paymentType = 'invoice') {
+        return this.createPaymentWithMethod(invoice, this.config.method || 'BRIVA', paymentType);
     }
 
-    async createPaymentWithMethod(invoice, method) {
+    async createPaymentWithMethod(invoice, method, paymentType = 'invoice') {
         // Derive application base URL for callbacks
         const hostSetting = getSetting('server_host', 'localhost');
         const host = (hostSetting && String(hostSetting).trim()) || 'localhost';
@@ -528,7 +528,7 @@ class TripayGateway {
                 quantity: 1
             }],
             callback_url: `${appBaseUrl}/payment/webhook/tripay`,
-            return_url: `${appBaseUrl}/payment/finish`
+            return_url: paymentType === 'voucher' ? `${appBaseUrl}/voucher/finish` : `${appBaseUrl}/payment/finish`
         };
 
         // Tripay signature: HMAC SHA256 of merchant_code + merchant_ref + amount using private_key
