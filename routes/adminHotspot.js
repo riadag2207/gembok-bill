@@ -780,4 +780,106 @@ router.post('/save-voucher-online-settings', async (req, res) => {
     }
 });
 
+// POST: Save voucher generation settings
+router.post('/save-voucher-generation-settings', async (req, res) => {
+    try {
+        const settings = req.body.settings;
+
+        if (!settings || typeof settings !== 'object') {
+            return res.status(400).json({
+                success: false,
+                message: 'Settings data tidak valid'
+            });
+        }
+
+        const sqlite3 = require('sqlite3').verbose();
+        const db = new sqlite3.Database('./data/billing.db');
+
+        // Ensure voucher_generation_settings table exists
+        await new Promise((resolve, reject) => {
+            db.run(`
+                CREATE TABLE IF NOT EXISTS voucher_generation_settings (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    setting_key TEXT NOT NULL UNIQUE,
+                    setting_value TEXT NOT NULL,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                )
+            `, (err) => {
+                if (err) reject(err);
+                else resolve();
+            });
+        });
+
+        // Update settings
+        const promises = Object.keys(settings).map(key => {
+            return new Promise((resolve, reject) => {
+                const sql = `
+                    INSERT OR REPLACE INTO voucher_generation_settings
+                    (setting_key, setting_value, updated_at)
+                    VALUES (?, ?, datetime('now'))
+                `;
+                db.run(sql, [key, settings[key]], function(err) {
+                    if (err) reject(err);
+                    else resolve();
+                });
+            });
+        });
+
+        await Promise.all(promises);
+        db.close();
+
+        res.json({
+            success: true,
+            message: 'Pengaturan generate voucher berhasil disimpan'
+        });
+
+    } catch (error) {
+        console.error('Error saving voucher generation settings:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Gagal menyimpan pengaturan: ' + error.message
+        });
+    }
+});
+
+// POST: Test voucher generation
+router.post('/test-voucher-generation', async (req, res) => {
+    try {
+        const settings = req.body.settings;
+
+        if (!settings || typeof settings !== 'object') {
+            return res.status(400).json({
+                success: false,
+                message: 'Settings data tidak valid'
+            });
+        }
+
+        // Generate test voucher based on settings
+        const { generateTestVoucher } = require('../config/mikrotik');
+        const result = await generateTestVoucher(settings);
+
+        if (result.success) {
+            res.json({
+                success: true,
+                username: result.username,
+                password: result.password,
+                message: 'Test generate voucher berhasil'
+            });
+        } else {
+            res.json({
+                success: false,
+                message: result.message
+            });
+        }
+
+    } catch (error) {
+        console.error('Error testing voucher generation:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Gagal test generate voucher: ' + error.message
+        });
+    }
+});
+
 module.exports = router;

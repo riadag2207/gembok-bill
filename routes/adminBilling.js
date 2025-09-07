@@ -548,7 +548,7 @@ router.post('/import/customers/xlsx', upload.single('file'), async (req, res) =>
             return res.status(400).json({ success: false, message: 'Worksheet tidak ditemukan dalam file' });
         }
 
-        // Build header map from first row
+        // Build header map from first row with support for both formats
         const headerRow = worksheet.getRow(1);
         const headerMap = {};
         headerRow.eachCell((cell, colNumber) => {
@@ -556,8 +556,29 @@ router.post('/import/customers/xlsx', upload.single('file'), async (req, res) =>
             if (key) headerMap[key] = colNumber;
         });
 
+        // Support for Indonesian headers (from new export format)
+        const indonesianHeaderMap = {
+            'nama': 'name',
+            'phone': 'phone',
+            'pppoe username': 'pppoe_username',
+            'email': 'email',
+            'alamat': 'address',
+            'package id': 'package_id',
+            'pppoe profile': 'pppoe_profile',
+            'status': 'status',
+            'auto suspension': 'auto_suspension',
+            'billing day': 'billing_day'
+        };
+
+        // Create unified header map
+        const unifiedHeaderMap = {};
+        Object.keys(headerMap).forEach(key => {
+            const normalizedKey = indonesianHeaderMap[key] || key;
+            unifiedHeaderMap[normalizedKey] = headerMap[key];
+        });
+
         const getVal = (row, key) => {
-            const col = headerMap[key];
+            const col = unifiedHeaderMap[key];
             return col ? (row.getCell(col).value ?? '') : '';
         };
 
@@ -614,30 +635,48 @@ router.post('/import/customers/xlsx', upload.single('file'), async (req, res) =>
             const raw = row._pending;
             if (!raw) continue;
             try {
+                // Validasi data wajib
+                if (!raw.name || !raw.phone) {
+                    failed++;
+                    errors.push({ row: r, error: 'Nama dan nomor telepon wajib diisi' });
+                    continue;
+                }
+
+                // Validasi nomor telepon format
+                const phoneRegex = /^[0-9+\-\s()]+$/;
+                if (!phoneRegex.test(raw.phone)) {
+                    failed++;
+                    errors.push({ row: r, error: 'Format nomor telepon tidak valid' });
+                    continue;
+                }
+
                 const existing = await billingManager.getCustomerByPhone(raw.phone);
                 const customerData = {
-                    name: raw.name,
-                    phone: raw.phone,
-                    pppoe_username: raw.pppoe_username,
-                    email: raw.email,
-                    address: raw.address,
-                    package_id: raw.package_id,
-                    pppoe_profile: raw.pppoe_profile,
-                    status: raw.status,
-                    auto_suspension: typeof raw.auto_suspension !== 'undefined' ? raw.auto_suspension : 1,
-                    billing_day: raw.billing_day
+                    name: raw.name.trim(),
+                    phone: raw.phone.trim(),
+                    pppoe_username: raw.pppoe_username ? raw.pppoe_username.trim() : '',
+                    email: raw.email ? raw.email.trim() : '',
+                    address: raw.address ? raw.address.trim() : '',
+                    package_id: raw.package_id || null,
+                    pppoe_profile: raw.pppoe_profile || 'default',
+                    status: raw.status || 'active',
+                    auto_suspension: typeof raw.auto_suspension !== 'undefined' ? parseInt(raw.auto_suspension) : 1,
+                    billing_day: raw.billing_day ? Math.min(Math.max(parseInt(raw.billing_day), 1), 28) : 15
                 };
 
                 if (existing) {
                     await billingManager.updateCustomer(raw.phone, customerData);
                     updated++;
+                    logger.info(`Updated customer: ${raw.name} (${raw.phone})`);
                 } else {
-                    await billingManager.createCustomer(customerData);
+                    const result = await billingManager.createCustomer(customerData);
                     created++;
+                    logger.info(`Created customer: ${raw.name} (${raw.phone}) with ID: ${result.id}`);
                 }
             } catch (e) {
                 failed++;
                 errors.push({ row: r, error: e.message });
+                logger.error(`Error processing row ${r}:`, e);
             }
         }
 

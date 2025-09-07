@@ -455,19 +455,47 @@ router.get('/success/:purchaseId', async (req, res) => {
 
         db.close();
 
+        // Ambil settings untuk informasi tambahan
+        const settings = getSettingsWithCache();
+        const company_header = settings.company_header || 'Voucher Hotspot';
+        const adminContact = settings['admins.0'] || '-';
+
+        // Format data untuk template
+        const voucherData = {
+            purchaseId: purchase.id,
+            packageName: purchase.description || 'Voucher WiFi',
+            duration: getPackageDuration(purchase.voucher_package),
+            price: purchase.amount,
+            vouchers: vouchers,
+            customerName: purchase.customer_name,
+            customerPhone: purchase.customer_phone,
+            status: purchase.status
+        };
+
         res.render('voucherSuccess', {
             title: 'Voucher Berhasil Dibeli',
             purchase,
             vouchers,
-            success: true
+            voucherData,
+            success: true,
+            company_header,
+            adminContact,
+            settings
         });
 
     } catch (error) {
         console.error('Error rendering voucher success page:', error);
+        
+        // Ambil settings untuk error page juga
+        const settings = getSettingsWithCache();
+        const company_header = settings.company_header || 'Voucher Hotspot';
+        
         res.render('voucherError', {
             title: 'Error',
             error: 'Gagal memuat halaman voucher',
-            message: error.message
+            message: error.message,
+            company_header,
+            settings
         });
     }
 });
@@ -478,10 +506,15 @@ router.get('/finish', async (req, res) => {
         const { order_id, transaction_status } = req.query;
         
         if (!order_id) {
+            const settings = getSettingsWithCache();
+            const company_header = settings.company_header || 'Voucher Hotspot';
+            
             return res.render('voucherError', {
                 title: 'Error',
                 error: 'Order ID tidak ditemukan',
-                message: 'Parameter order_id tidak ditemukan dalam URL'
+                message: 'Parameter order_id tidak ditemukan dalam URL',
+                company_header,
+                settings
             });
         }
 
@@ -498,10 +531,15 @@ router.get('/finish', async (req, res) => {
         });
 
         if (!purchase) {
+            const settings = getSettingsWithCache();
+            const company_header = settings.company_header || 'Voucher Hotspot';
+            
             return res.render('voucherError', {
                 title: 'Voucher Tidak Ditemukan',
                 error: 'Voucher tidak ditemukan',
-                message: 'Purchase dengan order ID tersebut tidak ditemukan'
+                message: 'Purchase dengan order ID tersebut tidak ditemukan',
+                company_header,
+                settings
             });
         }
 
@@ -524,24 +562,52 @@ router.get('/finish', async (req, res) => {
             status = 'failed';
         }
 
+        // Ambil settings untuk informasi tambahan
+        const settings = getSettingsWithCache();
+        const company_header = settings.company_header || 'Voucher Hotspot';
+        const adminContact = settings['admins.0'] || '-';
+
         res.render('voucherFinish', {
             title: 'Hasil Pembayaran Voucher',
             purchase,
             vouchers,
             status,
             transaction_status,
-            order_id
+            order_id,
+            company_header,
+            adminContact,
+            settings
         });
 
     } catch (error) {
         console.error('Error rendering voucher finish page:', error);
+        
+        // Ambil settings untuk error page juga
+        const settings = getSettingsWithCache();
+        const company_header = settings.company_header || 'Voucher Hotspot';
+        
         res.render('voucherError', {
             title: 'Error',
             error: 'Gagal memuat halaman hasil pembayaran',
-            message: error.message
+            message: error.message,
+            company_header,
+            settings
         });
     }
 });
+
+// Helper function untuk mendapatkan durasi paket
+function getPackageDuration(packageId) {
+    const durations = {
+        '3k': '1 hari',
+        '5k': '2 hari',
+        '10k': '5 hari',
+        '15k': '8 hari',
+        '25k': '15 hari',
+        '50k': '30 hari'
+    };
+    return durations[packageId] || 'Tidak diketahui';
+}
 
 // Helper function untuk format pesan voucher WhatsApp
 function formatVoucherMessage(vouchers, purchase) {
@@ -808,9 +874,13 @@ async function generateHotspotVouchersWithRetry(purchaseData, maxRetries = 3) {
         try {
             console.log(`Attempt ${attempt} to generate vouchers for purchase:`, purchaseData);
             
+            // Generate user-friendly voucher format
+            const timestamp = Date.now().toString().slice(-6); // Ambil 6 digit terakhir timestamp
+            const prefix = `V${timestamp}`; // Format: V123456
+            
             const result = await generateHotspotVouchers(
                 purchaseData.count || 1,
-                `vcr-${Date.now()}-`,
+                prefix,
                 purchaseData.profile || 'default',
                 'all',
                 '',
