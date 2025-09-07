@@ -515,19 +515,30 @@ class TripayGateway {
         const selectedMethod = method || 'BRIVA'; // Default to BRIVA if no method specified
         console.log(`[TRIPAY] Creating payment with method: ${selectedMethod} (from customer choice: ${method})`);
 
+        // Validate and sanitize customer data for Tripay
+        const customerName = invoice.customer_name ? invoice.customer_name.trim() : 'Customer';
+        const customerEmail = invoice.customer_email ? invoice.customer_email.trim() : 'customer@example.com';
+        const customerPhone = invoice.customer_phone ? invoice.customer_phone.trim() : '';
+        
+        // Tripay has limits on customer name length (max ~50 characters)
+        // Very long names cause "Internal service error"
+        const sanitizedCustomerName = customerName.length > 50 ? customerName.substring(0, 47) + '...' : customerName;
+        
+        console.log(`[TRIPAY] Customer name sanitization: "${customerName}" -> "${sanitizedCustomerName}" (length: ${customerName.length} -> ${sanitizedCustomerName.length})`);
+        
         const orderData = {
             method: selectedMethod,
             merchant_ref: `INV-${invoice.invoice_number}`,
             amount: parseInt(invoice.amount),
-            customer_name: invoice.customer_name,
-            customer_email: invoice.customer_email || 'customer@example.com',
-            customer_phone: invoice.customer_phone || '',
+            customer_name: sanitizedCustomerName,
+            customer_email: customerEmail,
+            customer_phone: customerPhone,
             order_items: [{
                 name: invoice.package_name || 'Internet Package',
                 price: parseInt(invoice.amount),
                 quantity: 1
             }],
-            callback_url: `${appBaseUrl}/payment/webhook/tripay`,
+            callback_url: paymentType === 'voucher' ? `${appBaseUrl}/voucher/payment-webhook` : `${appBaseUrl}/payment/webhook/tripay`,
             return_url: paymentType === 'voucher' ? `${appBaseUrl}/voucher/finish` : `${appBaseUrl}/payment/finish`
         };
 

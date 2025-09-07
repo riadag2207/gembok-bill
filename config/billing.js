@@ -461,12 +461,12 @@ class BillingManager {
                             if (device) {
                                 // Tambahkan tag nomor telepon ke device
                                 await genieacs.addTagToDevice(device._id, phone);
-                                console.log(`Successfully added phone tag ${phone} to device ${device._id} for customer ${finalUsername} (PPPoE: ${autoPPPoEUsername})`);
+                                console.log(`✅ Successfully added phone tag ${phone} to device ${device._id} for customer ${finalUsername} (PPPoE: ${autoPPPoEUsername})`);
                             } else {
-                                console.warn(`No device found with PPPoE Username ${autoPPPoEUsername} for customer ${finalUsername}`);
+                                console.log(`ℹ️ No device found with PPPoE Username ${autoPPPoEUsername} for customer ${finalUsername} - this is normal for new customers`);
                             }
                         } catch (genieacsError) {
-                            console.error(`Error adding phone tag to GenieACS for customer ${finalUsername}:`, genieacsError.message);
+                            console.log(`⚠️ GenieACS integration skipped for customer ${finalUsername}: ${genieacsError.message}`);
                             // Jangan reject, karena customer sudah berhasil dibuat di billing
                         }
                     } else if (phone && finalUsername) {
@@ -477,12 +477,12 @@ class BillingManager {
                             
                             if (device) {
                                 await genieacs.addTagToDevice(device._id, phone);
-                                console.log(`Successfully added phone tag ${phone} to device ${device._id} for customer ${finalUsername} (using username as PPPoE)`);
+                                console.log(`✅ Successfully added phone tag ${phone} to device ${device._id} for customer ${finalUsername} (using username as PPPoE)`);
                             } else {
-                                console.warn(`No device found with PPPoE Username ${finalUsername} for customer ${finalUsername}`);
+                                console.log(`ℹ️ No device found with PPPoE Username ${finalUsername} for customer ${finalUsername} - this is normal for new customers`);
                             }
                         } catch (genieacsError) {
-                            console.error(`Error adding phone tag to GenieACS for customer ${finalUsername}:`, genieacsError.message);
+                            console.log(`⚠️ GenieACS integration skipped for customer ${finalUsername}: ${genieacsError.message}`);
                         }
                     }
                     

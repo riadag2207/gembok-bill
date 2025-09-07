@@ -1600,6 +1600,9 @@ async function generateHotspotVouchers(count, prefix, profile, server, validUnti
             return { success: false, message: 'Tidak dapat terhubung ke Mikrotik', vouchers: [] };
         }
         
+        // Get voucher generation settings from database
+        const voucherSettings = await getVoucherGenerationSettings();
+        
         // Fungsi untuk generate random string berdasarkan jenis karakter
         function randomString(length, charType = 'alphanumeric') {
             let chars;
@@ -1628,8 +1631,23 @@ async function generateHotspotVouchers(count, prefix, profile, server, validUnti
         logger.info(`Generating ${count} vouchers with prefix ${prefix} and profile ${profile}`);
         
         for (let i = 0; i < count; i++) {
-            const username = prefix + randomString(5, charType);
-            const password = username; // Username dan password disamakan
+            // Generate username and password based on settings
+            const usernameLength = parseInt(voucherSettings.username_length || 4);
+            const charTypeSetting = voucherSettings.char_type || charType;
+            const accountType = voucherSettings.account_type || 'voucher';
+            
+            const username = prefix + randomString(usernameLength, charTypeSetting);
+            
+            // Generate password berdasarkan tipe akun
+            let password;
+            if (accountType === 'voucher') {
+                // Voucher: password sama dengan username
+                password = username;
+            } else {
+                // Member: password berbeda dari username
+                const passwordLength = parseInt(voucherSettings.password_length_separate || 6);
+                password = randomString(passwordLength, 'alphanumeric');
+            }
             
             try {
                 // Tambahkan user hotspot ke Mikrotik
@@ -1655,10 +1673,11 @@ async function generateHotspotVouchers(count, prefix, profile, server, validUnti
                     profile,
                     server: server !== 'all' ? server : 'all',
                     createdAt: new Date(),
-                    price: price // Tambahkan harga ke data voucher
+                    price: price, // Tambahkan harga ke data voucher
+                    account_type: accountType // Tambahkan tipe akun
                 });
                 
-                logger.info(`Voucher created: ${username}`);
+                logger.info(`${accountType === 'voucher' ? 'Voucher' : 'Member'} created: ${username} (password: ${password})`);
             } catch (err) {
                 logger.error(`Failed to create voucher ${username}: ${err.message}`);
                 // Lanjutkan ke voucher berikutnya
@@ -1678,6 +1697,110 @@ async function generateHotspotVouchers(count, prefix, profile, server, validUnti
             success: false,
             message: `Gagal generate voucher: ${error.message}`,
             vouchers: []
+        };
+    }
+}
+
+// Fungsi untuk mengambil pengaturan generate voucher dari database
+async function getVoucherGenerationSettings() {
+    try {
+        const sqlite3 = require('sqlite3').verbose();
+        const db = new sqlite3.Database('./data/billing.db');
+        
+        return new Promise((resolve, reject) => {
+            db.all("SELECT setting_key, setting_value FROM voucher_generation_settings", (err, rows) => {
+                if (err) {
+                    console.log('⚠️ voucher_generation_settings table not found, using defaults');
+                    resolve({});
+                    return;
+                }
+                
+                const settings = {};
+                rows.forEach(row => {
+                    settings[row.setting_key] = row.setting_value;
+                });
+                
+                db.close();
+                resolve(settings);
+            });
+        });
+    } catch (error) {
+        console.error('Error getting voucher generation settings:', error);
+        return {};
+    }
+}
+
+// Fungsi untuk test generate voucher (tanpa menyimpan ke Mikrotik)
+async function generateTestVoucher(settings) {
+    try {
+        // Fungsi untuk generate random string berdasarkan jenis karakter
+        function randomString(length, charType = 'alphanumeric') {
+            let chars;
+            switch (charType) {
+                case 'numeric':
+                    chars = '0123456789';
+                    break;
+                case 'alphabetic':
+                    chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+                    break;
+                case 'alphanumeric':
+                default:
+                    chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                    break;
+            }
+            let str = '';
+            for (let i = 0; i < length; i++) {
+                str += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return str;
+        }
+
+        // Generate username berdasarkan format
+        let username;
+        const usernameLength = parseInt(settings.username_length || 4);
+        const charType = settings.char_type || 'alphanumeric';
+        const usernameFormat = settings.username_format || 'V{timestamp}';
+
+        switch (usernameFormat) {
+            case 'V{timestamp}':
+                const timestamp = Date.now().toString().slice(-6);
+                username = 'V' + timestamp + randomString(usernameLength, charType);
+                break;
+            case 'V{random}':
+                username = 'V' + randomString(usernameLength, charType);
+                break;
+            case '{random}':
+                username = randomString(usernameLength, charType);
+                break;
+            default:
+                username = 'V' + randomString(usernameLength, charType);
+        }
+
+        // Generate password berdasarkan tipe akun
+        let password;
+        const accountType = settings.account_type || 'voucher';
+        
+        if (accountType === 'voucher') {
+            // Voucher: password sama dengan username
+            password = username;
+        } else {
+            // Member: password berbeda dari username
+            const passwordLength = parseInt(settings.password_length_separate || 6);
+            password = randomString(passwordLength, 'alphanumeric');
+        }
+
+        return {
+            success: true,
+            username: username,
+            password: password,
+            account_type: accountType,
+            message: `Test generate ${accountType} berhasil`
+        };
+
+    } catch (error) {
+        return {
+            success: false,
+            message: 'Gagal test generate voucher: ' + error.message
         };
     }
 }
@@ -1742,6 +1865,8 @@ module.exports = {
     setPPPoEProfile,
     monitorPPPoEConnections,
     generateHotspotVouchers,
+    generateTestVoucher,
+    getVoucherGenerationSettings,
     getInterfaces,
     getInterfaceDetail,
     setInterfaceStatus,
