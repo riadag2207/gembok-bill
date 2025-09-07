@@ -1386,7 +1386,7 @@ class BillingManager {
     }
 
     // Create online payment with specific method (for customer choice)
-    async createOnlinePaymentWithMethod(invoiceId, gateway = null, method = null, paymentType = 'invoice') {
+    async createOnlinePaymentWithMethod(invoiceId, gateway = null, method = null, paymentType = 'invoice', customerPhoneOverride = null) {
         return new Promise(async (resolve, reject) => {
             try {
                 // Get invoice details
@@ -1407,7 +1407,7 @@ class BillingManager {
                     invoice_number: invoice.invoice_number,
                     amount: invoice.amount,
                     customer_name: customer.name,
-                    customer_phone: customer.phone,
+                    customer_phone: customerPhoneOverride || customer.phone,
                     customer_email: customer.email,
                     package_name: invoice.package_name,
                     package_id: invoice.package_id,

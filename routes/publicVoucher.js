@@ -374,7 +374,14 @@ router.post('/purchase', async (req, res) => {
             console.log('Creating payment for invoice DB ID:', invoiceDbId);
 
             // Gunakan method yang sama dengan invoice bulanan, tapi dengan paymentType voucher
-            const paymentResult = await billingManager.createOnlinePaymentWithMethod(invoiceDbId, gateway, method, 'voucher');
+            // Override nomor telepon dengan input konsumen agar cocok dengan akun e-wallet (DANA, dll)
+            const paymentResult = await billingManager.createOnlinePaymentWithMethod(
+                invoiceDbId,
+                gateway,
+                method,
+                'voucher',
+                customerPhone
+            );
             console.log('Payment result:', paymentResult);
 
             if (!paymentResult || !paymentResult.payment_url) {

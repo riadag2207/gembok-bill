@@ -518,7 +518,7 @@ class TripayGateway {
         // Validate and sanitize customer data for Tripay
         const customerName = invoice.customer_name ? invoice.customer_name.trim() : 'Customer';
         const customerEmail = invoice.customer_email ? invoice.customer_email.trim() : 'customer@example.com';
-        const customerPhone = invoice.customer_phone ? invoice.customer_phone.trim() : '';
+        let customerPhone = invoice.customer_phone ? invoice.customer_phone.trim() : '';
         
         // Tripay has limits on customer name length (max ~50 characters)
         // Very long names cause "Internal service error"
@@ -526,6 +526,42 @@ class TripayGateway {
         
         console.log(`[TRIPAY] Customer name sanitization: "${customerName}" -> "${sanitizedCustomerName}" (length: ${customerName.length} -> ${sanitizedCustomerName.length})`);
         
+        // Penyesuaian format nomor telepon khusus beberapa metode e-wallet
+        try {
+            const digitsOnly = customerPhone.replace(/\D/g, '');
+            if (String(selectedMethod).toUpperCase() === 'DANA') {
+                // DANA cenderung lebih stabil dengan format lokal 08xxxxxxxxxx
+                if (digitsOnly.startsWith('62')) {
+                    customerPhone = '0' + digitsOnly.slice(2);
+                } else if (!digitsOnly.startsWith('0') && digitsOnly.length >= 9) {
+                    customerPhone = '0' + digitsOnly;
+                } else {
+                    customerPhone = digitsOnly;
+                }
+
+                // Enforce length between 10-13 digits for DANA
+                const danaDigits = customerPhone.replace(/\D/g, '');
+                if (danaDigits.length < 10) {
+                    // pad conservatively by duplicating last digit
+                    const padLen = 10 - danaDigits.length;
+                    customerPhone = danaDigits + (danaDigits.slice(-1) || '0').repeat(padLen);
+                } else if (danaDigits.length > 13) {
+                    // trim to last 12 digits and ensure starts with 08
+                    const last12 = danaDigits.slice(-12);
+                    customerPhone = last12.startsWith('8') ? ('0' + last12) : ('0' + last12.replace(/^\d/, '8'));
+                }
+            } else {
+                // Metode lain tetap gunakan nomor bersih (tanpa simbol), prioritaskan E164 sederhana tanpa +
+                if (digitsOnly.startsWith('0')) {
+                    customerPhone = '62' + digitsOnly.slice(1);
+                } else {
+                    customerPhone = digitsOnly;
+                }
+            }
+        } catch (_) {
+            // keep original customerPhone on parsing issues
+        }
+
         const orderData = {
             method: selectedMethod,
             merchant_ref: `INV-${invoice.invoice_number}`,
@@ -541,6 +577,18 @@ class TripayGateway {
             callback_url: paymentType === 'voucher' ? `${appBaseUrl}/voucher/payment-webhook` : `${appBaseUrl}/payment/webhook/tripay`,
             return_url: paymentType === 'voucher' ? `${appBaseUrl}/voucher/finish` : `${appBaseUrl}/payment/finish`
         };
+
+        // Extra logging to debug DANA internal errors (safe fields only)
+        if (String(selectedMethod).toUpperCase() === 'DANA') {
+            console.log('[TRIPAY][DANA] Prepared order data:', {
+                merchant_ref: orderData.merchant_ref,
+                amount: orderData.amount,
+                customer_name: orderData.customer_name,
+                customer_phone: orderData.customer_phone,
+                callback_url: orderData.callback_url,
+                return_url: orderData.return_url
+            });
+        }
 
         // Tripay signature: HMAC SHA256 of merchant_code + merchant_ref + amount using private_key
         const rawSign = `${this.config.merchant_code}${orderData.merchant_ref}${orderData.amount}`;
