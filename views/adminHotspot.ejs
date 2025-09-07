@@ -149,6 +149,86 @@
                 <div class="card-body">
                     <p class="text-muted mb-3">Konfigurasi paket voucher yang akan ditampilkan di halaman publik (/voucher)</p>
 
+                    <!-- Voucher Generation Settings -->
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <div class="card border-info">
+                                <div class="card-header bg-info text-white">
+                                    <h6 class="mb-0"><i class="bi bi-gear me-2"></i>Pengaturan Generate Voucher</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <label class="form-label">Panjang Username:</label>
+                                            <select class="form-select" id="voucher_username_length">
+                                                <option value="4" selected>4 karakter</option>
+                                                <option value="5">5 karakter</option>
+                                                <option value="6">6 karakter</option>
+                                                <option value="8">8 karakter</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label">Panjang Password:</label>
+                                            <select class="form-select" id="voucher_password_length">
+                                                <option value="4">4 karakter</option>
+                                                <option value="5">5 karakter</option>
+                                                <option value="6" selected>6 karakter</option>
+                                                <option value="8">8 karakter</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label">Tipe Karakter:</label>
+                                            <select class="form-select" id="voucher_char_type">
+                                                <option value="alphanumeric" selected>Huruf + Angka</option>
+                                                <option value="numeric">Angka Saja</option>
+                                                <option value="alphabetic">Huruf Saja</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label">Format Username:</label>
+                                            <select class="form-select" id="voucher_username_format">
+                                                <option value="V{timestamp}" selected>V + Timestamp (V123456)</option>
+                                                <option value="V{random}">V + Random (VABCD)</option>
+                                                <option value="{random}">Random Saja (ABCD)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Tipe Akun:</label>
+                                            <select class="form-select" id="voucher_account_type" onchange="togglePasswordLengthField()">
+                                                <option value="voucher" selected>Voucher (Username = Password)</option>
+                                                <option value="member">Member (Username ≠ Password)</option>
+                                            </select>
+                                            <div class="form-text">
+                                                <strong>Voucher:</strong> Username dan password sama (untuk voucher sementara)<br>
+                                                <strong>Member:</strong> Username dan password berbeda (untuk member tetap)
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6" id="password_length_separate_field">
+                                            <label class="form-label">Panjang Password (jika berbeda):</label>
+                                            <select class="form-select" id="voucher_password_length_separate">
+                                                <option value="4">4 karakter</option>
+                                                <option value="5">5 karakter</option>
+                                                <option value="6" selected>6 karakter</option>
+                                                <option value="8">8 karakter</option>
+                                            </select>
+                                            <div class="form-text">Hanya berlaku jika tipe akun = Member</div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3">
+                                        <button type="button" class="btn btn-info btn-sm" onclick="saveVoucherGenerationSettings()">
+                                            <i class="bi bi-save me-1"></i>Simpan Pengaturan Generate
+                                        </button>
+                                        <button type="button" class="btn btn-warning btn-sm" onclick="testVoucherGeneration()">
+                                            <i class="bi bi-play me-1"></i>Test Generate
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="row">
                         <!-- Paket 3k -->
                         <div class="col-md-6 col-lg-4 mb-3">
@@ -1727,6 +1807,91 @@ document.addEventListener('DOMContentLoaded', function () {
         .catch(error => {
             console.error('Error:', error);
             showToast('Error membuat voucher otomatis', 'error');
+        });
+    };
+
+    // Function untuk menyimpan pengaturan generate voucher
+    window.saveVoucherGenerationSettings = function() {
+        const settings = {
+            username_length: document.getElementById('voucher_username_length').value,
+            password_length: document.getElementById('voucher_password_length').value,
+            char_type: document.getElementById('voucher_char_type').value,
+            username_format: document.getElementById('voucher_username_format').value,
+            account_type: document.getElementById('voucher_account_type').value,
+            password_length_separate: document.getElementById('voucher_password_length_separate').value
+        };
+
+        // Simpan via AJAX
+        fetch('/admin/hotspot/save-voucher-generation-settings', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ settings: settings })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Pengaturan generate voucher berhasil disimpan!', 'success');
+            } else {
+                showToast('Gagal menyimpan pengaturan: ' + (data.message || 'Unknown error'), 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Error menyimpan pengaturan generate voucher', 'error');
+        });
+    };
+
+    // Function untuk toggle password length field berdasarkan tipe akun
+    window.togglePasswordLengthField = function() {
+        const accountType = document.getElementById('voucher_account_type').value;
+        const passwordField = document.getElementById('password_length_separate_field');
+        
+        if (accountType === 'voucher') {
+            passwordField.style.display = 'none';
+        } else {
+            passwordField.style.display = 'block';
+        }
+    };
+
+    // Initialize field visibility saat halaman dimuat
+    document.addEventListener('DOMContentLoaded', function() {
+        togglePasswordLengthField();
+    });
+
+    // Function untuk test generate voucher
+    window.testVoucherGeneration = function() {
+        const settings = {
+            username_length: document.getElementById('voucher_username_length').value,
+            password_length: document.getElementById('voucher_password_length').value,
+            char_type: document.getElementById('voucher_char_type').value,
+            username_format: document.getElementById('voucher_username_format').value,
+            account_type: document.getElementById('voucher_account_type').value,
+            password_length_separate: document.getElementById('voucher_password_length_separate').value
+        };
+
+        // Test via AJAX
+        fetch('/admin/hotspot/test-voucher-generation', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ settings: settings })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const accountTypeText = data.account_type === 'voucher' ? 'Voucher' : 'Member';
+                const passwordText = data.account_type === 'voucher' ? '(sama dengan username)' : data.password;
+                showToast(`Test ${accountTypeText} berhasil! Username: ${data.username}, Password: ${passwordText}`, 'success');
+            } else {
+                showToast('Test gagal: ' + (data.message || 'Unknown error'), 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Error test generate voucher', 'error');
         });
     };
 
