@@ -596,7 +596,17 @@ class BillingManager {
 
     async getCustomerByPhone(phone) {
         return new Promise((resolve, reject) => {
-            const sql = `
+            try {
+                // Normalisasi nomor telepon ke beberapa varian agar lookup fleksibel
+                const digitsOnly = (phone || '').toString().replace(/\D/g, '');
+                const intl = digitsOnly.startsWith('62')
+                    ? digitsOnly
+                    : (digitsOnly.startsWith('0') ? ('62' + digitsOnly.slice(1)) : digitsOnly);
+                const local08 = digitsOnly.startsWith('62')
+                    ? ('0' + digitsOnly.slice(2))
+                    : (digitsOnly.startsWith('0') ? digitsOnly : ('0' + digitsOnly));
+
+                const sql = `
                 SELECT c.*, p.name as package_name, p.price as package_price, p.speed as package_speed,
                        CASE 
                            WHEN EXISTS (
@@ -619,16 +629,20 @@ class BillingManager {
                        END as payment_status
                 FROM customers c 
                 LEFT JOIN packages p ON c.package_id = p.id 
-                WHERE c.phone = ?
+                WHERE c.phone = ? OR c.phone = ? OR c.phone = ?
             `;
-            
-            this.db.get(sql, [phone], (err, row) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(row);
-                }
-            });
+
+                // Prioritaskan pencarian berdasarkan varian yang umum: intl, local, original digits
+                this.db.get(sql, [intl, local08, digitsOnly], (err, row) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(row || null);
+                    }
+                });
+            } catch (e) {
+                reject(e);
+            }
         });
     }
 

@@ -37,6 +37,21 @@ const ensureCustomerSession = async (req, res, next) => {
             }
         }
 
+        // Jika session username masih temp_ tetapi ada phone, coba sinkronkan ulang ke username asli
+        if (username && typeof username === 'string' && username.startsWith('temp_') && phone) {
+            try {
+                const customerFix = await billingManager.getCustomerByPhone(phone);
+                if (customerFix && customerFix.username) {
+                    req.session.customer_username = customerFix.username;
+                    req.session.customer_phone = phone;
+                    username = customerFix.username;
+                    console.log(`✅ [SESSION_FIX] Replaced temp username with real username: ${username} for phone: ${phone}`);
+                }
+            } catch (e) {
+                console.warn(`⚠️ [SESSION_FIX] Retry getCustomerByPhone failed: ${e.message}`);
+            }
+        }
+
         // Jika masih tidak ada customer_username atau phone, redirect ke login
         if (!username && !phone) {
             console.log(`❌ [SESSION_FIX] No session found, redirecting to login`);
