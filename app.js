@@ -123,6 +123,13 @@ app.use('/test/trouble', testTroubleReportRouter);
 const troubleReportRouter = require('./routes/troubleReport');
 app.use('/customer/trouble', troubleReportRouter);
 
+// Import dan gunakan route voucher publik
+const { router: publicVoucherRouter } = require('./routes/publicVoucher');
+app.use('/voucher', publicVoucherRouter);
+
+// Tambahkan webhook endpoint untuk voucher payment
+app.use('/webhook/voucher', publicVoucherRouter);
+
 // Import dan gunakan route API dashboard traffic
 const apiDashboardRouter = require('./routes/apiDashboard');
 app.use('/api', apiDashboardRouter);

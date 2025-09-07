@@ -130,9 +130,277 @@
                             <p class="card-text">Total Profile</p>
                         </div>
                     </div>
+                                        <div class="mt-3">
+                            <button type="button" class="btn btn-success me-2" onclick="saveVoucherOnlineSettings()">
+                                <i class="bi bi-save me-2"></i>Simpan Setting Voucher Online
+                            </button>
+                            <button type="button" class="btn btn-warning" onclick="resetVoucherOnlineSettings()">
+                                <i class="bi bi-arrow-clockwise me-2"></i>Reset ke Profile Pertama
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Voucher Online Settings -->
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="bi bi-globe me-2"></i>Setting Voucher Online</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-3">Konfigurasi paket voucher yang akan ditampilkan di halaman publik (/voucher)</p>
+
+                    <div class="row">
+                        <!-- Paket 3k -->
+                        <div class="col-md-6 col-lg-4 mb-3">
+                            <div class="card border-primary">
+                                <div class="card-header bg-primary text-white">
+                                    <h6 class="mb-0">3rb - 1 Hari</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-2">
+                                        <small class="text-muted">Profile Mikrotik:</small>
+                                        <select class="form-select form-select-sm" id="profile_3k">
+                                            <% profiles.forEach(function(profile) { %>
+                                                <option value="<%= profile.name %>" <%= profile.name === (voucherOnlineSettings['3k']?.profile || profiles[0]?.name || '3k') ? 'selected' : '' %>><%= profile.name %></option>
+                                            <% }); %>
+                                        </select>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted">Harga:</small>
+                                        <input type="number" class="form-control form-control-sm" id="price_3k" value="3000" readonly>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="online_3k" <%= voucherOnlineSettings['3k']?.enabled !== false ? 'checked' : '' %>>
+                                        <label class="form-check-label" for="online_3k">
+                                            Tampilkan Online
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Paket 5k -->
+                        <div class="col-md-6 col-lg-4 mb-3">
+                            <div class="card border-success">
+                                <div class="card-header bg-success text-white">
+                                    <h6 class="mb-0">5rb - 2 Hari</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-2">
+                                        <small class="text-muted">Profile Mikrotik:</small>
+                                        <select class="form-select form-select-sm" id="profile_5k">
+                                            <% profiles.forEach(function(profile) { %>
+                                                <option value="<%= profile.name %>" <%= profile.name === (voucherOnlineSettings['5k']?.profile || profiles[0]?.name || '5k') ? 'selected' : '' %>><%= profile.name %></option>
+                                            <% }); %>
+                                        </select>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted">Harga:</small>
+                                        <input type="number" class="form-control form-control-sm" id="price_5k" value="5000" readonly>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="online_5k" <%= voucherOnlineSettings['5k']?.enabled !== false ? 'checked' : '' %>>
+                                        <label class="form-check-label" for="online_5k">
+                                            Tampilkan Online
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Paket 10k -->
+                        <div class="col-md-6 col-lg-4 mb-3">
+                            <div class="card border-info">
+                                <div class="card-header bg-info text-white">
+                                    <h6 class="mb-0">10rb - 5 Hari</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-2">
+                                        <small class="text-muted">Profile Mikrotik:</small>
+                                        <select class="form-select form-select-sm" id="profile_10k">
+                                            <% profiles.forEach(function(profile) { %>
+                                                <option value="<%= profile.name %>" <%= profile.name === (voucherOnlineSettings['10k']?.profile || profiles[0]?.name || '10k') ? 'selected' : '' %>><%= profile.name %></option>
+                                            <% }); %>
+                                        </select>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted">Harga:</small>
+                                        <input type="number" class="form-control form-control-sm" id="price_10k" value="10000" readonly>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="online_10k" <%= voucherOnlineSettings['10k']?.enabled !== false ? 'checked' : '' %>>
+                                        <label class="form-check-label" for="online_10k">
+                                            Tampilkan Online
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Paket 15k -->
+                        <div class="col-md-6 col-lg-4 mb-3">
+                            <div class="card border-warning">
+                                <div class="card-header bg-warning text-dark">
+                                    <h6 class="mb-0">15rb - 8 Hari</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-2">
+                                        <small class="text-muted">Profile Mikrotik:</small>
+                                        <select class="form-select form-select-sm" id="profile_15k">
+                                            <% profiles.forEach(function(profile) { %>
+                                                <option value="<%= profile.name %>" <%= profile.name === (voucherOnlineSettings['15k']?.profile || profiles[0]?.name || '15k') ? 'selected' : '' %>><%= profile.name %></option>
+                                            <% }); %>
+                                        </select>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted">Harga:</small>
+                                        <input type="number" class="form-control form-control-sm" id="price_15k" value="15000" readonly>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="online_15k" <%= voucherOnlineSettings['15k']?.enabled !== false ? 'checked' : '' %>>
+                                        <label class="form-check-label" for="online_15k">
+                                            Tampilkan Online
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Paket 25k -->
+                        <div class="col-md-6 col-lg-4 mb-3">
+                            <div class="card border-danger">
+                                <div class="card-header bg-danger text-white">
+                                    <h6 class="mb-0">25rb - 15 Hari</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-2">
+                                        <small class="text-muted">Profile Mikrotik:</small>
+                                        <select class="form-select form-select-sm" id="profile_25k">
+                                            <% profiles.forEach(function(profile) { %>
+                                                <option value="<%= profile.name %>" <%= profile.name === (voucherOnlineSettings['25k']?.profile || profiles[0]?.name || '25k') ? 'selected' : '' %>><%= profile.name %></option>
+                                            <% }); %>
+                                        </select>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted">Harga:</small>
+                                        <input type="number" class="form-control form-control-sm" id="price_25k" value="25000" readonly>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="online_25k" <%= voucherOnlineSettings['25k']?.enabled !== false ? 'checked' : '' %>>
+                                        <label class="form-check-label" for="online_25k">
+                                            Tampilkan Online
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Paket 50k -->
+                        <div class="col-md-6 col-lg-4 mb-3">
+                            <div class="card border-secondary">
+                                <div class="card-header bg-secondary text-white">
+                                    <h6 class="mb-0">50rb - 30 Hari</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-2">
+                                        <small class="text-muted">Profile Mikrotik:</small>
+                                        <select class="form-select form-select-sm" id="profile_50k">
+                                            <% profiles.forEach(function(profile) { %>
+                                                <option value="<%= profile.name %>" <%= profile.name === (voucherOnlineSettings['50k']?.profile || profiles[0]?.name || '50k') ? 'selected' : '' %>><%= profile.name %></option>
+                                            <% }); %>
+                                        </select>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted">Harga:</small>
+                                        <input type="number" class="form-control form-control-sm" id="price_50k" value="50000" readonly>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="online_50k" <%= voucherOnlineSettings['50k']?.enabled !== false ? 'checked' : '' %>>
+                                        <label class="form-check-label" for="online_50k">
+                                            Tampilkan Online
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Manual Voucher Generation -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="bi bi-pencil-square me-2"></i>Generate Voucher Manual</h6>
+                            <div class="mb-3">
+                                <label for="manualUsername" class="form-label">Username</label>
+                                <input type="text" class="form-control" id="manualUsername" placeholder="Masukkan username">
+                            </div>
+                            <div class="mb-3">
+                                <label for="manualPassword" class="form-label">Password</label>
+                                <input type="text" class="form-control" id="manualPassword" placeholder="Masukkan password">
+                            </div>
+                            <div class="mb-3">
+                                <label for="manualProfile" class="form-label">Profile</label>
+                                <select class="form-select" id="manualProfile">
+                                    <% profiles.forEach(function(profile) { %>
+                                        <option value="<%= profile.name %>"><%= profile.name %></option>
+                                    <% }); %>
+                                </select>
+                            </div>
+                            <button type="button" class="btn btn-outline-primary" onclick="generateManualVoucher()">
+                                <i class="bi bi-plus-circle me-1"></i>Generate Manual
+                            </button>
+                        </div>
+
+                        <div class="col-md-6">
+                            <h6><i class="bi bi-robot me-2"></i>Generate Voucher Otomatis</h6>
+                            <div class="mb-3">
+                                <label for="autoCount" class="form-label">Jumlah Voucher</label>
+                                <input type="number" class="form-control" id="autoCount" value="1" min="1" max="10">
+                            </div>
+                            <div class="mb-3">
+                                <label for="autoProfile" class="form-label">Profile</label>
+                                <select class="form-select" id="autoProfile">
+                                    <% profiles.forEach(function(profile) { %>
+                                        <option value="<%= profile.name %>"><%= profile.name %></option>
+                                    <% }); %>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="autoNumeric" checked>
+                                    <label class="form-check-label" for="autoNumeric">
+                                        Username & Password sama (angka saja)
+                                    </label>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-outline-success" onclick="generateAutoVoucher()">
+                                <i class="bi bi-magic me-1"></i>Generate Otomatis
+                            </button>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Cleanup Expired Vouchers -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="bi bi-trash me-2"></i>Cleanup Voucher Expired</h6>
+                            <p class="text-muted small mb-3">
+                                Hapus voucher yang belum dibayar setelah 24 jam untuk menghindari penumpukan.<br>
+                                <strong>Otomatis:</strong> Cleanup berjalan setiap 6 jam (00:00, 06:00, 12:00, 18:00).
+                            </p>
+                            <button type="button" class="btn btn-outline-danger btn-sm" onclick="cleanupExpiredVouchers()">
+                                <i class="bi bi-trash me-1"></i>Cleanup Sekarang
+                            </button>
+                            <div id="cleanupStatus" class="mt-2" style="display: none;">
+                                <small class="text-muted">Memproses cleanup...</small>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            
+
             <div class="row">
                 <div class="col-12">
                     <div class="card mb-4 shadow-sm">
@@ -1386,6 +1654,210 @@ document.addEventListener('DOMContentLoaded', function () {
             overlay.classList.remove('show');
         });
     }
+
+    // Functions untuk Voucher Online Settings
+    window.generateManualVoucher = function() {
+        const username = document.getElementById('manualUsername').value.trim();
+        const password = document.getElementById('manualPassword').value.trim();
+        const profile = document.getElementById('manualProfile').value;
+
+        if (!username || !password) {
+            showToast('Username dan password harus diisi!', 'error');
+            return;
+        }
+
+        // Generate voucher manual via AJAX
+        fetch('/admin/hotspot/generate-manual-voucher', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: username,
+                password: password,
+                profile: profile
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast(`Voucher manual berhasil dibuat: ${username}`, 'success');
+                // Clear form
+                document.getElementById('manualUsername').value = '';
+                document.getElementById('manualPassword').value = '';
+                // Reload page to refresh table
+                setTimeout(() => location.reload(), 2000);
+            } else {
+                showToast('Gagal membuat voucher: ' + (data.message || 'Unknown error'), 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Error membuat voucher manual', 'error');
+        });
+    };
+
+    window.generateAutoVoucher = function() {
+        const count = parseInt(document.getElementById('autoCount').value) || 1;
+        const profile = document.getElementById('autoProfile').value;
+        const isNumeric = document.getElementById('autoNumeric').checked;
+
+        // Generate voucher otomatis via AJAX
+        fetch('/admin/hotspot/generate-auto-voucher', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                count: count,
+                profile: profile,
+                numericOnly: isNumeric
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast(`${count} voucher otomatis berhasil dibuat`, 'success');
+                // Reload page to refresh table
+                setTimeout(() => location.reload(), 2000);
+            } else {
+                showToast('Gagal membuat voucher: ' + (data.message || 'Unknown error'), 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Error membuat voucher otomatis', 'error');
+        });
+    };
+
+    // Function untuk menyimpan setting voucher online
+    window.saveVoucherOnlineSettings = function() {
+        const settings = {};
+
+        // Ambil setting dari setiap paket
+        const packages = ['3k', '5k', '10k', '15k', '25k', '50k'];
+        packages.forEach(pkg => {
+            const profileSelect = document.getElementById(`profile_${pkg}`);
+            const enabledCheckbox = document.getElementById(`online_${pkg}`);
+
+            if (profileSelect && enabledCheckbox) {
+                settings[pkg] = {
+                    profile: profileSelect.value,
+                    enabled: enabledCheckbox.checked
+                };
+            }
+        });
+
+        // Simpan via AJAX
+        fetch('/admin/hotspot/save-voucher-online-settings', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ settings: settings })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Setting voucher online berhasil disimpan!', 'success');
+            } else {
+                showToast('Gagal menyimpan setting: ' + (data.message || 'Unknown error'), 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Error menyimpan setting voucher online', 'error');
+        });
+    };
+
+    // Function untuk reset setting voucher online ke profile pertama
+    window.resetVoucherOnlineSettings = function() {
+        if (confirm('Apakah Anda yakin ingin mereset semua setting voucher online ke profile pertama yang tersedia?')) {
+            // Call backend to reset settings
+            fetch('/admin/hotspot/reset-voucher-online-settings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update UI to reflect the reset
+                    const packages = ['3k', '5k', '10k', '15k', '25k', '50k'];
+                    packages.forEach(pkg => {
+                        const profileSelect = document.getElementById(`profile_${pkg}`);
+                        if (profileSelect) {
+                            profileSelect.value = data.defaultProfile;
+                        }
+                    });
+                    showToast(data.message, 'success');
+                } else {
+                    showToast('Gagal reset setting: ' + (data.message || 'Unknown error'), 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Error reset setting voucher online', 'error');
+            });
+        }
+    };
+
+    // Function untuk cleanup expired vouchers
+    window.cleanupExpiredVouchers = function() {
+        const statusDiv = document.getElementById('cleanupStatus');
+        const button = event.target;
+
+        // Show loading
+        statusDiv.style.display = 'block';
+        statusDiv.innerHTML = '<small class="text-muted"><i class="bi bi-hourglass me-1"></i>Memproses cleanup...</small>';
+        button.disabled = true;
+        button.innerHTML = '<i class="bi bi-hourglass me-1"></i>Memproses...';
+
+        // Call cleanup API
+        fetch('/voucher/cleanup-expired', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                statusDiv.innerHTML = `<small class="text-success"><i class="bi bi-check-circle me-1"></i>${data.message}</small>`;
+                if (data.details) {
+                    statusDiv.innerHTML += `<br><small class="text-muted">Database: ${data.details.database_deleted}, Mikrotik: ${data.details.mikrotik_deleted}</small>`;
+                }
+
+                // Reset button after 3 seconds
+                setTimeout(() => {
+                    button.disabled = false;
+                    button.innerHTML = '<i class="bi bi-trash me-1"></i>Cleanup Sekarang';
+                    statusDiv.style.display = 'none';
+                }, 3000);
+
+                // Show success toast
+                showToast('Cleanup voucher expired berhasil!', 'success');
+
+            } else {
+                statusDiv.innerHTML = `<small class="text-danger"><i class="bi bi-exclamation-triangle me-1"></i>${data.message}</small>`;
+                button.disabled = false;
+                button.innerHTML = '<i class="bi bi-trash me-1"></i>Cleanup Sekarang';
+
+                // Show error toast
+                showToast('Gagal cleanup voucher expired', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Cleanup error:', error);
+            statusDiv.innerHTML = '<small class="text-danger"><i class="bi bi-exclamation-triangle me-1"></i>Terjadi kesalahan saat cleanup</small>';
+            button.disabled = false;
+            button.innerHTML = '<i class="bi bi-trash me-1"></i>Cleanup Sekarang';
+
+            showToast('Error saat cleanup voucher expired', 'error');
+        });
+    };
 
     // Event handler tombol Edit User pada tabel semua user hotspot
     $(document).ready(function() {
