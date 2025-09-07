@@ -7,6 +7,156 @@ const path = require('path');
 const { getSettingsWithCache } = require('../config/settingsManager')
 const { getVersionInfo, getVersionBadge } = require('../config/version-utils');
 
+// Helper function untuk mengambil setting voucher online
+async function getVoucherOnlineSettings() {
+    const sqlite3 = require('sqlite3').verbose();
+    const db = new sqlite3.Database('./data/billing.db');
+
+    return new Promise((resolve, reject) => {
+        // Ensure table exists
+        db.run(`
+            CREATE TABLE IF NOT EXISTS voucher_online_settings (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                package_id TEXT NOT NULL UNIQUE,
+                profile TEXT NOT NULL,
+                enabled INTEGER NOT NULL DEFAULT 1,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        `, (err) => {
+            if (err) {
+                console.error('Error creating voucher_online_settings table:', err);
+                resolve({});
+                return;
+            }
+
+            // Insert default settings if table is empty
+            db.get('SELECT COUNT(*) as count FROM voucher_online_settings', (err, row) => {
+                if (err || row.count === 0) {
+                    // Get first available profile from Mikrotik as default
+                    const { getHotspotProfiles } = require('../config/mikrotik');
+                    getHotspotProfiles().then(profilesResult => {
+                        const defaultProfile = (profilesResult.success && profilesResult.data && profilesResult.data.length > 0) 
+                            ? profilesResult.data[0].name 
+                            : 'default';
+                        
+                        const defaultSettings = [
+                            ['3k', defaultProfile, 1],
+                            ['5k', defaultProfile, 1],
+                            ['10k', defaultProfile, 1],
+                            ['15k', defaultProfile, 1],
+                            ['25k', defaultProfile, 1],
+                            ['50k', defaultProfile, 1]
+                        ];
+
+                        const insertPromises = defaultSettings.map(([packageId, profile, enabled]) => {
+                            return new Promise((resolveInsert, rejectInsert) => {
+                                db.run(
+                                    'INSERT OR IGNORE INTO voucher_online_settings (package_id, profile, enabled) VALUES (?, ?, ?)',
+                                    [packageId, profile, enabled],
+                                    (err) => {
+                                        if (err) rejectInsert(err);
+                                        else resolveInsert();
+                                    }
+                                );
+                            });
+                        });
+
+                        Promise.all(insertPromises).then(() => {
+                            // Now get all settings
+                            db.all('SELECT * FROM voucher_online_settings', (err, rows) => {
+                                if (err) {
+                                    console.error('Error getting voucher online settings:', err);
+                                    resolve({});
+                                } else {
+                                    const settings = {};
+                                    rows.forEach(row => {
+                                        settings[row.package_id] = {
+                                            profile: row.profile,
+                                            enabled: row.enabled === 1
+                                        };
+                                    });
+                                    db.close();
+                                    resolve(settings);
+                                }
+                            });
+                        }).catch((err) => {
+                            console.error('Error inserting default settings:', err);
+                            db.close();
+                            resolve({});
+                        });
+                    }).catch((err) => {
+                        console.error('Error getting Mikrotik profiles for default settings:', err);
+                        // Fallback to hardcoded defaults
+                        const fallbackSettings = [
+                            ['3k', 'default', 1],
+                            ['5k', 'default', 1],
+                            ['10k', 'default', 1],
+                            ['15k', 'default', 1],
+                            ['25k', 'default', 1],
+                            ['50k', 'default', 1]
+                        ];
+                        
+                        const insertPromises = fallbackSettings.map(([packageId, profile, enabled]) => {
+                            return new Promise((resolveInsert, rejectInsert) => {
+                                db.run(
+                                    'INSERT OR IGNORE INTO voucher_online_settings (package_id, profile, enabled) VALUES (?, ?, ?)',
+                                    [packageId, profile, enabled],
+                                    (err) => {
+                                        if (err) rejectInsert(err);
+                                        else resolveInsert();
+                                    }
+                                );
+                            });
+                        });
+
+                        Promise.all(insertPromises).then(() => {
+                            db.all('SELECT * FROM voucher_online_settings', (err, rows) => {
+                                if (err) {
+                                    console.error('Error getting voucher online settings:', err);
+                                    resolve({});
+                                } else {
+                                    const settings = {};
+                                    rows.forEach(row => {
+                                        settings[row.package_id] = {
+                                            profile: row.profile,
+                                            enabled: row.enabled === 1
+                                        };
+                                    });
+                                    db.close();
+                                    resolve(settings);
+                                }
+                            });
+                        }).catch((err) => {
+                            console.error('Error inserting fallback settings:', err);
+                            db.close();
+                            resolve({});
+                        });
+                    });
+                } else {
+                    // Get existing settings
+                    db.all('SELECT * FROM voucher_online_settings', (err, rows) => {
+                        if (err) {
+                            console.error('Error getting voucher online settings:', err);
+                            resolve({});
+                        } else {
+                            const settings = {};
+                            rows.forEach(row => {
+                                settings[row.package_id] = {
+                                    profile: row.profile,
+                                    enabled: row.enabled === 1
+                                };
+                            });
+                            db.close();
+                            resolve(settings);
+                        }
+                    });
+                }
+            });
+        });
+    });
+}
+
 // GET: Tampilkan form tambah user hotspot dan daftar user hotspot
 router.get('/', async (req, res) => {
     try {
@@ -48,13 +198,17 @@ router.get('/', async (req, res) => {
         const company_header = settings.company_header || 'Voucher Hotspot';
         const adminKontak = settings['admins.0'] || '-';
 
-        res.render('adminHotspot', { 
-            users, 
-            profiles, 
-            allUsers, 
-            success: req.query.success, 
-            error: req.query.error, 
-            company_header, 
+        // Ambil setting voucher online
+        const voucherOnlineSettings = await getVoucherOnlineSettings();
+
+        res.render('adminHotspot', {
+            users,
+            profiles,
+            allUsers,
+            voucherOnlineSettings,
+            success: req.query.success,
+            error: req.query.error,
+            company_header,
             adminKontak,
             settings
         });
@@ -394,13 +548,235 @@ router.post('/delete-voucher', async (req, res) => {
     if (!username) {
         return res.redirect('/admin/hotspot/voucher?error=Username+diperlukan');
     }
-    
+
     try {
         await deleteHotspotUser(username);
         res.redirect('/admin/hotspot/voucher?success=Voucher+berhasil+dihapus');
     } catch (error) {
         console.error('Error deleting voucher:', error);
         res.redirect('/admin/hotspot/voucher?error=' + encodeURIComponent('Gagal menghapus voucher: ' + error.message));
+    }
+});
+
+// POST: Generate manual voucher for online settings
+router.post('/generate-manual-voucher', async (req, res) => {
+    try {
+        const { username, password, profile } = req.body;
+
+        if (!username || !password || !profile) {
+            return res.status(400).json({
+                success: false,
+                message: 'Username, password, dan profile harus diisi'
+            });
+        }
+
+        // Add user to Mikrotik
+        const result = await addHotspotUser(username, password, profile);
+
+        if (result.success) {
+            res.json({
+                success: true,
+                message: 'Voucher manual berhasil dibuat',
+                voucher: {
+                    username,
+                    password,
+                    profile
+                }
+            });
+        } else {
+            res.status(500).json({
+                success: false,
+                message: 'Gagal membuat voucher: ' + (result.message || 'Unknown error')
+            });
+        }
+
+    } catch (error) {
+        console.error('Error generating manual voucher:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error membuat voucher manual: ' + error.message
+        });
+    }
+});
+
+// POST: Generate auto voucher for online settings
+router.post('/generate-auto-voucher', async (req, res) => {
+    try {
+        const { count, profile, numericOnly } = req.body;
+        const numVouchers = parseInt(count) || 1;
+
+        if (numVouchers > 10) {
+            return res.status(400).json({
+                success: false,
+                message: 'Maksimal 10 voucher per generate'
+            });
+        }
+
+        const generatedVouchers = [];
+
+        // Function to generate random string
+        function randomString(length, numeric = false) {
+            const chars = numeric ? '0123456789' : 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            let str = '';
+            for (let i = 0; i < length; i++) {
+                str += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return str;
+        }
+
+        // Generate vouchers
+        for (let i = 0; i < numVouchers; i++) {
+            let username, password;
+
+            if (numericOnly) {
+                // Username dan password sama, angka saja
+                const randomNum = randomString(8, true);
+                username = randomNum;
+                password = randomNum;
+            } else {
+                // Username dan password berbeda
+                username = randomString(6) + randomString(2);
+                password = randomString(8);
+            }
+
+            try {
+                const result = await addHotspotUser(username, password, profile);
+                if (result.success) {
+                    generatedVouchers.push({
+                        username,
+                        password,
+                        profile
+                    });
+                }
+            } catch (e) {
+                console.error(`Failed to create voucher ${i + 1}:`, e.message);
+            }
+        }
+
+        res.json({
+            success: true,
+            message: `${generatedVouchers.length} voucher otomatis berhasil dibuat`,
+            vouchers: generatedVouchers
+        });
+
+    } catch (error) {
+        console.error('Error generating auto voucher:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error membuat voucher otomatis: ' + error.message
+        });
+    }
+});
+
+// POST: Reset setting voucher online ke profile pertama
+router.post('/reset-voucher-online-settings', async (req, res) => {
+    try {
+        const sqlite3 = require('sqlite3').verbose();
+        const db = new sqlite3.Database('./data/billing.db');
+
+        // Get first available profile from Mikrotik
+        const { getHotspotProfiles } = require('../config/mikrotik');
+        const profilesResult = await getHotspotProfiles();
+        const defaultProfile = (profilesResult.success && profilesResult.data && profilesResult.data.length > 0) 
+            ? profilesResult.data[0].name 
+            : 'default';
+
+        // Update all packages to use first profile
+        const packages = ['3k', '5k', '10k', '15k', '25k', '50k'];
+        const updatePromises = packages.map(packageId => {
+            return new Promise((resolve, reject) => {
+                db.run(
+                    'UPDATE voucher_online_settings SET profile = ? WHERE package_id = ?',
+                    [defaultProfile, packageId],
+                    (err) => {
+                        if (err) reject(err);
+                        else resolve();
+                    }
+                );
+            });
+        });
+
+        await Promise.all(updatePromises);
+        db.close();
+
+        res.json({
+            success: true,
+            message: `Setting voucher online berhasil direset ke profile: ${defaultProfile}`,
+            defaultProfile: defaultProfile
+        });
+
+    } catch (error) {
+        console.error('Error resetting voucher online settings:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Gagal reset setting voucher online: ' + error.message
+        });
+    }
+});
+
+// POST: Save voucher online settings
+router.post('/save-voucher-online-settings', async (req, res) => {
+    try {
+        const settings = req.body.settings;
+
+        if (!settings || typeof settings !== 'object') {
+            return res.status(400).json({
+                success: false,
+                message: 'Settings data tidak valid'
+            });
+        }
+
+        const sqlite3 = require('sqlite3').verbose();
+        const db = new sqlite3.Database('./data/billing.db');
+
+        // Ensure voucher_online_settings table exists
+        await new Promise((resolve, reject) => {
+            db.run(`
+                CREATE TABLE IF NOT EXISTS voucher_online_settings (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    package_id TEXT NOT NULL UNIQUE,
+                    profile TEXT NOT NULL,
+                    enabled INTEGER NOT NULL DEFAULT 1,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                )
+            `, (err) => {
+                if (err) reject(err);
+                else resolve();
+            });
+        });
+
+        // Update settings for each package
+        const promises = Object.keys(settings).map(packageId => {
+            const setting = settings[packageId];
+            return new Promise((resolve, reject) => {
+                const sql = `
+                    INSERT OR REPLACE INTO voucher_online_settings
+                    (package_id, profile, enabled, updated_at)
+                    VALUES (?, ?, ?, datetime('now'))
+                `;
+                db.run(sql, [packageId, setting.profile, setting.enabled ? 1 : 0], function(err) {
+                    if (err) reject(err);
+                    else resolve();
+                });
+            });
+        });
+
+        await Promise.all(promises);
+
+        db.close();
+
+        res.json({
+            success: true,
+            message: 'Setting voucher online berhasil disimpan'
+        });
+
+    } catch (error) {
+        console.error('Error saving voucher online settings:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Gagal menyimpan setting voucher online: ' + error.message
+        });
     }
 });
 

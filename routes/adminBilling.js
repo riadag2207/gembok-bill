@@ -448,29 +448,84 @@ router.get('/export/customers.xlsx', async (req, res) => {
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('Customers');
 
+        // Header lengkap dengan koordinat map dan data lainnya
         const headers = [
-            'name', 'phone', 'pppoe_username', 'email', 'address',
-            'package_id', 'pppoe_profile', 'status', 'auto_suspension', 'billing_day'
+            'ID', 'Username', 'Nama', 'Phone', 'PPPoE Username', 'Email', 'Alamat',
+            'Latitude', 'Longitude', 'Package ID', 'Package Name', 'PPPoE Profile', 
+            'Status', 'Auto Suspension', 'Billing Day', 'Join Date', 'Created At'
         ];
-        worksheet.addRow(headers);
+        
+        // Set header dengan styling
+        const headerRow = worksheet.addRow(headers);
+        headerRow.font = { bold: true };
+        headerRow.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFE6E6FA' }
+        };
+
+        // Set column widths
+        worksheet.columns = [
+            { header: 'ID', key: 'id', width: 8 },
+            { header: 'Username', key: 'username', width: 15 },
+            { header: 'Nama', key: 'name', width: 25 },
+            { header: 'Phone', key: 'phone', width: 15 },
+            { header: 'PPPoE Username', key: 'pppoe_username', width: 20 },
+            { header: 'Email', key: 'email', width: 25 },
+            { header: 'Alamat', key: 'address', width: 35 },
+            { header: 'Latitude', key: 'latitude', width: 12 },
+            { header: 'Longitude', key: 'longitude', width: 12 },
+            { header: 'Package ID', key: 'package_id', width: 10 },
+            { header: 'Package Name', key: 'package_name', width: 20 },
+            { header: 'PPPoE Profile', key: 'pppoe_profile', width: 15 },
+            { header: 'Status', key: 'status', width: 10 },
+            { header: 'Auto Suspension', key: 'auto_suspension', width: 15 },
+            { header: 'Billing Day', key: 'billing_day', width: 12 },
+            { header: 'Join Date', key: 'join_date', width: 15 },
+            { header: 'Created At', key: 'created_at', width: 15 }
+        ];
 
         customers.forEach(c => {
-            worksheet.addRow([
+            const row = worksheet.addRow([
+                c.id || '',
+                c.username || '',
                 c.name || '',
                 c.phone || '',
                 c.pppoe_username || '',
                 c.email || '',
                 c.address || '',
+                c.latitude || '',
+                c.longitude || '',
                 c.package_id || '',
+                c.package_name || '',
                 c.pppoe_profile || 'default',
                 c.status || 'active',
                 typeof c.auto_suspension !== 'undefined' ? c.auto_suspension : 1,
-                c.billing_day || 15
+                c.billing_day || 15,
+                c.join_date ? new Date(c.join_date).toLocaleDateString('id-ID') : '',
+                c.created_at ? new Date(c.created_at).toLocaleDateString('id-ID') : ''
             ]);
+
+            // Highlight rows dengan koordinat valid
+            if (c.latitude && c.longitude) {
+                row.fill = {
+                    type: 'pattern',
+                    pattern: 'solid',
+                    fgColor: { argb: 'FFF0F8FF' }
+                };
+            }
         });
 
+        // Add summary sheet
+        const summarySheet = workbook.addWorksheet('Summary');
+        summarySheet.addRow(['Export Summary']);
+        summarySheet.addRow(['Total Customers', customers.length]);
+        summarySheet.addRow(['Customers with Coordinates', customers.filter(c => c.latitude && c.longitude).length]);
+        summarySheet.addRow(['Customers without Coordinates', customers.filter(c => !c.latitude || !c.longitude).length]);
+        summarySheet.addRow(['Export Date', new Date().toLocaleString('id-ID')]);
+
         res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        res.setHeader('Content-Disposition', 'attachment; filename="customers.xlsx"');
+        res.setHeader('Content-Disposition', 'attachment; filename="customers_complete.xlsx"');
         await workbook.xlsx.write(res);
         res.end();
     } catch (error) {

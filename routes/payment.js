@@ -91,10 +91,37 @@ router.post('/webhook/xendit', async (req, res) => {
 
 router.post('/webhook/tripay', async (req, res) => {
     try {
-        const result = await billingManager.handlePaymentWebhook({ body: req.body, headers: req.headers }, 'tripay');
-        res.status(200).json(result);
+        console.log('🔍 Universal webhook received:', JSON.stringify(req.body, null, 2));
+        
+        // Check if this is a voucher payment based on order_id pattern
+        const orderId = req.body.order_id || req.body.merchant_ref || '';
+        const isVoucherPayment = orderId.includes('VCR-') || orderId.includes('VOUCHER-');
+        
+        if (isVoucherPayment) {
+            console.log('🎫 Detected voucher payment, processing voucher webhook');
+            
+            // Import voucher webhook handler function directly
+            const { handleVoucherWebhook } = require('./publicVoucher');
+            
+            // Call voucher webhook handler directly
+            try {
+                const result = await handleVoucherWebhook(req.body, req.headers);
+                console.log('🎫 Voucher webhook response:', result);
+                res.status(200).json(result);
+            } catch (voucherError) {
+                console.error('🎫 Voucher webhook error:', voucherError);
+                res.status(500).json({
+                    success: false,
+                    message: 'Voucher webhook processing failed: ' + voucherError.message
+                });
+            }
+        } else {
+            console.log('💰 Processing invoice payment');
+            const result = await billingManager.handlePaymentWebhook({ body: req.body, headers: req.headers }, 'tripay');
+            res.status(200).json(result);
+        }
     } catch (error) {
-        console.error('Tripay webhook error:', error);
+        console.error('Universal webhook error:', error);
         res.status(500).json({
             success: false,
             message: error.message
