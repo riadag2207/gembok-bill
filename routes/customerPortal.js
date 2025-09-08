@@ -472,14 +472,51 @@ async function updateSSIDOptimized(phone, newSSID) {
   try {
     console.log(`🔄 Optimized SSID update for phone: ${phone} to: ${newSSID}`);
     
-    // Cari device berdasarkan nomor pelanggan
-    let device = await findDeviceByTag(phone);
+    // Cari device berdasarkan nomor pelanggan dengan multiple format
+    let device = null;
+    
+    // Method 1: Coba dengan format asli
+    device = await findDeviceByTag(phone);
+    
+    // Method 2: Jika gagal, coba dengan format alternatif
+    if (!device) {
+      const phoneVariants = [];
+      
+      // Jika format internasional (62), coba format lokal (0)
+      if (phone.startsWith('62')) {
+        phoneVariants.push('0' + phone.substring(2));
+      }
+      // Jika format lokal (0), coba format internasional (62)
+      else if (phone.startsWith('0')) {
+        phoneVariants.push('62' + phone.substring(1));
+      }
+      // Jika tanpa prefix, coba kedua format
+      else {
+        phoneVariants.push('0' + phone);
+        phoneVariants.push('62' + phone);
+      }
+      
+      // Coba setiap variant
+      for (const variant of phoneVariants) {
+        console.log(`🔍 Trying phone variant: ${variant}`);
+        device = await findDeviceByTag(variant);
+        if (device) {
+          console.log(`✅ Device found with variant: ${variant}`);
+          break;
+        }
+      }
+    }
+    
+    // Method 3: Jika masih gagal, coba dengan PPPoE username
     if (!device) {
       try {
         const customer = await billingManager.getCustomerByPhone(phone);
         if (customer && customer.pppoe_username) {
           const { findDeviceByPPPoE } = require('../config/genieacs');
           device = await findDeviceByPPPoE(customer.pppoe_username);
+          if (device) {
+            console.log(`✅ Device found by PPPoE username: ${customer.pppoe_username}`);
+          }
         }
       } catch (error) {
         console.error('Error finding device by PPPoE username:', error);
@@ -487,6 +524,7 @@ async function updateSSIDOptimized(phone, newSSID) {
     }
     
     if (!device) {
+      console.log(`❌ SSID update failed for ${phone}: Device tidak ditemukan`);
       return { success: false, message: 'Device tidak ditemukan' };
     }
     
@@ -646,14 +684,51 @@ async function updatePasswordOptimized(phone, newPassword) {
   try {
     console.log(`🔄 Optimized password update for phone: ${phone}`);
     
-    // Cari device berdasarkan nomor pelanggan
-    let device = await findDeviceByTag(phone);
+    // Cari device berdasarkan nomor pelanggan dengan multiple format
+    let device = null;
+    
+    // Method 1: Coba dengan format asli
+    device = await findDeviceByTag(phone);
+    
+    // Method 2: Jika gagal, coba dengan format alternatif
+    if (!device) {
+      const phoneVariants = [];
+      
+      // Jika format internasional (62), coba format lokal (0)
+      if (phone.startsWith('62')) {
+        phoneVariants.push('0' + phone.substring(2));
+      }
+      // Jika format lokal (0), coba format internasional (62)
+      else if (phone.startsWith('0')) {
+        phoneVariants.push('62' + phone.substring(1));
+      }
+      // Jika tanpa prefix, coba kedua format
+      else {
+        phoneVariants.push('0' + phone);
+        phoneVariants.push('62' + phone);
+      }
+      
+      // Coba setiap variant
+      for (const variant of phoneVariants) {
+        console.log(`🔍 Trying phone variant: ${variant}`);
+        device = await findDeviceByTag(variant);
+        if (device) {
+          console.log(`✅ Device found with variant: ${variant}`);
+          break;
+        }
+      }
+    }
+    
+    // Method 3: Jika masih gagal, coba dengan PPPoE username
     if (!device) {
       try {
         const customer = await billingManager.getCustomerByPhone(phone);
         if (customer && customer.pppoe_username) {
           const { findDeviceByPPPoE } = require('../config/genieacs');
           device = await findDeviceByPPPoE(customer.pppoe_username);
+          if (device) {
+            console.log(`✅ Device found by PPPoE username: ${customer.pppoe_username}`);
+          }
         }
       } catch (error) {
         console.error('Error finding device by PPPoE username:', error);
@@ -661,6 +736,7 @@ async function updatePasswordOptimized(phone, newPassword) {
     }
     
     if (!device) {
+      console.log(`❌ Password update failed for ${phone}: Device tidak ditemukan`);
       return { success: false, message: 'Device tidak ditemukan' };
     }
     

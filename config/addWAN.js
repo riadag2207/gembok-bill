@@ -183,7 +183,7 @@ async function findDeviceByTag(customerNumber) {
                 console.log(`📊 [FIND_DEVICE] Total devices in GenieACS: ${totalDevices}`);
                 
                 // Skip manual search jika terlalu banyak devices (performance issue)
-                if (totalDevices > 100) {
+                if (totalDevices > 200) {
                     console.log(`⚠️ [FIND_DEVICE] Too many devices (${totalDevices}), skipping manual search for performance`);
                     return null;
                 }
