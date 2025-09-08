@@ -928,13 +928,14 @@ async function sendVoucherWithRetry(phone, message, maxRetries = 3) {
             console.log(`Attempt ${attempt} to send voucher to ${phone}`);
             const result = await sendMessage(phone, message);
             
-            if (result.success) {
+            // sendMessage mengembalikan true/false, bukan object
+            if (result === true) {
                 console.log(`Successfully sent voucher to ${phone} on attempt ${attempt}`);
                 return { success: true, message: 'Voucher sent successfully' };
             } else {
-                console.log(`Attempt ${attempt} failed:`, result.message);
+                console.log(`Attempt ${attempt} failed: WhatsApp sendMessage returned false`);
                 if (attempt === maxRetries) {
-                    return { success: false, message: `Failed to send voucher after ${maxRetries} attempts: ${result.message}` };
+                    return { success: false, message: `Failed to send voucher after ${maxRetries} attempts: WhatsApp connection issue` };
                 }
             }
         } catch (error) {
@@ -953,12 +954,20 @@ async function logVoucherDelivery(purchaseId, phone, success, message) {
     const db = new sqlite3.Database('./data/billing.db');
     
     return new Promise((resolve, reject) => {
+        // Tentukan status berdasarkan success flag
+        const status = success ? 'sent' : 'failed';
+        
         db.run(`
-            INSERT INTO voucher_delivery_logs (purchase_id, customer_phone, success, message, created_at)
+            INSERT INTO voucher_delivery_logs (purchase_id, phone, status, error_message, created_at)
             VALUES (?, ?, ?, ?, datetime('now'))
-        `, [purchaseId, phone, success ? 1 : 0, message], (err) => {
-            if (err) reject(err);
-            else resolve();
+        `, [purchaseId, phone, status, message], (err) => {
+            if (err) {
+                console.error('Error logging voucher delivery:', err);
+                reject(err);
+            } else {
+                console.log(`Voucher delivery logged: ${phone} - ${status}`);
+                resolve();
+            }
             db.close();
         });
     });
