@@ -86,6 +86,15 @@
     <a href="/admin/logout">
         <i class="bi bi-box-arrow-right"></i> Logout
     </a>
+    <div class="mt-2" style="padding: 0 24px;">
+        <div class="mb-2">
+            <label class="form-label text-light" style="font-size: 12px;">Branch</label>
+            <input type="text" id="gitBranchInput" class="form-control form-control-sm" placeholder="mis. main" style="background:#3b4a5a;border:0;color:#fff;">
+        </div>
+        <button id="btnCheckUpdate" class="btn btn-sm btn-warning w-100 mb-2"><i class="bi bi-arrow-clockwise"></i> Check Update</button>
+        <button id="btnRunUpdate" class="btn btn-sm btn-danger w-100"><i class="bi bi-cloud-download"></i> Update & Restart</button>
+        <div id="updateResult" class="text-light mt-2" style="white-space: pre-wrap; font-size: 12px; display:none;"></div>
+    </div>
     
     <!-- Version Info Panel -->
     <div class="version-info-panel">
@@ -477,6 +486,58 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // System Update handlers
+    const btnCheck = document.getElementById('btnCheckUpdate');
+    const btnUpdate = document.getElementById('btnRunUpdate');
+    const resultBox = document.getElementById('updateResult');
+
+    function showUpdateResult(text, success = true) {
+        if (!resultBox) return;
+        resultBox.style.display = 'block';
+        resultBox.style.color = success ? '#c8e6c9' : '#ffcdd2';
+        resultBox.textContent = text;
+    }
+
+    if (btnCheck) {
+        btnCheck.addEventListener('click', async function() {
+            try {
+                showUpdateResult('Checking updates...', true);
+                const b = (document.getElementById('gitBranchInput') && document.getElementById('gitBranchInput').value.trim()) || '';
+                const url = b ? `/admin/billing/system/check-update?branch=${encodeURIComponent(b)}` : '/admin/billing/system/check-update';
+                const res = await fetch(url);
+                const data = await res.json();
+                if (!data.success) {
+                    showUpdateResult('Check update failed: ' + (data.message || 'Unknown error'), false);
+                    return;
+                }
+                const summary = data.hasUpdate
+                    ? `Update tersedia di branch ${data.branch}.\nLocal: ${data.local}\nRemote: ${data.remote}\nCommits:\n${data.commits || '(no list)'}`
+                    : `Tidak ada update.\nBranch: ${data.branch}\nLocal == Remote: ${data.local}`;
+                showUpdateResult(summary, true);
+            } catch (e) {
+                showUpdateResult('Check update error: ' + e.message, false);
+            }
+        });
+    }
+
+    if (btnUpdate) {
+        btnUpdate.addEventListener('click', async function() {
+            if (!confirm('Peringatan: mohon backup file settings.json terlebih dahulu. Lanjutkan update & restart?')) return;
+            try {
+                showUpdateResult('Running update... this may take a while.', true);
+                const b = (document.getElementById('gitBranchInput') && document.getElementById('gitBranchInput').value.trim()) || '';
+                const res = await fetch('/admin/billing/system/update', { method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify({ branch: b || undefined }) });
+                const data = await res.json();
+                if (!data.success) {
+                    showUpdateResult('Update failed: ' + (data.message || 'Unknown error') + '\n' + (data.error || '') + '\n' + (data.log || ''), false);
+                    return;
+                }
+                showUpdateResult('Update selesai. Aplikasi akan direload oleh PM2.\n' + (data.log || ''), true);
+            } catch (e) {
+                showUpdateResult('Update error: ' + e.message, false);
+            }
+        });
+    }
     // Auto refresh logo functionality (preserve existing functionality)
     function refreshLogo() {
         const logo = document.getElementById('logoImage');
