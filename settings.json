@@ -80,10 +80,9 @@
   "auto_suspension_enabled": true,
   "suspension_grace_period_days": "3",
   "default_pppoe_profile": "default",
-  "isolir_profile": "isolir",
-  "wifi_name": "Hotspot WiFi",
-  "hotspot_url": "http://192.168.88.1",
-  
+  "isolir_profile": "ISOLIR",
+  "static_ip_suspension_method": "address_list",
+  "suspension_bandwidth_limit": "1k/1k",
   "whatsapp_rate_limit": {
     "maxMessagesPerBatch": 10,
     "delayBetweenBatches": 30,
