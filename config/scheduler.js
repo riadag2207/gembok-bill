@@ -24,22 +24,8 @@ class InvoiceScheduler {
 
         logger.info('Invoice scheduler initialized - will run on 1st of every month at 08:00');
         
-        // Schedule daily invoice generation based on customer's billing_day at 08:10
-        // This generates invoices for customers whose billing_day equals today
-        cron.schedule('10 8 * * *', async () => {
-            try {
-                logger.info('Starting daily invoice generation by billing_day (08:10)...');
-                await this.generateDailyInvoicesByBillingDay();
-                logger.info('Daily invoice generation by billing_day completed');
-            } catch (error) {
-                logger.error('Error in daily invoice generation by billing_day:', error);
-            }
-        }, {
-            scheduled: true,
-            timezone: "Asia/Jakarta"
-        });
-        
-        logger.info('Daily invoice-by-billing_day scheduler initialized - will run daily at 08:10');
+        // Daily invoice generation by billing_day is disabled as per policy (only monthly on the 1st)
+        logger.info('Daily invoice-by-billing_day scheduler is DISABLED (only monthly on the 1st)');
         
         // Schedule daily due date reminders at 09:00
         cron.schedule('0 9 * * *', async () => {
