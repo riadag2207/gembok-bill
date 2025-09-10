@@ -443,6 +443,18 @@ router.delete('/:id', adminAuth, async (req, res) => {
     try {
         const technicianId = req.params.id;
 
+        // Check if technician has any installation jobs (all statuses)
+        const totalJobs = await new Promise((resolve, reject) => {
+            db.get(`
+                SELECT COUNT(*) as count 
+                FROM installation_jobs 
+                WHERE assigned_technician_id = ?
+            `, [technicianId], (err, row) => {
+                if (err) reject(err);
+                else resolve(row.count);
+            });
+        });
+
         // Check if technician has active installation jobs
         const activeJobs = await new Promise((resolve, reject) => {
             db.get(`
@@ -462,14 +474,32 @@ router.delete('/:id', adminAuth, async (req, res) => {
             });
         }
 
-        // Soft delete - set is_active to 0
+        // If technician has no jobs at all → perform HARD DELETE
+        if (totalJobs === 0) {
+            const hardResult = await new Promise((resolve, reject) => {
+                const delSql = `DELETE FROM technicians WHERE id = ?`;
+                db.run(delSql, [technicianId], function(err) {
+                    if (err) reject(err);
+                    else resolve({ changes: this.changes });
+                });
+            });
+
+            if (hardResult.changes > 0) {
+                logger.info(`Technician ${technicianId} hard deleted (no related jobs)`);
+                return res.json({ 
+                    success: true, 
+                    message: 'Teknisi berhasil dihapus permanen' 
+                });
+            }
+        }
+
+        // Otherwise do SOFT DELETE - set is_active to 0
         const result = await new Promise((resolve, reject) => {
             const sql = `
                 UPDATE technicians 
                 SET is_active = 0, updated_at = CURRENT_TIMESTAMP
                 WHERE id = ?
             `;
-            
             db.run(sql, [technicianId], function(err) {
                 if (err) reject(err);
                 else resolve({ changes: this.changes });
@@ -477,7 +507,7 @@ router.delete('/:id', adminAuth, async (req, res) => {
         });
 
         if (result.changes > 0) {
-            logger.info(`Technician ${technicianId} soft deleted`);
+            logger.info(`Technician ${technicianId} soft deleted (has historical jobs)`);
             
             res.json({ 
                 success: true, 
