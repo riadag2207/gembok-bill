@@ -1,4 +1,4 @@
-const { getSetting } = require('./settingsManager');
+const { getSetting, setSetting } = require('./settingsManager');
 const billingManager = require('./billing');
 const logger = require('./logger');
 const fs = require('fs');
@@ -352,12 +352,49 @@ Balas dengan: *BANTU* atau *HELP*
         });
     }
 
+    // Get rate limit settings
+    getRateLimitSettings() {
+        return {
+            maxMessagesPerBatch: getSetting('whatsapp_rate_limit.maxMessagesPerBatch', 10),
+            delayBetweenBatches: getSetting('whatsapp_rate_limit.delayBetweenBatches', 30),
+            delayBetweenMessages: getSetting('whatsapp_rate_limit.delayBetweenMessages', 2),
+            maxRetries: getSetting('whatsapp_rate_limit.maxRetries', 2),
+            dailyMessageLimit: getSetting('whatsapp_rate_limit.dailyMessageLimit', 0),
+            enabled: getSetting('whatsapp_rate_limit.enabled', true)
+        };
+    }
+
+    // Check daily message limit
+    checkDailyMessageLimit() {
+        const settings = this.getRateLimitSettings();
+        if (settings.dailyMessageLimit <= 0) return true; // No limit
+        
+        const today = new Date().toISOString().split('T')[0];
+        const dailyCount = getSetting(`whatsapp_daily_count.${today}`, 0);
+        
+        return dailyCount < settings.dailyMessageLimit;
+    }
+
+    // Increment daily message count
+    incrementDailyMessageCount() {
+        const today = new Date().toISOString().split('T')[0];
+        const currentCount = getSetting(`whatsapp_daily_count.${today}`, 0);
+        setSetting(`whatsapp_daily_count.${today}`, currentCount + 1);
+    }
+
     // Send notification with header and footer
     async sendNotification(phoneNumber, message, options = {}) {
         try {
             if (!this.sock) {
                 logger.error('WhatsApp sock not initialized');
                 return { success: false, error: 'WhatsApp not connected' };
+            }
+
+            // Check rate limiting
+            const settings = this.getRateLimitSettings();
+            if (settings.enabled && !this.checkDailyMessageLimit()) {
+                logger.warn(`Daily message limit reached (${settings.dailyMessageLimit}), skipping notification to ${phoneNumber}`);
+                return { success: false, error: 'Daily message limit reached' };
             }
 
             const formattedNumber = this.formatPhoneNumber(phoneNumber);
@@ -379,6 +416,9 @@ Balas dengan: *BANTU* atau *HELP*
                     if (fs.existsSync(imagePath)) {
                         await this.sock.sendMessage(jid, { image: { url: imagePath }, caption: fullMessage });
                         logger.info(`✅ WhatsApp image notification sent to ${phoneNumber} with image`);
+                        
+                        // Increment daily count
+                        this.incrementDailyMessageCount();
                         return { success: true, withImage: true };
                     } else {
                         logger.warn(`⚠️ Image not found at path: ${imagePath}, falling back to text message`);
@@ -392,11 +432,164 @@ Balas dengan: *BANTU* atau *HELP*
             await this.sock.sendMessage(jid, { text: fullMessage }, options);
             
             logger.info(`✅ WhatsApp text notification sent to ${phoneNumber}`);
+            
+            // Increment daily count
+            this.incrementDailyMessageCount();
             return { success: true, withImage: false };
         } catch (error) {
             logger.error(`Error sending WhatsApp notification to ${phoneNumber}:`, error);
             return { success: false, error: error.message };
         }
+    }
+
+    // Send bulk notifications with rate limiting
+    async sendBulkNotifications(notifications) {
+        try {
+            const settings = this.getRateLimitSettings();
+            
+            if (!settings.enabled) {
+                logger.info('Rate limiting disabled, sending all notifications immediately');
+                return await this.sendAllNotifications(notifications);
+            }
+
+            logger.info(`Sending ${notifications.length} notifications with rate limiting enabled`);
+            logger.info(`Settings: ${settings.maxMessagesPerBatch} per batch, ${settings.delayBetweenBatches}s between batches, ${settings.delayBetweenMessages}s between messages`);
+
+            const results = {
+                success: 0,
+                failed: 0,
+                skipped: 0,
+                errors: []
+            };
+
+            // Process notifications in batches
+            for (let i = 0; i < notifications.length; i += settings.maxMessagesPerBatch) {
+                const batch = notifications.slice(i, i + settings.maxMessagesPerBatch);
+                logger.info(`Processing batch ${Math.floor(i / settings.maxMessagesPerBatch) + 1}/${Math.ceil(notifications.length / settings.maxMessagesPerBatch)} (${batch.length} messages)`);
+
+                // Check daily limit before processing batch
+                if (!this.checkDailyMessageLimit()) {
+                    logger.warn(`Daily message limit reached, skipping remaining ${notifications.length - i} notifications`);
+                    results.skipped += notifications.length - i;
+                    break;
+                }
+
+                // Process each notification in the batch
+                for (let j = 0; j < batch.length; j++) {
+                    const notification = batch[j];
+                    
+                    // Check daily limit for each message
+                    if (!this.checkDailyMessageLimit()) {
+                        logger.warn(`Daily message limit reached, skipping remaining ${batch.length - j} messages in current batch`);
+                        results.skipped += batch.length - j;
+                        break;
+                    }
+
+                    try {
+                        const result = await this.sendNotificationWithRetry(notification.phoneNumber, notification.message, notification.options);
+                        
+                        if (result.success) {
+                            results.success++;
+                        } else {
+                            results.failed++;
+                            results.errors.push(`${notification.phoneNumber}: ${result.error}`);
+                        }
+                    } catch (error) {
+                        results.failed++;
+                        results.errors.push(`${notification.phoneNumber}: ${error.message}`);
+                        logger.error(`Error sending notification to ${notification.phoneNumber}:`, error);
+                    }
+
+                    // Add delay between messages within batch
+                    if (j < batch.length - 1 && settings.delayBetweenMessages > 0) {
+                        await this.delay(settings.delayBetweenMessages * 1000);
+                    }
+                }
+
+                // Add delay between batches
+                if (i + settings.maxMessagesPerBatch < notifications.length && settings.delayBetweenBatches > 0) {
+                    logger.info(`Waiting ${settings.delayBetweenBatches} seconds before next batch...`);
+                    await this.delay(settings.delayBetweenBatches * 1000);
+                }
+            }
+
+            logger.info(`Bulk notification completed: ${results.success} success, ${results.failed} failed, ${results.skipped} skipped`);
+            return results;
+
+        } catch (error) {
+            logger.error('Error in sendBulkNotifications:', error);
+            return {
+                success: 0,
+                failed: notifications.length,
+                skipped: 0,
+                errors: [`Bulk send error: ${error.message}`]
+            };
+        }
+    }
+
+    // Send notification with retry logic
+    async sendNotificationWithRetry(phoneNumber, message, options = {}, retryCount = 0) {
+        const settings = this.getRateLimitSettings();
+        const maxRetries = settings.maxRetries;
+
+        try {
+            const result = await this.sendNotification(phoneNumber, message, options);
+            
+            if (result.success) {
+                return result;
+            }
+
+            // Retry if failed and retry count not exceeded
+            if (retryCount < maxRetries) {
+                logger.warn(`Retry ${retryCount + 1}/${maxRetries} for ${phoneNumber}: ${result.error}`);
+                await this.delay(2000 * (retryCount + 1)); // Exponential backoff
+                return await this.sendNotificationWithRetry(phoneNumber, message, options, retryCount + 1);
+            }
+
+            return result;
+        } catch (error) {
+            if (retryCount < maxRetries) {
+                logger.warn(`Retry ${retryCount + 1}/${maxRetries} for ${phoneNumber}: ${error.message}`);
+                await this.delay(2000 * (retryCount + 1)); // Exponential backoff
+                return await this.sendNotificationWithRetry(phoneNumber, message, options, retryCount + 1);
+            }
+
+            return { success: false, error: error.message };
+        }
+    }
+
+    // Send all notifications without rate limiting
+    async sendAllNotifications(notifications) {
+        const results = {
+            success: 0,
+            failed: 0,
+            skipped: 0,
+            errors: []
+        };
+
+        for (const notification of notifications) {
+            try {
+                const result = await this.sendNotification(notification.phoneNumber, notification.message, notification.options);
+                
+                if (result.success) {
+                    results.success++;
+                } else {
+                    results.failed++;
+                    results.errors.push(`${notification.phoneNumber}: ${result.error}`);
+                }
+            } catch (error) {
+                results.failed++;
+                results.errors.push(`${notification.phoneNumber}: ${error.message}`);
+                logger.error(`Error sending notification to ${notification.phoneNumber}:`, error);
+            }
+        }
+
+        return results;
+    }
+
+    // Utility function for delays
+    delay(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
     }
 
     // Send invoice created notification
@@ -552,23 +745,23 @@ Balas dengan: *BANTU* atau *HELP*
                 data
             );
 
-            let successCount = 0;
-            let errorCount = 0;
+            // Prepare notifications for bulk sending
+            const notifications = activeCustomers.map(customer => ({
+                phoneNumber: customer.phone,
+                message: message,
+                options: {}
+            }));
 
-            for (const customer of activeCustomers) {
-                const result = await this.sendNotification(customer.phone, message);
-                if (result.success) {
-                    successCount++;
-                } else {
-                    errorCount++;
-                }
-            }
+            // Use bulk notifications with rate limiting
+            const result = await this.sendBulkNotifications(notifications);
 
             return {
                 success: true,
-                sent: successCount,
-                failed: errorCount,
-                total: activeCustomers.length
+                sent: result.success,
+                failed: result.failed,
+                skipped: result.skipped,
+                total: activeCustomers.length,
+                errors: result.errors
             };
         } catch (error) {
             logger.error('Error sending service disruption notification:', error);
@@ -597,23 +790,23 @@ Balas dengan: *BANTU* atau *HELP*
                 data
             );
 
-            let successCount = 0;
-            let errorCount = 0;
+            // Prepare notifications for bulk sending
+            const notifications = activeCustomers.map(customer => ({
+                phoneNumber: customer.phone,
+                message: message,
+                options: {}
+            }));
 
-            for (const customer of activeCustomers) {
-                const result = await this.sendNotification(customer.phone, message);
-                if (result.success) {
-                    successCount++;
-                } else {
-                    errorCount++;
-                }
-            }
+            // Use bulk notifications with rate limiting
+            const result = await this.sendBulkNotifications(notifications);
 
             return {
                 success: true,
-                sent: successCount,
-                failed: errorCount,
-                total: activeCustomers.length
+                sent: result.success,
+                failed: result.failed,
+                skipped: result.skipped,
+                total: activeCustomers.length,
+                errors: result.errors
             };
         } catch (error) {
             logger.error('Error sending service announcement:', error);

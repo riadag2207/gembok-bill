@@ -972,6 +972,93 @@ router.post('/whatsapp-settings/templates', async (req, res) => {
     }
 });
 
+// Get WhatsApp rate limit settings
+router.get('/whatsapp-settings/rate-limit', async (req, res) => {
+    try {
+        const settings = {
+            maxMessagesPerBatch: getSetting('whatsapp_rate_limit.maxMessagesPerBatch', 10),
+            delayBetweenBatches: getSetting('whatsapp_rate_limit.delayBetweenBatches', 30),
+            delayBetweenMessages: getSetting('whatsapp_rate_limit.delayBetweenMessages', 2),
+            maxRetries: getSetting('whatsapp_rate_limit.maxRetries', 2),
+            dailyMessageLimit: getSetting('whatsapp_rate_limit.dailyMessageLimit', 0),
+            enabled: getSetting('whatsapp_rate_limit.enabled', true)
+        };
+        
+        res.json({
+            success: true,
+            settings: settings
+        });
+    } catch (error) {
+        logger.error('Error getting WhatsApp rate limit settings:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error getting rate limit settings: ' + error.message
+        });
+    }
+});
+
+// Save WhatsApp rate limit settings
+router.post('/whatsapp-settings/rate-limit', async (req, res) => {
+    try {
+        const { maxMessagesPerBatch, delayBetweenBatches, delayBetweenMessages, maxRetries, dailyMessageLimit, enabled } = req.body;
+        
+        // Validate input
+        if (maxMessagesPerBatch < 1 || maxMessagesPerBatch > 100) {
+            return res.status(400).json({
+                success: false,
+                message: 'Maksimal pesan per batch harus antara 1-100'
+            });
+        }
+        
+        if (delayBetweenBatches < 1 || delayBetweenBatches > 300) {
+            return res.status(400).json({
+                success: false,
+                message: 'Jeda antar batch harus antara 1-300 detik'
+            });
+        }
+        
+        if (delayBetweenMessages < 0 || delayBetweenMessages > 10) {
+            return res.status(400).json({
+                success: false,
+                message: 'Jeda antar pesan harus antara 0-10 detik'
+            });
+        }
+        
+        if (maxRetries < 0 || maxRetries > 5) {
+            return res.status(400).json({
+                success: false,
+                message: 'Maksimal retry harus antara 0-5'
+            });
+        }
+        
+        if (dailyMessageLimit < 0 || dailyMessageLimit > 1000) {
+            return res.status(400).json({
+                success: false,
+                message: 'Batas harian harus antara 0-1000'
+            });
+        }
+        
+        // Save settings
+        setSetting('whatsapp_rate_limit.maxMessagesPerBatch', parseInt(maxMessagesPerBatch));
+        setSetting('whatsapp_rate_limit.delayBetweenBatches', parseInt(delayBetweenBatches));
+        setSetting('whatsapp_rate_limit.delayBetweenMessages', parseInt(delayBetweenMessages));
+        setSetting('whatsapp_rate_limit.maxRetries', parseInt(maxRetries));
+        setSetting('whatsapp_rate_limit.dailyMessageLimit', parseInt(dailyMessageLimit));
+        setSetting('whatsapp_rate_limit.enabled', enabled === true || enabled === 'true');
+        
+        res.json({
+            success: true,
+            message: 'Pengaturan rate limiting berhasil disimpan'
+        });
+    } catch (error) {
+        logger.error('Error saving WhatsApp rate limit settings:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error saving rate limit settings: ' + error.message
+        });
+    }
+});
+
 // Get WhatsApp status
 router.get('/whatsapp-settings/status', async (req, res) => {
     try {
