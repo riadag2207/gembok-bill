@@ -4,6 +4,7 @@ const billingManager = require('../config/billing');
 const logger = require('../config/logger');
 const serviceSuspension = require('../config/serviceSuspension');
 const { getSetting, getSettingsWithCache, setSetting, clearSettingsCache } = require('../config/settingsManager');
+const { exec } = require('child_process');
 const multer = require('multer');
 const upload = multer();
 const ExcelJS = require('exceljs');
@@ -1131,6 +1132,81 @@ router.post('/whatsapp-settings/groups', async (req, res) => {
     } catch (error) {
         logger.error('Error saving WhatsApp groups:', error);
         res.status(500).json({ success: false, message: 'Error saving WhatsApp groups: ' + error.message });
+    }
+});
+
+// ===== System Update (Git + PM2) =====
+// Check update status: compare local HEAD with origin/<branch>
+router.get('/system/check-update', async (req, res) => {
+    try {
+        const branch = (req.query.branch && String(req.query.branch).trim()) || getSetting('git_default_branch', 'main');
+        const repoPath = getSetting('repo_path', process.cwd());
+        const opts = { cwd: repoPath, windowsHide: true, shell: process.platform === 'win32' ? undefined : '/bin/bash' };
+
+        exec('git fetch --all --prune', opts, (errFetch, outFetch, errFetchStderr) => {
+            if (errFetch) {
+                return res.status(500).json({ success: false, message: 'Check update failed', error: errFetchStderr || errFetch.message, log: outFetch, repoPath });
+            }
+            exec('git rev-parse HEAD', opts, (errHead, outHead, errHeadStderr) => {
+                if (errHead) {
+                    return res.status(500).json({ success: false, message: 'Check update failed', error: errHeadStderr || errHead.message, log: outHead, repoPath });
+                }
+                exec(`git rev-parse origin/${branch}`, opts, (errRemote, outRemote, errRemoteStderr) => {
+                    if (errRemote) {
+                        return res.status(500).json({ success: false, message: 'Check update failed', error: errRemoteStderr || errRemote.message, log: outRemote, repoPath });
+                    }
+                    exec(`git log --oneline --decorate --no-merges --max-count=10 --graph HEAD..origin/${branch}`, opts, (errLog, outLog, errLogStderr) => {
+                        if (errLog) {
+                            // log dapat kosong bila tidak ada update; treat as success dengan commits kosong
+                            return res.json({ success: true, hasUpdate: outHead.trim() !== outRemote.trim(), branch, local: outHead.trim(), remote: outRemote.trim(), commits: '', repoPath });
+                        }
+                        const local = outHead.trim();
+                        const remote = outRemote.trim();
+                        const hasUpdate = local !== remote;
+                        res.json({ success: true, hasUpdate, branch, local, remote, commits: outLog.trim(), repoPath });
+                    });
+                });
+            });
+        });
+    } catch (e) {
+        res.status(500).json({ success: false, message: 'Unexpected error', error: e.message });
+    }
+});
+
+// Run update: git reset to origin/<branch> + npm ci + pm2 reload
+router.post('/system/update', async (req, res) => {
+    try {
+        const branch = (req.body && req.body.branch && String(req.body.branch).trim()) || getSetting('git_default_branch', 'main');
+        const appName = getSetting('pm2_app_name', 'gembok-bill');
+        const repoPath = getSetting('repo_path', process.cwd());
+        const opts = { cwd: repoPath, windowsHide: true, shell: process.platform === 'win32' ? undefined : '/bin/bash' };
+
+        const updateCmd = [
+            `git fetch --all --prune`,
+            `git reset --hard origin/${branch}`,
+            `npm ci || npm install`
+        ].join(' && ');
+
+        exec(updateCmd, opts, (error, stdout, stderr) => {
+            if (error) {
+                return res.status(500).json({ success: false, message: 'Update failed', error: stderr || error.message, log: stdout, repoPath });
+            }
+            const pm2Target = getSetting('pm2_restart_target', appName);
+            if (!pm2Target) {
+                return res.json({ success: true, message: 'Update completed (PM2 restart skipped - no target)', log: stdout, repoPath });
+            }
+            const pm2Cmd = `pm2 restart ${pm2Target} || pm2 reload ${pm2Target}`;
+            exec(pm2Cmd, opts, (pm2Err, pm2Out, pm2ErrStderr) => {
+                if (pm2Err) {
+                    return res.status(200).json({ success: true, message: 'Update completed, PM2 restart failed', log: stdout + '\n' + pm2Out, pm2Error: pm2ErrStderr || pm2Err.message, repoPath });
+                }
+                exec('pm2 save', opts, () => {
+                    return res.json({ success: true, message: 'Update completed & PM2 restarted', log: stdout + '\n' + pm2Out, repoPath });
+                });
+            });
+        });
+    } catch (e) {
+        res.status(500).json({ success: false, message: 'Unexpected error', error: e.message });
     }
 });
 
