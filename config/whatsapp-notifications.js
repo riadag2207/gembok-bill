@@ -527,6 +527,58 @@ Balas dengan: *BANTU* atau *HELP*
         }
     }
 
+    // Send message to configured WhatsApp groups (no template replacements here)
+    async sendToConfiguredGroups(message) {
+        try {
+            const enabled = getSetting('whatsapp_groups.enabled', true);
+            if (!enabled) {
+                return { success: true, sent: 0, failed: 0, skipped: 0 };
+            }
+
+            let ids = getSetting('whatsapp_groups.ids', []);
+            if (!Array.isArray(ids)) {
+                // collect numeric keys for compatibility
+                const asObj = getSetting('whatsapp_groups', {});
+                ids = [];
+                Object.keys(asObj).forEach(k => {
+                    if (k.match(/^ids\.\d+$/)) {
+                        ids.push(asObj[k]);
+                    }
+                });
+            }
+
+            if (!this.sock) {
+                logger.error('WhatsApp sock not initialized');
+                return { success: false, sent: 0, failed: ids.length, skipped: 0, error: 'WhatsApp not connected' };
+            }
+
+            let sent = 0;
+            let failed = 0;
+
+            const companyHeader = getSetting('company_header', '📱 ALIJAYA DIGITAL NETWORK 📱\n\n');
+            const footerSeparator = '\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
+            const footerInfo = footerSeparator + getSetting('footer_info', 'Powered by Alijaya Digital Network');
+            const fullMessage = `${companyHeader}${message}${footerInfo}`;
+
+            for (const gid of ids) {
+                try {
+                    await this.sock.sendMessage(gid, { text: fullMessage });
+                    sent++;
+                    // small delay between group messages to avoid rate limit
+                    await this.delay(1000);
+                } catch (e) {
+                    failed++;
+                    logger.error(`Failed sending to group ${gid}:`, e);
+                }
+            }
+
+            return { success: true, sent, failed, skipped: 0 };
+        } catch (error) {
+            logger.error('Error sending to configured groups:', error);
+            return { success: false, sent: 0, failed: 0, skipped: 0, error: error.message };
+        }
+    }
+
     // Send notification with retry logic
     async sendNotificationWithRetry(phoneNumber, message, options = {}, retryCount = 0) {
         const settings = this.getRateLimitSettings();
@@ -755,13 +807,21 @@ Balas dengan: *BANTU* atau *HELP*
             // Use bulk notifications with rate limiting
             const result = await this.sendBulkNotifications(notifications);
 
+            // Also send to configured groups
+            const groupMessage = message;
+            const groupRes = await this.sendToConfiguredGroups(groupMessage);
+
             return {
                 success: true,
-                sent: result.success,
-                failed: result.failed,
-                skipped: result.skipped,
+                sent: result.success + (groupRes.sent || 0),
+                failed: result.failed + (groupRes.failed || 0),
+                skipped: result.skipped + (groupRes.skipped || 0),
                 total: activeCustomers.length,
-                errors: result.errors
+                errors: result.errors,
+                customer_sent: result.success,
+                customer_failed: result.failed,
+                group_sent: groupRes.sent || 0,
+                group_failed: groupRes.failed || 0
             };
         } catch (error) {
             logger.error('Error sending service disruption notification:', error);
@@ -800,13 +860,21 @@ Balas dengan: *BANTU* atau *HELP*
             // Use bulk notifications with rate limiting
             const result = await this.sendBulkNotifications(notifications);
 
+            // Also send to configured groups
+            const groupMessage = message;
+            const groupRes = await this.sendToConfiguredGroups(groupMessage);
+
             return {
                 success: true,
-                sent: result.success,
-                failed: result.failed,
-                skipped: result.skipped,
+                sent: result.success + (groupRes.sent || 0),
+                failed: result.failed + (groupRes.failed || 0),
+                skipped: result.skipped + (groupRes.skipped || 0),
                 total: activeCustomers.length,
-                errors: result.errors
+                errors: result.errors,
+                customer_sent: result.success,
+                customer_failed: result.failed,
+                group_sent: groupRes.sent || 0,
+                group_failed: groupRes.failed || 0
             };
         } catch (error) {
             logger.error('Error sending service announcement:', error);

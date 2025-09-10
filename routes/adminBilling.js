@@ -3,7 +3,7 @@ const router = express.Router();
 const billingManager = require('../config/billing');
 const logger = require('../config/logger');
 const serviceSuspension = require('../config/serviceSuspension');
-const { getSetting, getSettingsWithCache, setSetting } = require('../config/settingsManager');
+const { getSetting, getSettingsWithCache, setSetting, clearSettingsCache } = require('../config/settingsManager');
 const multer = require('multer');
 const upload = multer();
 const ExcelJS = require('exceljs');
@@ -975,7 +975,16 @@ router.post('/whatsapp-settings/templates', async (req, res) => {
 // Get WhatsApp rate limit settings
 router.get('/whatsapp-settings/rate-limit', async (req, res) => {
     try {
-        const settings = {
+        // Prefer nested object if exists, fallback to flattened keys
+        const nested = getSetting('whatsapp_rate_limit', null);
+        const settings = nested && typeof nested === 'object' ? {
+            maxMessagesPerBatch: nested.maxMessagesPerBatch ?? 10,
+            delayBetweenBatches: nested.delayBetweenBatches ?? 30,
+            delayBetweenMessages: nested.delayBetweenMessages ?? 2,
+            maxRetries: nested.maxRetries ?? 2,
+            dailyMessageLimit: nested.dailyMessageLimit ?? 0,
+            enabled: nested.enabled ?? true
+        } : {
             maxMessagesPerBatch: getSetting('whatsapp_rate_limit.maxMessagesPerBatch', 10),
             delayBetweenBatches: getSetting('whatsapp_rate_limit.delayBetweenBatches', 30),
             delayBetweenMessages: getSetting('whatsapp_rate_limit.delayBetweenMessages', 2),
@@ -1039,12 +1048,25 @@ router.post('/whatsapp-settings/rate-limit', async (req, res) => {
         }
         
         // Save settings
-        setSetting('whatsapp_rate_limit.maxMessagesPerBatch', parseInt(maxMessagesPerBatch));
-        setSetting('whatsapp_rate_limit.delayBetweenBatches', parseInt(delayBetweenBatches));
-        setSetting('whatsapp_rate_limit.delayBetweenMessages', parseInt(delayBetweenMessages));
-        setSetting('whatsapp_rate_limit.maxRetries', parseInt(maxRetries));
-        setSetting('whatsapp_rate_limit.dailyMessageLimit', parseInt(dailyMessageLimit));
-        setSetting('whatsapp_rate_limit.enabled', enabled === true || enabled === 'true');
+        const parsed = {
+            maxMessagesPerBatch: parseInt(maxMessagesPerBatch),
+            delayBetweenBatches: parseInt(delayBetweenBatches),
+            delayBetweenMessages: parseInt(delayBetweenMessages),
+            maxRetries: parseInt(maxRetries),
+            dailyMessageLimit: parseInt(dailyMessageLimit),
+            enabled: (enabled === true || enabled === 'true')
+        };
+        // Save flattened keys for backward compatibility
+        setSetting('whatsapp_rate_limit.maxMessagesPerBatch', parsed.maxMessagesPerBatch);
+        setSetting('whatsapp_rate_limit.delayBetweenBatches', parsed.delayBetweenBatches);
+        setSetting('whatsapp_rate_limit.delayBetweenMessages', parsed.delayBetweenMessages);
+        setSetting('whatsapp_rate_limit.maxRetries', parsed.maxRetries);
+        setSetting('whatsapp_rate_limit.dailyMessageLimit', parsed.dailyMessageLimit);
+        setSetting('whatsapp_rate_limit.enabled', parsed.enabled);
+        // Also save as nested object for readability
+        setSetting('whatsapp_rate_limit', parsed);
+        // Ensure new reads reflect immediately
+        clearSettingsCache();
         
         res.json({
             success: true,
@@ -1056,6 +1078,59 @@ router.post('/whatsapp-settings/rate-limit', async (req, res) => {
             success: false,
             message: 'Error saving rate limit settings: ' + error.message
         });
+    }
+});
+
+// WhatsApp Groups Settings
+router.get('/whatsapp-settings/groups', async (req, res) => {
+    try {
+        // Prefer nested object if exists
+        const nested = getSetting('whatsapp_groups', null);
+        const enabled = nested && typeof nested === 'object' ? (nested.enabled !== false) : getSetting('whatsapp_groups.enabled', true);
+        // groups can be stored as array or object with numeric keys
+        let ids = nested && Array.isArray(nested.ids) ? nested.ids : getSetting('whatsapp_groups.ids', []);
+        if (!Array.isArray(ids)) {
+            const asObj = getSetting('whatsapp_groups', {});
+            ids = [];
+            Object.keys(asObj).forEach(k => {
+                if (k.match(/^ids\.\d+$/)) {
+                    ids.push(asObj[k]);
+                }
+            });
+        }
+        res.json({ success: true, groups: { enabled, ids } });
+    } catch (error) {
+        logger.error('Error getting WhatsApp groups:', error);
+        res.status(500).json({ success: false, message: 'Error getting WhatsApp groups: ' + error.message });
+    }
+});
+
+router.post('/whatsapp-settings/groups', async (req, res) => {
+    try {
+        const enabled = req.body.enabled === true || req.body.enabled === 'true';
+        const ids = Array.isArray(req.body.ids) ? req.body.ids : [];
+
+        // Basic validation for WhatsApp group JIDs
+        for (const id of ids) {
+            if (typeof id !== 'string' || !id.endsWith('@g.us')) {
+                return res.status(400).json({ success: false, message: `Invalid group id: ${id}` });
+            }
+        }
+
+        // Save flattened keys
+        setSetting('whatsapp_groups.enabled', enabled);
+        setSetting('whatsapp_groups.ids', ids);
+        // Save nested object for readability
+        setSetting('whatsapp_groups', { enabled, ids });
+        // Also write numeric keys for compatibility
+        ids.forEach((val, idx) => setSetting(`whatsapp_groups.ids.${idx}`, val));
+        // Ensure cache refresh
+        clearSettingsCache();
+
+        res.json({ success: true, message: 'WhatsApp groups updated' });
+    } catch (error) {
+        logger.error('Error saving WhatsApp groups:', error);
+        res.status(500).json({ success: false, message: 'Error saving WhatsApp groups: ' + error.message });
     }
 });
 
@@ -1201,7 +1276,11 @@ router.post('/whatsapp-settings/broadcast', async (req, res) => {
                 sent: result.sent,
                 failed: result.failed,
                 total: result.total,
-                message: `Broadcast sent successfully. Sent: ${result.sent}, Failed: ${result.failed}`
+                customer_sent: result.customer_sent || 0,
+                customer_failed: result.customer_failed || 0,
+                group_sent: result.group_sent || 0,
+                group_failed: result.group_failed || 0,
+                message: `Broadcast sent successfully. Customer: ${result.customer_sent || 0} ok / ${result.customer_failed || 0} fail, Group: ${result.group_sent || 0} ok / ${result.group_failed || 0} fail`
             });
         } else {
             res.json({
