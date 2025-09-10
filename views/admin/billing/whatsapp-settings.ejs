@@ -173,6 +173,109 @@
                     </div>
                 </div>
                 
+                <!-- Rate Limiting Settings Section -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="template-card">
+                            <div class="template-header">
+                                <h4 class="template-title">
+                                    <i class="bi bi-speedometer2"></i> Rate Limiting Settings
+                                </h4>
+                            </div>
+                            
+                            <div class="template-description">
+                                Konfigurasi pengaturan pengiriman pesan untuk menghindari pemblokiran dari WhatsApp. Atur jumlah pesan maksimal per batch dan jeda waktu antar pengiriman.
+                            </div>
+                            
+                            <form id="rateLimitForm">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="maxMessagesPerBatch" class="form-label">
+                                                <i class="bi bi-envelope"></i> Maksimal Pesan per Batch
+                                            </label>
+                                            <input type="number" class="form-control" id="maxMessagesPerBatch" 
+                                                   min="1" max="100" value="10" 
+                                                   placeholder="Jumlah pesan maksimal yang dikirim sekaligus">
+                                            <div class="form-text">Rekomendasi: 5-20 pesan per batch untuk menghindari pemblokiran</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="delayBetweenBatches" class="form-label">
+                                                <i class="bi bi-clock"></i> Jeda Antar Batch (detik)
+                                            </label>
+                                            <input type="number" class="form-control" id="delayBetweenBatches" 
+                                                   min="1" max="300" value="30" 
+                                                   placeholder="Jeda waktu antar batch pengiriman">
+                                            <div class="form-text">Rekomendasi: 30-60 detik untuk keamanan</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="delayBetweenMessages" class="form-label">
+                                                <i class="bi bi-hourglass-split"></i> Jeda Antar Pesan (detik)
+                                            </label>
+                                            <input type="number" class="form-control" id="delayBetweenMessages" 
+                                                   min="0" max="10" value="2" 
+                                                   placeholder="Jeda waktu antar pesan dalam batch">
+                                            <div class="form-text">Rekomendasi: 1-3 detik untuk stabilitas</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="maxRetries" class="form-label">
+                                                <i class="bi bi-arrow-repeat"></i> Maksimal Retry
+                                            </label>
+                                            <input type="number" class="form-control" id="maxRetries" 
+                                                   min="0" max="5" value="2" 
+                                                   placeholder="Jumlah percobaan ulang jika gagal">
+                                            <div class="form-text">Rekomendasi: 2-3 kali untuk efisiensi</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="dailyMessageLimit" class="form-label">
+                                                <i class="bi bi-calendar-day"></i> Batas Harian (opsional)
+                                            </label>
+                                            <input type="number" class="form-control" id="dailyMessageLimit" 
+                                                   min="0" max="1000" value="0" 
+                                                   placeholder="0 = tidak terbatas">
+                                            <div class="form-text">Batasi total pesan per hari (0 = tidak terbatas)</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <div class="form-check form-switch mt-4">
+                                                <input class="form-check-input" type="checkbox" id="enableRateLimit" checked>
+                                                <label class="form-check-label" for="enableRateLimit">
+                                                    <strong>Aktifkan Rate Limiting</strong>
+                                                </label>
+                                            </div>
+                                            <div class="form-text">Nonaktifkan untuk pengiriman tanpa batasan (tidak disarankan)</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-3">
+                                    <button type="button" class="btn btn-primary" onclick="saveRateLimitSettings()">
+                                        <i class="bi bi-save"></i> Simpan Pengaturan Rate Limiting
+                                    </button>
+                                    <button type="button" class="btn btn-warning ms-2" onclick="resetRateLimitSettings()">
+                                        <i class="bi bi-arrow-clockwise"></i> Reset ke Default
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
                 <!-- Templates Section -->
                 <div class="row">
                     <div class="col-12">
@@ -513,6 +616,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         loadTemplates();
         loadStatus();
+        loadRateLimitSettings();
     });
 
     // Load templates from server
@@ -794,6 +898,99 @@
         // Initial status update
         updateTemplateStatus();
     });
+    
+    // Load rate limit settings
+    async function loadRateLimitSettings() {
+        try {
+            const response = await fetch('/admin/billing/whatsapp-settings/rate-limit');
+            const data = await response.json();
+            
+            if (data.success) {
+                const settings = data.settings;
+                document.getElementById('maxMessagesPerBatch').value = settings.maxMessagesPerBatch || 10;
+                document.getElementById('delayBetweenBatches').value = settings.delayBetweenBatches || 30;
+                document.getElementById('delayBetweenMessages').value = settings.delayBetweenMessages || 2;
+                document.getElementById('maxRetries').value = settings.maxRetries || 2;
+                document.getElementById('dailyMessageLimit').value = settings.dailyMessageLimit || 0;
+                document.getElementById('enableRateLimit').checked = settings.enabled !== false;
+            }
+        } catch (error) {
+            console.error('Error loading rate limit settings:', error);
+            showAlert('Error loading rate limit settings', 'danger');
+        }
+    }
+    
+    // Save rate limit settings
+    async function saveRateLimitSettings() {
+        try {
+            const settings = {
+                maxMessagesPerBatch: parseInt(document.getElementById('maxMessagesPerBatch').value) || 10,
+                delayBetweenBatches: parseInt(document.getElementById('delayBetweenBatches').value) || 30,
+                delayBetweenMessages: parseInt(document.getElementById('delayBetweenMessages').value) || 2,
+                maxRetries: parseInt(document.getElementById('maxRetries').value) || 2,
+                dailyMessageLimit: parseInt(document.getElementById('dailyMessageLimit').value) || 0,
+                enabled: document.getElementById('enableRateLimit').checked
+            };
+            
+            // Validate settings
+            if (settings.maxMessagesPerBatch < 1 || settings.maxMessagesPerBatch > 100) {
+                showAlert('Maksimal pesan per batch harus antara 1-100', 'danger');
+                return;
+            }
+            
+            if (settings.delayBetweenBatches < 1 || settings.delayBetweenBatches > 300) {
+                showAlert('Jeda antar batch harus antara 1-300 detik', 'danger');
+                return;
+            }
+            
+            if (settings.delayBetweenMessages < 0 || settings.delayBetweenMessages > 10) {
+                showAlert('Jeda antar pesan harus antara 0-10 detik', 'danger');
+                return;
+            }
+            
+            if (settings.maxRetries < 0 || settings.maxRetries > 5) {
+                showAlert('Maksimal retry harus antara 0-5', 'danger');
+                return;
+            }
+            
+            if (settings.dailyMessageLimit < 0 || settings.dailyMessageLimit > 1000) {
+                showAlert('Batas harian harus antara 0-1000', 'danger');
+                return;
+            }
+            
+            const response = await fetch('/admin/billing/whatsapp-settings/rate-limit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(settings)
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                showAlert('Pengaturan rate limiting berhasil disimpan!', 'success');
+            } else {
+                showAlert('Error menyimpan pengaturan: ' + data.message, 'danger');
+            }
+        } catch (error) {
+            console.error('Error saving rate limit settings:', error);
+            showAlert('Error menyimpan pengaturan rate limiting', 'danger');
+        }
+    }
+    
+    // Reset rate limit settings to default
+    function resetRateLimitSettings() {
+        if (confirm('Apakah Anda yakin ingin mereset pengaturan ke default?')) {
+            document.getElementById('maxMessagesPerBatch').value = 10;
+            document.getElementById('delayBetweenBatches').value = 30;
+            document.getElementById('delayBetweenMessages').value = 2;
+            document.getElementById('maxRetries').value = 2;
+            document.getElementById('dailyMessageLimit').value = 0;
+            document.getElementById('enableRateLimit').checked = true;
+            showAlert('Pengaturan telah direset ke default', 'info');
+        }
+    }
     </script>
 </body>
 </html> 
