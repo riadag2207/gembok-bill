@@ -81,8 +81,17 @@
   "suspension_grace_period_days": "3",
   "default_pppoe_profile": "default",
   "isolir_profile": "isolir",
-  "static_ip_suspension_method": "address_list",
-  "suspension_bandwidth_limit": "1k/1k",
+  "wifi_name": "Hotspot WiFi",
+  "hotspot_url": "http://192.168.88.1",
+  
+  "whatsapp_rate_limit": {
+    "maxMessagesPerBatch": 10,
+    "delayBetweenBatches": 30,
+    "delayBetweenMessages": 2,
+    "maxRetries": 2,
+    "dailyMessageLimit": 0,
+    "enabled": true
+  },
   "app_version": "2.1.0",
   "version_name": "WhatsApp Modular + Role System + Network Mapping",
   "version_date": "2025-01-27",
