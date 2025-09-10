@@ -276,6 +276,57 @@
                     </div>
                 </div>
                 
+                <!-- WhatsApp Groups Settings Section -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="template-card">
+                            <div class="template-header">
+                                <h4 class="template-title">
+                                    <i class="bi bi-people-fill"></i> WhatsApp Groups
+                                </h4>
+                            </div>
+
+                            <div class="template-description">
+                                Atur daftar Group WhatsApp untuk menerima broadcast (pengumuman/gangguan) secara otomatis.
+                            </div>
+
+                            <form id="waGroupForm">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox" id="waGroupsEnabled" checked>
+                                            <label class="form-check-label" for="waGroupsEnabled">
+                                                <strong>Aktifkan Kirim ke Group</strong>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="mb-3">
+                                            <label for="waGroupIds" class="form-label">
+                                                <i class="bi bi-hash"></i> Group IDs (satu per baris)
+                                            </label>
+                                            <textarea class="form-control" id="waGroupIds" rows="4" placeholder="1203630xxxxxxxx@g.us\n12036yyyyyyyy@g.us"></textarea>
+                                            <div class="form-text">Gunakan JID group WhatsApp, contoh: 120363031495796203@g.us. Baris kosong akan diabaikan.</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-3">
+                                    <button type="button" class="btn btn-primary" onclick="saveWAGroups()">
+                                        <i class="bi bi-save"></i> Simpan Pengaturan Group
+                                    </button>
+                                    <button type="button" class="btn btn-warning ms-2" onclick="resetWAGroupsToDefault()">
+                                        <i class="bi bi-arrow-clockwise"></i> Reset
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
                 <!-- Templates Section -->
                 <div class="row">
                     <div class="col-12">
@@ -617,6 +668,29 @@
         loadTemplates();
         loadStatus();
         loadRateLimitSettings();
+        loadWAGroups();
+
+        // Auto-save on toggle change: Rate Limit enabled
+        const rateToggle = document.getElementById('enableRateLimit');
+        if (rateToggle) {
+            rateToggle.addEventListener('change', async function() {
+                try {
+                    await saveRateLimitSettings();
+                    // success handled inside saveRateLimitSettings via showAlert
+                } catch (e) {}
+            });
+        }
+
+        // Auto-save on toggle change: WhatsApp Groups enabled
+        const groupToggle = document.getElementById('waGroupsEnabled');
+        if (groupToggle) {
+            groupToggle.addEventListener('change', async function() {
+                try {
+                    await saveWAGroups();
+                    // success handled inside saveWAGroups via showAlert
+                } catch (e) {}
+            });
+        }
     });
 
     // Load templates from server
@@ -806,7 +880,10 @@
             const data = await response.json();
             
             if (data.success) {
-                showAlert(`Broadcast sent successfully! Sent to ${data.sent} customers, failed: ${data.failed}`, 'success');
+                const summary = `Broadcast sukses!\n` +
+                    `Pelanggan: ${data.customer_sent || 0} sukses / ${data.customer_failed || 0} gagal\n` +
+                    `Group: ${data.group_sent || 0} sukses / ${data.group_failed || 0} gagal`;
+                showAlert(summary, 'success');
             } else {
                 showAlert('Error sending broadcast: ' + data.message, 'danger');
             }
@@ -990,6 +1067,48 @@
             document.getElementById('enableRateLimit').checked = true;
             showAlert('Pengaturan telah direset ke default', 'info');
         }
+    }
+
+    // Load WhatsApp groups
+    async function loadWAGroups() {
+        try {
+            const response = await fetch('/admin/billing/whatsapp-settings/groups');
+            const data = await response.json();
+            if (data.success) {
+                document.getElementById('waGroupsEnabled').checked = data.groups.enabled !== false;
+                const ids = (data.groups.ids || []).join('\n');
+                document.getElementById('waGroupIds').value = ids;
+            }
+        } catch (error) {
+            console.error('Error loading WhatsApp groups:', error);
+            showAlert('Error loading WhatsApp groups', 'danger');
+        }
+    }
+
+    // Save WhatsApp groups
+    async function saveWAGroups() {
+        try {
+            const enabled = document.getElementById('waGroupsEnabled').checked;
+            const idsRaw = document.getElementById('waGroupIds').value || '';
+            const ids = idsRaw.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+
+            const response = await fetch('/admin/billing/whatsapp-settings/groups', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ enabled, ids })
+            });
+            const data = await response.json();
+            if (data.success) showAlert('Pengaturan group WhatsApp disimpan!', 'success');
+            else showAlert('Gagal menyimpan group: ' + data.message, 'danger');
+        } catch (error) {
+            console.error('Error saving WhatsApp groups:', error);
+            showAlert('Error menyimpan group WhatsApp', 'danger');
+        }
+    }
+
+    function resetWAGroupsToDefault() {
+        document.getElementById('waGroupsEnabled').checked = true;
+        document.getElementById('waGroupIds').value = '';
     }
     </script>
 </body>
