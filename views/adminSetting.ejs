@@ -147,31 +147,6 @@
                             <i class="bi bi-gear text-primary"></i> Pengaturan Sistem
                         </h5>
                         
-                        <!-- Info tentang field yang disembunyikan -->
-                        <div class="alert alert-info alert-custom mb-3">
-                            <div class="d-flex align-items-start">
-                                <i class="bi bi-info-circle me-2 mt-1"></i>
-                                <div>
-                                    <strong>ℹ️ INFORMASI PENGATURAN</strong>
-                                    <br>
-                                    <small>
-                                        Beberapa field telah disembunyikan dari form ini karena:
-                                        <br>
-                                        • <strong>Version Info:</strong> Sudah ditampilkan di sidebar dan footer
-                                        • <strong>Technical Fields:</strong> Pengaturan internal sistem (port, log level, dll)
-                                        • <strong>API Keys:</strong> Payment gateway credentials (aman dari UI)
-                                        • <strong>System Files:</strong> File paths dan session settings
-                                        <br><br>
-                                        <strong>Field yang TETAP DITAMPILKAN:</strong>
-                                        • Nomor admin dan teknisi (untuk kemudahan pengaturan)
-                                        • Company info (header, footer, dll)
-                                        • Semua pengaturan bisnis dan operasional
-                                        <br><br>
-                                        Untuk mengubah field yang disembunyikan, edit langsung file <code>settings.json</code>
-                                    </small>
-                                </div>
-                            </div>
-                        </div>
                         
                         <form id="settingsForm">
                             <div id="settingsFields">
@@ -647,6 +622,68 @@ Pilih opsi di atas untuk men-generate skrip...
     </div>
     <div class="alert alert-info small p-2 mb-0">
         <i class="bi bi-info-circle"></i> Gunakan nilai ini di MikroTik: <code>/ip dhcp-server option add name=opt43 code=43 value=0x<span id="option43Value"></span></code>
+    </div>
+</div>
+
+<hr class="my-4">
+
+<!-- Mikrotik Isolation Script Generator -->
+<div class="mt-4">
+    <h5 class="mb-3"><i class="bi bi-shield-lock"></i> Generator Script Isolir Mikrotik</h5>
+    <p class="small text-muted mb-3">Generate script Mikrotik untuk sistem isolir pelanggan IP statik. Script siap copy-paste ke terminal Mikrotik.</p>
+    
+    <div class="row g-3 mb-3">
+        <div class="col-md-6">
+            <label class="form-label small fw-bold" for="isolationMethod">Metode Isolir</label>
+            <select class="form-select form-select-sm" id="isolationMethod">
+                <option value="address_list">Address List (Recommended)</option>
+                <option value="dhcp_block">DHCP Block</option>
+                <option value="bandwidth_limit">Bandwidth Limit</option>
+                <option value="firewall_rule">Firewall Rule</option>
+            </select>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label small fw-bold" for="bandwidthLimit">Bandwidth Limit (jika dipilih)</label>
+            <input type="text" class="form-control form-control-sm" id="bandwidthLimit" placeholder="1k/1k" value="1k/1k">
+        </div>
+    </div>
+    
+    <div class="row g-3 mb-3">
+        <div class="col-md-6">
+            <label class="form-label small fw-bold" for="networkRange">Network Range (untuk monitoring)</label>
+            <input type="text" class="form-control form-control-sm" id="networkRange" placeholder="192.168.1.0/24" value="192.168.1.0/24">
+        </div>
+        <div class="col-md-6">
+            <label class="form-label small fw-bold" for="dnsServers">DNS Servers</label>
+            <input type="text" class="form-control form-control-sm" id="dnsServers" placeholder="8.8.8.8,8.8.4.4" value="8.8.8.8,8.8.4.4">
+        </div>
+    </div>
+    
+    <div class="mb-3">
+        <button class="btn btn-primary btn-sm" type="button" id="generateIsolationScript">
+            <i class="bi bi-gear"></i> Generate Script
+        </button>
+        <button class="btn btn-outline-secondary btn-sm ms-2" type="button" id="previewIsolationScript">
+            <i class="bi bi-eye"></i> Preview
+        </button>
+    </div>
+    
+    <div class="row g-2 mb-3">
+        <div class="col-12">
+            <label class="form-label small fw-bold">Script Mikrotik</label>
+            <div class="input-group">
+                <textarea class="form-control form-control-sm" id="isolationScriptResult" rows="15" readonly style="font-family: 'Courier New', monospace; font-size: 12px;"></textarea>
+                <button class="btn btn-outline-secondary btn-sm" type="button" id="copyIsolationScriptBtn" title="Salin ke clipboard">
+                    <i class="bi bi-clipboard"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="alert alert-info small p-2 mb-0">
+        <i class="bi bi-info-circle"></i> 
+        <strong>Cara menggunakan:</strong> 
+        1. Klik "Generate Script" → 2. Copy script → 3. Paste di terminal Mikrotik → 4. Jalankan script
     </div>
 </div>
 
@@ -1830,6 +1867,73 @@ $(document).ready(function() {
             notif.alert('close');
         }, 5000);
     }
+
+    // 3. Handle Mikrotik Isolation Script Generator
+    $('#generateIsolationScript').on('click', function() {
+        const method = $('#isolationMethod').val();
+        const bandwidthLimit = $('#bandwidthLimit').val();
+        const networkRange = $('#networkRange').val();
+        const dnsServers = $('#dnsServers').val();
+        
+        // Validasi input
+        if (!networkRange) {
+            showNotification('warning', 'Masukkan network range terlebih dahulu');
+            return;
+        }
+        
+        // Tampilkan loading
+        $('#generateIsolationScript').prop('disabled', true).html('<i class="bi bi-hourglass-split"></i> Generating...');
+        
+        // Kirim request ke server
+        $.ajax({
+            url: '/admin/settings/generate-isolation-script',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                method: method,
+                bandwidthLimit: bandwidthLimit,
+                networkRange: networkRange,
+                dnsServers: dnsServers
+            }),
+            success: function(response) {
+                if (response.success) {
+                    $('#isolationScriptResult').val(response.script);
+                    showNotification('success', 'Script berhasil di-generate!');
+                } else {
+                    showNotification('danger', 'Gagal generate script: ' + response.message);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Error generating script:', error);
+                showNotification('danger', 'Error: ' + error);
+            },
+            complete: function() {
+                $('#generateIsolationScript').prop('disabled', false).html('<i class="bi bi-gear"></i> Generate Script');
+            }
+        });
+    });
+
+    // Preview script
+    $('#previewIsolationScript').on('click', function() {
+        const script = $('#isolationScriptResult').val();
+        if (!script) {
+            showNotification('warning', 'Generate script terlebih dahulu');
+            return;
+        }
+        
+        // Buka modal preview
+        $('#scriptPreviewModal .modal-body pre').text(script);
+        new bootstrap.Modal(document.getElementById('scriptPreviewModal')).show();
+    });
+
+    // Copy script to clipboard
+    $('#copyIsolationScriptBtn').on('click', function() {
+        const copyText = document.getElementById("isolationScriptResult");
+        copyText.select();
+        copyText.setSelectionRange(0, 99999); // Untuk mobile
+        document.execCommand("copy");
+        showNotification('success', 'Script tersalin ke clipboard!');
+    });
 });
 </script>
 <script>
@@ -2323,6 +2427,60 @@ $(document).ready(function() {
 
         document.body.removeChild(textArea);
     }
+});
+</script>
+
+<!-- Modal untuk Preview Script -->
+<div class="modal fade" id="scriptPreviewModal" tabindex="-1" aria-labelledby="scriptPreviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="scriptPreviewModalLabel">
+                    <i class="bi bi-code-square"></i> Preview Script Mikrotik
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info small mb-3">
+                    <i class="bi bi-info-circle"></i> 
+                    <strong>Cara menggunakan:</strong> 
+                    1. Copy script di bawah → 2. Paste di terminal Mikrotik → 3. Jalankan script
+                </div>
+                <pre class="bg-light p-3 rounded" style="max-height: 500px; overflow-y: auto; font-size: 12px; font-family: 'Courier New', monospace;"><code id="previewScriptContent"></code></pre>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                <button type="button" class="btn btn-primary" id="copyPreviewScriptBtn">
+                    <i class="bi bi-clipboard"></i> Copy Script
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Handler untuk copy script dari modal preview
+$('#copyPreviewScriptBtn').on('click', function() {
+    const script = $('#previewScriptContent').text();
+    navigator.clipboard.writeText(script).then(function() {
+        showNotification('success', 'Script tersalin ke clipboard!');
+        $('#scriptPreviewModal').modal('hide');
+    }).catch(function(err) {
+        console.error('Error copying script:', err);
+        showNotification('danger', 'Gagal menyalin script!');
+    });
+});
+
+// Handler untuk preview script
+$('#previewIsolationScript').on('click', function() {
+    const script = $('#isolationScriptResult').val();
+    if (!script) {
+        showNotification('warning', 'Generate script terlebih dahulu');
+        return;
+    }
+    
+    $('#previewScriptContent').text(script);
+    new bootstrap.Modal(document.getElementById('scriptPreviewModal')).show();
 });
 </script>
 
