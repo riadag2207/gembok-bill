@@ -26,6 +26,19 @@ function getAdminHelpMessage() {
     message += `• *addtag [device_id] [nomor]* — Tambah tag device\n`;
     message += `• *addpppoe_tag [user] [nomor]* — Tambah tag PPPoE\n\n`;
     
+    // Search Commands
+    message += `🔍 *PENCARIAN*\n`;
+    message += `• *cari [nama/pppoe_username]* — Cari data pelanggan\n`;
+    message += `• *cari andi* — Cari pelanggan dengan nama "andi"\n`;
+    message += `• *cari leha* — Cari pelanggan dengan PPPoE username "leha"\n\n`;
+    
+    // Debug Commands
+    message += `🔧 *DEBUG*\n`;
+    message += `• *debuggenieacs [nomor]* — Debug data GenieACS pelanggan\n`;
+    message += `• *debug [nomor]* — Debug data GenieACS (singkat)\n`;
+    message += `• *debuggenieacs 087786722675* — Debug data GenieACS\n`;
+    message += `• *listdevices* — List semua perangkat di GenieACS\n\n`;
+    
     // Mikrotik Commands
     message += `🌐 *MIKROTIK*\n`;
     message += `• *interfaces* — Daftar interface\n`;
@@ -133,6 +146,16 @@ function getTechnicianHelpMessage() {
     message += `• *reboot [nomor]* — Restart ONU pelanggan\n`;
     message += `• *refresh [device_id]* — Refresh data perangkat\n\n`;
     
+    message += `🔍 *PENCARIAN PELANGGAN*\n`;
+    message += `• *cari [nama/pppoe_username]* — Cari data pelanggan\n`;
+    message += `• *cari andi* — Cari pelanggan dengan nama "andi"\n`;
+    message += `• *cari leha* — Cari pelanggan dengan PPPoE username "leha"\n\n`;
+    
+    message += `🔧 *DEBUG*\n`;
+    message += `• *debug [nomor]* — Debug data GenieACS pelanggan\n`;
+    message += `• *debuggenieacs [nomor]* — Debug lengkap data GenieACS\n`;
+    message += `• *listdevices* — List semua perangkat di GenieACS\n\n`;
+    
     message += `🌐 *MIKROTIK (JIKA DIPERLUKAN)*\n`;
     message += `• *ping [ip] [count]* — Test ping\n`;
     message += `• *interfaces* — Daftar interface\n`;
@@ -174,6 +197,10 @@ function getCustomerHelpMessage() {
     message += `• *diagnostic* — Diagnostik jaringan\n`;
     message += `• *history* — Riwayat koneksi\n`;
     message += `• *refresh* — Refresh data perangkat\n\n`;
+    
+    message += `🔍 *PENCARIAN*\n`;
+    message += `• *cari [nama]* — Cari data pelanggan lain\n`;
+    message += `• *cari andi* — Cari pelanggan dengan nama "andi"\n\n`;
     
     message += `📞 *BANTUAN*\n`;
     message += `• *menu* — Tampilkan menu ini\n`;

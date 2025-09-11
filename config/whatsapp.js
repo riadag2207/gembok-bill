@@ -48,6 +48,27 @@ const whatsappNotifications = require('./whatsapp-notifications');
 // Import help messages
 const { getAdminHelpMessage, getCustomerHelpMessage, getGeneralHelpMessage } = require('./help-messages');
 
+// Phone helpers: normalize and variants (08..., 62..., +62...)
+function normalizePhone(input) {
+    if (!input) return '';
+    let s = String(input).replace(/[^0-9+]/g, '');
+    if (s.startsWith('+')) s = s.slice(1);
+    if (s.startsWith('0')) return '62' + s.slice(1);
+    if (s.startsWith('62')) return s;
+    // Fallback: if it looks like local without leading 0, prepend 62
+    if (/^8[0-9]{7,13}$/.test(s)) return '62' + s;
+    return s;
+}
+
+function generatePhoneVariants(input) {
+    const raw = String(input || '');
+    const norm = normalizePhone(raw);
+    const local = norm.startsWith('62') ? '0' + norm.slice(2) : raw;
+    const plus = norm.startsWith('62') ? '+62' + norm.slice(2) : raw;
+    const shortLocal = local.startsWith('0') ? local.slice(1) : local;
+    return Array.from(new Set([raw, norm, local, plus, shortLocal].filter(Boolean)));
+}
+
 // Fungsi untuk mendekripsi nomor admin yang dienkripsi
 function decryptAdminNumber(encryptedNumber) {
     try {
@@ -1215,6 +1236,360 @@ async function handleAdminCheckONU(remoteJid, customerNumber) {
     }
 }
 
+// Fungsi untuk cek ONU dengan data billing lengkap
+async function handleAdminCheckONUWithBilling(remoteJid, searchTerm) {
+    if (!sock) {
+        console.error('Sock instance not set');
+        return;
+    }
+
+    if (!searchTerm) {
+        await sock.sendMessage(remoteJid, { 
+            text: `❌ *FORMAT SALAH*\n\n` +
+                  `Format yang benar:\n` +
+                  `cek [nomor_pelanggan/pppoe_username/nama_pelanggan]\n\n` +
+                  `Contoh:\n` +
+                  `• cek 087786722675\n` +
+                  `• cek server@ilik\n` +
+                  `• cek maktub`
+        });
+        return;
+    }
+
+    try {
+        // Kirim pesan bahwa proses sedang berlangsung
+        await sock.sendMessage(remoteJid, { 
+            text: `🔍 *MENCARI PERANGKAT*\n\nSedang mencari perangkat untuk: ${searchTerm}...\nMohon tunggu sebentar.` 
+        });
+
+        // Import billing manager untuk mendapatkan data customer
+        const billingManager = require('./billing');
+        
+        // Cari customer di billing dengan berbagai metode
+        let customer = null;
+        
+        // Method 1: Coba sebagai nomor telepon
+        if (/^[0-9+]+$/.test(searchTerm)) {
+            const phoneVariants = generatePhoneVariants(searchTerm);
+            
+            for (const variant of phoneVariants) {
+                try {
+                    customer = await billingManager.getCustomerByPhone(variant);
+                    if (customer) {
+                        console.log(`✅ Customer found in billing by phone with variant: ${variant}`);
+                        break;
+                    }
+                } catch (error) {
+                    console.log(`⚠️ Error searching with phone variant ${variant}:`, error.message);
+                }
+            }
+        }
+        
+        // Method 2: Jika tidak ditemukan sebagai nomor, coba sebagai nama atau PPPoE username
+        if (!customer) {
+            try {
+                // Cari berdasarkan nama pelanggan
+                const customersByName = await billingManager.findCustomersByNameOrPhone(searchTerm);
+                if (customersByName && customersByName.length > 0) {
+                    customer = customersByName[0]; // Ambil yang pertama
+                    console.log(`✅ Customer found in billing by name/pppoe: ${customer.name}`);
+                }
+            } catch (error) {
+                console.log(`⚠️ Error searching by name/pppoe:`, error.message);
+            }
+        }
+        
+        let device = null;
+        
+        if (customer) {
+            console.log(`✅ Customer found in billing: ${customer.name} (${customer.phone})`);
+            console.log(`📋 Customer data:`, {
+                name: customer.name,
+                phone: customer.phone,
+                username: customer.username,
+                pppoe_username: customer.pppoe_username,
+                package_id: customer.package_id
+            });
+            
+            // Cari device berdasarkan PPPoE username dari billing (FAST PATH)
+            if (customer.pppoe_username || customer.username) {
+                try {
+                    const { findDeviceByPPPoE } = require('./genieacs');
+                    const pppoeToSearch = customer.pppoe_username || customer.username;
+                    console.log(`🔍 Searching device by PPPoE username: ${pppoeToSearch}`);
+                    
+                    device = await findDeviceByPPPoE(pppoeToSearch);
+                    if (device) {
+                        console.log(`✅ Device found by PPPoE username: ${pppoeToSearch}`);
+                        console.log(`📱 Device ID: ${device._id}`);
+                    } else {
+                        console.log(`⚠️ No device found by PPPoE username: ${pppoeToSearch}`);
+                    }
+                } catch (error) {
+                    console.error('❌ Error finding device by PPPoE username:', error.message);
+                    console.error('❌ Full error:', error);
+                }
+            } else {
+                console.log(`⚠️ No PPPoE username or username found in customer data`);
+            }
+            
+            // Jika tidak ditemukan dengan PPPoE, coba dengan tag sebagai fallback
+            if (!device) {
+                console.log(`🔍 Trying tag search as fallback...`);
+                const tagVariants = generatePhoneVariants(customer.phone);
+                
+                for (const v of tagVariants) {
+                    try {
+                        device = await findDeviceByTag(v);
+                        if (device) {
+                            console.log(`✅ Device found by tag fallback: ${v}`);
+                            break;
+                        }
+                    } catch (error) {
+                        console.log(`⚠️ Error searching by tag ${v}:`, error.message);
+                    }
+                }
+            }
+        } else {
+            // Customer tidak ditemukan di billing, coba cari device langsung berdasarkan search term
+            console.log(`⚠️ Customer not found in billing, trying direct device search...`);
+            
+            // Method 1: Coba sebagai PPPoE username langsung
+            if (searchTerm.includes('@')) {
+                try {
+                    const { findDeviceByPPPoE } = require('./genieacs');
+                    console.log(`🔍 Trying direct PPPoE username search: ${searchTerm}`);
+                    device = await findDeviceByPPPoE(searchTerm);
+                    if (device) {
+                        console.log(`✅ Device found by direct PPPoE username: ${searchTerm}`);
+                        console.log(`📱 Device ID: ${device._id}`);
+                    }
+                } catch (error) {
+                    console.log(`⚠️ Error searching by direct PPPoE username:`, error.message);
+                }
+            }
+            
+            // Method 2: Coba sebagai tag (jika search term adalah nomor)
+            if (!device && /^[0-9+]+$/.test(searchTerm)) {
+                const tagVariants = generatePhoneVariants(searchTerm);
+                for (const v of tagVariants) {
+                    try {
+                        device = await findDeviceByTag(v);
+                        if (device) {
+                            console.log(`✅ Device found by tag: ${v}`);
+                            console.log(`📱 Device ID: ${device._id}`);
+                            break;
+                        }
+                    } catch (error) {
+                        console.log(`⚠️ Error searching by tag ${v}:`, error.message);
+                    }
+                }
+            }
+        }
+        
+        // Method 3: Jika masih belum ditemukan, coba cari semua device dan cari manual
+        if (!device) {
+            console.log(`🔍 Trying comprehensive search in all devices...`);
+            try {
+                const { getDevices } = require('./genieacs');
+                const allDevices = await getDevices();
+                console.log(`📊 Total devices in GenieACS: ${allDevices.length}`);
+                
+                // Cari berdasarkan search term di berbagai field
+                for (const dev of allDevices) {
+                    // Cek di tags
+                    if (dev._tags && dev._tags.some(tag => tag.includes(searchTerm))) {
+                        console.log(`✅ Device found by tag match: ${dev._id}`);
+                        device = dev;
+                        break;
+                    }
+                    
+                    // Cek di VirtualParameters
+                    if (dev.VirtualParameters) {
+                        for (const key in dev.VirtualParameters) {
+                            const value = dev.VirtualParameters[key];
+                            if (value && value._value && value._value.toString().includes(searchTerm)) {
+                                console.log(`✅ Device found by VirtualParameters match: ${dev._id}`);
+                                device = dev;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    if (device) break;
+                }
+            } catch (error) {
+                console.log(`⚠️ Error in comprehensive search:`, error.message);
+            }
+        }
+        
+        if (!device) {
+            await sock.sendMessage(remoteJid, { 
+                text: `❌ *PERANGKAT TIDAK DITEMUKAN*\n\n` +
+                      `Tidak dapat menemukan perangkat untuk: ${searchTerm}\n\n` +
+                      `Pastikan data yang dimasukkan benar:\n` +
+                      `• Nomor telepon\n` +
+                      `• PPPoE username (contoh: server@ilik)\n` +
+                      `• Nama pelanggan\n\n` +
+                      `Dan perangkat telah terdaftar dalam sistem.`
+            });
+            return;
+        }
+
+        // Ekstrak informasi perangkat - Gunakan pendekatan yang sama dengan dashboard web
+        let serialNumber = device.InternetGatewayDevice?.DeviceInfo?.SerialNumber?._value || 
+                          device.Device?.DeviceInfo?.SerialNumber?._value || 
+                          device.DeviceID?.SerialNumber || 
+                          device._id?.split('-')[2] || 'Unknown';
+        
+        let modelName = device.InternetGatewayDevice?.DeviceInfo?.ModelName?._value || 
+                        device.Device?.DeviceInfo?.ModelName?._value || 
+                        device.DeviceID?.ProductClass || 
+                        device._id?.split('-')[1] || 'Unknown';
+        
+        const lastInform = new Date(device._lastInform);
+        const now = new Date();
+        const diffMinutes = Math.floor((now - lastInform) / (1000 * 60));
+        const isOnline = diffMinutes < 15;
+        const statusText = isOnline ? '🟢 Online' : '🔴 Offline';
+        
+        // Informasi WiFi
+        const ssid = device.InternetGatewayDevice?.LANDevice?.[1]?.WLANConfiguration?.[1]?.SSID?._value || 'N/A';
+        const ssid5G = device.InternetGatewayDevice?.LANDevice?.[1]?.WLANConfiguration?.[5]?.SSID?._value || 'N/A';
+        
+        // Informasi IP
+        const ipAddress = device.InternetGatewayDevice?.WANDevice?.[1]?.WANConnectionDevice?.[1]?.WANPPPConnection?.[1]?.ExternalIPAddress?._value || 'N/A';
+        
+        // Informasi PPPoE
+        const pppoeUsername = 
+            device.InternetGatewayDevice?.WANDevice?.[1]?.WANConnectionDevice?.[1]?.WANPPPConnection?.[1]?.Username?._value ||
+            device.InternetGatewayDevice?.WANDevice?.[0]?.WANConnectionDevice?.[0]?.WANPPPConnection?.[0]?.Username?._value ||
+            device.VirtualParameters?.pppoeUsername?._value ||
+            (customer ? (customer.pppoe_username || customer.username) : 'N/A');
+        
+        // Ambil RX Power dari semua kemungkinan path
+        const rxPower = getParameterWithPaths(device, parameterPaths.rxPower);
+        let rxPowerStatus = '';
+        if (rxPower !== 'N/A') {
+            const power = parseFloat(rxPower);
+            if (power > -25) rxPowerStatus = '🟢 Baik';
+            else if (power > -27) rxPowerStatus = '🟡 Warning';
+            else rxPowerStatus = '🔴 Kritis';
+        }
+        
+        // Informasi pengguna WiFi
+        const users24ghz = device.InternetGatewayDevice?.LANDevice?.[1]?.WLANConfiguration?.[1]?.TotalAssociations?._value || 0;
+        const users5ghz = device.InternetGatewayDevice?.LANDevice?.[1]?.WLANConfiguration?.[5]?.TotalAssociations?._value || 0;
+        const totalUsers = parseInt(users24ghz) + parseInt(users5ghz);
+
+        // Ambil daftar user terhubung ke SSID 1 (2.4GHz)
+        let associatedDevices = [];
+        try {
+            const assocObj = device?.InternetGatewayDevice?.LANDevice?.['1']?.WLANConfiguration?.['1']?.AssociatedDevice;
+            if (assocObj && typeof assocObj === 'object') {
+                for (const key in assocObj) {
+                    if (!isNaN(key)) {
+                        const entry = assocObj[key];
+                        const mac = entry?.MACAddress?._value || entry?.MACAddress || '-';
+                        const hostname = entry?.HostName?._value || entry?.HostName || '-';
+                        associatedDevices.push({ mac, hostname });
+                    }
+                }
+            }
+        } catch (e) {
+            console.error('Error parsing associated devices (admin):', e);
+        }
+        // Fallback: jika AssociatedDevice kosong, ambil dari Hosts.Host (hanya WiFi/802.11)
+        if (associatedDevices.length === 0) {
+            try {
+                const hostsObj = device?.InternetGatewayDevice?.LANDevice?.['1']?.Hosts?.Host;
+                if (hostsObj && typeof hostsObj === 'object') {
+                    for (const key in hostsObj) {
+                        if (!isNaN(key)) {
+                            const entry = hostsObj[key];
+                            // Hanya tampilkan yang interface-nya 802.11 (WiFi)
+                            const iface = entry?.InterfaceType?._value || entry?.InterfaceType || entry?.Interface || '-';
+                            // Pastikan iface adalah string sebelum memanggil toLowerCase()
+                            if (iface && typeof iface === 'string' && iface.toLowerCase().includes('802.11')) {
+                                const mac = entry?.MACAddress?._value || entry?.MACAddress || '-';
+                                const hostname = entry?.HostName?._value || entry?.HostName || '-';
+                                const ip = entry?.IPAddress?._value || entry?.IPAddress || '-';
+                                associatedDevices.push({ mac, hostname, ip });
+                            }
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error('Error parsing Hosts.Host (admin):', e);
+            }
+        }
+
+        // Buat pesan dengan informasi lengkap
+        let message = `📋 *DETAIL PERANGKAT PELANGGAN*\n\n`;
+        
+        // Data billing jika ada
+        if (customer) {
+            message += `👤 *DATA BILLING:*\n`;
+            message += `• Nama: ${customer.name}\n`;
+            message += `• Telepon: ${customer.phone}\n`;
+            message += `• Username: ${customer.username || 'N/A'}\n`;
+            message += `• PPPoE Username: ${customer.pppoe_username || 'N/A'}\n`;
+            message += `• Paket: ${customer.package_id || 'N/A'}\n`;
+            message += `• Status: ${customer.status || 'N/A'}\n`;
+            if (customer.address) {
+                message += `• Alamat: ${customer.address}\n`;
+            }
+            message += `\n`;
+        }
+        
+        message += `🔧 *DATA PERANGKAT:*\n`;
+        message += `• Serial Number: ${serialNumber}\n`;
+        message += `• Model: ${modelName}\n`;
+        message += `• Status: ${statusText}\n`;
+        message += `• Last Seen: ${lastInform.toLocaleString()}\n\n`;
+        
+        message += `🌐 *INFORMASI JARINGAN:*\n`;
+        message += `• IP Address: ${ipAddress}\n`;
+        message += `• PPPoE Username: ${pppoeUsername}\n`;
+        message += `• RX Power: ${rxPower ? rxPower + ' dBm' : 'N/A'}${rxPowerStatus ? ' (' + rxPowerStatus + ')' : ''}\n`;
+        message += `• WiFi 2.4GHz: ${ssid}\n`;
+        message += `• WiFi 5GHz: ${ssid5G}\n`;
+        message += `• Pengguna WiFi: ${totalUsers} perangkat\n`;
+        
+        // Tambahkan detail user SSID 1 jika ada
+        if (associatedDevices.length > 0) {
+            message += `• *Daftar User WiFi (2.4GHz):*\n`;
+            associatedDevices.forEach((dev, idx) => {
+                let detail = `${idx + 1}. ${dev.hostname || '-'} (${dev.mac || '-'}`;
+                if (dev.ip) detail += `, ${dev.ip}`;
+                detail += ')';
+                message += `   ${detail}\n`;
+            });
+        } else {
+            message += `• Tidak ada data user WiFi (2.4GHz) tersedia\n`;
+        }
+        message += `\n`;
+        
+        if (rxPower) {
+            message += `🔧 *KUALITAS SINYAL:*\n`;
+            message += `• RX Power: ${rxPower} dBm (${rxPowerStatus})\n\n`;
+        }
+        
+        message += `💡 *TINDAKAN ADMIN:*\n`;
+        const actionIdentifier = customer ? customer.phone : searchTerm;
+        message += `• Ganti SSID: editssid ${actionIdentifier} [nama_baru]\n`;
+        message += `• Ganti Password: editpass ${actionIdentifier} [password_baru]\n`;
+        message += `• Refresh Perangkat: adminrefresh ${actionIdentifier}`;
+
+        await sock.sendMessage(remoteJid, { text: message });
+    } catch (error) {
+        console.error('Error in handleAdminCheckONUWithBilling:', error);
+        await sock.sendMessage(remoteJid, { 
+            text: `❌ *ERROR*\n\nTerjadi kesalahan saat memeriksa perangkat:\n${error.message}`
+        });
+    }
+}
+
 // Fungsi untuk mencari perangkat berdasarkan tag
 async function findDeviceByTag(tag) {
     try {
@@ -2333,7 +2708,7 @@ Perubahan akan diterapkan dalam beberapa menit.`);
 }
 
 // Handler untuk admin edit SSID pelanggan
-async function handleAdminEditSSID(remoteJid, params) {
+async function handleAdminEditSSIDWithParams(remoteJid, params) {
     if (!sock) {
         console.error('Sock instance not set');
         return;
@@ -4476,7 +4851,7 @@ Pesan GenieACS telah diaktifkan kembali.`);
                 const customerNumber = command.split(' ')[1];
                 if (customerNumber) {
                     console.log(`Menjalankan perintah cek ONU untuk pelanggan ${customerNumber}`);
-                    await handleAdminCheckONU(remoteJid, customerNumber);
+                    await handleAdminCheckONUWithBilling(remoteJid, customerNumber);
                     return;
                 }
             }
@@ -4486,7 +4861,7 @@ Pesan GenieACS telah diaktifkan kembali.`);
                 const params = messageText.split(' ').slice(1);
                 if (params.length >= 2) {
                     console.log(`Menjalankan perintah edit SSID untuk ${params[0]}`);
-                    await handleAdminEditSSID(remoteJid, params);
+                    await handleAdminEditSSIDWithParams(remoteJid, params);
                     return;
                 } else {
                     await sock.sendMessage(remoteJid, { 
