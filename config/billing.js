@@ -379,6 +379,15 @@ class BillingManager {
             }
         });
 
+        // Tambahkan kolom odp_id ke customers jika belum ada
+        this.db.run("ALTER TABLE customers ADD COLUMN odp_id INTEGER", (err) => {
+            if (err && !err.message.includes('duplicate column name')) {
+                console.error('Error adding odp_id column to customers:', err);
+            } else if (!err) {
+                console.log('Added odp_id column to customers table');
+            }
+        });
+
         // Update existing customers to have username if null (for backward compatibility)
         this.db.run("UPDATE customers SET username = 'cust_' || substr(phone, -4, 4) || '_' || strftime('%s','now') WHERE username IS NULL OR username = ''", (err) => {
             if (err) {
