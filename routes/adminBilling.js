@@ -1552,10 +1552,17 @@ router.get('/customers', getAppSettings, async (req, res) => {
         const customers = await billingManager.getCustomers();
         const packages = await billingManager.getPackages();
         
-        // Get ODPs for dropdown selection
+        // Get ODPs for dropdown selection (termasuk sub ODP)
         const odps = await new Promise((resolve, reject) => {
             const db = require('../config/billing').db;
-            db.all('SELECT id, name, code, capacity, used_ports, status FROM odps WHERE status = "active" ORDER BY name', (err, rows) => {
+            db.all(`
+                SELECT o.id, o.name, o.code, o.capacity, o.used_ports, o.status, o.parent_odp_id,
+                       p.name as parent_name, p.code as parent_code
+                FROM odps o
+                LEFT JOIN odps p ON o.parent_odp_id = p.id
+                WHERE o.status = 'active' 
+                ORDER BY p.name, o.name
+            `, (err, rows) => {
                 if (err) reject(err);
                 else resolve(rows || []);
             });

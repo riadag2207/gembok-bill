@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS odps (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name VARCHAR(100) NOT NULL UNIQUE,
     code VARCHAR(50) NOT NULL UNIQUE,
+    parent_odp_id INTEGER, -- Untuk sub ODP (hierarki ODP)
     latitude DECIMAL(10,8) NOT NULL,
     longitude DECIMAL(11,8) NOT NULL,
     address TEXT,
@@ -17,7 +18,8 @@ CREATE TABLE IF NOT EXISTS odps (
     installation_date DATE,
     notes TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (parent_odp_id) REFERENCES odps(id) ON DELETE SET NULL
 );
 
 -- Tabel Cable Routes (Jalur Kabel dari ODP ke Pelanggan)

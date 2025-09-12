@@ -246,6 +246,22 @@ router.get('/customers', technicianAuth, async (req, res) => {
         // Ambil data customers & packages
         const allCustomers = await billingManager.getCustomers();
         const packages = await billingManager.getPackages();
+        
+        // Get ODPs for dropdown selection (termasuk sub ODP)
+        const odps = await new Promise((resolve, reject) => {
+            const db = require('../config/billing').db;
+            db.all(`
+                SELECT o.id, o.name, o.code, o.capacity, o.used_ports, o.status, o.parent_odp_id,
+                       p.name as parent_name, p.code as parent_code
+                FROM odps o
+                LEFT JOIN odps p ON o.parent_odp_id = p.id
+                WHERE o.status = 'active' 
+                ORDER BY p.name, o.name
+            `, (err, rows) => {
+                if (err) reject(err);
+                else resolve(rows || []);
+            });
+        });
 
         // Query params untuk pencarian & pagination
         const search = (req.query.search || '').trim();
@@ -279,6 +295,7 @@ router.get('/customers', technicianAuth, async (req, res) => {
             page: 'customers',
             customers,
             packages,
+            odps,
             search,
             pagination: {
                 currentPage,
@@ -309,7 +326,7 @@ router.get('/customers', technicianAuth, async (req, res) => {
  */
 router.post('/customers/add', technicianAuth, async (req, res) => {
     try {
-        const { name, username: reqUsername, phone, email, address, package_id, pppoe_username, pppoe_profile, create_pppoe_now, create_pppoe_user, pppoe_password, auto_suspension, billing_day, latitude, longitude, static_ip, assigned_ip, mac_address } = req.body;
+        const { name, username: reqUsername, phone, email, address, package_id, odp_id, pppoe_username, pppoe_profile, create_pppoe_now, create_pppoe_user, pppoe_password, auto_suspension, billing_day, latitude, longitude, static_ip, assigned_ip, mac_address } = req.body;
 
         // Validasi input
         if (!name || !phone || !package_id) {
@@ -333,6 +350,7 @@ router.post('/customers/add', technicianAuth, async (req, res) => {
             email: email || null,
             address: address || null,
             package_id: parseInt(package_id),
+            odp_id: odp_id || null,
             pppoe_username: pppoe_username || null,
             pppoe_profile: pppoe_profile || null,
             auto_suspension: typeof auto_suspension !== 'undefined' ? parseInt(auto_suspension) : 1,
@@ -436,7 +454,7 @@ router.get('/customers/:id', technicianAuth, async (req, res) => {
 router.put('/customers/:id', technicianAuth, async (req, res) => {
     try {
         const id = parseInt(req.params.id);
-        const { name, phone, email, address, latitude, longitude, package_id, pppoe_username, pppoe_profile, status } = req.body;
+        const { name, phone, email, address, latitude, longitude, package_id, odp_id, pppoe_username, pppoe_profile, status } = req.body;
         if (!id) return res.status(400).json({ success: false, message: 'ID tidak valid' });
 
         const existing = await billingManager.getCustomerById(id);
@@ -453,6 +471,7 @@ router.put('/customers/:id', technicianAuth, async (req, res) => {
             latitude: latitude ?? existing.latitude,
             longitude: longitude ?? existing.longitude,
             package_id: package_id ? parseInt(package_id) : existing.package_id,
+            odp_id: odp_id !== undefined ? odp_id : existing.odp_id,
             pppoe_username: pppoe_username ?? existing.pppoe_username,
             pppoe_profile: pppoe_profile ?? existing.pppoe_profile,
             status: status ?? existing.status

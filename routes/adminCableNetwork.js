@@ -111,16 +111,32 @@ router.get('/odp', adminAuth, getAppSettings, async (req, res) => {
     try {
         const db = getDatabase();
         
-        // Ambil data ODP dengan statistik
+        // Ambil data ODP dengan statistik dan parent ODP info
         const odps = await new Promise((resolve, reject) => {
             db.all(`
                 SELECT o.*, 
+                       p.name as parent_name,
+                       p.code as parent_code,
                        COUNT(cr.id) as connected_customers,
                        COUNT(CASE WHEN cr.status = 'connected' THEN 1 END) as active_connections
                 FROM odps o
+                LEFT JOIN odps p ON o.parent_odp_id = p.id
                 LEFT JOIN cable_routes cr ON o.id = cr.odp_id
                 GROUP BY o.id
                 ORDER BY o.name
+            `, [], (err, rows) => {
+                if (err) reject(err);
+                else resolve(rows);
+            });
+        });
+
+        // Ambil data parent ODP untuk dropdown (hanya ODP yang tidak memiliki parent)
+        const parentOdps = await new Promise((resolve, reject) => {
+            db.all(`
+                SELECT id, name, code, capacity, used_ports, status
+                FROM odps 
+                WHERE parent_odp_id IS NULL AND status = 'active'
+                ORDER BY name
             `, [], (err, rows) => {
                 if (err) reject(err);
                 else resolve(rows);
@@ -133,7 +149,8 @@ router.get('/odp', adminAuth, getAppSettings, async (req, res) => {
             title: 'ODP Management',
             page: 'cable-network-odp',
             appSettings: req.appSettings,
-            odps: odps
+            odps: odps,
+            parentOdps: parentOdps
         });
     } catch (error) {
         logger.error('Error loading ODP page:', error);
@@ -148,7 +165,7 @@ router.get('/odp', adminAuth, getAppSettings, async (req, res) => {
 // POST: Tambah ODP baru
 router.post('/odp', adminAuth, async (req, res) => {
     try {
-        const { name, code, latitude, longitude, address, capacity, status, notes } = req.body;
+        const { name, code, parent_odp_id, latitude, longitude, address, capacity, status, notes } = req.body;
         
         // Validasi input
         if (!name || !code || !latitude || !longitude) {
@@ -187,9 +204,9 @@ router.post('/odp', adminAuth, async (req, res) => {
         // Insert ODP baru
         await new Promise((resolve, reject) => {
             db.run(`
-                INSERT INTO odps (name, code, latitude, longitude, address, capacity, status, notes)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            `, [name, code, latitude, longitude, address, capacity || 64, status || 'active', notes], function(err) {
+                INSERT INTO odps (name, code, parent_odp_id, latitude, longitude, address, capacity, status, notes)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `, [name, code, parent_odp_id || null, latitude, longitude, address, capacity || 64, status || 'active', notes], function(err) {
                 if (err) reject(err);
                 else resolve(this.lastID);
             });
@@ -216,11 +233,11 @@ router.post('/odp', adminAuth, async (req, res) => {
 router.put('/odp/:id', adminAuth, async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, code, latitude, longitude, address, capacity, status, notes } = req.body;
+        const { name, code, parent_odp_id, latitude, longitude, address, capacity, status, notes } = req.body;
         
         // Log data yang diterima
         console.log('Updating ODP ID:', id);
-        console.log('Received data:', { name, code, latitude, longitude, address, capacity, status, notes });
+        console.log('Received data:', { name, code, parent_odp_id, latitude, longitude, address, capacity, status, notes });
         
         const db = getDatabase();
         
@@ -245,10 +262,10 @@ router.put('/odp/:id', adminAuth, async (req, res) => {
         const result = await new Promise((resolve, reject) => {
             db.run(`
                 UPDATE odps 
-                SET name = ?, code = ?, latitude = ?, longitude = ?, address = ?, 
+                SET name = ?, code = ?, parent_odp_id = ?, latitude = ?, longitude = ?, address = ?, 
                     capacity = ?, status = ?, notes = ?, updated_at = CURRENT_TIMESTAMP
                 WHERE id = ?
-            `, [name, code, latitude, longitude, address, capacity, status || 'active', notes, id], function(err) {
+            `, [name, code, parent_odp_id || null, latitude, longitude, address, capacity, status || 'active', notes, id], function(err) {
                 if (err) reject(err);
                 else resolve(this.changes);
             });
