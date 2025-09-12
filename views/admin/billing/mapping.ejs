@@ -1002,16 +1002,20 @@
                             <div class="mb-2">
                                 <small class="text-muted"><strong>ODP:</strong></small>
                                 <div class="legend-item">
-                                    <div class="legend-color" style="background-color: #28a745;"></div>
-                                    <span>Active (< 70%)</span>
+                                    <div class="legend-color" style="background-color: #28a745; border: 3px solid white; border-radius: 4px;"></div>
+                                    <span>ODP Utama (< 70%)</span>
                                 </div>
                                 <div class="legend-item">
-                                    <div class="legend-color" style="background-color: #ffc107;"></div>
-                                    <span>Warning (70-90%)</span>
+                                    <div class="legend-color" style="background-color: #ffc107; border: 3px solid white; border-radius: 4px;"></div>
+                                    <span>ODP Utama (70-90%)</span>
                                 </div>
                                 <div class="legend-item">
-                                    <div class="legend-color" style="background-color: #dc3545;"></div>
-                                    <span>Critical (> 90%)</span>
+                                    <div class="legend-color" style="background-color: #dc3545; border: 3px solid white; border-radius: 4px;"></div>
+                                    <span>ODP Utama (> 90%)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background-color: #28a745; border: 2px dashed white; border-radius: 2px; width: 20px; height: 20px;"></div>
+                                    <span>Sub ODP</span>
                                 </div>
                             </div>
 
@@ -2541,25 +2545,33 @@
                 if (percentage >= 90) color = '#dc3545'; // Red - > 90%
                 else if (percentage >= 70) color = '#ffc107'; // Yellow - 70-90%
                 
-                // Create custom ODP icon
+                // Different visual for sub ODP vs main ODP
+                const isSubODP = odp.parent_odp_id;
+                const iconSize = isSubODP ? 20 : 24;
+                const borderWidth = isSubODP ? 2 : 3;
+                const borderRadius = isSubODP ? 2 : 4;
+                const dotSize = isSubODP ? 6 : 8;
+                
+                // Create custom ODP icon with hierarchy indication
                 const odpIcon = L.divIcon({
                     className: 'odp-custom-icon',
                     html: `
                         <div class="odp-icon-container" style="
-                            width: 24px;
-                            height: 24px;
+                            width: ${iconSize}px;
+                            height: ${iconSize}px;
                             background-color: ${color};
-                            border: 3px solid white;
-                            border-radius: 4px;
+                            border: ${borderWidth}px solid white;
+                            border-radius: ${borderRadius}px;
                             box-shadow: 0 2px 6px rgba(0,0,0,0.3);
                             display: flex;
                             align-items: center;
                             justify-content: center;
                             position: relative;
+                            ${isSubODP ? 'border-style: dashed;' : ''}
                         ">
                             <div style="
-                                width: 8px;
-                                height: 8px;
+                                width: ${dotSize}px;
+                                height: ${dotSize}px;
                                 background-color: white;
                                 border-radius: 50%;
                                 position: relative;
@@ -2569,8 +2581,8 @@
                                     top: -2px;
                                     left: 50%;
                                     transform: translateX(-50%);
-                                    width: 4px;
-                                    height: 4px;
+                                    width: ${dotSize/2}px;
+                                    height: ${dotSize/2}px;
                                     background-color: white;
                                     border-radius: 50%;
                                 "></div>
@@ -2596,14 +2608,19 @@
                     icon: odpIcon
                 });
                 
-                // Create popup content
+                // Create popup content with hierarchy info
                 const popupContent = `
                     <div class="odp-popup">
-                        <h6><i class="bx bx-broadcast"></i> ${odp.name}</h6>
+                        <h6>
+                            <i class="bx ${isSubODP ? 'bx-sitemap' : 'bx-broadcast'}"></i> 
+                            ${odp.name}
+                            ${isSubODP ? '<small class="text-muted">(Sub ODP)</small>' : ''}
+                        </h6>
                         <div class="mb-2">
                             <strong>Kode:</strong> ${odp.code}<br>
                             <strong>Alamat:</strong> ${odp.address || 'Tidak ada'}<br>
                             <strong>Status:</strong> <span class="badge bg-${odp.status === 'active' ? 'success' : 'warning'}">${odp.status}</span>
+                            ${isSubODP && odp.parent_name ? `<br><strong>Parent:</strong> ${odp.parent_name} (${odp.parent_code})` : ''}
                         </div>
                         <div class="mb-2">
                             <strong>Kapasitas:</strong> ${odp.used_ports}/${odp.capacity} ports<br>

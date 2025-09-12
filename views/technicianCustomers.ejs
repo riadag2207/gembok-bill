@@ -435,6 +435,24 @@
                                 <input type="text" class="form-control" id="editCustomerProfile" value="default">
                             </div>
                         </div>
+                        <div class="mb-3">
+                            <label for="editCustomerODP" class="form-label">ODP (Optical Distribution Point)</label>
+                            <select class="form-select" id="editCustomerODP" name="odp_id">
+                                <option value="">Pilih ODP (Opsional)</option>
+                                <% if (odps && odps.length > 0) { %>
+                                    <% odps.forEach(function(odp) { %>
+                                        <option value="<%= odp.id %>" data-capacity="<%= odp.capacity %>" data-used="<%= odp.used_ports %>">
+                                            <% if (odp.parent_name) { %>
+                                                └─ <%= odp.name %> (<%= odp.code %>) - <%= odp.used_ports %>/<%= odp.capacity %> ports
+                                            <% } else { %>
+                                                <%= odp.name %> (<%= odp.code %>) - <%= odp.used_ports %>/<%= odp.capacity %> ports
+                                            <% } %>
+                                        </option>
+                                    <% }); %>
+                                <% } %>
+                            </select>
+                            <small class="form-text text-muted">Pilih ODP tempat pelanggan akan disambungkan (opsional). Sub ODP ditandai dengan └─</small>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
@@ -517,6 +535,24 @@
                                 <label for="customerPPPoE" class="form-label">Username PPPoE</label>
                                 <input type="text" class="form-control" id="customerPPPoE" name="pppoe_username" placeholder="Jika kosong, gunakan username pelanggan">
                             </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="customerODP" class="form-label">ODP (Optical Distribution Point)</label>
+                            <select class="form-select" id="customerODP" name="odp_id">
+                                <option value="">Pilih ODP (Opsional)</option>
+                                <% if (odps && odps.length > 0) { %>
+                                    <% odps.forEach(function(odp) { %>
+                                        <option value="<%= odp.id %>" data-capacity="<%= odp.capacity %>" data-used="<%= odp.used_ports %>">
+                                            <% if (odp.parent_name) { %>
+                                                └─ <%= odp.name %> (<%= odp.code %>) - <%= odp.used_ports %>/<%= odp.capacity %> ports
+                                            <% } else { %>
+                                                <%= odp.name %> (<%= odp.code %>) - <%= odp.used_ports %>/<%= odp.capacity %> ports
+                                            <% } %>
+                                        </option>
+                                    <% }); %>
+                                <% } %>
+                            </select>
+                            <small class="form-text text-muted">Pilih ODP tempat pelanggan akan disambungkan (opsional). Sub ODP ditandai dengan └─</small>
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
@@ -634,6 +670,7 @@
                         address: document.getElementById('editCustomerAddress').value.trim() || null,
                         latitude: document.getElementById('editLatitude').value.trim() || null,
                         longitude: document.getElementById('editLongitude').value.trim() || null,
+                        odp_id: document.getElementById('editCustomerODP').value || null,
                         pppoe_username: document.getElementById('editCustomerPPPoE').value.trim() || null,
                         pppoe_profile: document.getElementById('editCustomerProfile').value.trim() || 'default'
                     };
@@ -796,6 +833,7 @@
                 document.getElementById('editCustomerAddress').value = c.address || '';
                 document.getElementById('editLatitude').value = c.latitude || '';
                 document.getElementById('editLongitude').value = c.longitude || '';
+                document.getElementById('editCustomerODP').value = c.odp_id || '';
                 document.getElementById('editCustomerPPPoE').value = c.pppoe_username || '';
                 document.getElementById('editCustomerProfile').value = c.pppoe_profile || 'default';
 

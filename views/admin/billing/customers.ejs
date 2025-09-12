@@ -670,12 +670,16 @@
                                 <% if (odps && odps.length > 0) { %>
                                     <% odps.forEach(function(odp) { %>
                                         <option value="<%= odp.id %>" data-capacity="<%= odp.capacity %>" data-used="<%= odp.used_ports %>">
-                                            <%= odp.name %> (<%= odp.code %>) - <%= odp.used_ports %>/<%= odp.capacity %> ports
+                                            <% if (odp.parent_name) { %>
+                                                └─ <%= odp.name %> (<%= odp.code %>) - <%= odp.used_ports %>/<%= odp.capacity %> ports
+                                            <% } else { %>
+                                                <%= odp.name %> (<%= odp.code %>) - <%= odp.used_ports %>/<%= odp.capacity %> ports
+                                            <% } %>
                                         </option>
                                     <% }); %>
                                 <% } %>
                             </select>
-                            <small class="form-text text-muted">Pilih ODP tempat pelanggan akan disambungkan (opsional, bisa ditambahkan nanti)</small>
+                            <small class="form-text text-muted">Pilih ODP tempat pelanggan akan disambungkan (opsional, bisa ditambahkan nanti). Sub ODP ditandai dengan └─</small>
                         </div>
                         <div class="mb-3">
                             <label for="pppoe_profile" class="form-label">PPPoE Profile</label>
@@ -828,12 +832,16 @@
                                 <% if (odps && odps.length > 0) { %>
                                     <% odps.forEach(function(odp) { %>
                                         <option value="<%= odp.id %>" data-capacity="<%= odp.capacity %>" data-used="<%= odp.used_ports %>">
-                                            <%= odp.name %> (<%= odp.code %>) - <%= odp.used_ports %>/<%= odp.capacity %> ports
+                                            <% if (odp.parent_name) { %>
+                                                └─ <%= odp.name %> (<%= odp.code %>) - <%= odp.used_ports %>/<%= odp.capacity %> ports
+                                            <% } else { %>
+                                                <%= odp.name %> (<%= odp.code %>) - <%= odp.used_ports %>/<%= odp.capacity %> ports
+                                            <% } %>
                                         </option>
                                     <% }); %>
                                 <% } %>
                             </select>
-                            <small class="form-text text-muted">Pilih ODP tempat pelanggan akan disambungkan (opsional)</small>
+                            <small class="form-text text-muted">Pilih ODP tempat pelanggan akan disambungkan (opsional). Sub ODP ditandai dengan └─</small>
                         </div>
                         <div class="mb-3">
                             <label for="edit_pppoe_profile" class="form-label">PPPoE Profile</label>

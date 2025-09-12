@@ -164,9 +164,21 @@
                         <div class="mb-3">
                             <small class="text-muted d-block">Address</small>
                             <p class="mb-1" data-field="address"><%= odp.address || 'No address' %></p>
+                            <% if (odp.parent_name) { %>
+                                <small class="text-info d-block">
+                                    <i class="bx bx-sitemap me-1"></i>
+                                    Sub ODP dari: <strong><%= odp.parent_name %> (<%= odp.parent_code %>)</strong>
+                                </small>
+                            <% } else { %>
+                                <small class="text-success d-block">
+                                    <i class="bx bx-home me-1"></i>
+                                    ODP Utama
+                                </small>
+                            <% } %>
                             <!-- Hidden data fields for edit functionality -->
                             <span data-field="latitude" style="display: none;"><%= odp.latitude %></span>
                             <span data-field="longitude" style="display: none;"><%= odp.longitude %></span>
+                            <span data-field="parent_odp_id" style="display: none;"><%= odp.parent_odp_id || '' %></span>
                             <span data-field="notes" style="display: none;"><%= odp.notes || '' %></span>
                         </div>
 
@@ -241,6 +253,20 @@
                                     <input type="text" class="form-control" name="code" required>
                                 </div>
                             </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Parent ODP (Sub ODP)</label>
+                            <select class="form-select" name="parent_odp_id">
+                                <option value="">Pilih Parent ODP (Opsional - untuk Sub ODP)</option>
+                                <% if (parentOdps && parentOdps.length > 0) { %>
+                                    <% parentOdps.forEach(function(parentOdp) { %>
+                                        <option value="<%= parentOdp.id %>">
+                                            <%= parentOdp.name %> (<%= parentOdp.code %>) - <%= parentOdp.used_ports %>/<%= parentOdp.capacity %> ports
+                                        </option>
+                                    <% }); %>
+                                <% } %>
+                            </select>
+                            <small class="form-text text-muted">Pilih Parent ODP jika ini adalah Sub ODP. Kosongkan jika ini adalah ODP utama.</small>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Koordinat Lokasi *</label>
@@ -321,6 +347,20 @@
                                     <input type="text" class="form-control" id="editODPCode" name="code" required>
                                 </div>
                             </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Parent ODP (Sub ODP)</label>
+                            <select class="form-select" id="editODPParentId" name="parent_odp_id">
+                                <option value="">Pilih Parent ODP (Opsional - untuk Sub ODP)</option>
+                                <% if (parentOdps && parentOdps.length > 0) { %>
+                                    <% parentOdps.forEach(function(parentOdp) { %>
+                                        <option value="<%= parentOdp.id %>">
+                                            <%= parentOdp.name %> (<%= parentOdp.code %>) - <%= parentOdp.used_ports %>/<%= parentOdp.capacity %> ports
+                                        </option>
+                                    <% }); %>
+                                <% } %>
+                            </select>
+                            <small class="form-text text-muted">Pilih Parent ODP jika ini adalah Sub ODP. Kosongkan jika ini adalah ODP utama.</small>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Koordinat Lokasi *</label>
@@ -717,6 +757,7 @@
             const capacityElement = odpRow.querySelector('[data-field="capacity"]');
             const latitudeElement = odpRow.querySelector('[data-field="latitude"]');
             const longitudeElement = odpRow.querySelector('[data-field="longitude"]');
+            const parentOdpElement = odpRow.querySelector('[data-field="parent_odp_id"]');
             const notesElement = odpRow.querySelector('[data-field="notes"]');
             
             // Isi form dengan data existing menggunakan safe access
@@ -728,6 +769,7 @@
             safeSetValue('editODPAddress', addressElement ? addressElement.textContent : '');
             safeSetValue('editODPCapacity', capacityElement ? capacityElement.textContent : '');
             safeSetValue('editODPStatus', statusElement ? statusElement.textContent.toLowerCase() : '');
+            safeSetValue('editODPParentId', parentOdpElement ? parentOdpElement.textContent : '');
             safeSetValue('editODPNotes', notesElement ? notesElement.textContent : '');
             
             // Tampilkan modal
