@@ -964,7 +964,7 @@ class BillingManager {
 
     async updateCustomerByPhone(oldPhone, customerData) {
         return new Promise(async (resolve, reject) => {
-            const { name, username, phone, pppoe_username, email, address, package_id, pppoe_profile, status, auto_suspension, billing_day, latitude, longitude } = customerData;
+            const { name, username, phone, pppoe_username, email, address, package_id, odp_id, pppoe_profile, status, auto_suspension, billing_day, latitude, longitude } = customerData;
             
             // Dapatkan data customer lama untuk membandingkan nomor telepon
             try {
@@ -978,7 +978,7 @@ class BillingManager {
                 // Normalisasi billing_day (1-28) dengan fallback ke nilai lama atau 15
                 const normBillingDay = Math.min(Math.max(parseInt(billing_day !== undefined ? billing_day : (oldCustomer?.billing_day ?? 15), 10) || 15, 1), 28);
                 
-                const sql = `UPDATE customers SET name = ?, username = ?, phone = ?, pppoe_username = ?, email = ?, address = ?, package_id = ?, pppoe_profile = ?, status = ?, auto_suspension = ?, billing_day = ?, latitude = ?, longitude = ? WHERE id = ?`;
+                const sql = `UPDATE customers SET name = ?, username = ?, phone = ?, pppoe_username = ?, email = ?, address = ?, package_id = ?, odp_id = ?, pppoe_profile = ?, status = ?, auto_suspension = ?, billing_day = ?, latitude = ?, longitude = ? WHERE id = ?`;
                 
                 this.db.run(sql, [
                     name, 
@@ -988,6 +988,7 @@ class BillingManager {
                     email, 
                     address, 
                     package_id, 
+                    odp_id !== undefined ? odp_id : oldCustomer.odp_id,
                     pppoe_profile, 
                     status, 
                     auto_suspension !== undefined ? auto_suspension : oldCustomer.auto_suspension, 
@@ -1034,9 +1035,90 @@ class BillingManager {
                             }
                         }
                         
+                        // Update cable routes jika ODP berubah
+                        if (odp_id !== undefined && odp_id !== oldCustomer.odp_id) {
+                            try {
+                                await this.updateCustomerCableRoute(oldCustomer.id, odp_id);
+                                console.log(`Updated cable route for customer ${oldCustomer.username} to ODP ${odp_id}`);
+                            } catch (cableError) {
+                                console.error(`Error updating cable route for customer ${oldCustomer.username}:`, cableError.message);
+                                // Jangan reject, karena customer sudah berhasil diupdate
+                            }
+                        }
+                        
                         resolve({ username: oldCustomer.username, ...customerData });
                     }
                 });
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
+    // Update cable route untuk customer ketika ODP berubah
+    async updateCustomerCableRoute(customerId, newOdpId) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                // Cek apakah customer sudah punya cable route
+                const existingRoute = await new Promise((resolve, reject) => {
+                    this.db.get('SELECT id, odp_id FROM cable_routes WHERE customer_id = ?', [customerId], (err, row) => {
+                        if (err) reject(err);
+                        else resolve(row);
+                    });
+                });
+
+                if (existingRoute) {
+                    // Update cable route yang sudah ada
+                    await new Promise((resolve, reject) => {
+                        this.db.run(`
+                            UPDATE cable_routes 
+                            SET odp_id = ?, updated_at = CURRENT_TIMESTAMP
+                            WHERE customer_id = ?
+                        `, [newOdpId, customerId], function(err) {
+                            if (err) reject(err);
+                            else resolve(this.changes);
+                        });
+                    });
+                    console.log(`Updated existing cable route for customer ${customerId} to ODP ${newOdpId}`);
+                } else if (newOdpId) {
+                    // Buat cable route baru jika customer belum punya dan ODP dipilih
+                    const customer = await new Promise((resolve, reject) => {
+                        this.db.get('SELECT latitude, longitude FROM customers WHERE id = ?', [customerId], (err, row) => {
+                            if (err) reject(err);
+                            else resolve(row);
+                        });
+                    });
+
+                    const odp = await new Promise((resolve, reject) => {
+                        this.db.get('SELECT latitude, longitude FROM odps WHERE id = ?', [newOdpId], (err, row) => {
+                            if (err) reject(err);
+                            else resolve(row);
+                        });
+                    });
+
+                    // Hitung panjang kabel otomatis
+                    let cableLength = null;
+                    if (customer && odp && customer.latitude && customer.longitude && odp.latitude && odp.longitude) {
+                        const CableNetworkUtils = require('./utils/cableNetworkUtils');
+                        cableLength = CableNetworkUtils.calculateCableDistance(
+                            { latitude: customer.latitude, longitude: customer.longitude },
+                            { latitude: odp.latitude, longitude: odp.longitude }
+                        );
+                    }
+
+                    await new Promise((resolve, reject) => {
+                        this.db.run(`
+                            INSERT INTO cable_routes (customer_id, odp_id, cable_length, cable_type, status)
+                            VALUES (?, ?, ?, 'Fiber Optic', 'connected')
+                        `, [customerId, newOdpId, cableLength], function(err) {
+                            if (err) reject(err);
+                            else resolve(this.lastID);
+                        });
+                    });
+                    console.log(`Created new cable route for customer ${customerId} to ODP ${newOdpId}`);
+                }
+
+                resolve(true);
             } catch (error) {
                 reject(error);
             }
