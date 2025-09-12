@@ -388,6 +388,15 @@ class BillingManager {
             }
         });
 
+        // Tambahkan kolom parent_odp_id ke odps jika belum ada
+        this.db.run("ALTER TABLE odps ADD COLUMN parent_odp_id INTEGER", (err) => {
+            if (err && !err.message.includes('duplicate column name')) {
+                console.error('Error adding parent_odp_id column to odps:', err);
+            } else if (!err) {
+                console.log('Added parent_odp_id column to odps table');
+            }
+        });
+
         // Update existing customers to have username if null (for backward compatibility)
         this.db.run("UPDATE customers SET username = 'cust_' || substr(phone, -4, 4) || '_' || strftime('%s','now') WHERE username IS NULL OR username = ''", (err) => {
             if (err) {
