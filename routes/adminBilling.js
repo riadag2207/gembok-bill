@@ -2998,6 +2998,7 @@ router.get('/mapping', getAppSettings, async (req, res) => {
     try {
         res.render('admin/billing/mapping', {
             title: 'Network Mapping',
+            page: 'mapping',
             appSettings: req.appSettings
         });
     } catch (error) {
