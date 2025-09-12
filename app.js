@@ -111,6 +111,10 @@ app.use('/admin/installations', adminAuth, adminInstallationJobsRouter);
 const adminTechniciansRouter = require('./routes/adminTechnicians');
 app.use('/admin/technicians', adminAuth, adminTechniciansRouter);
 
+// Import dan gunakan route adminCableNetwork
+const adminCableNetworkRouter = require('./routes/adminCableNetwork');
+app.use('/admin/cable-network', adminAuth, adminCableNetworkRouter);
+
 // Import dan gunakan route payment
 const paymentRouter = require('./routes/payment');
 app.use('/payment', paymentRouter);
@@ -215,6 +219,12 @@ const technicianDashboardRouter = require('./routes/technicianDashboard');
 app.use('/technician', technicianDashboardRouter);
 // Alias Bahasa Indonesia untuk dashboard teknisi
 app.use('/teknisi', technicianDashboardRouter);
+
+// Import dan gunakan route technician cable network
+const technicianCableNetworkRouter = require('./routes/technicianCableNetwork');
+app.use('/technician', technicianCableNetworkRouter);
+// Alias Bahasa Indonesia untuk technician cable network
+app.use('/teknisi', technicianCableNetworkRouter);
 
 // Inisialisasi WhatsApp dan PPPoE monitoring
 try {

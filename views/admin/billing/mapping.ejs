@@ -34,6 +34,7 @@
             width: 12px;
             height: 12px;
             cursor: pointer;
+            animation: customerGlow 4s ease-in-out infinite;
         }
         
         .onu-marker {
@@ -43,6 +44,7 @@
             width: 10px;
             height: 10px;
             cursor: pointer;
+            animation: onuBlink 2s ease-in-out infinite;
         }
         
         .offline-marker {
@@ -52,6 +54,45 @@
             width: 10px;
             height: 10px;
             cursor: pointer;
+            animation: offlineFlicker 1.5s ease-in-out infinite;
+        }
+
+        /* Animasi untuk customer markers (glow effect only) */
+        @keyframes customerGlow {
+            0%, 100% { 
+                box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
+            }
+            50% { 
+                box-shadow: 0 0 15px rgba(40, 167, 69, 0.8);
+            }
+        }
+
+        /* Animasi untuk ONU markers (blink effect only) */
+        @keyframes onuBlink {
+            0%, 100% { 
+                opacity: 1;
+                box-shadow: 0 0 8px rgba(0, 123, 255, 0.6);
+            }
+            50% { 
+                opacity: 0.7;
+                box-shadow: 0 0 12px rgba(0, 123, 255, 0.9);
+            }
+        }
+
+        /* Animasi untuk offline markers (flicker effect only) */
+        @keyframes offlineFlicker {
+            0%, 100% { 
+                opacity: 0.8;
+                box-shadow: 0 0 5px rgba(220, 53, 69, 0.5);
+            }
+            25%, 75% { 
+                opacity: 0.4;
+                box-shadow: 0 0 2px rgba(220, 53, 69, 0.2);
+            }
+            50% { 
+                opacity: 1;
+                box-shadow: 0 0 10px rgba(220, 53, 69, 0.7);
+            }
         }
         
         .marker-cluster {
@@ -587,6 +628,115 @@
             margin-bottom: 2px;
         }
 
+        /* ODP and Cable Network Styles */
+        .odp-marker {
+            border: 3px solid white;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+
+        .cable-route {
+            stroke-width: 3;
+            stroke-opacity: 0.8;
+            fill: none;
+        }
+
+        .cable-connected { 
+            stroke: #28a745; 
+            stroke-dasharray: 15, 5;
+            animation: cableFlow 2s linear infinite;
+        }
+        
+        .cable-disconnected { 
+            stroke: #dc3545; 
+            stroke-dasharray: 5, 10;
+            animation: cableFlicker 1.5s ease-in-out infinite;
+        }
+        
+        .cable-maintenance { 
+            stroke: #ffc107; 
+            stroke-dasharray: 10, 5; 
+            animation: cableMaintenance 3s ease-in-out infinite;
+        }
+        
+        .cable-damaged { 
+            stroke: #6f42c1; 
+            stroke-dasharray: 3, 7;
+            animation: cableDamage 1s ease-in-out infinite;
+        }
+
+        /* Animasi untuk kabel yang terhubung (data flow) */
+        @keyframes cableFlow {
+            0% { stroke-dashoffset: 0; }
+            100% { stroke-dashoffset: 20; }
+        }
+
+        /* Animasi untuk kabel yang terputus (flicker) */
+        @keyframes cableFlicker {
+            0%, 100% { stroke-opacity: 0.3; }
+            50% { stroke-opacity: 0.8; }
+        }
+
+        /* Animasi untuk kabel maintenance (slow pulse) */
+        @keyframes cableMaintenance {
+            0%, 100% { 
+                stroke-opacity: 0.6; 
+                stroke-width: 3;
+            }
+            50% { 
+                stroke-opacity: 1; 
+                stroke-width: 4;
+            }
+        }
+
+        /* Animasi untuk kabel rusak (rapid flicker) */
+        @keyframes cableDamage {
+            0%, 100% { 
+                stroke-opacity: 0.2; 
+                stroke-width: 2;
+            }
+            25%, 75% { 
+                stroke-opacity: 0.8; 
+                stroke-width: 3;
+            }
+            50% { 
+                stroke-opacity: 0.4; 
+                stroke-width: 4;
+            }
+        }
+
+        .network-controls {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .layer-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .layer-control input[type="checkbox"] {
+            margin: 0;
+        }
+
+        .layer-control label {
+            margin: 0;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .odp-popup {
+            min-width: 250px;
+        }
+
+        .cable-popup {
+            min-width: 200px;
+        }
+
         .device-controls .form-control:not(:placeholder-shown) {
             border-color: #28a745;
             box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
@@ -781,6 +931,37 @@
                     </div>
                 </div>
 
+                <!-- Network Layer Controls -->
+                <div class="network-controls">
+                    <h6><i class="bx bx-network-chart"></i> Network Layers</h6>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="layer-control">
+                                <input type="checkbox" id="showODPs" checked onchange="toggleODPLayer()">
+                                <label for="showODPs">
+                                    <i class="bx bx-broadcast text-primary"></i> ODP Points
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="layer-control">
+                                <input type="checkbox" id="showCableRoutes" checked onchange="toggleCableLayer()">
+                                <label for="showCableRoutes">
+                                    <i class="bx bx-cable-car text-success"></i> Cable Routes
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="layer-control">
+                                <input type="checkbox" id="showNetworkSegments" onchange="toggleNetworkSegmentLayer()">
+                                <label for="showNetworkSegments">
+                                    <i class="bx bx-network-chart text-info"></i> Network Segments
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Main Map -->
                 <div class="row">
                     <div class="col-md-8">
@@ -799,21 +980,60 @@
                         <!-- Legend -->
                         <div class="legend">
                             <h6><i class="bx bx-info-circle"></i> Legenda</h6>
-                            <div class="legend-item">
-                                <div class="legend-color" style="background-color: #28a745;"></div>
-                                <span>Pelanggan</span>
+                            
+                            <!-- Customer Legend -->
+                            <div class="mb-2">
+                                <small class="text-muted"><strong>Pelanggan:</strong></small>
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background-color: #28a745;"></div>
+                                    <span>Online</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background-color: #dc3545;"></div>
+                                    <span>Offline</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background-color: #007bff;"></div>
+                                    <span>ONU Device</span>
+                                </div>
                             </div>
-                            <div class="legend-item">
-                                <div class="legend-color" style="background-color: #007bff;"></div>
-                                <span>ONU Online</span>
+
+                            <!-- ODP Legend -->
+                            <div class="mb-2">
+                                <small class="text-muted"><strong>ODP:</strong></small>
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background-color: #28a745;"></div>
+                                    <span>Active (< 70%)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background-color: #ffc107;"></div>
+                                    <span>Warning (70-90%)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background-color: #dc3545;"></div>
+                                    <span>Critical (> 90%)</span>
+                                </div>
                             </div>
-                            <div class="legend-item">
-                                <div class="legend-color" style="background-color: #dc3545;"></div>
-                                <span>ONU Offline</span>
-                            </div>
-                            <div class="legend-item">
-                                <div class="legend-color" style="background-color: #ffc107;"></div>
-                                <span>Cluster</span>
+
+                            <!-- Cable Routes Legend -->
+                            <div class="mb-2">
+                                <small class="text-muted"><strong>Kabel:</strong></small>
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background-color: #28a745; height: 3px;"></div>
+                                    <span>Connected</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background-color: #dc3545; height: 3px;"></div>
+                                    <span>Disconnected</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background-color: #ffc107; height: 3px; border-style: dashed;"></div>
+                                    <span>Maintenance</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background-color: #6f42c1; height: 3px;"></div>
+                                    <span>Damaged</span>
+                                </div>
                             </div>
                         </div>
 
@@ -2262,6 +2482,360 @@
                 showToast('Gagal menyalin koordinat', 'error');
             });
         }
+
+        // ===== ODP AND CABLE NETWORK FUNCTIONS =====
+        
+        let odpLayer = null;
+        let cableLayer = null;
+        let networkSegmentLayer = null;
+        let cableNetworkData = null;
+
+        // Load cable network data
+        async function loadCableNetworkData() {
+            try {
+                const response = await fetch('/admin/cable-network/api/mapping-data');
+                const result = await response.json();
+                
+                if (result.success) {
+                    cableNetworkData = result.data;
+                    console.log('Cable network data loaded:', cableNetworkData);
+                    
+                    // Load ODPs if checkbox is checked
+                    if (document.getElementById('showODPs').checked) {
+                        loadODPs();
+                    }
+                    
+                    // Load cable routes if checkbox is checked
+                    if (document.getElementById('showCableRoutes').checked) {
+                        loadCableRoutes();
+                    }
+                    
+                    // Load network segments if checkbox is checked
+                    if (document.getElementById('showNetworkSegments').checked) {
+                        loadNetworkSegments();
+                    }
+                } else {
+                    console.error('Failed to load cable network data:', result.message);
+                }
+            } catch (error) {
+                console.error('Error loading cable network data:', error);
+            }
+        }
+
+        // Load ODP markers
+        function loadODPs() {
+            if (!cableNetworkData || !cableNetworkData.odps) return;
+            
+            // Clear existing ODP layer
+            if (odpLayer) {
+                map.removeLayer(odpLayer);
+            }
+            
+            odpLayer = L.layerGroup();
+            
+            cableNetworkData.odps.forEach(odp => {
+                const percentage = (odp.used_ports / odp.capacity) * 100;
+                
+                // Determine color based on capacity usage
+                let color = '#28a745'; // Green - < 70%
+                if (percentage >= 90) color = '#dc3545'; // Red - > 90%
+                else if (percentage >= 70) color = '#ffc107'; // Yellow - 70-90%
+                
+                // Create custom ODP icon
+                const odpIcon = L.divIcon({
+                    className: 'odp-custom-icon',
+                    html: `
+                        <div class="odp-icon-container" style="
+                            width: 24px;
+                            height: 24px;
+                            background-color: ${color};
+                            border: 3px solid white;
+                            border-radius: 4px;
+                            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            position: relative;
+                        ">
+                            <div style="
+                                width: 8px;
+                                height: 8px;
+                                background-color: white;
+                                border-radius: 50%;
+                                position: relative;
+                            ">
+                                <div style="
+                                    position: absolute;
+                                    top: -2px;
+                                    left: 50%;
+                                    transform: translateX(-50%);
+                                    width: 4px;
+                                    height: 4px;
+                                    background-color: white;
+                                    border-radius: 50%;
+                                "></div>
+                                <div style="
+                                    position: absolute;
+                                    bottom: -2px;
+                                    left: 50%;
+                                    transform: translateX(-50%);
+                                    width: 4px;
+                                    height: 4px;
+                                    background-color: white;
+                                    border-radius: 50%;
+                                "></div>
+                            </div>
+                        </div>
+                    `,
+                    iconSize: [24, 24],
+                    iconAnchor: [12, 12]
+                });
+
+                // Create ODP marker with custom icon
+                const marker = L.marker([odp.latitude, odp.longitude], {
+                    icon: odpIcon
+                });
+                
+                // Create popup content
+                const popupContent = `
+                    <div class="odp-popup">
+                        <h6><i class="bx bx-broadcast"></i> ${odp.name}</h6>
+                        <div class="mb-2">
+                            <strong>Kode:</strong> ${odp.code}<br>
+                            <strong>Alamat:</strong> ${odp.address || 'Tidak ada'}<br>
+                            <strong>Status:</strong> <span class="badge bg-${odp.status === 'active' ? 'success' : 'warning'}">${odp.status}</span>
+                        </div>
+                        <div class="mb-2">
+                            <strong>Kapasitas:</strong> ${odp.used_ports}/${odp.capacity} ports<br>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar bg-${percentage >= 90 ? 'danger' : percentage >= 70 ? 'warning' : 'success'}" 
+                                     style="width: ${percentage}%"></div>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <strong>Pelanggan:</strong> ${odp.connected_customers || 0}<br>
+                            <strong>Aktif:</strong> ${odp.active_connections || 0}
+                        </div>
+                        <div class="d-flex gap-1">
+                            <button class="btn btn-sm btn-primary" onclick="viewODPDetails(${odp.id})">
+                                <i class="bx bx-info-circle"></i> Detail
+                            </button>
+                            <button class="btn btn-sm btn-secondary" onclick="copyCoordinates(${odp.latitude}, ${odp.longitude})">
+                                <i class="bx bx-copy"></i> Koordinat
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                marker.bindPopup(popupContent);
+                odpLayer.addLayer(marker);
+            });
+            
+            map.addLayer(odpLayer);
+        }
+
+        // Load cable routes
+        function loadCableRoutes() {
+            if (!cableNetworkData || !cableNetworkData.cableRoutes) return;
+            
+            // Clear existing cable layer
+            if (cableLayer) {
+                map.removeLayer(cableLayer);
+            }
+            
+            cableLayer = L.layerGroup();
+            
+            cableNetworkData.cableRoutes.forEach(cable => {
+                if (cable.customer_latitude && cable.customer_longitude && 
+                    cable.odp_latitude && cable.odp_longitude) {
+                    
+                    // Determine color based on status
+                    let color = '#28a745'; // Green - connected
+                    let dashArray = null;
+                    
+                    switch(cable.status) {
+                        case 'connected':
+                            color = '#28a745';
+                            break;
+                        case 'disconnected':
+                            color = '#dc3545';
+                            break;
+                        case 'maintenance':
+                            color = '#ffc107';
+                            dashArray = '10, 5';
+                            break;
+                        case 'damaged':
+                            color = '#6f42c1';
+                            break;
+                    }
+                    
+                    // Create cable route polyline
+                    const polyline = L.polyline([
+                        [cable.odp_latitude, cable.odp_longitude],
+                        [cable.customer_latitude, cable.customer_longitude]
+                    ], {
+                        color: color,
+                        weight: 3,
+                        opacity: 0.8,
+                        dashArray: dashArray,
+                        className: `cable-route cable-${cable.status}`
+                    });
+                    
+                    // Create popup content
+                    const popupContent = `
+                        <div class="cable-popup">
+                            <h6><i class="bx bx-cable-car"></i> Cable Route #${cable.id}</h6>
+                            <div class="mb-2">
+                                <strong>Customer:</strong> ${cable.customer_name}<br>
+                                <strong>Phone:</strong> ${cable.customer_phone}<br>
+                                <strong>ODP:</strong> ${cable.odp_name}<br>
+                                <strong>Status:</strong> <span class="badge bg-${cable.status === 'connected' ? 'success' : cable.status === 'disconnected' ? 'danger' : 'warning'}">${cable.status}</span>
+                            </div>
+                            <div class="mb-2">
+                                <strong>Length:</strong> ${cable.cable_length ? (parseFloat(cable.cable_length) / 1000).toFixed(1) + ' km' : 'N/A'}<br>
+                                <strong>Type:</strong> ${cable.cable_type || 'Fiber Optic'}<br>
+                                <strong>Port:</strong> ${cable.port_number || 'N/A'}
+                            </div>
+                            ${cable.notes ? `<div class="mb-2"><strong>Notes:</strong><br><small>${cable.notes}</small></div>` : ''}
+                        </div>
+                    `;
+                    
+                    polyline.bindPopup(popupContent);
+                    cableLayer.addLayer(polyline);
+                }
+            });
+            
+            map.addLayer(cableLayer);
+        }
+
+        // Load network segments
+        function loadNetworkSegments() {
+            if (!cableNetworkData || !cableNetworkData.networkSegments) return;
+            
+            // Clear existing network segment layer
+            if (networkSegmentLayer) {
+                map.removeLayer(networkSegmentLayer);
+            }
+            
+            networkSegmentLayer = L.layerGroup();
+            
+            cableNetworkData.networkSegments.forEach(segment => {
+                if (segment.start_latitude && segment.start_longitude && 
+                    segment.end_latitude && segment.end_longitude) {
+                    
+                    // Determine color and weight based on segment type
+                    let color = '#007bff'; // Blue - default
+                    let weight = 3;
+                    
+                    switch(segment.segment_type) {
+                        case 'Backbone':
+                            color = '#6f42c1'; // Purple
+                            weight = 5;
+                            break;
+                        case 'Distribution':
+                            color = '#fd7e14'; // Orange
+                            weight = 4;
+                            break;
+                        case 'Access':
+                            color = '#20c997'; // Teal
+                            weight = 3;
+                            break;
+                    }
+                    
+                    // Create network segment polyline
+                    const polyline = L.polyline([
+                        [segment.start_latitude, segment.start_longitude],
+                        [segment.end_latitude, segment.end_longitude]
+                    ], {
+                        color: color,
+                        weight: weight,
+                        opacity: 0.7,
+                        dashArray: segment.status === 'maintenance' ? '15, 10' : null
+                    });
+                    
+                    // Create popup content
+                    const popupContent = `
+                        <div class="network-popup">
+                            <h6><i class="bx bx-network-chart"></i> ${segment.name}</h6>
+                            <div class="mb-2">
+                                <strong>Type:</strong> ${segment.segment_type}<br>
+                                <strong>Status:</strong> <span class="badge bg-${segment.status === 'active' ? 'success' : 'warning'}">${segment.status}</span><br>
+                                <strong>Length:</strong> ${segment.cable_length ? (parseFloat(segment.cable_length) / 1000).toFixed(1) + ' km' : 'N/A'}
+                            </div>
+                            <div class="mb-2">
+                                <strong>From:</strong> ${segment.start_odp_name}<br>
+                                <strong>To:</strong> ${segment.end_odp_name || 'N/A'}
+                            </div>
+                            ${segment.notes ? `<div class="mb-2"><strong>Notes:</strong><br><small>${segment.notes}</small></div>` : ''}
+                        </div>
+                    `;
+                    
+                    polyline.bindPopup(popupContent);
+                    networkSegmentLayer.addLayer(polyline);
+                }
+            });
+            
+            map.addLayer(networkSegmentLayer);
+        }
+
+        // Toggle ODP layer
+        function toggleODPLayer() {
+            const checkbox = document.getElementById('showODPs');
+            if (checkbox.checked) {
+                if (!odpLayer) {
+                    loadODPs();
+                } else {
+                    map.addLayer(odpLayer);
+                }
+            } else {
+                if (odpLayer) {
+                    map.removeLayer(odpLayer);
+                }
+            }
+        }
+
+        // Toggle cable layer
+        function toggleCableLayer() {
+            const checkbox = document.getElementById('showCableRoutes');
+            if (checkbox.checked) {
+                if (!cableLayer) {
+                    loadCableRoutes();
+                } else {
+                    map.addLayer(cableLayer);
+                }
+            } else {
+                if (cableLayer) {
+                    map.removeLayer(cableLayer);
+                }
+            }
+        }
+
+        // Toggle network segment layer
+        function toggleNetworkSegmentLayer() {
+            const checkbox = document.getElementById('showNetworkSegments');
+            if (checkbox.checked) {
+                if (!networkSegmentLayer) {
+                    loadNetworkSegments();
+                } else {
+                    map.addLayer(networkSegmentLayer);
+                }
+            } else {
+                if (networkSegmentLayer) {
+                    map.removeLayer(networkSegmentLayer);
+                }
+            }
+        }
+
+        // View ODP details
+        function viewODPDetails(odpId) {
+            window.open(`/admin/cable-network/odp`, '_blank');
+        }
+
+        // Load cable network data when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load cable network data after a short delay to ensure map is initialized
+            setTimeout(loadCableNetworkData, 1000);
+        });
     </script>
 </body>
 </html>
