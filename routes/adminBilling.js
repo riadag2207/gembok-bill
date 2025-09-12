@@ -1552,10 +1552,20 @@ router.get('/customers', getAppSettings, async (req, res) => {
         const customers = await billingManager.getCustomers();
         const packages = await billingManager.getPackages();
         
+        // Get ODPs for dropdown selection
+        const odps = await new Promise((resolve, reject) => {
+            const db = require('../config/billing').db;
+            db.all('SELECT id, name, code, capacity, used_ports, status FROM odps WHERE status = "active" ORDER BY name', (err, rows) => {
+                if (err) reject(err);
+                else resolve(rows || []);
+            });
+        });
+        
         res.render('admin/billing/customers', {
             title: 'Kelola Pelanggan',
             customers,
             packages,
+            odps,
             appSettings: req.appSettings
         });
     } catch (error) {
@@ -1570,7 +1580,7 @@ router.get('/customers', getAppSettings, async (req, res) => {
 
 router.post('/customers', async (req, res) => {
     try {
-        const { name, username, phone, pppoe_username, email, address, package_id, pppoe_profile, auto_suspension, billing_day, create_pppoe_user, pppoe_password, static_ip, assigned_ip, mac_address, latitude, longitude } = req.body;
+        const { name, username, phone, pppoe_username, email, address, package_id, odp_id, pppoe_profile, auto_suspension, billing_day, create_pppoe_user, pppoe_password, static_ip, assigned_ip, mac_address, latitude, longitude } = req.body;
         
         // Validate required fields
         if (!name || !username || !phone || !package_id) {
@@ -1603,6 +1613,7 @@ router.post('/customers', async (req, res) => {
             email,
             address,
             package_id,
+            odp_id: odp_id || null,
             pppoe_profile: profileToUse,
             status: 'active',
             auto_suspension: auto_suspension !== undefined ? parseInt(auto_suspension) : 1,
@@ -1852,7 +1863,7 @@ router.get('/customers/:username/test', async (req, res) => {
 router.put('/customers/:phone', async (req, res) => {
     try {
         const { phone } = req.params;
-        const { name, username, pppoe_username, email, address, package_id, pppoe_profile, status, auto_suspension, billing_day, latitude, longitude, static_ip, assigned_ip, mac_address } = req.body;
+        const { name, username, pppoe_username, email, address, package_id, odp_id, pppoe_profile, status, auto_suspension, billing_day, latitude, longitude, static_ip, assigned_ip, mac_address } = req.body;
         
         // Validate required fields
         if (!name || !username || !package_id) {
@@ -1899,6 +1910,7 @@ router.put('/customers/:phone', async (req, res) => {
             email: email || currentCustomer.email,
             address: address || currentCustomer.address,
             package_id: package_id,
+            odp_id: odp_id !== undefined ? odp_id : currentCustomer.odp_id,
             pppoe_profile: profileToUse,
             status: status || currentCustomer.status,
             auto_suspension: auto_suspension !== undefined ? parseInt(auto_suspension) : currentCustomer.auto_suspension,
