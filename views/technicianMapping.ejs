@@ -1448,32 +1448,87 @@
         // Load cable network data for technician
         async function loadTechnicianCableNetworkData() {
             try {
+                console.log('📡 Fetching technician cable network data...');
                 const response = await fetch('/technician/api/cable-network-data');
                 const result = await response.json();
                 
                 if (result.success) {
                     technicianCableNetworkData = result.data;
-                    console.log('Technician cable network data loaded:', technicianCableNetworkData);
+                    console.log('✅ Technician cable network data loaded:', {
+                        odps: technicianCableNetworkData.odps?.length || 0,
+                        cableRoutes: technicianCableNetworkData.cableRoutes?.length || 0,
+                        networkSegments: technicianCableNetworkData.networkSegments?.length || 0
+                    });
+                    
+                    // Log cable routes details
+                    if (technicianCableNetworkData.cableRoutes) {
+                        console.log('🔌 Technician cable routes details:');
+                        technicianCableNetworkData.cableRoutes.forEach(route => {
+                            console.log(`- ${route.customer_name}: ODP=${route.odp_id} (${route.odp_name})`);
+                        });
+                    }
                     
                     // Load ODPs if checkbox is checked
                     if (document.getElementById('showODPs').checked) {
+                        console.log('📍 Loading technician ODPs...');
                         loadTechnicianODPs();
                     }
                     
                     // Load cable routes if checkbox is checked
                     if (document.getElementById('showCableRoutes').checked) {
+                        console.log('🔌 Loading technician cable routes...');
                         loadTechnicianCableRoutes();
                     }
                     
                     // Load network segments if checkbox is checked
                     if (document.getElementById('showNetworkSegments').checked) {
+                        console.log('🌐 Loading technician network segments...');
                         loadTechnicianNetworkSegments();
                     }
                 } else {
-                    console.error('Failed to load technician cable network data:', result.message);
+                    console.error('❌ Failed to load technician cable network data:', result.message);
                 }
             } catch (error) {
-                console.error('Error loading technician cable network data:', error);
+                console.error('❌ Error loading technician cable network data:', error);
+            }
+        }
+
+        // Refresh technician mapping data (untuk dipanggil setelah customer diupdate)
+        async function refreshTechnicianMappingData() {
+            try {
+                console.log('🔄 Refreshing technician mapping data...');
+                
+                // Clear existing layers
+                if (customerLayer) {
+                    console.log('🗑️ Removing customer layer');
+                    map.removeLayer(customerLayer);
+                    customerLayer = null;
+                }
+                if (technicianCableLayer) {
+                    console.log('🗑️ Removing cable layer');
+                    map.removeLayer(technicianCableLayer);
+                    technicianCableLayer = null;
+                }
+                if (technicianODPLayer) {
+                    console.log('🗑️ Removing ODP layer');
+                    map.removeLayer(technicianODPLayer);
+                    technicianODPLayer = null;
+                }
+                if (technicianNetworkSegmentLayer) {
+                    console.log('🗑️ Removing network segment layer');
+                    map.removeLayer(technicianNetworkSegmentLayer);
+                    technicianNetworkSegmentLayer = null;
+                }
+                
+                // Reload all data
+                console.log('📡 Reloading map data...');
+                await loadMapData();
+                console.log('📡 Reloading technician cable network data...');
+                await loadTechnicianCableNetworkData();
+                
+                console.log('✅ Technician mapping data refreshed successfully');
+            } catch (error) {
+                console.error('❌ Error refreshing technician mapping data:', error);
             }
         }
 
@@ -1850,6 +1905,26 @@
             // Load cable network data after map initialization
             setTimeout(loadTechnicianCableNetworkData, 2000);
         });
+
+        // Listen for customer update events (dari parent window atau storage events)
+        window.addEventListener('storage', function(e) {
+            console.log('📡 Storage event received:', e.key, e.newValue);
+            if (e.key === 'customer_updated') {
+                console.log('🔄 Customer update detected via storage, refreshing technician mapping...');
+                refreshTechnicianMappingData();
+                // Clear the storage event
+                localStorage.removeItem('customer_updated');
+            }
+        });
+
+        // Listen for custom events dari parent window
+        window.addEventListener('customerUpdated', function() {
+            console.log('🔄 Customer update event received via custom event, refreshing technician mapping...');
+            refreshTechnicianMappingData();
+        });
+
+        // Expose refresh function globally untuk dipanggil dari parent window
+        window.refreshTechnicianMappingData = refreshTechnicianMappingData;
     </script>
 </body>
 </html>

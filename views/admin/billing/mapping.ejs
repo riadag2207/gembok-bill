@@ -1341,6 +1341,45 @@
             }
         }
 
+        // Refresh mapping data (untuk dipanggil setelah customer diupdate)
+        async function refreshMappingData() {
+            try {
+                console.log('🔄 Refreshing mapping data...');
+                
+                // Clear existing layers
+                if (customerLayer) {
+                    console.log('🗑️ Removing customer layer');
+                    map.removeLayer(customerLayer);
+                    customerLayer = null;
+                }
+                if (cableLayer) {
+                    console.log('🗑️ Removing cable layer');
+                    map.removeLayer(cableLayer);
+                    cableLayer = null;
+                }
+                if (odpLayer) {
+                    console.log('🗑️ Removing ODP layer');
+                    map.removeLayer(odpLayer);
+                    odpLayer = null;
+                }
+                if (networkSegmentLayer) {
+                    console.log('🗑️ Removing network segment layer');
+                    map.removeLayer(networkSegmentLayer);
+                    networkSegmentLayer = null;
+                }
+                
+                // Reload all data
+                console.log('📡 Reloading map data...');
+                await loadMapData();
+                console.log('📡 Reloading cable network data...');
+                await loadCableNetworkData();
+                
+                console.log('✅ Mapping data refreshed successfully');
+            } catch (error) {
+                console.error('❌ Error refreshing mapping data:', error);
+            }
+        }
+
         // Add customer markers
         async function addCustomerMarkers(customers) {
             // Tentukan endpoint berdasarkan context
@@ -2497,32 +2536,48 @@
         // Load cable network data
         async function loadCableNetworkData() {
             try {
+                console.log('📡 Fetching cable network data...');
                 const response = await fetch('/admin/cable-network/api/mapping-data');
                 const result = await response.json();
                 
                 if (result.success) {
                     cableNetworkData = result.data;
-                    console.log('Cable network data loaded:', cableNetworkData);
+                    console.log('✅ Cable network data loaded:', {
+                        odps: cableNetworkData.odps?.length || 0,
+                        cableRoutes: cableNetworkData.cableRoutes?.length || 0,
+                        networkSegments: cableNetworkData.networkSegments?.length || 0
+                    });
+                    
+                    // Log cable routes details
+                    if (cableNetworkData.cableRoutes) {
+                        console.log('🔌 Cable routes details:');
+                        cableNetworkData.cableRoutes.forEach(route => {
+                            console.log(`- ${route.customer_name}: ODP=${route.odp_id} (${route.odp_name})`);
+                        });
+                    }
                     
                     // Load ODPs if checkbox is checked
                     if (document.getElementById('showODPs').checked) {
+                        console.log('📍 Loading ODPs...');
                         loadODPs();
                     }
                     
                     // Load cable routes if checkbox is checked
                     if (document.getElementById('showCableRoutes').checked) {
+                        console.log('🔌 Loading cable routes...');
                         loadCableRoutes();
                     }
                     
                     // Load network segments if checkbox is checked
                     if (document.getElementById('showNetworkSegments').checked) {
+                        console.log('🌐 Loading network segments...');
                         loadNetworkSegments();
                     }
                 } else {
-                    console.error('Failed to load cable network data:', result.message);
+                    console.error('❌ Failed to load cable network data:', result.message);
                 }
             } catch (error) {
-                console.error('Error loading cable network data:', error);
+                console.error('❌ Error loading cable network data:', error);
             }
         }
 
@@ -2853,6 +2908,26 @@
             // Load cable network data after a short delay to ensure map is initialized
             setTimeout(loadCableNetworkData, 1000);
         });
+
+        // Listen for customer update events (dari parent window atau storage events)
+        window.addEventListener('storage', function(e) {
+            console.log('📡 Storage event received:', e.key, e.newValue);
+            if (e.key === 'customer_updated') {
+                console.log('🔄 Customer update detected via storage, refreshing mapping...');
+                refreshMappingData();
+                // Clear the storage event
+                localStorage.removeItem('customer_updated');
+            }
+        });
+
+        // Listen for custom events dari parent window
+        window.addEventListener('customerUpdated', function() {
+            console.log('🔄 Customer update event received via custom event, refreshing mapping...');
+            refreshMappingData();
+        });
+
+        // Expose refresh function globally untuk dipanggil dari parent window
+        window.refreshMappingData = refreshMappingData;
     </script>
 </body>
 </html>

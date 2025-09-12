@@ -1382,6 +1382,12 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
+                    // Trigger mapping refresh
+                    console.log('🔄 Customer updated successfully, triggering mapping refresh...');
+                    localStorage.setItem('customer_updated', Date.now().toString());
+                    window.dispatchEvent(new CustomEvent('customerUpdated'));
+                    console.log('✅ Mapping refresh events triggered');
+                    
                     setTimeout(() => {
                         showToast('success', 'Pelanggan berhasil diupdate');
                         setTimeout(() => location.reload(), 1000);
