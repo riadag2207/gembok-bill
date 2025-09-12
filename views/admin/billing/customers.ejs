@@ -664,6 +664,20 @@
                             </select>
                         </div>
                         <div class="mb-3">
+                            <label for="odp_id" class="form-label">ODP (Optical Distribution Point)</label>
+                            <select class="form-control" id="odp_id" name="odp_id">
+                                <option value="">Pilih ODP (Opsional)</option>
+                                <% if (odps && odps.length > 0) { %>
+                                    <% odps.forEach(function(odp) { %>
+                                        <option value="<%= odp.id %>" data-capacity="<%= odp.capacity %>" data-used="<%= odp.used_ports %>">
+                                            <%= odp.name %> (<%= odp.code %>) - <%= odp.used_ports %>/<%= odp.capacity %> ports
+                                        </option>
+                                    <% }); %>
+                                <% } %>
+                            </select>
+                            <small class="form-text text-muted">Pilih ODP tempat pelanggan akan disambungkan (opsional, bisa ditambahkan nanti)</small>
+                        </div>
+                        <div class="mb-3">
                             <label for="pppoe_profile" class="form-label">PPPoE Profile</label>
                             <input type="text" class="form-control" id="pppoe_profile" name="pppoe_profile" placeholder="Profile akan otomatis terisi sesuai paket">
                             <small class="form-text text-muted">Profile PPPoE yang akan digunakan untuk pelanggan ini</small>
@@ -806,6 +820,20 @@
                                     <% }); %>
                                 <% } %>
                             </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_odp_id" class="form-label">ODP (Optical Distribution Point)</label>
+                            <select class="form-control" id="edit_odp_id" name="odp_id">
+                                <option value="">Pilih ODP (Opsional)</option>
+                                <% if (odps && odps.length > 0) { %>
+                                    <% odps.forEach(function(odp) { %>
+                                        <option value="<%= odp.id %>" data-capacity="<%= odp.capacity %>" data-used="<%= odp.used_ports %>">
+                                            <%= odp.name %> (<%= odp.code %>) - <%= odp.used_ports %>/<%= odp.capacity %> ports
+                                        </option>
+                                    <% }); %>
+                                <% } %>
+                            </select>
+                            <small class="form-text text-muted">Pilih ODP tempat pelanggan akan disambungkan (opsional)</small>
                         </div>
                         <div class="mb-3">
                             <label for="edit_pppoe_profile" class="form-label">PPPoE Profile</label>
@@ -1189,6 +1217,7 @@
                 pppoe_username: pppoeUser,
                 address: $('#address').val().trim(),
                 package_id: package_id,
+                odp_id: $('#odp_id').val() || null,
                 pppoe_profile: $('#pppoe_profile').val().trim() || 'default',
                 auto_suspension: $('#auto_suspension').val(),
                 create_pppoe_user: createPppoe ? 1 : 0,
@@ -1260,6 +1289,7 @@
                         $('#edit_latitude').val(customer.latitude || '');
                         $('#edit_longitude').val(customer.longitude || '');
                         $('#edit_package_id').val(customer.package_id || '');
+                        $('#edit_odp_id').val(customer.odp_id || '');
                         $('#edit_pppoe_profile').val(customer.pppoe_profile || '');
                         $('#edit_auto_suspension').val(customer.auto_suspension !== undefined ? customer.auto_suspension : 1);
                         $('#edit_status').val(customer.status);
@@ -1318,6 +1348,7 @@
                 pppoe_username: $('#edit_pppoe_username').val().trim(),
                 address: $('#edit_address').val().trim(),
                 package_id: package_id,
+                odp_id: $('#edit_odp_id').val() || null,
                 pppoe_profile: $('#edit_pppoe_profile').val().trim() || 'default',
                 auto_suspension: $('#edit_auto_suspension').val(),
                 status: $('#edit_status').val(),
