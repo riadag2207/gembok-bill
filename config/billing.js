@@ -237,44 +237,79 @@ class BillingManager {
                 notes TEXT,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )`,
+
+            // Tabel ODP (Optical Distribution Point)
+            `CREATE TABLE IF NOT EXISTS odps (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name VARCHAR(100) NOT NULL UNIQUE,
+                code VARCHAR(50) NOT NULL UNIQUE,
+                latitude DECIMAL(10,8) NOT NULL,
+                longitude DECIMAL(11,8) NOT NULL,
+                address TEXT,
+                capacity INTEGER DEFAULT 64,
+                used_ports INTEGER DEFAULT 0,
+                status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'maintenance', 'inactive')),
+                installation_date DATE,
+                notes TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )`,
+
+            // Tabel Cable Routes (Jalur Kabel dari ODP ke Pelanggan)
+            `CREATE TABLE IF NOT EXISTS cable_routes (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                customer_id INTEGER NOT NULL,
+                odp_id INTEGER NOT NULL,
+                cable_length DECIMAL(8,2),
+                cable_type VARCHAR(50) DEFAULT 'Fiber Optic',
+                installation_date DATE,
+                status VARCHAR(20) DEFAULT 'connected' CHECK (status IN ('connected', 'disconnected', 'maintenance', 'damaged')),
+                port_number INTEGER,
+                notes TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE CASCADE,
+                FOREIGN KEY (odp_id) REFERENCES odps(id) ON DELETE CASCADE
+            )`,
+
+            // Tabel Network Segments (Segmen Jaringan)
+            `CREATE TABLE IF NOT EXISTS network_segments (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name VARCHAR(100) NOT NULL,
+                start_odp_id INTEGER NOT NULL,
+                end_odp_id INTEGER,
+                segment_type VARCHAR(50) DEFAULT 'Backbone' CHECK (segment_type IN ('Backbone', 'Distribution', 'Access')),
+                cable_length DECIMAL(10,2),
+                status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'maintenance', 'damaged', 'inactive')),
+                installation_date DATE,
+                notes TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (start_odp_id) REFERENCES odps(id) ON DELETE CASCADE,
+                FOREIGN KEY (end_odp_id) REFERENCES odps(id) ON DELETE CASCADE
+            )`,
+
+            // Tabel Cable Maintenance Log
+            `CREATE TABLE IF NOT EXISTS cable_maintenance_logs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                cable_route_id INTEGER,
+                network_segment_id INTEGER,
+                maintenance_type VARCHAR(50) NOT NULL CHECK (maintenance_type IN ('repair', 'replacement', 'inspection', 'upgrade')),
+                description TEXT NOT NULL,
+                performed_by INTEGER,
+                maintenance_date DATE NOT NULL,
+                duration_hours DECIMAL(4,2),
+                cost DECIMAL(12,2),
+                notes TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (cable_route_id) REFERENCES cable_routes(id) ON DELETE CASCADE,
+                FOREIGN KEY (network_segment_id) REFERENCES network_segments(id) ON DELETE CASCADE
             )`
         ];
 
-        tables.forEach(table => {
-            this.db.run(table, (err) => {
-                if (err) {
-                    console.error('Error creating table:', err);
-                }
-            });
-        });
-
-        // Tambahkan kolom pppoe_username jika belum ada
-        this.db.run("ALTER TABLE customers ADD COLUMN pppoe_username TEXT", (err) => {
-            if (err && !err.message.includes('duplicate column name')) {
-                console.error('Error adding pppoe_username column:', err);
-            }
-        });
-
-        // Tambahkan kolom payment_gateway jika belum ada
-        this.db.run("ALTER TABLE invoices ADD COLUMN payment_gateway TEXT", (err) => {
-            if (err && !err.message.includes('duplicate column name')) {
-                console.error('Error adding payment_gateway column:', err);
-            }
-        });
-
-        // Tambahkan kolom payment_token jika belum ada
-        this.db.run("ALTER TABLE invoices ADD COLUMN payment_token TEXT", (err) => {
-            if (err && !err.message.includes('duplicate column name')) {
-                console.error('Error adding payment_token column:', err);
-            }
-        });
-
-        // Tambahkan kolom payment_url jika belum ada
-        this.db.run("ALTER TABLE invoices ADD COLUMN payment_url TEXT", (err) => {
-            if (err && !err.message.includes('duplicate column name')) {
-                console.error('Error adding payment_url column:', err);
-            }
-        });
+        // Create tables sequentially to ensure proper order
+        this.createTablesSequentially(tables);
 
         // Tambahkan kolom payment_status jika belum ada
         this.db.run("ALTER TABLE invoices ADD COLUMN payment_status TEXT DEFAULT 'pending'", (err) => {
@@ -351,6 +386,139 @@ class BillingManager {
             } else {
                 console.log('Updated null usernames for existing customers');
             }
+        });
+    }
+
+    createTablesSequentially(tables) {
+        let currentIndex = 0;
+        
+        const createNextTable = () => {
+            if (currentIndex >= tables.length) {
+                // All tables created, now add columns and create indexes/triggers
+                this.addColumnsAndCreateIndexes();
+                return;
+            }
+            
+            const tableSQL = tables[currentIndex];
+            this.db.run(tableSQL, (err) => {
+                if (err) {
+                    console.error('Error creating table:', err);
+                }
+                currentIndex++;
+                createNextTable();
+            });
+        };
+        
+        createNextTable();
+    }
+
+    addColumnsAndCreateIndexes() {
+        // Tambahkan kolom pppoe_username jika belum ada
+        this.db.run("ALTER TABLE customers ADD COLUMN pppoe_username TEXT", (err) => {
+            if (err && !err.message.includes('duplicate column name')) {
+                console.error('Error adding pppoe_username column:', err);
+            }
+        });
+
+        // Tambahkan kolom payment_gateway jika belum ada
+        this.db.run("ALTER TABLE invoices ADD COLUMN payment_gateway TEXT", (err) => {
+            if (err && !err.message.includes('duplicate column name')) {
+                console.error('Error adding payment_gateway column:', err);
+            }
+        });
+
+        // Tambahkan kolom payment_token jika belum ada
+        this.db.run("ALTER TABLE invoices ADD COLUMN payment_token TEXT", (err) => {
+            if (err && !err.message.includes('duplicate column name')) {
+                console.error('Error adding payment_token column:', err);
+            }
+        });
+
+        // Tambahkan kolom payment_url jika belum ada
+        this.db.run("ALTER TABLE invoices ADD COLUMN payment_url TEXT", (err) => {
+            if (err && !err.message.includes('duplicate column name')) {
+                console.error('Error adding payment_url column:', err);
+            }
+        });
+
+        // Buat index untuk tabel ODP dan Cable Network
+        this.createODPIndexes();
+        
+        // Buat trigger untuk tabel ODP dan Cable Network
+        this.createODPTriggers();
+    }
+
+    createODPIndexes() {
+        const indexes = [
+            // Indexes untuk performa ODP dan Cable Network
+            'CREATE INDEX IF NOT EXISTS idx_odps_location ON odps(latitude, longitude)',
+            'CREATE INDEX IF NOT EXISTS idx_odps_status ON odps(status)',
+            'CREATE INDEX IF NOT EXISTS idx_cable_routes_customer ON cable_routes(customer_id)',
+            'CREATE INDEX IF NOT EXISTS idx_cable_routes_odp ON cable_routes(odp_id)',
+            'CREATE INDEX IF NOT EXISTS idx_cable_routes_status ON cable_routes(status)',
+            'CREATE INDEX IF NOT EXISTS idx_network_segments_start ON network_segments(start_odp_id)',
+            'CREATE INDEX IF NOT EXISTS idx_network_segments_end ON network_segments(end_odp_id)',
+            'CREATE INDEX IF NOT EXISTS idx_network_segments_status ON network_segments(status)',
+            'CREATE INDEX IF NOT EXISTS idx_maintenance_logs_route ON cable_maintenance_logs(cable_route_id)',
+            'CREATE INDEX IF NOT EXISTS idx_maintenance_logs_segment ON cable_maintenance_logs(network_segment_id)',
+            'CREATE INDEX IF NOT EXISTS idx_maintenance_logs_date ON cable_maintenance_logs(maintenance_date)'
+        ];
+
+        indexes.forEach(indexSQL => {
+            this.db.run(indexSQL, (err) => {
+                if (err) {
+                    console.error('Error creating ODP index:', err);
+                }
+            });
+        });
+    }
+
+    createODPTriggers() {
+        const triggers = [
+            // Triggers untuk update timestamp
+            `CREATE TRIGGER IF NOT EXISTS update_odps_updated_at 
+                AFTER UPDATE ON odps
+                FOR EACH ROW
+            BEGIN
+                UPDATE odps SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
+            END`,
+            
+            `CREATE TRIGGER IF NOT EXISTS update_cable_routes_updated_at 
+                AFTER UPDATE ON cable_routes
+                FOR EACH ROW
+            BEGIN
+                UPDATE cable_routes SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
+            END`,
+            
+            `CREATE TRIGGER IF NOT EXISTS update_network_segments_updated_at 
+                AFTER UPDATE ON network_segments
+                FOR EACH ROW
+            BEGIN
+                UPDATE network_segments SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
+            END`,
+            
+            // Triggers untuk update used_ports di ODP
+            `CREATE TRIGGER IF NOT EXISTS update_odp_used_ports_insert
+                AFTER INSERT ON cable_routes
+                FOR EACH ROW
+            BEGIN
+                UPDATE odps SET used_ports = used_ports + 1 WHERE id = NEW.odp_id;
+            END`,
+            
+            `CREATE TRIGGER IF NOT EXISTS update_odp_used_ports_delete
+                AFTER DELETE ON cable_routes
+                FOR EACH ROW
+            BEGIN
+                UPDATE odps SET used_ports = used_ports - 1 WHERE id = OLD.odp_id;
+            END`
+        ];
+
+        triggers.forEach(triggerSQL => {
+            this.db.run(triggerSQL, (err) => {
+                if (err) {
+                    console.error('Error creating ODP trigger:', err);
+                }
+            });
         });
     }
 
