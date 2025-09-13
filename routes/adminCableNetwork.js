@@ -202,7 +202,7 @@ router.post('/odp', adminAuth, async (req, res) => {
         }
         
         // Insert ODP baru
-        await new Promise((resolve, reject) => {
+        const newODPId = await new Promise((resolve, reject) => {
             db.run(`
                 INSERT INTO odps (name, code, parent_odp_id, latitude, longitude, address, capacity, status, notes)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -212,12 +212,24 @@ router.post('/odp', adminAuth, async (req, res) => {
             });
         });
         
+        // Ambil data ODP yang baru dibuat untuk response
+        const newODP = await new Promise((resolve, reject) => {
+            db.get('SELECT * FROM odps WHERE id = ?', [newODPId], (err, row) => {
+                if (err) reject(err);
+                else resolve(row);
+            });
+        });
+        
         db.close();
         
         res.json({
             success: true,
             message: 'ODP berhasil ditambahkan',
-            data: { id: this.lastID }
+            data: { 
+                id: newODPId,
+                odp: newODP,
+                suggestNetworkSegment: true // Flag untuk menyarankan membuat network segment
+            }
         });
         
     } catch (error) {
@@ -960,6 +972,370 @@ router.get('/api/odp/:id/cable-routes', adminAuth, async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Gagal mengambil cable routes untuk ODP'
+        });
+    }
+});
+
+// ===== NETWORK SEGMENT MANAGEMENT =====
+
+// GET: Halaman Network Segments
+router.get('/network-segments', adminAuth, getAppSettings, async (req, res) => {
+    try {
+        const db = getDatabase();
+        
+        // Ambil data network segments dengan detail ODP
+        const networkSegments = await new Promise((resolve, reject) => {
+            db.all(`
+                SELECT ns.*, 
+                       o1.name as start_odp_name, o1.code as start_odp_code,
+                       o2.name as end_odp_name, o2.code as end_odp_code
+                FROM network_segments ns
+                JOIN odps o1 ON ns.start_odp_id = o1.id
+                LEFT JOIN odps o2 ON ns.end_odp_id = o2.id
+                ORDER BY ns.created_at DESC
+            `, [], (err, rows) => {
+                if (err) reject(err);
+                else resolve(rows);
+            });
+        });
+        
+        // Ambil data ODP untuk dropdown
+        const odps = await new Promise((resolve, reject) => {
+            db.all('SELECT * FROM odps WHERE status = "active" ORDER BY name', [], (err, rows) => {
+                if (err) reject(err);
+                else resolve(rows);
+            });
+        });
+        
+        db.close();
+        
+        res.render('admin/cable-network/network-segments', {
+            title: 'Network Segments Management',
+            page: 'network-segments',
+            networkSegments,
+            odps,
+            appSettings: req.appSettings
+        });
+    } catch (error) {
+        logger.error('Error loading network segments page:', error);
+        res.status(500).render('error', {
+            message: 'Error loading network segments page',
+            error: error.message,
+            appSettings: req.appSettings
+        });
+    }
+});
+
+// GET: Single Network Segment (untuk edit)
+router.get('/network-segments/:id', adminAuth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const db = getDatabase();
+        
+        const segment = await new Promise((resolve, reject) => {
+            db.get(`
+                SELECT ns.*, 
+                       o1.name as start_odp_name, o1.code as start_odp_code,
+                       o2.name as end_odp_name, o2.code as end_odp_code
+                FROM network_segments ns
+                JOIN odps o1 ON ns.start_odp_id = o1.id
+                LEFT JOIN odps o2 ON ns.end_odp_id = o2.id
+                WHERE ns.id = ?
+            `, [id], (err, row) => {
+                if (err) reject(err);
+                else resolve(row);
+            });
+        });
+        
+        db.close();
+        
+        if (segment) {
+            res.json({
+                success: true,
+                data: segment
+            });
+        } else {
+            res.status(404).json({
+                success: false,
+                message: 'Network segment tidak ditemukan'
+            });
+        }
+    } catch (error) {
+        logger.error('Error getting network segment:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error getting network segment'
+        });
+    }
+});
+
+// POST: Tambah Network Segment
+router.post('/network-segments', adminAuth, async (req, res) => {
+    try {
+        const { name, start_odp_id, end_odp_id, segment_type, cable_length, status, notes } = req.body;
+        
+        // Validasi input
+        if (!name || !start_odp_id) {
+            return res.status(400).json({
+                success: false,
+                message: 'Nama dan Start ODP wajib diisi'
+            });
+        }
+        
+        const db = getDatabase();
+        
+        // Cek apakah start ODP ada
+        const startODP = await new Promise((resolve, reject) => {
+            db.get('SELECT id, name, latitude, longitude FROM odps WHERE id = ?', [start_odp_id], (err, row) => {
+                if (err) reject(err);
+                else resolve(row);
+            });
+        });
+        
+        if (!startODP) {
+            db.close();
+            return res.status(400).json({
+                success: false,
+                message: 'Start ODP tidak ditemukan'
+            });
+        }
+        
+        // Cek apakah end ODP ada (jika diisi)
+        let endODP = null;
+        if (end_odp_id) {
+            endODP = await new Promise((resolve, reject) => {
+                db.get('SELECT id, name, latitude, longitude FROM odps WHERE id = ?', [end_odp_id], (err, row) => {
+                    if (err) reject(err);
+                    else resolve(row);
+                });
+            });
+            
+            if (!endODP) {
+                db.close();
+                return res.status(400).json({
+                    success: false,
+                    message: 'End ODP tidak ditemukan'
+                });
+            }
+        }
+        
+        // Hitung panjang kabel otomatis jika tidak diisi
+        let calculatedLength = cable_length;
+        if (!cable_length && endODP) {
+            calculatedLength = CableNetworkUtils.calculateCableDistance(
+                { latitude: startODP.latitude, longitude: startODP.longitude },
+                { latitude: endODP.latitude, longitude: endODP.longitude }
+            );
+        }
+        
+        // Insert network segment
+        const result = await new Promise((resolve, reject) => {
+            db.run(`
+                INSERT INTO network_segments (name, start_odp_id, end_odp_id, segment_type, cable_length, status, notes)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            `, [name, start_odp_id, end_odp_id || null, segment_type || 'Backbone', calculatedLength, status || 'active', notes], function(err) {
+                if (err) reject(err);
+                else resolve(this.lastID);
+            });
+        });
+        
+        db.close();
+        
+        res.json({
+            success: true,
+            message: 'Network segment berhasil ditambahkan',
+            data: { 
+                id: result,
+                cable_length: calculatedLength
+            }
+        });
+        
+    } catch (error) {
+        logger.error('Error adding network segment:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Gagal menambahkan network segment'
+        });
+    }
+});
+
+// PUT: Update Network Segment
+router.put('/network-segments/:id', adminAuth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, start_odp_id, end_odp_id, segment_type, cable_length, status, notes } = req.body;
+        
+        const db = getDatabase();
+        
+        // Cek apakah network segment ada
+        const existingSegment = await new Promise((resolve, reject) => {
+            db.get('SELECT * FROM network_segments WHERE id = ?', [id], (err, row) => {
+                if (err) reject(err);
+                else resolve(row);
+            });
+        });
+        
+        if (!existingSegment) {
+            db.close();
+            return res.status(404).json({
+                success: false,
+                message: 'Network segment tidak ditemukan'
+            });
+        }
+        
+        // Update network segment
+        await new Promise((resolve, reject) => {
+            db.run(`
+                UPDATE network_segments 
+                SET name = ?, start_odp_id = ?, end_odp_id = ?, segment_type = ?, 
+                    cable_length = ?, status = ?, notes = ?, updated_at = CURRENT_TIMESTAMP
+                WHERE id = ?
+            `, [name, start_odp_id, end_odp_id || null, segment_type, cable_length, status, notes, id], function(err) {
+                if (err) reject(err);
+                else resolve(this.changes);
+            });
+        });
+        
+        db.close();
+        
+        res.json({
+            success: true,
+            message: 'Network segment berhasil diperbarui'
+        });
+        
+    } catch (error) {
+        logger.error('Error updating network segment:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Gagal memperbarui network segment'
+        });
+    }
+});
+
+// DELETE: Hapus Network Segment
+router.delete('/network-segments/:id', adminAuth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const db = getDatabase();
+        
+        // Cek apakah network segment ada
+        const existingSegment = await new Promise((resolve, reject) => {
+            db.get('SELECT * FROM network_segments WHERE id = ?', [id], (err, row) => {
+                if (err) reject(err);
+                else resolve(row);
+            });
+        });
+        
+        if (!existingSegment) {
+            db.close();
+            return res.status(404).json({
+                success: false,
+                message: 'Network segment tidak ditemukan'
+            });
+        }
+        
+        // Hapus network segment
+        await new Promise((resolve, reject) => {
+            db.run('DELETE FROM network_segments WHERE id = ?', [id], function(err) {
+                if (err) reject(err);
+                else resolve(this.changes);
+            });
+        });
+        
+        db.close();
+        
+        res.json({
+            success: true,
+            message: 'Network segment berhasil dihapus'
+        });
+        
+    } catch (error) {
+        logger.error('Error deleting network segment:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Gagal menghapus network segment'
+        });
+    }
+});
+
+// POST: Buat Network Segment Otomatis untuk ODP Baru
+router.post('/network-segments/auto-create', adminAuth, async (req, res) => {
+    try {
+        const { new_odp_id, connect_to_odp_id, segment_type, segment_name } = req.body;
+        
+        // Validasi input
+        if (!new_odp_id || !connect_to_odp_id) {
+            return res.status(400).json({
+                success: false,
+                message: 'New ODP ID dan Connect To ODP ID wajib diisi'
+            });
+        }
+        
+        const db = getDatabase();
+        
+        // Cek apakah kedua ODP ada
+        const newODP = await new Promise((resolve, reject) => {
+            db.get('SELECT id, name, code, latitude, longitude FROM odps WHERE id = ?', [new_odp_id], (err, row) => {
+                if (err) reject(err);
+                else resolve(row);
+            });
+        });
+        
+        const connectODP = await new Promise((resolve, reject) => {
+            db.get('SELECT id, name, code, latitude, longitude FROM odps WHERE id = ?', [connect_to_odp_id], (err, row) => {
+                if (err) reject(err);
+                else resolve(row);
+            });
+        });
+        
+        if (!newODP || !connectODP) {
+            db.close();
+            return res.status(400).json({
+                success: false,
+                message: 'ODP tidak ditemukan'
+            });
+        }
+        
+        // Hitung panjang kabel otomatis
+        const cableLength = CableNetworkUtils.calculateCableDistance(
+            { latitude: newODP.latitude, longitude: newODP.longitude },
+            { latitude: connectODP.latitude, longitude: connectODP.longitude }
+        );
+        
+        // Buat nama segment otomatis jika tidak diisi
+        const autoSegmentName = segment_name || `${newODP.name} - ${connectODP.name}`;
+        
+        // Insert network segment
+        const result = await new Promise((resolve, reject) => {
+            db.run(`
+                INSERT INTO network_segments (name, start_odp_id, end_odp_id, segment_type, cable_length, status, notes)
+                VALUES (?, ?, ?, ?, ?, 'active', ?)
+            `, [autoSegmentName, new_odp_id, connect_to_odp_id, segment_type || 'Distribution', cableLength, `Auto-created when adding ODP ${newODP.name}`], function(err) {
+                if (err) reject(err);
+                else resolve(this.lastID);
+            });
+        });
+        
+        db.close();
+        
+        res.json({
+            success: true,
+            message: 'Network segment berhasil dibuat otomatis',
+            data: { 
+                id: result,
+                name: autoSegmentName,
+                cable_length: cableLength,
+                start_odp: newODP,
+                end_odp: connectODP
+            }
+        });
+        
+    } catch (error) {
+        logger.error('Error auto-creating network segment:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Gagal membuat network segment otomatis'
         });
     }
 });
