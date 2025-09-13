@@ -60,14 +60,14 @@ class BillingManager {
 
     async updateCustomerById(id, customerData) {
         return new Promise(async (resolve, reject) => {
-            const { name, username, pppoe_username, email, address, latitude, longitude, package_id, pppoe_profile, status, auto_suspension, billing_day } = customerData;
+            const { name, username, pppoe_username, email, address, latitude, longitude, package_id, pppoe_profile, status, auto_suspension, billing_day, odp_id } = customerData;
             try {
                 const oldCustomer = await this.getCustomerById(id);
                 if (!oldCustomer) return reject(new Error('Customer not found'));
 
                 const normBillingDay = Math.min(Math.max(parseInt(billing_day !== undefined ? billing_day : (oldCustomer?.billing_day ?? 15), 10) || 15, 1), 28);
 
-                const sql = `UPDATE customers SET name = ?, username = ?, pppoe_username = ?, email = ?, address = ?, latitude = ?, longitude = ?, package_id = ?, pppoe_profile = ?, status = ?, auto_suspension = ?, billing_day = ? WHERE id = ?`;
+                const sql = `UPDATE customers SET name = ?, username = ?, pppoe_username = ?, email = ?, address = ?, latitude = ?, longitude = ?, package_id = ?, pppoe_profile = ?, status = ?, auto_suspension = ?, billing_day = ?, odp_id = ? WHERE id = ?`;
                 this.db.run(sql, [
                     name ?? oldCustomer.name,
                     username ?? oldCustomer.username,
@@ -81,11 +81,23 @@ class BillingManager {
                     status ?? oldCustomer.status,
                     auto_suspension !== undefined ? auto_suspension : oldCustomer.auto_suspension,
                     normBillingDay,
+                    odp_id !== undefined ? odp_id : oldCustomer.odp_id,
                     id
                 ], async function(err) {
                     if (err) {
                         reject(err);
                     } else {
+                        // Update cable routes jika ODP berubah
+                        if (odp_id !== undefined && odp_id !== oldCustomer.odp_id) {
+                            try {
+                                await this.updateCustomerCableRoute(id, odp_id);
+                                console.log(`Updated cable route for customer ${oldCustomer.username} to ODP ${odp_id}`);
+                            } catch (cableError) {
+                                console.error(`Error updating cable route for customer ${oldCustomer.username}:`, cableError.message);
+                                // Jangan reject, karena customer sudah berhasil diupdate
+                            }
+                        }
+                        
                         resolve({ username: oldCustomer.username, id, ...customerData });
                     }
                 });
@@ -669,6 +681,17 @@ class BillingManager {
                             }
                         } catch (genieacsError) {
                             console.log(`⚠️ GenieACS integration skipped for customer ${finalUsername}: ${genieacsError.message}`);
+                        }
+                    }
+                    
+                    // Buat cable route otomatis jika customer dibuat dengan ODP
+                    if (customerData.odp_id) {
+                        try {
+                            await this.updateCustomerCableRoute(customer.id, customerData.odp_id);
+                            console.log(`✅ Auto-created cable route for new customer ${finalUsername} to ODP ${customerData.odp_id}`);
+                        } catch (cableError) {
+                            console.error(`⚠️ Error auto-creating cable route for new customer ${finalUsername}:`, cableError.message);
+                            // Jangan reject, karena customer sudah berhasil dibuat
                         }
                     }
                     
