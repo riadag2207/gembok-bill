@@ -53,6 +53,9 @@
                 <a class="nav-link" href="/admin/cable-network/cables">
                     <i class="bx bx-cable-car"></i> Cable Routes
                 </a>
+                <a class="nav-link" href="/admin/cable-network/network-segments">
+                    <i class="bx bx-network-chart"></i> Network Segments
+                </a>
                 <a class="nav-link" href="/admin/billing/mapping">
                     <i class="bx bx-map"></i> Map View
                 </a>
@@ -573,7 +576,15 @@
                 if (result.success) {
                     showAlert('success', result.message);
                     bootstrap.Modal.getInstance(document.getElementById('addODPModal')).hide();
-                    setTimeout(() => location.reload(), 1000);
+                    
+                    // Jika ada flag suggestNetworkSegment, tampilkan modal untuk membuat network segment
+                    if (result.data && result.data.suggestNetworkSegment) {
+                        setTimeout(() => {
+                            showNetworkSegmentModal(result.data.odp);
+                        }, 500);
+                    } else {
+                        setTimeout(() => location.reload(), 1000);
+                    }
                 } else {
                     showAlert('danger', result.message);
                 }
@@ -1044,6 +1055,141 @@
                     alertDiv.parentNode.removeChild(alertDiv);
                 }
             }, 5000);
+        }
+
+        // Show Network Segment Modal
+        function showNetworkSegmentModal(newODP) {
+            // Ambil data ODP yang sudah ada untuk dropdown
+            fetch('/admin/cable-network/odp')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const existingODPs = data.odps.filter(odp => odp.id !== newODP.id);
+                        
+                        // Buat modal HTML
+                        const modalHTML = `
+                            <div class="modal fade" id="networkSegmentModal" tabindex="-1">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">
+                                                <i class="bx bx-network-chart me-2"></i>Buat Network Segment
+                                            </h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="alert alert-info">
+                                                <i class="bx bx-info-circle me-2"></i>
+                                                ODP baru "<strong>${newODP.name}</strong>" berhasil ditambahkan. 
+                                                Apakah Anda ingin membuat network segment untuk menghubungkannya dengan ODP yang sudah ada?
+                                            </div>
+                                            
+                                            <form id="networkSegmentForm">
+                                                <input type="hidden" id="newODPId" value="${newODP.id}">
+                                                
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="mb-3">
+                                                            <label for="segmentName" class="form-label">Nama Segment</label>
+                                                            <input type="text" class="form-control" id="segmentName" value="${newODP.name} - " required>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="mb-3">
+                                                            <label for="segmentType" class="form-label">Tipe Segment</label>
+                                                            <select class="form-select" id="segmentType" required>
+                                                                <option value="Distribution">Distribution</option>
+                                                                <option value="Backbone">Backbone</option>
+                                                                <option value="Access">Access</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="mb-3">
+                                                    <label for="connectToODP" class="form-label">Hubungkan ke ODP</label>
+                                                    <select class="form-select" id="connectToODP" required>
+                                                        <option value="">Pilih ODP yang akan dihubungkan</option>
+                                                        ${existingODPs.map(odp => `<option value="${odp.id}">${odp.name} (${odp.code})</option>`).join('')}
+                                                    </select>
+                                                </div>
+                                                
+                                                <div class="mb-3">
+                                                    <label for="segmentNotes" class="form-label">Notes</label>
+                                                    <textarea class="form-control" id="segmentNotes" rows="2">Auto-created when adding ODP ${newODP.name}</textarea>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Lewati</button>
+                                            <button type="button" class="btn btn-primary" onclick="createNetworkSegment()">
+                                                <i class="bx bx-plus me-2"></i>Buat Network Segment
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        
+                        // Tambahkan modal ke body
+                        document.body.insertAdjacentHTML('beforeend', modalHTML);
+                        
+                        // Tampilkan modal
+                        const modal = new bootstrap.Modal(document.getElementById('networkSegmentModal'));
+                        modal.show();
+                        
+                        // Cleanup modal ketika ditutup
+                        document.getElementById('networkSegmentModal').addEventListener('hidden.bs.modal', function() {
+                            this.remove();
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading ODPs:', error);
+                    showAlert('danger', 'Error loading ODP data');
+                });
+        }
+
+        // Create Network Segment
+        async function createNetworkSegment() {
+            const newODPId = document.getElementById('newODPId').value;
+            const connectToODPId = document.getElementById('connectToODP').value;
+            const segmentName = document.getElementById('segmentName').value;
+            const segmentType = document.getElementById('segmentType').value;
+            const segmentNotes = document.getElementById('segmentNotes').value;
+            
+            if (!connectToODPId) {
+                showAlert('danger', 'Pilih ODP yang akan dihubungkan');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/admin/cable-network/network-segments/auto-create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        new_odp_id: newODPId,
+                        connect_to_odp_id: connectToODPId,
+                        segment_type: segmentType,
+                        segment_name: segmentName,
+                        notes: segmentNotes
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert('success', result.message);
+                    bootstrap.Modal.getInstance(document.getElementById('networkSegmentModal')).hide();
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showAlert('danger', result.message);
+                }
+            } catch (error) {
+                showAlert('danger', 'Error: ' + error.message);
+            }
         }
     </script>
 </body>
