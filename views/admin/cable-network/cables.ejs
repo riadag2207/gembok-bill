@@ -295,7 +295,7 @@
                                             <small><%= customer.address || 'No address' %></small>
                                         </p>
                                         <button class="btn btn-sm btn-warning" onclick="assignCableToCustomer(<%= customer.id %>)">
-                                            <i class="bx bx-plus"></i> Assign Cable
+                                            <i class="bx bx-plus"></i> Sambungkan Kabel
                                         </button>
                                     </div>
                                 </div>
@@ -659,7 +659,7 @@
             editModal.show();
         }
 
-        // Assign Cable to Customer
+        // Sambungkan Kabel ke Customer
         function assignCableToCustomer(customerId) {
             // Pre-fill customer in modal
             const modal = new bootstrap.Modal(document.getElementById('addCableModal'));

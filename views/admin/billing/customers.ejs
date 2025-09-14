@@ -618,6 +618,62 @@
                                 </div>
                             </div>
                         </div>
+                        
+                        <!-- Cable Connection Section -->
+                        <div class="card border-success mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="bx bx-cable-car me-2"></i>Sambungkan Kabel (Opsional)</h6>
+                                <small class="text-muted">Konfigurasi jalur kabel dari ODP ke pelanggan</small>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="cable_type" class="form-label">Tipe Kabel</label>
+                                            <select class="form-select" id="cable_type" name="cable_type">
+                                                <option value="">Pilih Tipe Kabel</option>
+                                                <option value="fiber">Fiber Optic</option>
+                                                <option value="copper">Copper</option>
+                                                <option value="wireless">Wireless</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="cable_length" class="form-label">Panjang Kabel (meter)</label>
+                                            <input type="number" class="form-control" id="cable_length" name="cable_length" placeholder="50" min="1">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="port_number" class="form-label">Nomor Port ODP</label>
+                                            <input type="number" class="form-control" id="port_number" name="port_number" placeholder="1" min="1" max="24">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="cable_status" class="form-label">Status Kabel</label>
+                                            <select class="form-select" id="cable_status" name="cable_status">
+                                                <option value="connected">Terhubung</option>
+                                                <option value="disconnected">Terputus</option>
+                                                <option value="maintenance">Maintenance</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="cable_notes" class="form-label">Catatan Kabel</label>
+                                    <textarea class="form-control" id="cable_notes" name="cable_notes" rows="2" placeholder="Catatan khusus tentang instalasi kabel..."></textarea>
+                                </div>
+                                <div class="alert alert-info">
+                                    <i class="bx bx-info-circle me-2"></i>
+                                    <strong>Info:</strong> Jika ODP sudah dipilih di atas, sistem akan otomatis membuat jalur kabel. Pastikan ODP memiliki kapasitas port yang tersedia.
+                                </div>
+                            </div>
+                        </div>
+                        
                         <div class="mb-3">
                             <label for="address" class="form-label">Alamat</label>
                             <textarea class="form-control" id="address" name="address" rows="3"></textarea>
@@ -861,6 +917,62 @@
                             <input type="number" class="form-control" id="edit_billing_day" name="billing_day" min="1" max="28" value="15">
                             <small class="form-text text-muted">Tanggal jatuh tempo tagihan setiap bulan. Nilai di luar 28 akan disesuaikan.</small>
                         </div>
+                        
+                        <!-- Cable Connection Section for Edit -->
+                        <div class="card border-success mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="bx bx-cable-car me-2"></i>Sambungkan Kabel (Opsional)</h6>
+                                <small class="text-muted">Konfigurasi jalur kabel dari ODP ke pelanggan</small>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="edit_cable_type" class="form-label">Tipe Kabel</label>
+                                            <select class="form-select" id="edit_cable_type" name="cable_type">
+                                                <option value="">Pilih Tipe Kabel</option>
+                                                <option value="fiber">Fiber Optic</option>
+                                                <option value="copper">Copper</option>
+                                                <option value="wireless">Wireless</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="edit_cable_length" class="form-label">Panjang Kabel (meter)</label>
+                                            <input type="number" class="form-control" id="edit_cable_length" name="cable_length" placeholder="50" min="1">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="edit_port_number" class="form-label">Nomor Port ODP</label>
+                                            <input type="number" class="form-control" id="edit_port_number" name="port_number" placeholder="1" min="1" max="24">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="edit_cable_status" class="form-label">Status Kabel</label>
+                                            <select class="form-select" id="edit_cable_status" name="cable_status">
+                                                <option value="connected">Terhubung</option>
+                                                <option value="disconnected">Terputus</option>
+                                                <option value="maintenance">Maintenance</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="edit_cable_notes" class="form-label">Catatan Kabel</label>
+                                    <textarea class="form-control" id="edit_cable_notes" name="cable_notes" rows="2" placeholder="Catatan khusus tentang instalasi kabel..."></textarea>
+                                </div>
+                                <div class="alert alert-info">
+                                    <i class="bx bx-info-circle me-2"></i>
+                                    <strong>Info:</strong> Jika ODP sudah dipilih di atas, sistem akan otomatis membuat jalur kabel. Pastikan ODP memiliki kapasitas port yang tersedia.
+                                </div>
+                            </div>
+                        </div>
+                        
                         <div class="mb-3">
                             <label for="edit_status" class="form-label">Status</label>
                             <select class="form-control" id="edit_status" name="status">
@@ -1239,7 +1351,13 @@
                 longitude: $('#longitude').val().trim(),
                 static_ip: $('#static_ip').val().trim(),
                 assigned_ip: $('#assigned_ip').val().trim(),
-                mac_address: $('#mac_address').val().trim()
+                mac_address: $('#mac_address').val().trim(),
+                // Cable connection data
+                cable_type: $('#cable_type').val().trim(),
+                cable_length: $('#cable_length').val() ? parseInt($('#cable_length').val()) : null,
+                port_number: $('#port_number').val() ? parseInt($('#port_number').val()) : null,
+                cable_status: $('#cable_status').val().trim() || 'connected',
+                cable_notes: $('#cable_notes').val().trim()
             };
             
             fetch('/admin/billing/customers', {
@@ -1310,6 +1428,12 @@
                         $('#edit_static_ip').val(customer.static_ip || '');
                         $('#edit_assigned_ip').val(customer.assigned_ip || '');
                         $('#edit_mac_address').val(customer.mac_address || '');
+                        // Fill cable connection fields
+                        $('#edit_cable_type').val(customer.cable_type || '');
+                        $('#edit_cable_length').val(customer.cable_length || '');
+                        $('#edit_port_number').val(customer.port_number || '');
+                        $('#edit_cable_status').val(customer.cable_status || 'connected');
+                        $('#edit_cable_notes').val(customer.cable_notes || '');
                         $('#editCustomerModal').modal('show');
                     } else {
                         showToast('error', data.message || 'Gagal mengambil data pelanggan');
@@ -1369,7 +1493,13 @@
                 longitude: $('#edit_longitude').val().trim(),
                 static_ip: $('#edit_static_ip').val().trim(),
                 assigned_ip: $('#edit_assigned_ip').val().trim(),
-                mac_address: $('#edit_mac_address').val().trim()
+                mac_address: $('#edit_mac_address').val().trim(),
+                // Cable connection data
+                cable_type: $('#edit_cable_type').val().trim(),
+                cable_length: $('#edit_cable_length').val() ? parseInt($('#edit_cable_length').val()) : null,
+                port_number: $('#edit_port_number').val() ? parseInt($('#edit_port_number').val()) : null,
+                cable_status: $('#edit_cable_status').val().trim() || 'connected',
+                cable_notes: $('#edit_cable_notes').val().trim()
             };
             
             fetch(`/admin/billing/customers/${originalPhone || phone}`, {
@@ -1382,12 +1512,6 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Trigger mapping refresh
-                    console.log('🔄 Customer updated successfully, triggering mapping refresh...');
-                    localStorage.setItem('customer_updated', Date.now().toString());
-                    window.dispatchEvent(new CustomEvent('customerUpdated'));
-                    console.log('✅ Mapping refresh events triggered');
-                    
                     setTimeout(() => {
                         showToast('success', 'Pelanggan berhasil diupdate');
                         setTimeout(() => location.reload(), 1000);

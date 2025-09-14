@@ -688,12 +688,6 @@
                         });
                         const upd = await up.json();
                         if (upd.success) {
-                            // Trigger mapping refresh
-                            console.log('🔄 Customer updated successfully, triggering mapping refresh...');
-                            localStorage.setItem('customer_updated', Date.now().toString());
-                            window.dispatchEvent(new CustomEvent('customerUpdated'));
-                            console.log('✅ Mapping refresh events triggered');
-                            
                             const modalEl = document.getElementById('editCustomerModal');
                             const modal = bootstrap.Modal.getInstance(modalEl);
                             modal?.hide();
