@@ -8,6 +8,7 @@ const { exec } = require('child_process');
 const multer = require('multer');
 const upload = multer();
 const ExcelJS = require('exceljs');
+const { adminAuth } = require('./adminAuth');
 
 // Ensure JSON body parsing for this router
 router.use(express.json());
@@ -1587,7 +1588,7 @@ router.get('/customers', getAppSettings, async (req, res) => {
 
 router.post('/customers', async (req, res) => {
     try {
-        const { name, username, phone, pppoe_username, email, address, package_id, odp_id, pppoe_profile, auto_suspension, billing_day, create_pppoe_user, pppoe_password, static_ip, assigned_ip, mac_address, latitude, longitude } = req.body;
+        const { name, username, phone, pppoe_username, email, address, package_id, odp_id, pppoe_profile, auto_suspension, billing_day, create_pppoe_user, pppoe_password, static_ip, assigned_ip, mac_address, latitude, longitude, cable_type, cable_length, port_number, cable_status, cable_notes } = req.body;
         
         // Validate required fields
         if (!name || !username || !phone || !package_id) {
@@ -1633,7 +1634,13 @@ router.post('/customers', async (req, res) => {
             assigned_ip: assigned_ip || null,
             mac_address: mac_address || null,
             latitude: latitude !== undefined && latitude !== '' ? parseFloat(latitude) : undefined,
-            longitude: longitude !== undefined && longitude !== '' ? parseFloat(longitude) : undefined
+            longitude: longitude !== undefined && longitude !== '' ? parseFloat(longitude) : undefined,
+            // Cable connection data
+            cable_type: cable_type || null,
+            cable_length: cable_length ? parseInt(cable_length) : null,
+            port_number: port_number ? parseInt(port_number) : null,
+            cable_status: cable_status || 'connected',
+            cable_notes: cable_notes || null
         };
 
         const result = await billingManager.createCustomer(customerData);
@@ -1870,7 +1877,8 @@ router.get('/customers/:username/test', async (req, res) => {
 router.put('/customers/:phone', async (req, res) => {
     try {
         const { phone } = req.params;
-        const { name, username, pppoe_username, email, address, package_id, odp_id, pppoe_profile, status, auto_suspension, billing_day, latitude, longitude, static_ip, assigned_ip, mac_address } = req.body;
+        const { name, username, pppoe_username, email, address, package_id, odp_id, pppoe_profile, status, auto_suspension, billing_day, latitude, longitude, static_ip, assigned_ip, mac_address, cable_type, cable_length, port_number, cable_status, cable_notes } = req.body;
+        
         
         // Validate required fields
         if (!name || !username || !package_id) {
@@ -1930,7 +1938,13 @@ router.put('/customers/:phone', async (req, res) => {
             longitude: longitude !== undefined ? parseFloat(longitude) : currentCustomer.longitude,
             static_ip: static_ip !== undefined ? static_ip : currentCustomer.static_ip,
             assigned_ip: assigned_ip !== undefined ? assigned_ip : currentCustomer.assigned_ip,
-            mac_address: mac_address !== undefined ? mac_address : currentCustomer.mac_address
+            mac_address: mac_address !== undefined ? mac_address : currentCustomer.mac_address,
+            // Cable connection data
+            cable_type: cable_type !== undefined ? cable_type : currentCustomer.cable_type,
+            cable_length: cable_length !== undefined ? parseInt(cable_length) : currentCustomer.cable_length,
+            port_number: port_number !== undefined ? parseInt(port_number) : currentCustomer.port_number,
+            cable_status: cable_status !== undefined ? cable_status : currentCustomer.cable_status,
+            cable_notes: cable_notes !== undefined ? cable_notes : currentCustomer.cable_notes
         };
 
         // Use current phone for lookup, allow phone to be updated in customerData
@@ -2519,7 +2533,7 @@ router.get('/api/packages', async (req, res) => {
 
 
 
-router.get('/api/customers', async (req, res) => {
+router.get('/api/customers', adminAuth, async (req, res) => {
     try {
         const customers = await billingManager.getCustomers();
         res.json({
