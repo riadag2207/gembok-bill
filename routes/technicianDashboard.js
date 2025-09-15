@@ -508,8 +508,8 @@ router.delete('/customers/:id', technicianAuth, async (req, res) => {
         const existing = await billingManager.getCustomerById(id);
         if (!existing) return res.status(404).json({ success: false, message: 'Pelanggan tidak ditemukan' });
 
-        // Hapus berdasar phone (API billing menghapus by phone)
-        const result = await billingManager.deleteCustomer(existing.phone);
+        // Hapus berdasar ID (menggunakan method baru yang sinkron dengan cable routes)
+        const result = await billingManager.deleteCustomerById(id);
 
         // Log activity
         await authManager.logActivity(
