@@ -1435,3 +1435,51 @@ const troubleReportRouter = require('./troubleReport');
 router.use('/trouble', troubleReportRouter);
 
 module.exports = router; 
+ 
+// GET: Dashboard pelanggan versi mobile (UI modern, card tappable)
+// Catatan: Tidak mengubah route lama. Menggunakan data sama seperti dashboard biasa
+router.get('/dashboard/mobile', async (req, res) => {
+  const phone = req.session && req.session.phone;
+  if (!phone) return res.redirect('/customer/login');
+  const settings = getSettingsWithCache();
+  try {
+    const data = await getCustomerDeviceData(phone);
+    if (!data) {
+      return res.render('dashboard-mobile', {
+        customer: { phone, ssid: '-', status: 'Tidak ditemukan', lastInform: '-' },
+        connectedUsers: [],
+        notif: 'Data perangkat tidak ditemukan.',
+        settings,
+        billingData: null
+      });
+    }
+    const customerWithAdmin = addAdminNumber(data);
+    res.render('dashboard-mobile', {
+      customer: customerWithAdmin,
+      connectedUsers: data.connectedUsers || [],
+      settings,
+      billingData: data.billingData || null,
+      notif: null
+    });
+  } catch (error) {
+    console.error('Error loading mobile dashboard:', error);
+    const fallbackCustomer = addAdminNumber({
+      phone,
+      ssid: '-',
+      status: 'Error',
+      lastInform: '-',
+      softwareVersion: '-',
+      rxPower: '-',
+      pppoeIP: '-',
+      pppoeUsername: '-',
+      totalAssociations: '0'
+    });
+    res.render('dashboard-mobile', {
+      customer: fallbackCustomer,
+      connectedUsers: [],
+      notif: 'Terjadi kesalahan saat memuat data.',
+      settings,
+      billingData: null
+    });
+  }
+});
