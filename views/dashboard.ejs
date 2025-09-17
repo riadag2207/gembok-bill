@@ -572,15 +572,15 @@
         <img src="/img/<%= settings.logo_filename || 'logo.png' %>" alt="Logo" height="40">
         Portal Pelanggan
       </a>
-      <div class="navbar-nav ms-auto">
-        <a href="/customer/billing/dashboard" class="btn btn-outline-primary btn-nav me-2">
-          <i class="bi bi-receipt me-1"></i>Billing
+      <div class="navbar-nav ms-auto flex-row align-items-center gap-2">
+        <a href="/customer/billing/dashboard" class="btn btn-outline-primary btn-nav me-2" title="Billing" aria-label="Billing">
+          <i class="bi bi-receipt"></i>
         </a>
-        <a href="/customer/trouble/report" class="btn btn-outline-warning btn-nav me-2">
-          <i class="bi bi-exclamation-triangle me-1"></i>Lapor Gangguan
+        <a href="/customer/trouble/report" class="btn btn-outline-warning btn-nav me-2" title="Lapor Gangguan" aria-label="Lapor Gangguan">
+          <i class="bi bi-exclamation-triangle"></i>
         </a>
-        <a href="/customer/logout" class="btn btn-outline-danger btn-nav me-2">
-          <i class="bi bi-box-arrow-right me-1"></i>Logout
+        <a href="/customer/logout" class="btn btn-outline-danger btn-nav me-2" title="Logout" aria-label="Logout">
+          <i class="bi bi-box-arrow-right"></i>
         </a>
         <span class="navbar-text">
           <i class="bi bi-person-circle me-1"></i>
@@ -822,7 +822,9 @@
                     </div>
                     <div class="stat-content">
                       <div class="stat-label">PPPoE IP</div>
-                      <div class="stat-value"><%= customer.pppoeIP %></div>
+                    <div class="stat-value"><%= typeof customer.pppoeIP === 'object' 
+                      ? (customer.pppoeIP._value || customer.pppoeIP.address || customer.pppoeIP.ip || JSON.stringify(customer.pppoeIP)) 
+                      : customer.pppoeIP %></div>
                     </div>
                   </div>
                   <div class="stat-card person">
