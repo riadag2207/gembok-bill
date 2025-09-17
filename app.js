@@ -200,6 +200,13 @@ const rxPowerMonitor = require('./config/rxPowerMonitor');
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
+// Placeholder icons to avoid 404 before real assets are uploaded
+try {
+  const staticIcons = require('./routes/staticIcons');
+  app.use('/', staticIcons);
+} catch (e) {
+  logger.warn('staticIcons route not loaded:', e.message);
+}
 // Mount customer portal
 const customerPortal = require('./routes/customerPortal');
 app.use('/customer', customerPortal);
