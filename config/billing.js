@@ -670,6 +670,16 @@ class BillingManager {
                 FOR EACH ROW
             BEGIN
                 UPDATE odps SET used_ports = used_ports - 1 WHERE id = OLD.odp_id;
+            END`,
+
+            // Trigger untuk memutakhirkan used_ports saat cable_routes berpindah ODP
+            `CREATE TRIGGER IF NOT EXISTS update_odp_used_ports_change
+                AFTER UPDATE OF odp_id ON cable_routes
+                FOR EACH ROW
+                WHEN NEW.odp_id IS NOT OLD.odp_id
+            BEGIN
+                UPDATE odps SET used_ports = used_ports - 1 WHERE id = OLD.odp_id;
+                UPDATE odps SET used_ports = used_ports + 1 WHERE id = NEW.odp_id;
             END`
         ];
 
@@ -1231,8 +1241,15 @@ class BillingManager {
                             }
                         }
                         
-                        // Jika ada data ODP atau cable yang berubah, update cable route
-                        if (odp_id !== undefined || cable_type !== undefined) {
+                        // Jika ada data ODP atau field kabel yang berubah, update cable route
+                        if (
+                            odp_id !== undefined ||
+                            cable_type !== undefined ||
+                            cable_length !== undefined ||
+                            port_number !== undefined ||
+                            cable_status !== undefined ||
+                            cable_notes !== undefined
+                        ) {
                             console.log(`🔧 Updating cable route for customer ${oldCustomer.username}, odp_id: ${odp_id}, cable_type: ${cable_type}`);
                             try {
                                 const customerId = oldCustomer.id;
