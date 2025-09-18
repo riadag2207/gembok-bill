@@ -137,9 +137,7 @@ function getParameterWithPaths(device, paths) {
 router.get('/genieacs', adminAuth, async (req, res) => {
   try {
     // Ambil data device dari GenieACS
-    // ENHANCEMENT: Gunakan cached version untuk performa lebih baik
-    const { getDevicesCached } = require('../config/genieacs');
-    const devicesRaw = await getDevicesCached();
+    const devicesRaw = await getDevices();
     // Mapping data sesuai kebutuhan tabel
     const devices = devicesRaw.map((device, i) => ({
       id: device._id || '-',
@@ -476,9 +474,7 @@ router.post('/genieacs/restart-onu', adminAuth, async (req, res) => {
 // API endpoint untuk statistik GenieACS (untuk mapping page)
 router.get('/api/statistics', adminAuth, async (req, res) => {
   try {
-    // ENHANCEMENT: Gunakan cached version untuk performa lebih baik
-    const { getDevicesCached } = require('../config/genieacs');
-    const devices = await getDevicesCached();
+    const devices = await getDevices();
     
     // Hitung statistik seperti di dashboard
     const totalDevices = devices.length;
@@ -543,9 +539,7 @@ router.get('/api/mapping/devices', adminAuth, async (req, res) => {
       }
       
       // Cari device berdasarkan customer yang ditemukan
-      // ENHANCEMENT: Gunakan cached version jika tersedia
-      const { getDevicesCached } = require('../config/genieacs');
-      const devicesRaw = await getDevicesCached();
+      const devicesRaw = await getDevices();
       const devicesWithCoords = [];
       const devicesWithoutCoords = [];
       
@@ -652,9 +646,7 @@ router.get('/api/mapping/devices', adminAuth, async (req, res) => {
     }
     
     // Jika tidak ada parameter query, return semua devices (existing logic)
-    // ENHANCEMENT: Gunakan cached version untuk performa lebih baik
-    const { getDevicesCached } = require('../config/genieacs');
-    const devicesRaw = await getDevicesCached();
+    const devicesRaw = await getDevices();
     
     // Mapping data dengan koordinat customer
     const devicesWithCoords = await Promise.all(devicesRaw.map(async (device) => {
@@ -746,43 +738,6 @@ router.get('/api/mapping/devices', adminAuth, async (req, res) => {
       serial_number: validDevicesWithCoords.filter(device => device.coordinateSource === 'serial_number').length
     };
     
-    // Ambil data ODP connections untuk backbone visualization
-    const sqlite3 = require('sqlite3').verbose();
-    const dbPath = path.join(__dirname, '../data/billing.db');
-    
-    let odpConnections = [];
-    try {
-      console.log('🔍 Fetching ODP connections from database...');
-      const db = new sqlite3.Database(dbPath);
-      odpConnections = await new Promise((resolve, reject) => {
-        db.all(`
-          SELECT oc.*, 
-                 from_odp.name as from_odp_name, from_odp.code as from_odp_code,
-                 from_odp.latitude as from_odp_latitude, from_odp.longitude as from_odp_longitude,
-                 to_odp.name as to_odp_name, to_odp.code as to_odp_code,
-                 to_odp.latitude as to_odp_latitude, to_odp.longitude as to_odp_longitude
-          FROM odp_connections oc
-          JOIN odps from_odp ON oc.from_odp_id = from_odp.id
-          JOIN odps to_odp ON oc.to_odp_id = to_odp.id
-          WHERE oc.status = 'active'
-          ORDER BY oc.created_at DESC
-        `, [], (err, rows) => {
-          if (err) {
-            console.error('❌ Database error getting ODP connections:', err);
-            reject(err);
-          } else {
-            console.log(`✅ Found ${rows ? rows.length : 0} ODP connections`);
-            resolve(rows || []);
-          }
-        });
-      });
-      db.close();
-    } catch (error) {
-      console.error('❌ Error getting ODP connections:', error.message);
-    }
-
-    console.log(`📊 API Response - Devices: ${validDevicesWithCoords.length}, ODP Connections: ${odpConnections.length}`);
-    
     res.json({
       success: true,
       data: {
@@ -793,8 +748,7 @@ router.get('/api/mapping/devices', adminAuth, async (req, res) => {
           onlineDevices,
           offlineDevices
         },
-        coordinateSources,
-        odpConnections: odpConnections
+        coordinateSources
       }
     });
     
@@ -941,72 +895,6 @@ router.post('/api/mapping/devices/bulk-coordinates', adminAuth, async (req, res)
     res.status(500).json({
       success: false,
       message: 'Gagal melakukan bulk update koordinat device'
-    });
-  }
-});
-
-// ===== ENHANCEMENT: CACHE MONITORING API =====
-
-// API endpoint untuk monitoring cache performance
-router.get('/api/cache-stats', adminAuth, async (req, res) => {
-  try {
-    const { getCacheStats } = require('../config/genieacs');
-    const stats = getCacheStats();
-    
-    res.json({
-      success: true,
-      data: {
-        cache: stats,
-        timestamp: new Date().toISOString(),
-        performance: {
-          memoryUsage: process.memoryUsage(),
-          uptime: process.uptime()
-        }
-      }
-    });
-  } catch (error) {
-    console.error('Error getting cache stats:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Gagal mengambil statistik cache'
-    });
-  }
-});
-
-// API endpoint untuk clear cache
-router.post('/api/cache-clear', adminAuth, async (req, res) => {
-  try {
-    const { clearDeviceCache, clearAllCache } = require('../config/genieacs');
-    const { deviceId, clearAll = false } = req.body;
-    
-    console.log('Cache clear request:', { deviceId, clearAll });
-    
-    if (clearAll) {
-      clearAllCache();
-      res.json({
-        success: true,
-        message: 'All cache cleared successfully'
-      });
-    } else if (deviceId) {
-      clearDeviceCache(deviceId);
-      res.json({
-        success: true,
-        message: `Cache cleared for device ${deviceId}`
-      });
-    } else {
-      // Default: clear all GenieACS devices cache
-      clearDeviceCache();
-      res.json({
-        success: true,
-        message: 'GenieACS devices cache cleared'
-      });
-    }
-  } catch (error) {
-    console.error('Error clearing cache:', error);
-    res.status(500).json({
-      success: false,
-      message: `Gagal clear cache: ${error.message}`,
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 });

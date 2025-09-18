@@ -8,6 +8,8 @@ class BillingManager {
     constructor() {
         this.dbPath = path.join(__dirname, '../data/billing.db');
         this.paymentGateway = new PaymentGatewayManager();
+        this.cache = new Map(); // Simple in-memory cache
+        this.cacheTimeout = 5 * 60 * 1000; // 5 minutes cache timeout
         this.initDatabase();
     }
 
@@ -20,6 +22,27 @@ class BillingManager {
             try { logger.error('[BILLING] Failed to reload payment gateways:', e.message); } catch (_) {}
             return { error: true, message: e.message };
         }
+    }
+
+    // Cache helper methods
+    getFromCache(key) {
+        const cached = this.cache.get(key);
+        if (cached && Date.now() - cached.timestamp < this.cacheTimeout) {
+            return cached.data;
+        }
+        this.cache.delete(key);
+        return null;
+    }
+
+    setCache(key, data) {
+        this.cache.set(key, {
+            data: data,
+            timestamp: Date.now()
+        });
+    }
+
+    clearCache() {
+        this.cache.clear();
     }
 
     async setCustomerStatusById(id, status) {
@@ -48,37 +71,26 @@ class BillingManager {
             fs.mkdirSync(dataDir, { recursive: true });
         }
 
-        // Inisialisasi database secara synchronous
-        try {
-            this.db = new sqlite3.Database(this.dbPath);
-            console.log('Billing database connected');
-            
-            // Enable foreign key constraints for cascade delete
-            this.db.run("PRAGMA foreign_keys = ON", (err) => {
-                if (err) {
-                    console.error('Error enabling foreign keys:', err);
-                } else {
-                    console.log('✅ Foreign keys enabled for cascade delete');
-                }
-            });
-            
-            this.createTables();
-        } catch (err) {
-            console.error('Error opening billing database:', err);
-            throw err;
-        }
+        this.db = new sqlite3.Database(this.dbPath, (err) => {
+            if (err) {
+                console.error('Error opening billing database:', err);
+            } else {
+                console.log('Billing database connected');
+                this.createTables();
+            }
+        });
     }
 
     async updateCustomerById(id, customerData) {
         return new Promise(async (resolve, reject) => {
-            const { name, username, pppoe_username, email, address, latitude, longitude, package_id, odp_id, pppoe_profile, status, auto_suspension, billing_day, cable_type, cable_length, port_number, cable_status, cable_notes } = customerData;
+            const { name, username, pppoe_username, email, address, latitude, longitude, package_id, pppoe_profile, status, auto_suspension, billing_day, odp_id } = customerData;
             try {
                 const oldCustomer = await this.getCustomerById(id);
                 if (!oldCustomer) return reject(new Error('Customer not found'));
 
                 const normBillingDay = Math.min(Math.max(parseInt(billing_day !== undefined ? billing_day : (oldCustomer?.billing_day ?? 15), 10) || 15, 1), 28);
 
-                const sql = `UPDATE customers SET name = ?, username = ?, pppoe_username = ?, email = ?, address = ?, latitude = ?, longitude = ?, package_id = ?, odp_id = ?, pppoe_profile = ?, status = ?, auto_suspension = ?, billing_day = ?, cable_type = ?, cable_length = ?, port_number = ?, cable_status = ?, cable_notes = ? WHERE id = ?`;
+                const sql = `UPDATE customers SET name = ?, username = ?, pppoe_username = ?, email = ?, address = ?, latitude = ?, longitude = ?, package_id = ?, pppoe_profile = ?, status = ?, auto_suspension = ?, billing_day = ?, odp_id = ? WHERE id = ?`;
                 this.db.run(sql, [
                     name ?? oldCustomer.name,
                     username ?? oldCustomer.username,
@@ -88,90 +100,33 @@ class BillingManager {
                     latitude !== undefined ? parseFloat(latitude) : oldCustomer.latitude,
                     longitude !== undefined ? parseFloat(longitude) : oldCustomer.longitude,
                     package_id ?? oldCustomer.package_id,
-                    odp_id !== undefined ? odp_id : oldCustomer.odp_id,
                     pppoe_profile ?? oldCustomer.pppoe_profile,
                     status ?? oldCustomer.status,
                     auto_suspension !== undefined ? auto_suspension : oldCustomer.auto_suspension,
                     normBillingDay,
-                    cable_type !== undefined ? cable_type : oldCustomer.cable_type,
-                    cable_length !== undefined ? cable_length : oldCustomer.cable_length,
-                    port_number !== undefined ? port_number : oldCustomer.port_number,
-                    cable_status !== undefined ? cable_status : oldCustomer.cable_status,
-                    cable_notes !== undefined ? cable_notes : oldCustomer.cable_notes,
+                    odp_id !== undefined ? odp_id : oldCustomer.odp_id,
                     id
                 ], async function(err) {
                     if (err) {
                         reject(err);
                     } else {
-                        // Sinkronisasi cable routes jika ada data ODP atau cable
-                        if (odp_id !== undefined || cable_type !== undefined) {
+                        // Update cable routes jika ODP berubah
+                        if (odp_id !== undefined && odp_id !== oldCustomer.odp_id) {
                             try {
-                                const db = this.db;
-                                const customerId = id;
-                                
-                                // Cek apakah sudah ada cable route untuk customer ini
-                                const existingRoute = await new Promise((resolve, reject) => {
-                                    db.get('SELECT * FROM cable_routes WHERE customer_id = ?', [customerId], (err, row) => {
-                                        if (err) reject(err);
-                                        else resolve(row);
-                                    });
-                                });
-                                
-                                if (existingRoute) {
-                                    // Update cable route yang ada
-                                    const updateSql = `
-                                        UPDATE cable_routes 
-                                        SET odp_id = ?, cable_type = ?, cable_length = ?, port_number = ?, status = ?, notes = ?, updated_at = CURRENT_TIMESTAMP
-                                        WHERE customer_id = ?
-                                    `;
-                                    
-                                    db.run(updateSql, [
-                                        odp_id !== undefined ? odp_id : existingRoute.odp_id,
-                                        cable_type !== undefined ? cable_type : existingRoute.cable_type,
-                                        cable_length !== undefined ? cable_length : existingRoute.cable_length,
-                                        port_number !== undefined ? port_number : existingRoute.port_number,
-                                        cable_status !== undefined ? cable_status : existingRoute.status,
-                                        cable_notes !== undefined ? cable_notes : existingRoute.notes,
-                                        customerId
-                                    ], function(err) {
-                                        if (err) {
-                                            console.error(`❌ Error updating cable route for customer ${oldCustomer.username}:`, err.message);
-                                        } else {
-                                            console.log(`✅ Successfully updated cable route for customer ${oldCustomer.username}`);
-                                        }
-                                    });
-                                } else if (cable_type && cable_type.trim() !== '' && odp_id) {
-                                    // Buat cable route baru jika belum ada
-                                    const cableRouteSql = `
-                                        INSERT INTO cable_routes (customer_id, odp_id, cable_type, cable_length, port_number, status, notes)
-                                        VALUES (?, ?, ?, ?, ?, ?, ?)
-                                    `;
-                                    
-                                    db.run(cableRouteSql, [
-                                        customerId,
-                                        odp_id,
-                                        cable_type,
-                                        cable_length || 0,
-                                        port_number || 1,
-                                        cable_status || 'connected',
-                                        cable_notes || `Auto-created for customer ${oldCustomer.name}`
-                                    ], function(err) {
-                                        if (err) {
-                                            console.error(`❌ Error creating cable route for customer ${oldCustomer.username}:`, err.message);
-                                        } else {
-                                            console.log(`✅ Successfully created cable route for customer ${oldCustomer.username}`);
-                                        }
-                                    });
-                                }
+                                await this.updateCustomerCableRoute(id, odp_id);
+                                console.log(`Updated cable route for customer ${oldCustomer.username} to ODP ${odp_id}`);
                             } catch (cableError) {
-                                console.error(`❌ Error handling cable route for customer ${oldCustomer.username}:`, cableError.message);
-                                // Jangan reject, karena customer sudah berhasil diupdate di billing
+                                console.error(`Error updating cable route for customer ${oldCustomer.username}:`, cableError.message);
+                                // Jangan reject, karena customer sudah berhasil diupdate
                             }
                         }
                         
                         resolve({ username: oldCustomer.username, id, ...customerData });
                     }
-                });
+                }.bind(this));
+                
+                // Clear cache setelah update berhasil
+                this.clearCache();
             } catch (error) {
                 reject(error);
             }
@@ -256,12 +211,6 @@ class BillingManager {
                 pppoe_profile TEXT,
                 status TEXT DEFAULT 'active',
                 join_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-                -- Cable connection fields
-                cable_type TEXT,
-                cable_length INTEGER,
-                port_number INTEGER,
-                cable_status TEXT DEFAULT 'connected',
-                cable_notes TEXT,
                 FOREIGN KEY (package_id) REFERENCES packages (id)
             )`,
 
@@ -378,24 +327,6 @@ class BillingManager {
                 FOREIGN KEY (start_odp_id) REFERENCES odps(id) ON DELETE CASCADE,
                 FOREIGN KEY (end_odp_id) REFERENCES odps(id) ON DELETE CASCADE
             )`,
-            
-            // Tabel ODP Connections (Backbone Network)
-            `CREATE TABLE IF NOT EXISTS odp_connections (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                from_odp_id INTEGER NOT NULL,
-                to_odp_id INTEGER NOT NULL,
-                connection_type VARCHAR(50) DEFAULT 'fiber' CHECK (connection_type IN ('fiber', 'copper', 'wireless', 'microwave')),
-                cable_length DECIMAL(8,2),
-                cable_capacity VARCHAR(20) DEFAULT '1G' CHECK (cable_capacity IN ('100M', '1G', '10G', '100G')),
-                status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'maintenance', 'inactive', 'damaged')),
-                installation_date DATE,
-                notes TEXT,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (from_odp_id) REFERENCES odps(id) ON DELETE CASCADE,
-                FOREIGN KEY (to_odp_id) REFERENCES odps(id) ON DELETE CASCADE,
-                UNIQUE(from_odp_id, to_odp_id)
-            )`,
 
             // Tabel Cable Maintenance Log
             `CREATE TABLE IF NOT EXISTS cable_maintenance_logs (
@@ -443,9 +374,6 @@ class BillingManager {
             }
         });
 
-        // Tambahkan kolom cable connection ke customers jika belum ada
-        this.addCableFieldsToCustomers();
-
         // Tambahkan kolom auto_suspension ke customers jika belum ada
         this.db.run("ALTER TABLE customers ADD COLUMN auto_suspension BOOLEAN DEFAULT 1", (err) => {
             if (err && !err.message.includes('duplicate column name')) {
@@ -473,19 +401,21 @@ class BillingManager {
             }
         });
 
-        // Tambahkan kolom latitude dan longitude ke customers jika belum ada
-        this.db.run("ALTER TABLE customers ADD COLUMN latitude DECIMAL(10,8)", (err) => {
-            if (err && !err.message.includes('duplicate column name')) {
-                console.error('Error adding latitude column to customers:', err);
-            } else if (!err) {
-                console.log('Added latitude column to customers table');
+        // Tambahkan index untuk kolom latitude dan longitude pada tabel customers untuk optimasi mapping
+        this.db.run("CREATE INDEX IF NOT EXISTS idx_customers_coordinates ON customers(latitude, longitude)", (err) => {
+            if (err) {
+                console.error('Error creating index for customers coordinates:', err);
+            } else {
+                console.log('Created index for customers coordinates');
             }
         });
-        this.db.run("ALTER TABLE customers ADD COLUMN longitude DECIMAL(11,8)", (err) => {
-            if (err && !err.message.includes('duplicate column name')) {
-                console.error('Error adding longitude column to customers:', err);
-            } else if (!err) {
-                console.log('Added longitude column to customers table');
+
+        // Tambahkan index untuk kolom status pada tabel customers
+        this.db.run("CREATE INDEX IF NOT EXISTS idx_customers_status ON customers(status)", (err) => {
+            if (err) {
+                console.error('Error creating index for customers status:', err);
+            } else {
+                console.log('Created index for customers status');
             }
         });
 
@@ -514,27 +444,6 @@ class BillingManager {
             } else {
                 console.log('Updated null usernames for existing customers');
             }
-        });
-    }
-
-    addCableFieldsToCustomers() {
-        // Add cable connection fields to customers table
-        const cableFields = [
-            { name: 'cable_type', type: 'TEXT' },
-            { name: 'cable_length', type: 'INTEGER' },
-            { name: 'port_number', type: 'INTEGER' },
-            { name: 'cable_status', type: 'TEXT DEFAULT "connected"' },
-            { name: 'cable_notes', type: 'TEXT' }
-        ];
-
-        cableFields.forEach(field => {
-            this.db.run(`ALTER TABLE customers ADD COLUMN ${field.name} ${field.type}`, (err) => {
-                if (err && !err.message.includes('duplicate column name')) {
-                    console.error(`Error adding ${field.name} column:`, err);
-                } else if (!err) {
-                    console.log(`Added ${field.name} column to customers table`);
-                }
-            });
         });
     }
 
@@ -646,13 +555,6 @@ class BillingManager {
                 UPDATE network_segments SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
             END`,
             
-            `CREATE TRIGGER IF NOT EXISTS update_odp_connections_updated_at 
-                AFTER UPDATE ON odp_connections
-                FOR EACH ROW
-            BEGIN
-                UPDATE odp_connections SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
-            END`,
-            
             // Triggers untuk update used_ports di ODP
             `CREATE TRIGGER IF NOT EXISTS update_odp_used_ports_insert
                 AFTER INSERT ON cable_routes
@@ -754,16 +656,7 @@ class BillingManager {
     // Customer Management
     async createCustomer(customerData) {
         return new Promise(async (resolve, reject) => {
-            // Pastikan database sudah siap
-            if (!this.db) {
-                console.error('❌ Database not initialized');
-                return reject(new Error('Database not initialized'));
-            }
-            
-            // Simpan reference database untuk digunakan di callback
-            const db = this.db;
-            
-            const { name, username, phone, pppoe_username, email, address, package_id, odp_id, pppoe_profile, status, auto_suspension, billing_day, static_ip, assigned_ip, mac_address, latitude, longitude, cable_type, cable_length, port_number, cable_status, cable_notes } = customerData;
+            const { name, username, phone, pppoe_username, email, address, package_id, pppoe_profile, status, auto_suspension, billing_day, static_ip, assigned_ip, mac_address, latitude, longitude } = customerData;
             
             // Use provided username, fallback to auto-generate if not provided
             const finalUsername = username || this.generateUsername(phone);
@@ -772,47 +665,17 @@ class BillingManager {
             // Normalisasi billing_day (1-28)
             const normBillingDay = Math.min(Math.max(parseInt(billing_day ?? 15, 10) || 15, 1), 28);
             
-            const sql = `INSERT INTO customers (username, name, phone, pppoe_username, email, address, package_id, odp_id, pppoe_profile, status, auto_suspension, billing_day, static_ip, assigned_ip, mac_address, latitude, longitude, cable_type, cable_length, port_number, cable_status, cable_notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+            const sql = `INSERT INTO customers (username, name, phone, pppoe_username, email, address, package_id, pppoe_profile, status, auto_suspension, billing_day, static_ip, assigned_ip, mac_address, latitude, longitude) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
             
             // Default coordinates untuk Jakarta jika tidak ada koordinat
             const finalLatitude = latitude !== undefined ? parseFloat(latitude) : -6.2088;
             const finalLongitude = longitude !== undefined ? parseFloat(longitude) : 106.8456;
             
-            db.run(sql, [finalUsername, name, phone, autoPPPoEUsername, email, address, package_id, customerData.odp_id || null, pppoe_profile, status || 'active', auto_suspension !== undefined ? auto_suspension : 1, normBillingDay, static_ip || null, assigned_ip || null, mac_address || null, finalLatitude, finalLongitude, cable_type || null, cable_length || null, port_number || null, cable_status || 'connected', cable_notes || null], async function(err) {
+            this.db.run(sql, [finalUsername, name, phone, autoPPPoEUsername, email, address, package_id, pppoe_profile, status || 'active', auto_suspension !== undefined ? auto_suspension : 1, normBillingDay, static_ip || null, assigned_ip || null, mac_address || null, finalLatitude, finalLongitude], async function(err) {
                 if (err) {
                     reject(err);
                 } else {
                     const customer = { id: this.lastID, ...customerData };
-                    
-                    // Jika ada data cable dan ODP, buat cable route otomatis
-                    if (cable_type && cable_type.trim() !== '' && odp_id) {
-                        try {
-                            // Insert cable route langsung ke database
-                            const cableRouteSql = `
-                                INSERT INTO cable_routes (customer_id, odp_id, cable_type, cable_length, port_number, status, notes)
-                                VALUES (?, ?, ?, ?, ?, ?, ?)
-                            `;
-                            
-                            db.run(cableRouteSql, [
-                                this.lastID,
-                                odp_id,
-                                cable_type,
-                                cable_length || 0,
-                                port_number || 1,
-                                cable_status || 'connected',
-                                cable_notes || `Auto-created for customer ${name}`
-                            ], function(err) {
-                                if (err) {
-                                    console.error(`❌ Error creating cable route for customer ${finalUsername}:`, err.message);
-                                } else {
-                                    console.log(`✅ Successfully created cable route for customer ${finalUsername}`);
-                                }
-                            });
-                        } catch (cableError) {
-                            console.error(`❌ Error creating cable route for customer ${finalUsername}:`, cableError.message);
-                            // Jangan reject, karena customer sudah berhasil dibuat di billing
-                        }
-                    }
                     
                     // Jika ada nomor telepon dan PPPoE username, coba tambahkan tag ke GenieACS
                     if (phone && autoPPPoEUsername) {
@@ -849,9 +712,23 @@ class BillingManager {
                         }
                     }
                     
+                    // Buat cable route otomatis jika customer dibuat dengan ODP
+                    if (customerData.odp_id) {
+                        try {
+                            await this.updateCustomerCableRoute(customer.id, customerData.odp_id);
+                            console.log(`✅ Auto-created cable route for new customer ${finalUsername} to ODP ${customerData.odp_id}`);
+                        } catch (cableError) {
+                            console.error(`⚠️ Error auto-creating cable route for new customer ${finalUsername}:`, cableError.message);
+                            // Jangan reject, karena customer sudah berhasil dibuat
+                        }
+                    }
+                    
                     resolve(customer);
                 }
             });
+            
+            // Clear cache setelah customer dibuat
+            this.clearCache();
         });
     }
 
@@ -892,6 +769,48 @@ class BillingManager {
                 }
             });
         });
+    }
+
+    // Optimized method untuk mapping - hanya ambil data yang diperlukan
+    async getCustomersForMapping() {
+        return new Promise((resolve, reject) => {
+            const sql = `
+                SELECT c.id, c.name, c.username, c.phone, c.email, c.address, 
+                       c.latitude, c.longitude, c.status, c.pppoe_username,
+                       p.name as package_name, p.price as package_price
+                FROM customers c 
+                LEFT JOIN packages p ON c.package_id = p.id 
+                WHERE c.latitude IS NOT NULL AND c.longitude IS NOT NULL
+                ORDER BY c.name ASC
+            `;
+            
+            this.db.all(sql, [], (err, rows) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(rows);
+                }
+            });
+        });
+    }
+
+    // Method untuk mendapatkan semua customers (termasuk yang belum di-mapping)
+    async getAllCustomers() {
+        return this.getCustomers();
+    }
+
+    // Optimized method dengan caching untuk mapping
+    async getCustomersForMappingCached(limit = 1000) {
+        const cacheKey = `customers_mapping_${limit}`;
+        const cached = this.getFromCache(cacheKey);
+        
+        if (cached) {
+            return cached;
+        }
+
+        const data = await this.getCustomersForMapping(limit);
+        this.setCache(cacheKey, data);
+        return data;
     }
 
     async getCustomerByUsername(username) {
@@ -1141,16 +1060,7 @@ class BillingManager {
 
     async updateCustomerByPhone(oldPhone, customerData) {
         return new Promise(async (resolve, reject) => {
-            // Pastikan database sudah siap
-            if (!this.db) {
-                console.error('Database not initialized');
-                return reject(new Error('Database not initialized'));
-            }
-            
-            // Simpan reference database untuk digunakan di callback
-            const db = this.db;
-            
-            const { name, username, phone, pppoe_username, email, address, package_id, odp_id, pppoe_profile, status, auto_suspension, billing_day, latitude, longitude, cable_type, cable_length, port_number, cable_status, cable_notes } = customerData;
+            const { name, username, phone, pppoe_username, email, address, package_id, odp_id, pppoe_profile, status, auto_suspension, billing_day, latitude, longitude } = customerData;
             
             // Dapatkan data customer lama untuk membandingkan nomor telepon
             try {
@@ -1164,9 +1074,9 @@ class BillingManager {
                 // Normalisasi billing_day (1-28) dengan fallback ke nilai lama atau 15
                 const normBillingDay = Math.min(Math.max(parseInt(billing_day !== undefined ? billing_day : (oldCustomer?.billing_day ?? 15), 10) || 15, 1), 28);
                 
-                const sql = `UPDATE customers SET name = ?, username = ?, phone = ?, pppoe_username = ?, email = ?, address = ?, package_id = ?, odp_id = ?, pppoe_profile = ?, status = ?, auto_suspension = ?, billing_day = ?, latitude = ?, longitude = ?, cable_type = ?, cable_length = ?, port_number = ?, cable_status = ?, cable_notes = ? WHERE id = ?`;
+                const sql = `UPDATE customers SET name = ?, username = ?, phone = ?, pppoe_username = ?, email = ?, address = ?, package_id = ?, odp_id = ?, pppoe_profile = ?, status = ?, auto_suspension = ?, billing_day = ?, latitude = ?, longitude = ? WHERE id = ?`;
                 
-                db.run(sql, [
+                this.db.run(sql, [
                     name, 
                     username || oldCustomer.username, 
                     phone || oldPhone, 
@@ -1181,11 +1091,6 @@ class BillingManager {
                     normBillingDay,
                     latitude !== undefined ? parseFloat(latitude) : oldCustomer.latitude,
                     longitude !== undefined ? parseFloat(longitude) : oldCustomer.longitude,
-                    cable_type !== undefined ? cable_type : oldCustomer.cable_type,
-                    cable_length !== undefined ? cable_length : oldCustomer.cable_length,
-                    port_number !== undefined ? port_number : oldCustomer.port_number,
-                    cable_status !== undefined ? cable_status : oldCustomer.cable_status,
-                    cable_notes !== undefined ? cable_notes : oldCustomer.cable_notes,
                     oldCustomer.id
                 ], async function(err) {
                     if (err) {
@@ -1226,68 +1131,14 @@ class BillingManager {
                             }
                         }
                         
-                        // Jika ada data cable yang berubah, update cable route
-                        if (cable_type && cable_type.trim() !== '') {
+                        // Update cable routes jika ODP berubah
+                        if (odp_id !== undefined && odp_id !== oldCustomer.odp_id) {
                             try {
-                                const customerId = oldCustomer.id;
-                                
-                                // Cari cable route yang ada
-                                const existingRoute = await new Promise((resolve, reject) => {
-                                    db.get('SELECT * FROM cable_routes WHERE customer_id = ?', [customerId], (err, row) => {
-                                        if (err) reject(err);
-                                        else resolve(row);
-                                    });
-                                });
-                                
-                                if (existingRoute) {
-                                    // Update cable route yang ada
-                                    const updateSql = `
-                                        UPDATE cable_routes 
-                                        SET odp_id = ?, cable_type = ?, cable_length = ?, port_number = ?, status = ?, notes = ?, updated_at = CURRENT_TIMESTAMP
-                                        WHERE customer_id = ?
-                                    `;
-                                    
-                                    db.run(updateSql, [
-                                        odp_id !== undefined ? odp_id : existingRoute.odp_id,
-                                        cable_type !== undefined ? cable_type : existingRoute.cable_type,
-                                        cable_length !== undefined ? cable_length : existingRoute.cable_length,
-                                        port_number !== undefined ? port_number : existingRoute.port_number,
-                                        cable_status !== undefined ? cable_status : existingRoute.status,
-                                        cable_notes !== undefined ? cable_notes : existingRoute.notes,
-                                        customerId
-                                    ], function(err) {
-                                        if (err) {
-                                            console.error(`❌ Error updating cable route for customer ${oldCustomer.username}:`, err.message);
-                                        } else {
-                                            console.log(`✅ Successfully updated cable route for customer ${oldCustomer.username}`);
-                                        }
-                                    });
-                                } else if (cable_type && cable_type.trim() !== '' && odp_id) {
-                                    // Buat cable route baru jika belum ada
-                                    const cableRouteSql = `
-                                        INSERT INTO cable_routes (customer_id, odp_id, cable_type, cable_length, port_number, status, notes)
-                                        VALUES (?, ?, ?, ?, ?, ?, ?)
-                                    `;
-                                    
-                                    db.run(cableRouteSql, [
-                                        customerId,
-                                        odp_id,
-                                        cable_type,
-                                        cable_length || 0,
-                                        port_number || 1,
-                                        cable_status || 'connected',
-                                        cable_notes || `Auto-created for customer ${name}`
-                                    ], function(err) {
-                                        if (err) {
-                                            console.error(`❌ Error creating cable route for customer ${oldCustomer.username}:`, err.message);
-                                        } else {
-                                            console.log(`✅ Successfully created cable route for customer ${oldCustomer.username}`);
-                                        }
-                                    });
-                                }
+                                await this.updateCustomerCableRoute(oldCustomer.id, odp_id);
+                                console.log(`Updated cable route for customer ${oldCustomer.username} to ODP ${odp_id}`);
                             } catch (cableError) {
-                                console.error(`❌ Error handling cable route for customer ${oldCustomer.username}:`, cableError.message);
-                                // Jangan reject, karena customer sudah berhasil diupdate di billing
+                                console.error(`Error updating cable route for customer ${oldCustomer.username}:`, cableError.message);
+                                // Jangan reject, karena customer sudah berhasil diupdate
                             }
                         }
                         
@@ -1295,6 +1146,239 @@ class BillingManager {
                     }
                 });
             } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
+    // Update cable route untuk customer ketika ODP berubah
+    async updateCustomerCableRoute(customerId, newOdpId) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                // Cek apakah customer sudah punya cable route
+                const existingRoute = await new Promise((resolve, reject) => {
+                    this.db.get('SELECT id, odp_id FROM cable_routes WHERE customer_id = ?', [customerId], (err, row) => {
+                        if (err) reject(err);
+                        else resolve(row);
+                    });
+                });
+
+                if (existingRoute) {
+                    // Update cable route yang sudah ada
+                    await new Promise((resolve, reject) => {
+                        this.db.run(`
+                            UPDATE cable_routes 
+                            SET odp_id = ?, updated_at = CURRENT_TIMESTAMP
+                            WHERE customer_id = ?
+                        `, [newOdpId, customerId], function(err) {
+                            if (err) reject(err);
+                            else resolve(this.changes);
+                        });
+                    });
+                    console.log(`Updated existing cable route for customer ${customerId} to ODP ${newOdpId}`);
+                } else if (newOdpId) {
+                    // Buat cable route baru jika customer belum punya dan ODP dipilih
+                    const customer = await new Promise((resolve, reject) => {
+                        this.db.get('SELECT latitude, longitude FROM customers WHERE id = ?', [customerId], (err, row) => {
+                            if (err) reject(err);
+                            else resolve(row);
+                        });
+                    });
+
+                    const odp = await new Promise((resolve, reject) => {
+                        this.db.get('SELECT latitude, longitude FROM odps WHERE id = ?', [newOdpId], (err, row) => {
+                            if (err) reject(err);
+                            else resolve(row);
+                        });
+                    });
+
+                    // Hitung panjang kabel otomatis
+                    let cableLength = null;
+                    if (customer && odp && customer.latitude && customer.longitude && odp.latitude && odp.longitude) {
+                        const CableNetworkUtils = require('./utils/cableNetworkUtils');
+                        cableLength = CableNetworkUtils.calculateCableDistance(
+                            { latitude: customer.latitude, longitude: customer.longitude },
+                            { latitude: odp.latitude, longitude: odp.longitude }
+                        );
+                    }
+
+                    await new Promise((resolve, reject) => {
+                        this.db.run(`
+                            INSERT INTO cable_routes (customer_id, odp_id, cable_length, cable_type, status)
+                            VALUES (?, ?, ?, 'Fiber Optic', 'connected')
+                        `, [customerId, newOdpId, cableLength], function(err) {
+                            if (err) reject(err);
+                            else resolve(this.lastID);
+                        });
+                    });
+                    console.log(`Created new cable route for customer ${customerId} to ODP ${newOdpId}`);
+                }
+
+                resolve(true);
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
+    // Get cable route untuk customer
+    async getCustomerCableRoute(customerId) {
+        return new Promise((resolve, reject) => {
+            this.db.get(`
+                SELECT cr.*, o.name as odp_name, o.code as odp_code
+                FROM cable_routes cr
+                JOIN odps o ON cr.odp_id = o.id
+                WHERE cr.customer_id = ?
+            `, [customerId], (err, row) => {
+                if (err) reject(err);
+                else resolve(row);
+            });
+        });
+    }
+
+    // Update cable route untuk customer
+    async updateCustomerCableRoute(cableRouteData) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                console.log('🔍 Debug updateCustomerCableRoute:', cableRouteData);
+                
+                // Cek apakah customer sudah punya cable route
+                const existingRoute = await new Promise((resolve, reject) => {
+                    this.db.get('SELECT id FROM cable_routes WHERE customer_id = ?', [cableRouteData.customer_id], (err, row) => {
+                        if (err) reject(err);
+                        else resolve(row);
+                    });
+                });
+                
+                console.log('🔍 Existing route found:', existingRoute);
+
+                if (existingRoute) {
+                    // Update cable route yang sudah ada
+                    console.log('🔄 Updating existing cable route...');
+                    const result = await new Promise((resolve, reject) => {
+                        this.db.run(`
+                            UPDATE cable_routes 
+                            SET odp_id = ?, cable_length = ?, cable_type = ?, port_number = ?, installation_date = ?, notes = ?, updated_at = CURRENT_TIMESTAMP
+                            WHERE customer_id = ?
+                        `, [
+                            cableRouteData.odp_id,
+                            cableRouteData.cable_length,
+                            cableRouteData.cable_type,
+                            cableRouteData.port_number,
+                            cableRouteData.installation_date,
+                            cableRouteData.notes,
+                            cableRouteData.customer_id
+                        ], function(err) {
+                            if (err) {
+                                console.error('❌ Error updating cable route:', err);
+                                reject(err);
+                            } else {
+                                console.log(`✅ Updated cable route for customer ${cableRouteData.customer_id}, changes: ${this.changes}`);
+                                resolve(this.changes);
+                            }
+                        });
+                    });
+                    resolve(result);
+                } else {
+                    // Buat cable route baru jika belum ada
+                    const result = await new Promise((resolve, reject) => {
+                        this.db.run(`
+                            INSERT INTO cable_routes (customer_id, odp_id, cable_length, cable_type, port_number, installation_date, notes)
+                            VALUES (?, ?, ?, ?, ?, ?, ?)
+                        `, [
+                            cableRouteData.customer_id,
+                            cableRouteData.odp_id,
+                            cableRouteData.cable_length,
+                            cableRouteData.cable_type,
+                            cableRouteData.port_number,
+                            cableRouteData.installation_date,
+                            cableRouteData.notes
+                        ], function(err) {
+                            if (err) reject(err);
+                            else resolve(this.lastID);
+                        });
+                    });
+                    console.log(`Created new cable route for customer ${cableRouteData.customer_id}`);
+                    resolve(result);
+                }
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
+    // Create cable route untuk customer baru (atau update jika sudah ada)
+    async createCustomerCableRoute(cableRouteData) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                console.log('🔍 Debug createCustomerCableRoute:', cableRouteData);
+                
+                // Cek apakah customer sudah punya cable route
+                const existingRoute = await new Promise((resolve, reject) => {
+                    this.db.get('SELECT id FROM cable_routes WHERE customer_id = ?', [cableRouteData.customer_id], (err, row) => {
+                        if (err) reject(err);
+                        else resolve(row);
+                    });
+                });
+
+                console.log('🔍 Existing route found in create:', existingRoute);
+
+                if (existingRoute) {
+                    // Update cable route yang sudah ada
+                    console.log('🔄 Updating existing cable route in create method...');
+                    const result = await new Promise((resolve, reject) => {
+                        this.db.run(`
+                            UPDATE cable_routes 
+                            SET odp_id = ?, cable_length = ?, cable_type = ?, port_number = ?, installation_date = ?, notes = ?, updated_at = CURRENT_TIMESTAMP
+                            WHERE customer_id = ?
+                        `, [
+                            cableRouteData.odp_id,
+                            cableRouteData.cable_length,
+                            cableRouteData.cable_type,
+                            cableRouteData.port_number,
+                            cableRouteData.installation_date,
+                            cableRouteData.notes,
+                            cableRouteData.customer_id
+                        ], function(err) {
+                            if (err) {
+                                console.error('❌ Error updating cable route in create:', err);
+                                reject(err);
+                            } else {
+                                console.log(`✅ Updated existing cable route for customer ${cableRouteData.customer_id}, changes: ${this.changes}`);
+                                resolve(this.changes);
+                            }
+                        });
+                    });
+                    resolve(result);
+                } else {
+                    // Insert cable route baru
+                    console.log('🆕 Creating new cable route...');
+                    const result = await new Promise((resolve, reject) => {
+                        this.db.run(`
+                            INSERT INTO cable_routes (customer_id, odp_id, cable_length, cable_type, port_number, installation_date, notes)
+                            VALUES (?, ?, ?, ?, ?, ?, ?)
+                        `, [
+                            cableRouteData.customer_id,
+                            cableRouteData.odp_id,
+                            cableRouteData.cable_length,
+                            cableRouteData.cable_type,
+                            cableRouteData.port_number,
+                            cableRouteData.installation_date,
+                            cableRouteData.notes
+                        ], function(err) {
+                            if (err) {
+                                console.error('❌ Error creating cable route:', err);
+                                reject(err);
+                            } else {
+                                console.log(`✅ Created new cable route for customer ${cableRouteData.customer_id} to ODP ${cableRouteData.odp_id}, ID: ${this.lastID}`);
+                                resolve(this.lastID);
+                            }
+                        });
+                    });
+                    resolve(result);
+                }
+            } catch (error) {
+                console.error('❌ Error in createCustomerCableRoute:', error);
                 reject(error);
             }
         });
@@ -1317,83 +1401,9 @@ class BillingManager {
                     return;
                 }
 
-                // Hapus cable routes terlebih dahulu (akan dihapus otomatis karena CASCADE)
-                // Tapi kita hapus manual untuk memastikan trigger ODP used_ports berjalan
-                const deleteCableRoutesSql = `DELETE FROM cable_routes WHERE customer_id = ?`;
-                this.db.run(deleteCableRoutesSql, [customer.id], function(err) {
-                    if (err) {
-                        console.error(`❌ Error deleting cable routes for customer ${customer.username}:`, err.message);
-                    } else {
-                        console.log(`✅ Successfully deleted cable routes for customer ${customer.username}`);
-                    }
-                });
-
                 const sql = `DELETE FROM customers WHERE phone = ?`;
                 
                 this.db.run(sql, [phone], async function(err) {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        // Hapus tag dari GenieACS jika ada nomor telepon
-                        if (customer.phone) {
-                            try {
-                                const genieacs = require('./genieacs');
-                                const pppoeToUse = customer.pppoe_username || customer.username; // Fallback ke username jika pppoe_username kosong
-                                const device = await genieacs.findDeviceByPPPoE(pppoeToUse);
-                                
-                                if (device) {
-                                    await genieacs.removeTagFromDevice(device._id, customer.phone);
-                                    console.log(`Removed phone tag ${customer.phone} from device ${device._id} for deleted customer ${customer.username} (PPPoE: ${pppoeToUse})`);
-                                } else {
-                                    console.warn(`No device found with PPPoE Username ${pppoeToUse} for deleted customer ${customer.username}`);
-                                }
-                            } catch (genieacsError) {
-                                console.error(`Error removing phone tag from GenieACS for deleted customer ${customer.username}:`, genieacsError.message);
-                                // Jangan reject, karena customer sudah berhasil dihapus di billing
-                                // Log error tapi lanjutkan proses
-                            }
-                        }
-                        
-                        resolve({ username: customer.username, deleted: true });
-                    }
-                });
-            } catch (error) {
-                reject(error);
-            }
-        });
-    }
-
-    async deleteCustomerById(id) {
-        return new Promise(async (resolve, reject) => {
-            try {
-                // Dapatkan data customer sebelum dihapus
-                const customer = await this.getCustomerById(id);
-                if (!customer) {
-                    reject(new Error('Pelanggan tidak ditemukan'));
-                    return;
-                }
-
-                // Cek apakah ada invoice yang terkait dengan customer ini
-                const invoices = await this.getInvoicesByCustomer(customer.id);
-                if (invoices && invoices.length > 0) {
-                    reject(new Error(`Tidak dapat menghapus pelanggan: ${invoices.length} tagihan masih ada untuk pelanggan ini. Silakan hapus semua tagihan terlebih dahulu.`));
-                    return;
-                }
-
-                // Hapus cable routes terlebih dahulu (akan dihapus otomatis karena CASCADE)
-                // Tapi kita hapus manual untuk memastikan trigger ODP used_ports berjalan
-                const deleteCableRoutesSql = `DELETE FROM cable_routes WHERE customer_id = ?`;
-                this.db.run(deleteCableRoutesSql, [customer.id], function(err) {
-                    if (err) {
-                        console.error(`❌ Error deleting cable routes for customer ${customer.username}:`, err.message);
-                    } else {
-                        console.log(`✅ Successfully deleted cable routes for customer ${customer.username}`);
-                    }
-                });
-
-                const sql = `DELETE FROM customers WHERE id = ?`;
-                
-                this.db.run(sql, [id], async function(err) {
                     if (err) {
                         reject(err);
                     } else {
@@ -1521,6 +1531,30 @@ class BillingManager {
             `;
             
             this.db.all(sql, [packageId], (err, rows) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(rows);
+                }
+            });
+        });
+    }
+
+    // Optimized method untuk mapping - hanya ambil data yang diperlukan
+    async getCustomersForMapping(limit = 1000) {
+        return new Promise((resolve, reject) => {
+            const sql = `
+                SELECT c.id, c.name, c.username, c.phone, c.email, c.address, 
+                       c.latitude, c.longitude, c.status, c.pppoe_username,
+                       p.name as package_name, p.price as package_price
+                FROM customers c 
+                LEFT JOIN packages p ON c.package_id = p.id 
+                WHERE c.latitude IS NOT NULL AND c.longitude IS NOT NULL
+                ORDER BY c.name ASC
+                LIMIT ?
+            `;
+            
+            this.db.all(sql, [limit], (err, rows) => {
                 if (err) {
                     reject(err);
                 } else {
@@ -1784,59 +1818,6 @@ class BillingManager {
                     reject(err);
                 } else {
                     resolve(row);
-                }
-            });
-        });
-    }
-
-    // Mobile dashboard specific methods
-    async getTotalCustomers() {
-        return new Promise((resolve, reject) => {
-            const sql = `SELECT COUNT(*) as count FROM customers`;
-            this.db.get(sql, [], (err, row) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(row.count || 0);
-                }
-            });
-        });
-    }
-
-    async getTotalInvoices() {
-        return new Promise((resolve, reject) => {
-            const sql = `SELECT COUNT(*) as count FROM invoices`;
-            this.db.get(sql, [], (err, row) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(row.count || 0);
-                }
-            });
-        });
-    }
-
-    async getTotalRevenue() {
-        return new Promise((resolve, reject) => {
-            const sql = `SELECT SUM(amount) as total FROM invoices WHERE status = 'paid'`;
-            this.db.get(sql, [], (err, row) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(row.total || 0);
-                }
-            });
-        });
-    }
-
-    async getPendingPayments() {
-        return new Promise((resolve, reject) => {
-            const sql = `SELECT COUNT(*) as count FROM invoices WHERE status = 'unpaid'`;
-            this.db.get(sql, [], (err, row) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(row.count || 0);
                 }
             });
         });

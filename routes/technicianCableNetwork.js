@@ -172,8 +172,8 @@ router.get('/api/odp/:id', technicianAuth, async (req, res) => {
         const odp = await new Promise((resolve, reject) => {
             db.get(`
                 SELECT o.*, 
-                       COUNT(CASE WHEN cr.customer_id IS NOT NULL THEN cr.id END) as connected_customers,
-                       COUNT(CASE WHEN cr.status = 'connected' AND cr.customer_id IS NOT NULL THEN 1 END) as active_connections
+                       COUNT(cr.id) as connected_customers,
+                       COUNT(CASE WHEN cr.status = 'connected' THEN 1 END) as active_connections
                 FROM odps o
                 LEFT JOIN cable_routes cr ON o.id = cr.odp_id
                 WHERE o.id = ?
@@ -192,7 +192,7 @@ router.get('/api/odp/:id', technicianAuth, async (req, res) => {
             });
         }
         
-        // Ambil cable routes yang terhubung ke ODP ini (hanya yang memiliki customer)
+        // Ambil cable routes yang terhubung ke ODP ini
         const cableRoutes = await new Promise((resolve, reject) => {
             db.all(`
                 SELECT cr.*, 
@@ -200,7 +200,7 @@ router.get('/api/odp/:id', technicianAuth, async (req, res) => {
                        c.latitude as customer_latitude, c.longitude as customer_longitude
                 FROM cable_routes cr
                 JOIN customers c ON cr.customer_id = c.id
-                WHERE cr.odp_id = ? AND cr.customer_id IS NOT NULL
+                WHERE cr.odp_id = ?
                 ORDER BY cr.status, c.name
             `, [id], (err, rows) => {
                 if (err) reject(err);
