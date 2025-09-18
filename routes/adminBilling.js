@@ -46,6 +46,114 @@ const getAppSettings = (req, res, next) => {
     next();
 };
 
+// Mobile Admin Billing Dashboard
+router.get('/mobile', getAppSettings, async (req, res) => {
+    try {
+        // Get basic stats for mobile dashboard
+        const totalCustomers = await billingManager.getTotalCustomers();
+        const totalInvoices = await billingManager.getTotalInvoices();
+        const totalRevenue = await billingManager.getTotalRevenue();
+        const pendingPayments = await billingManager.getPendingPayments();
+        
+        res.render('admin/billing/mobile-dashboard', {
+            title: 'Mobile Billing Admin',
+            appSettings: req.appSettings,
+            stats: {
+                totalCustomers,
+                totalInvoices,
+                totalRevenue,
+                pendingPayments
+            }
+        });
+    } catch (error) {
+        logger.error('Error loading mobile billing dashboard:', error);
+        res.status(500).render('error', { 
+            message: 'Error loading mobile billing dashboard',
+            error: process.env.NODE_ENV === 'development' ? error : {}
+        });
+    }
+});
+
+// Mobile Customers Management
+router.get('/mobile/customers', getAppSettings, async (req, res) => {
+    try {
+        // Get customers list for mobile
+        const customers = await billingManager.getCustomers();
+        
+        res.render('admin/billing/mobile-customers', {
+            title: 'Kelola Pelanggan - Mobile',
+            appSettings: req.appSettings,
+            customers: customers || []
+        });
+    } catch (error) {
+        logger.error('Error loading mobile customers:', error);
+        res.status(500).render('error', { 
+            message: 'Error loading mobile customers',
+            error: process.env.NODE_ENV === 'development' ? error : {}
+        });
+    }
+});
+
+// Mobile Invoices Management
+router.get('/mobile/invoices', getAppSettings, async (req, res) => {
+    try {
+        // Get invoices list for mobile
+        const invoices = await billingManager.getInvoices();
+        
+        res.render('admin/billing/mobile-invoices', {
+            title: 'Kelola Tagihan - Mobile',
+            appSettings: req.appSettings,
+            invoices: invoices || []
+        });
+    } catch (error) {
+        logger.error('Error loading mobile invoices:', error);
+        res.status(500).render('error', { 
+            message: 'Error loading mobile invoices',
+            error: process.env.NODE_ENV === 'development' ? error : {}
+        });
+    }
+});
+
+// Mobile Payments Management
+router.get('/mobile/payments', getAppSettings, async (req, res) => {
+    try {
+        // Get payments list for mobile (you may need to implement this method)
+        const payments = []; // Placeholder - implement getPayments method if needed
+        
+        res.render('admin/billing/mobile-payments', {
+            title: 'Kelola Pembayaran - Mobile',
+            appSettings: req.appSettings,
+            payments: payments || []
+        });
+    } catch (error) {
+        logger.error('Error loading mobile payments:', error);
+        res.status(500).render('error', { 
+            message: 'Error loading mobile payments',
+            error: process.env.NODE_ENV === 'development' ? error : {}
+        });
+    }
+});
+
+// Mobile Map Management
+router.get('/mobile/map', getAppSettings, async (req, res) => {
+    try {
+        // Get customers with location data for map
+        const customers = await billingManager.getCustomers();
+        
+        res.render('admin/billing/mobile-map', {
+            title: 'Peta Pelanggan - Mobile',
+            appSettings: req.appSettings,
+            customers: customers || []
+        });
+    } catch (error) {
+        logger.error('Error loading mobile map:', error);
+        res.status(500).render('error', { 
+            message: 'Error loading mobile map',
+            error: process.env.NODE_ENV === 'development' ? error : {}
+        });
+    }
+});
+
 // Dashboard Billing
 router.get('/dashboard', getAppSettings, async (req, res) => {
     try {
@@ -3400,6 +3508,86 @@ router.get('/api/packages/:id/price-with-tax', async (req, res) => {
             success: false,
             message: 'Error calculating price with tax',
             error: error.message
+        });
+    }
+});
+
+// GET: View individual payment
+router.get('/payments/:id', getAppSettings, async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        // Get payment data (placeholder - implement getPayment method if needed)
+        const payment = {
+            id: id,
+            customer_name: 'John Doe',
+            amount: 150000,
+            method: 'Transfer Bank',
+            status: 'Pending',
+            date: new Date().toISOString(),
+            reference: 'PAY' + id.toString().padStart(6, '0'),
+            description: 'Pembayaran tagihan bulanan'
+        };
+        
+        res.render('admin/billing/mobile-payment-detail', {
+            title: 'Detail Pembayaran - Mobile',
+            appSettings: req.appSettings,
+            payment: payment
+        });
+    } catch (error) {
+        logger.error('Error loading payment detail:', error);
+        res.status(500).render('error', { 
+            message: 'Error loading payment detail',
+            error: process.env.NODE_ENV === 'development' ? error : {}
+        });
+    }
+});
+
+// GET: Billing Settings
+router.get('/settings', getAppSettings, async (req, res) => {
+    try {
+        const settings = getSettingsWithCache();
+        
+        res.render('admin/billing/settings', {
+            title: 'Pengaturan Billing - Mobile',
+            appSettings: req.appSettings,
+            settings: settings
+        });
+    } catch (error) {
+        logger.error('Error loading billing settings:', error);
+        res.status(500).render('error', { 
+            message: 'Error loading billing settings',
+            error: process.env.NODE_ENV === 'development' ? error : {}
+        });
+    }
+});
+
+// GET: Billing Reports
+router.get('/reports', getAppSettings, async (req, res) => {
+    try {
+        const settings = getSettingsWithCache();
+        
+        // Get basic stats for reports
+        const totalCustomers = await billingManager.getTotalCustomers();
+        const totalInvoices = await billingManager.getTotalInvoices();
+        const totalRevenue = await billingManager.getTotalRevenue();
+        const pendingPayments = await billingManager.getPendingPayments();
+        
+        res.render('admin/billing/reports', {
+            title: 'Laporan Billing - Mobile',
+            appSettings: req.appSettings,
+            stats: {
+                totalCustomers,
+                totalInvoices,
+                totalRevenue,
+                pendingPayments
+            }
+        });
+    } catch (error) {
+        logger.error('Error loading billing reports:', error);
+        res.status(500).render('error', { 
+            message: 'Error loading billing reports',
+            error: process.env.NODE_ENV === 'development' ? error : {}
         });
     }
 });

@@ -33,6 +33,15 @@ router.get('/login', (req, res) => {
   res.render('adminLogin', { error: null });
 });
 
+// Test route untuk debugging
+router.get('/test', (req, res) => {
+  res.json({ message: 'Admin routes working!', timestamp: new Date().toISOString() });
+});
+
+// Route mobile login sudah dipindah ke app.js untuk menghindari konflik
+
+// Route mobile login sudah dipindah ke app.js untuk menghindari konflik
+
 // POST: Proses login admin - Optimized
 router.post('/login', async (req, res) => {
   try {
