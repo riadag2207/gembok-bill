@@ -121,6 +121,7 @@ class BillingManager {
                                 if (existingRoute) {
                                     // Update cable route yang ada
                                     console.log(`📝 Found existing cable route for customer ${oldCustomer.username}, updating...`);
+                                    console.log(`🔧 ODP: ${odp_id !== undefined ? odp_id : existingRoute.odp_id}, Port: ${port_number !== undefined ? port_number : existingRoute.port_number}`);
                                     const updateSql = `
                                         UPDATE cable_routes 
                                         SET odp_id = ?, cable_type = ?, cable_length = ?, port_number = ?, status = ?, notes = ?, updated_at = CURRENT_TIMESTAMP
@@ -1247,6 +1248,7 @@ class BillingManager {
                                 if (existingRoute) {
                                     // Update cable route yang ada
                                     console.log(`📝 Found existing cable route for customer ${oldCustomer.username}, updating...`);
+                                    console.log(`🔧 ODP: ${odp_id !== undefined ? odp_id : existingRoute.odp_id}, Port: ${port_number !== undefined ? port_number : existingRoute.port_number}`);
                                     const updateSql = `
                                         UPDATE cable_routes 
                                         SET odp_id = ?, cable_type = ?, cable_length = ?, port_number = ?, status = ?, notes = ?, updated_at = CURRENT_TIMESTAMP
