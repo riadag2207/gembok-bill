@@ -117,8 +117,8 @@ router.get('/odp', adminAuth, getAppSettings, async (req, res) => {
                 SELECT o.*, 
                        p.name as parent_name,
                        p.code as parent_code,
-                       COUNT(cr.id) as connected_customers,
-                       COUNT(CASE WHEN cr.status = 'connected' THEN 1 END) as active_connections
+                       COUNT(CASE WHEN cr.customer_id IS NOT NULL THEN cr.id END) as connected_customers,
+                       COUNT(CASE WHEN cr.status = 'connected' AND cr.customer_id IS NOT NULL THEN 1 END) as active_connections
                 FROM odps o
                 LEFT JOIN odps p ON o.parent_odp_id = p.id
                 LEFT JOIN cable_routes cr ON o.id = cr.odp_id
@@ -202,7 +202,7 @@ router.post('/odp', adminAuth, async (req, res) => {
         }
         
         // Insert ODP baru
-        const newODPId = await new Promise((resolve, reject) => {
+        await new Promise((resolve, reject) => {
             db.run(`
                 INSERT INTO odps (name, code, parent_odp_id, latitude, longitude, address, capacity, status, notes)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -212,24 +212,12 @@ router.post('/odp', adminAuth, async (req, res) => {
             });
         });
         
-        // Ambil data ODP yang baru dibuat untuk response
-        const newODP = await new Promise((resolve, reject) => {
-            db.get('SELECT * FROM odps WHERE id = ?', [newODPId], (err, row) => {
-                if (err) reject(err);
-                else resolve(row);
-            });
-        });
-        
         db.close();
         
         res.json({
             success: true,
             message: 'ODP berhasil ditambahkan',
-            data: { 
-                id: newODPId,
-                odp: newODP,
-                suggestNetworkSegment: true // Flag untuk menyarankan membuat network segment
-            }
+            data: { id: this.lastID }
         });
         
     } catch (error) {
@@ -320,23 +308,32 @@ router.delete('/odp/:id', adminAuth, async (req, res) => {
         
         const db = getDatabase();
         
-        // Cek apakah ODP masih digunakan
-        const usedRoutes = await new Promise((resolve, reject) => {
-            db.get('SELECT COUNT(*) as count FROM cable_routes WHERE odp_id = ?', [id], (err, row) => {
+        // Enable foreign keys untuk cascade delete
+        await new Promise((resolve, reject) => {
+            db.run("PRAGMA foreign_keys = ON", (err) => {
                 if (err) reject(err);
-                else resolve(row.count);
+                else resolve();
             });
         });
         
-        if (usedRoutes > 0) {
+        // Cek apakah ODP ada
+        const existingODP = await new Promise((resolve, reject) => {
+            db.get('SELECT * FROM odps WHERE id = ?', [id], (err, row) => {
+                if (err) reject(err);
+                else resolve(row);
+            });
+        });
+        
+        if (!existingODP) {
             db.close();
-            return res.status(400).json({
+            return res.status(404).json({
                 success: false,
-                message: 'ODP tidak dapat dihapus karena masih digunakan oleh kabel pelanggan'
+                message: 'ODP tidak ditemukan'
             });
         }
         
-        await new Promise((resolve, reject) => {
+        // Hapus ODP (cable_routes akan terhapus otomatis karena cascade delete)
+        const result = await new Promise((resolve, reject) => {
             db.run('DELETE FROM odps WHERE id = ?', [id], function(err) {
                 if (err) reject(err);
                 else resolve(this.changes);
@@ -347,7 +344,7 @@ router.delete('/odp/:id', adminAuth, async (req, res) => {
         
         res.json({
             success: true,
-            message: 'ODP berhasil dihapus'
+            message: `ODP "${existingODP.name}" berhasil dihapus. Semua kabel yang terhubung juga terhapus.`
         });
         
     } catch (error) {
@@ -355,77 +352,6 @@ router.delete('/odp/:id', adminAuth, async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Gagal menghapus ODP'
-        });
-    }
-});
-
-// POST: Bulk delete customers without cable routes
-router.post('/customers/bulk-delete', adminAuth, async (req, res) => {
-    try {
-        const { customerIds } = req.body;
-        
-        if (!customerIds || !Array.isArray(customerIds) || customerIds.length === 0) {
-            return res.status(400).json({
-                success: false,
-                message: 'Customer IDs tidak valid'
-            });
-        }
-
-        const db = getDatabase();
-        let deletedCount = 0;
-        const errors = [];
-
-        // Delete each customer
-        for (const customerId of customerIds) {
-            try {
-                // Check if customer exists and has no cable routes
-                const customer = await new Promise((resolve, reject) => {
-                    db.get(`
-                        SELECT c.* FROM customers c
-                        LEFT JOIN cable_routes cr ON c.id = cr.customer_id
-                        WHERE c.id = ? AND cr.id IS NULL
-                    `, [customerId], (err, row) => {
-                        if (err) reject(err);
-                        else resolve(row);
-                    });
-                });
-
-                if (!customer) {
-                    errors.push(`Customer ID ${customerId} tidak ditemukan atau sudah memiliki cable route`);
-                    continue;
-                }
-
-                // Delete customer
-                await new Promise((resolve, reject) => {
-                    db.run('DELETE FROM customers WHERE id = ?', [customerId], function(err) {
-                        if (err) reject(err);
-                        else resolve(this.changes);
-                    });
-                });
-
-                deletedCount++;
-                console.log(`✅ Deleted customer ${customerId}: ${customer.name}`);
-            } catch (error) {
-                console.error(`❌ Error deleting customer ${customerId}:`, error);
-                errors.push(`Gagal menghapus customer ID ${customerId}: ${error.message}`);
-            }
-        }
-
-        db.close();
-
-        res.json({
-            success: true,
-            message: `Berhasil menghapus ${deletedCount} dari ${customerIds.length} pelanggan`,
-            deletedCount,
-            totalRequested: customerIds.length,
-            errors: errors.length > 0 ? errors : undefined
-        });
-
-    } catch (error) {
-        console.error('❌ Error in bulk delete customers:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Gagal menghapus pelanggan: ' + error.message
         });
     }
 });
@@ -859,8 +785,8 @@ router.get('/api/analytics', adminAuth, async (req, res) => {
         const odps = await new Promise((resolve, reject) => {
             db.all(`
                 SELECT o.*, 
-                       COUNT(cr.id) as connected_customers,
-                       COUNT(CASE WHEN cr.status = 'connected' THEN 1 END) as active_connections
+                       COUNT(CASE WHEN cr.customer_id IS NOT NULL THEN cr.id END) as connected_customers,
+                       COUNT(CASE WHEN cr.status = 'connected' AND cr.customer_id IS NOT NULL THEN 1 END) as active_connections
                 FROM odps o
                 LEFT JOIN cable_routes cr ON o.id = cr.odp_id
                 GROUP BY o.id
@@ -1047,23 +973,23 @@ router.get('/api/odp/:id/cable-routes', adminAuth, async (req, res) => {
     }
 });
 
-// ===== NETWORK SEGMENT MANAGEMENT =====
+// ===== ODP CONNECTIONS MANAGEMENT =====
 
-// GET: Halaman Network Segments
-router.get('/network-segments', adminAuth, getAppSettings, async (req, res) => {
+// GET: Halaman ODP Connections
+router.get('/odp-connections', adminAuth, getAppSettings, async (req, res) => {
     try {
         const db = getDatabase();
         
-        // Ambil data network segments dengan detail ODP
-        const networkSegments = await new Promise((resolve, reject) => {
+        // Ambil data ODP connections
+        const connections = await new Promise((resolve, reject) => {
             db.all(`
-                SELECT ns.*, 
-                       o1.name as start_odp_name, o1.code as start_odp_code,
-                       o2.name as end_odp_name, o2.code as end_odp_code
-                FROM network_segments ns
-                JOIN odps o1 ON ns.start_odp_id = o1.id
-                LEFT JOIN odps o2 ON ns.end_odp_id = o2.id
-                ORDER BY ns.created_at DESC
+                SELECT oc.*, 
+                       from_odp.name as from_odp_name, from_odp.code as from_odp_code,
+                       to_odp.name as to_odp_name, to_odp.code as to_odp_code
+                FROM odp_connections oc
+                JOIN odps from_odp ON oc.from_odp_id = from_odp.id
+                JOIN odps to_odp ON oc.to_odp_id = to_odp.id
+                ORDER BY oc.created_at DESC
             `, [], (err, rows) => {
                 if (err) reject(err);
                 else resolve(rows);
@@ -1080,133 +1006,107 @@ router.get('/network-segments', adminAuth, getAppSettings, async (req, res) => {
         
         db.close();
         
-        res.render('admin/cable-network/network-segments', {
-            title: 'Network Segments Management',
-            page: 'network-segments',
-            networkSegments,
-            odps,
-            appSettings: req.appSettings
+        res.render('admin/cable-network/odp-connections', {
+            title: 'ODP Backbone Connections',
+            connections: connections,
+            odps: odps,
+            settings: req.settings
         });
+        
     } catch (error) {
-        logger.error('Error loading network segments page:', error);
+        logger.error('Error loading ODP connections page:', error);
         res.status(500).render('error', {
-            message: 'Error loading network segments page',
-            error: error.message,
-            appSettings: req.appSettings
+            message: 'Gagal memuat halaman ODP connections',
+            error: process.env.NODE_ENV === 'development' ? error : {}
         });
     }
 });
 
-// GET: Single Network Segment (untuk edit)
-router.get('/network-segments/:id', adminAuth, async (req, res) => {
+// GET: API untuk ODP connections
+router.get('/api/odp-connections', adminAuth, async (req, res) => {
     try {
-        const { id } = req.params;
         const db = getDatabase();
         
-        const segment = await new Promise((resolve, reject) => {
+        const connections = await new Promise((resolve, reject) => {
+            db.all(`
+                SELECT oc.*, 
+                       from_odp.name as from_odp_name, from_odp.code as from_odp_code,
+                       to_odp.name as to_odp_name, to_odp.code as to_odp_code
+                FROM odp_connections oc
+                JOIN odps from_odp ON oc.from_odp_id = from_odp.id
+                JOIN odps to_odp ON oc.to_odp_id = to_odp.id
+                ORDER BY oc.created_at DESC
+            `, [], (err, rows) => {
+                if (err) reject(err);
+                else resolve(rows);
+            });
+        });
+        
+        db.close();
+        
+        res.json({
+            success: true,
+            data: connections
+        });
+        
+    } catch (error) {
+        logger.error('Error getting ODP connections:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Gagal mengambil data ODP connections'
+        });
+    }
+});
+
+// POST: Tambah ODP connection
+router.post('/api/odp-connections', adminAuth, async (req, res) => {
+    try {
+        const { from_odp_id, to_odp_id, connection_type, cable_length, cable_capacity, status, installation_date, notes } = req.body;
+        
+        // Validasi
+        if (!from_odp_id || !to_odp_id) {
+            return res.status(400).json({
+                success: false,
+                message: 'From ODP dan To ODP harus diisi'
+            });
+        }
+        
+        if (from_odp_id === to_odp_id) {
+            return res.status(400).json({
+                success: false,
+                message: 'From ODP dan To ODP tidak boleh sama'
+            });
+        }
+        
+        const db = getDatabase();
+        
+        // Cek apakah connection sudah ada
+        const existingConnection = await new Promise((resolve, reject) => {
             db.get(`
-                SELECT ns.*, 
-                       o1.name as start_odp_name, o1.code as start_odp_code,
-                       o2.name as end_odp_name, o2.code as end_odp_code
-                FROM network_segments ns
-                JOIN odps o1 ON ns.start_odp_id = o1.id
-                LEFT JOIN odps o2 ON ns.end_odp_id = o2.id
-                WHERE ns.id = ?
-            `, [id], (err, row) => {
+                SELECT id FROM odp_connections 
+                WHERE (from_odp_id = ? AND to_odp_id = ?) OR (from_odp_id = ? AND to_odp_id = ?)
+            `, [from_odp_id, to_odp_id, to_odp_id, from_odp_id], (err, row) => {
                 if (err) reject(err);
                 else resolve(row);
             });
         });
         
-        db.close();
-        
-        if (segment) {
-            res.json({
-                success: true,
-                data: segment
-            });
-        } else {
-            res.status(404).json({
-                success: false,
-                message: 'Network segment tidak ditemukan'
-            });
-        }
-    } catch (error) {
-        logger.error('Error getting network segment:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Error getting network segment'
-        });
-    }
-});
-
-// POST: Tambah Network Segment
-router.post('/network-segments', adminAuth, async (req, res) => {
-    try {
-        const { name, start_odp_id, end_odp_id, segment_type, cable_length, status, notes } = req.body;
-        
-        // Validasi input
-        if (!name || !start_odp_id) {
-            return res.status(400).json({
-                success: false,
-                message: 'Nama dan Start ODP wajib diisi'
-            });
-        }
-        
-        const db = getDatabase();
-        
-        // Cek apakah start ODP ada
-        const startODP = await new Promise((resolve, reject) => {
-            db.get('SELECT id, name, latitude, longitude FROM odps WHERE id = ?', [start_odp_id], (err, row) => {
-                if (err) reject(err);
-                else resolve(row);
-            });
-        });
-        
-        if (!startODP) {
+        if (existingConnection) {
             db.close();
             return res.status(400).json({
                 success: false,
-                message: 'Start ODP tidak ditemukan'
+                message: 'Connection antara ODP ini sudah ada'
             });
         }
         
-        // Cek apakah end ODP ada (jika diisi)
-        let endODP = null;
-        if (end_odp_id) {
-            endODP = await new Promise((resolve, reject) => {
-                db.get('SELECT id, name, latitude, longitude FROM odps WHERE id = ?', [end_odp_id], (err, row) => {
-                    if (err) reject(err);
-                    else resolve(row);
-                });
-            });
-            
-            if (!endODP) {
-                db.close();
-                return res.status(400).json({
-                    success: false,
-                    message: 'End ODP tidak ditemukan'
-                });
-            }
-        }
-        
-        // Hitung panjang kabel otomatis jika tidak diisi
-        let calculatedLength = cable_length;
-        if (!cable_length && endODP) {
-            calculatedLength = CableNetworkUtils.calculateCableDistance(
-                { latitude: startODP.latitude, longitude: startODP.longitude },
-                { latitude: endODP.latitude, longitude: endODP.longitude }
-            );
-        }
-        
-        // Insert network segment
+        // Insert connection
         const result = await new Promise((resolve, reject) => {
             db.run(`
-                INSERT INTO network_segments (name, start_odp_id, end_odp_id, segment_type, cable_length, status, notes)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-            `, [name, start_odp_id, end_odp_id || null, segment_type || 'Backbone', calculatedLength, status || 'active', notes], function(err) {
+                INSERT INTO odp_connections (from_odp_id, to_odp_id, connection_type, cable_length, cable_capacity, status, installation_date, notes)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            `, [from_odp_id, to_odp_id, connection_type, cable_length, cable_capacity, status, installation_date, notes], function(err) {
                 if (err) reject(err);
-                else resolve(this.lastID);
+                else resolve({ id: this.lastID });
             });
         });
         
@@ -1214,199 +1114,94 @@ router.post('/network-segments', adminAuth, async (req, res) => {
         
         res.json({
             success: true,
-            message: 'Network segment berhasil ditambahkan',
-            data: { 
-                id: result,
-                cable_length: calculatedLength
-            }
+            message: 'ODP connection berhasil ditambahkan',
+            data: { id: result.id }
         });
         
     } catch (error) {
-        logger.error('Error adding network segment:', error);
+        logger.error('Error adding ODP connection:', error);
         res.status(500).json({
             success: false,
-            message: 'Gagal menambahkan network segment'
+            message: 'Gagal menambahkan ODP connection'
         });
     }
 });
 
-// PUT: Update Network Segment
-router.put('/network-segments/:id', adminAuth, async (req, res) => {
+// PUT: Update ODP connection
+router.put('/api/odp-connections/:id', adminAuth, async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, start_odp_id, end_odp_id, segment_type, cable_length, status, notes } = req.body;
+        const { from_odp_id, to_odp_id, connection_type, cable_length, cable_capacity, status, installation_date, notes } = req.body;
         
         const db = getDatabase();
         
-        // Cek apakah network segment ada
-        const existingSegment = await new Promise((resolve, reject) => {
-            db.get('SELECT * FROM network_segments WHERE id = ?', [id], (err, row) => {
-                if (err) reject(err);
-                else resolve(row);
-            });
-        });
-        
-        if (!existingSegment) {
-            db.close();
-            return res.status(404).json({
-                success: false,
-                message: 'Network segment tidak ditemukan'
-            });
-        }
-        
-        // Update network segment
-        await new Promise((resolve, reject) => {
+        const result = await new Promise((resolve, reject) => {
             db.run(`
-                UPDATE network_segments 
-                SET name = ?, start_odp_id = ?, end_odp_id = ?, segment_type = ?, 
-                    cable_length = ?, status = ?, notes = ?, updated_at = CURRENT_TIMESTAMP
+                UPDATE odp_connections 
+                SET from_odp_id = ?, to_odp_id = ?, connection_type = ?, cable_length = ?, 
+                    cable_capacity = ?, status = ?, installation_date = ?, notes = ?, updated_at = CURRENT_TIMESTAMP
                 WHERE id = ?
-            `, [name, start_odp_id, end_odp_id || null, segment_type, cable_length, status, notes, id], function(err) {
+            `, [from_odp_id, to_odp_id, connection_type, cable_length, cable_capacity, status, installation_date, notes, id], function(err) {
                 if (err) reject(err);
-                else resolve(this.changes);
+                else resolve({ changes: this.changes });
             });
         });
         
         db.close();
         
-        res.json({
-            success: true,
-            message: 'Network segment berhasil diperbarui'
-        });
-        
-    } catch (error) {
-        logger.error('Error updating network segment:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Gagal memperbarui network segment'
-        });
-    }
-});
-
-// DELETE: Hapus Network Segment
-router.delete('/network-segments/:id', adminAuth, async (req, res) => {
-    try {
-        const { id } = req.params;
-        
-        const db = getDatabase();
-        
-        // Cek apakah network segment ada
-        const existingSegment = await new Promise((resolve, reject) => {
-            db.get('SELECT * FROM network_segments WHERE id = ?', [id], (err, row) => {
-                if (err) reject(err);
-                else resolve(row);
-            });
-        });
-        
-        if (!existingSegment) {
-            db.close();
+        if (result.changes === 0) {
             return res.status(404).json({
                 success: false,
-                message: 'Network segment tidak ditemukan'
+                message: 'ODP connection tidak ditemukan'
             });
         }
         
-        // Hapus network segment
-        await new Promise((resolve, reject) => {
-            db.run('DELETE FROM network_segments WHERE id = ?', [id], function(err) {
-                if (err) reject(err);
-                else resolve(this.changes);
-            });
-        });
-        
-        db.close();
-        
         res.json({
             success: true,
-            message: 'Network segment berhasil dihapus'
+            message: 'ODP connection berhasil diupdate'
         });
         
     } catch (error) {
-        logger.error('Error deleting network segment:', error);
+        logger.error('Error updating ODP connection:', error);
         res.status(500).json({
             success: false,
-            message: 'Gagal menghapus network segment'
+            message: 'Gagal mengupdate ODP connection'
         });
     }
 });
 
-// POST: Buat Network Segment Otomatis untuk ODP Baru
-router.post('/network-segments/auto-create', adminAuth, async (req, res) => {
+// DELETE: Hapus ODP connection
+router.delete('/api/odp-connections/:id', adminAuth, async (req, res) => {
     try {
-        const { new_odp_id, connect_to_odp_id, segment_type, segment_name } = req.body;
-        
-        // Validasi input
-        if (!new_odp_id || !connect_to_odp_id) {
-            return res.status(400).json({
-                success: false,
-                message: 'New ODP ID dan Connect To ODP ID wajib diisi'
-            });
-        }
-        
+        const { id } = req.params;
         const db = getDatabase();
         
-        // Cek apakah kedua ODP ada
-        const newODP = await new Promise((resolve, reject) => {
-            db.get('SELECT id, name, code, latitude, longitude FROM odps WHERE id = ?', [new_odp_id], (err, row) => {
-                if (err) reject(err);
-                else resolve(row);
-            });
-        });
-        
-        const connectODP = await new Promise((resolve, reject) => {
-            db.get('SELECT id, name, code, latitude, longitude FROM odps WHERE id = ?', [connect_to_odp_id], (err, row) => {
-                if (err) reject(err);
-                else resolve(row);
-            });
-        });
-        
-        if (!newODP || !connectODP) {
-            db.close();
-            return res.status(400).json({
-                success: false,
-                message: 'ODP tidak ditemukan'
-            });
-        }
-        
-        // Hitung panjang kabel otomatis
-        const cableLength = CableNetworkUtils.calculateCableDistance(
-            { latitude: newODP.latitude, longitude: newODP.longitude },
-            { latitude: connectODP.latitude, longitude: connectODP.longitude }
-        );
-        
-        // Buat nama segment otomatis jika tidak diisi
-        const autoSegmentName = segment_name || `${newODP.name} - ${connectODP.name}`;
-        
-        // Insert network segment
         const result = await new Promise((resolve, reject) => {
-            db.run(`
-                INSERT INTO network_segments (name, start_odp_id, end_odp_id, segment_type, cable_length, status, notes)
-                VALUES (?, ?, ?, ?, ?, 'active', ?)
-            `, [autoSegmentName, new_odp_id, connect_to_odp_id, segment_type || 'Distribution', cableLength, `Auto-created when adding ODP ${newODP.name}`], function(err) {
+            db.run('DELETE FROM odp_connections WHERE id = ?', [id], function(err) {
                 if (err) reject(err);
-                else resolve(this.lastID);
+                else resolve({ changes: this.changes });
             });
         });
         
         db.close();
         
+        if (result.changes === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'ODP connection tidak ditemukan'
+            });
+        }
+        
         res.json({
             success: true,
-            message: 'Network segment berhasil dibuat otomatis',
-            data: { 
-                id: result,
-                name: autoSegmentName,
-                cable_length: cableLength,
-                start_odp: newODP,
-                end_odp: connectODP
-            }
+            message: 'ODP connection berhasil dihapus'
         });
         
     } catch (error) {
-        logger.error('Error auto-creating network segment:', error);
+        logger.error('Error deleting ODP connection:', error);
         res.status(500).json({
             success: false,
-            message: 'Gagal membuat network segment otomatis'
+            message: 'Gagal menghapus ODP connection'
         });
     }
 });

@@ -1534,7 +1534,7 @@ async function handleAdminCheckONUWithBilling(remoteJid, searchTerm) {
             message += `• Telepon: ${customer.phone}\n`;
             message += `• Username: ${customer.username || 'N/A'}\n`;
             message += `• PPPoE Username: ${customer.pppoe_username || 'N/A'}\n`;
-            message += `• Paket: ${customer.package_name || customer.package_id || 'N/A'}\n`;
+            message += `• Paket: ${customer.package_id || 'N/A'}\n`;
             message += `• Status: ${customer.status || 'N/A'}\n`;
             if (customer.address) {
                 message += `• Alamat: ${customer.address}\n`;

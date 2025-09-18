@@ -3,6 +3,7 @@ const { sendTechnicianMessage } = require('./sendMessage');
 const mikrotik = require('./mikrotik');
 const { getMikrotikConnection } = require('./mikrotik');
 const { getSetting } = require('./settingsManager');
+const cacheManager = require('./cache');
 
 // Helper untuk membuat axios instance dinamis
 function getAxiosInstance() {
@@ -650,11 +651,9 @@ const deviceInfo = {
 function scheduleMonitoring() {
     // Ambil pengaturan dari settings.json
     const rxPowerRecapEnabled = getSetting('rxpower_recap_enable', true) !== false;
-    const rxPowerRecapInterval = getSetting('rxpower_recap_interval_hours', 6) * 60 * 60 * 1000;
+    const rxPowerRecapInterval = getSetting('rxpower_recap_interval', 6 * 60 * 60 * 1000);
     const offlineNotifEnabled = getSetting('offline_notification_enable', true) !== false;
-    const offlineNotifInterval = getSetting('offline_notification_interval_hours', 12) * 60 * 60 * 1000;
-    
-    console.log(`🔧 Monitoring intervals: RXPower=${rxPowerRecapInterval/1000/60/60}h, Offline=${offlineNotifInterval/1000/60/60}h`);
+    const offlineNotifInterval = getSetting('offline_notification_interval', 12 * 60 * 60 * 1000);
 
     setTimeout(async () => {
         if (rxPowerRecapEnabled) {
@@ -667,14 +666,12 @@ function scheduleMonitoring() {
         }
         // Jadwalkan secara berkala
         if (rxPowerRecapEnabled) {
-            console.log(`⏰ Scheduling RXPower monitoring every ${rxPowerRecapInterval/1000/60/60} hours`);
             setInterval(async () => {
                 console.log('Menjalankan pemantauan RXPower terjadwal...');
                 await monitorRXPower();
             }, rxPowerRecapInterval);
         }
         if (offlineNotifEnabled) {
-            console.log(`⏰ Scheduling offline monitoring every ${offlineNotifInterval/1000/60/60} hours`);
             setInterval(async () => {
                 console.log('Menjalankan pemantauan perangkat offline terjadwal...');
                 await monitorOfflineDevices();
@@ -686,7 +683,94 @@ function scheduleMonitoring() {
 // Jalankan penjadwalan monitoring
 scheduleMonitoring();
 
+// ===== ENHANCEMENT: CACHED VERSIONS (Tidak mengubah fungsi existing) =====
+
+/**
+ * Enhanced getDevices dengan caching
+ * Fallback ke fungsi original jika cache miss
+ */
+async function getDevicesCached() {
+    const cacheKey = 'genieacs_devices';
+    const cached = cacheManager.get(cacheKey);
+    
+    if (cached) {
+        console.log('📦 Using cached devices data');
+        return cached;
+    }
+    
+    console.log('🔄 Fetching fresh devices data from GenieACS');
+    const devices = await genieacsApi.getDevices();
+    
+    // Cache untuk 3 menit (lebih pendek untuk data real-time)
+    cacheManager.set(cacheKey, devices, 3 * 60 * 1000);
+    
+    return devices;
+}
+
+/**
+ * Enhanced getDeviceInfo dengan caching
+ * Fallback ke fungsi original jika cache miss
+ */
+async function getDeviceInfoCached(deviceId) {
+    const cacheKey = `genieacs_device_${deviceId}`;
+    const cached = cacheManager.get(cacheKey);
+    
+    if (cached) {
+        console.log(`📦 Using cached device info for ${deviceId}`);
+        return cached;
+    }
+    
+    console.log(`🔄 Fetching fresh device info for ${deviceId}`);
+    const deviceInfo = await genieacsApi.getDeviceInfo(deviceId);
+    
+    // Cache untuk 2 menit
+    cacheManager.set(cacheKey, deviceInfo, 2 * 60 * 1000);
+    
+    return deviceInfo;
+}
+
+/**
+ * Clear cache untuk device tertentu
+ * Berguna saat ada update device
+ */
+function clearDeviceCache(deviceId = null) {
+    try {
+        if (deviceId) {
+            cacheManager.clear(`genieacs_device_${deviceId}`);
+            console.log(`🗑️ Cleared cache for device ${deviceId}`);
+        } else {
+            // Clear all GenieACS related cache
+            cacheManager.clear('genieacs_devices');
+            console.log('🗑️ Cleared all GenieACS devices cache');
+        }
+    } catch (error) {
+        console.error('Error clearing device cache:', error);
+        throw error;
+    }
+}
+
+/**
+ * Clear all cache (untuk maintenance)
+ */
+function clearAllCache() {
+    try {
+        cacheManager.clearAll();
+        console.log('🗑️ Cleared all cache');
+    } catch (error) {
+        console.error('Error clearing all cache:', error);
+        throw error;
+    }
+}
+
+/**
+ * Get cache statistics untuk monitoring
+ */
+function getCacheStats() {
+    return cacheManager.getStats();
+}
+
 module.exports = {
+    // Original functions (tidak berubah)
     getDevices: genieacsApi.getDevices,
     getDeviceInfo: genieacsApi.getDeviceInfo,
     findDeviceByPhoneNumber: genieacsApi.findDeviceByPhoneNumber,
@@ -699,5 +783,12 @@ module.exports = {
     removeTagFromDevice: genieacsApi.removeTagFromDevice,
     getVirtualParameters: genieacsApi.getVirtualParameters,
     monitorRXPower,
-    monitorOfflineDevices
+    monitorOfflineDevices,
+    
+    // Enhanced functions dengan caching
+    getDevicesCached,
+    getDeviceInfoCached,
+    clearDeviceCache,
+    clearAllCache,
+    getCacheStats
 };

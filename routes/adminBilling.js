@@ -8,6 +8,7 @@ const { exec } = require('child_process');
 const multer = require('multer');
 const upload = multer();
 const ExcelJS = require('exceljs');
+const { adminAuth } = require('./adminAuth');
 
 // Ensure JSON body parsing for this router
 router.use(express.json());
@@ -44,6 +45,114 @@ const getAppSettings = (req, res, next) => {
     };
     next();
 };
+
+// Mobile Admin Billing Dashboard
+router.get('/mobile', getAppSettings, async (req, res) => {
+    try {
+        // Get basic stats for mobile dashboard
+        const totalCustomers = await billingManager.getTotalCustomers();
+        const totalInvoices = await billingManager.getTotalInvoices();
+        const totalRevenue = await billingManager.getTotalRevenue();
+        const pendingPayments = await billingManager.getPendingPayments();
+        
+        res.render('admin/billing/mobile-dashboard', {
+            title: 'Mobile Billing Admin',
+            appSettings: req.appSettings,
+            stats: {
+                totalCustomers,
+                totalInvoices,
+                totalRevenue,
+                pendingPayments
+            }
+        });
+    } catch (error) {
+        logger.error('Error loading mobile billing dashboard:', error);
+        res.status(500).render('error', { 
+            message: 'Error loading mobile billing dashboard',
+            error: process.env.NODE_ENV === 'development' ? error : {}
+        });
+    }
+});
+
+// Mobile Customers Management
+router.get('/mobile/customers', getAppSettings, async (req, res) => {
+    try {
+        // Get customers list for mobile
+        const customers = await billingManager.getCustomers();
+        
+        res.render('admin/billing/mobile-customers', {
+            title: 'Kelola Pelanggan - Mobile',
+            appSettings: req.appSettings,
+            customers: customers || []
+        });
+    } catch (error) {
+        logger.error('Error loading mobile customers:', error);
+        res.status(500).render('error', { 
+            message: 'Error loading mobile customers',
+            error: process.env.NODE_ENV === 'development' ? error : {}
+        });
+    }
+});
+
+// Mobile Invoices Management
+router.get('/mobile/invoices', getAppSettings, async (req, res) => {
+    try {
+        // Get invoices list for mobile
+        const invoices = await billingManager.getInvoices();
+        
+        res.render('admin/billing/mobile-invoices', {
+            title: 'Kelola Tagihan - Mobile',
+            appSettings: req.appSettings,
+            invoices: invoices || []
+        });
+    } catch (error) {
+        logger.error('Error loading mobile invoices:', error);
+        res.status(500).render('error', { 
+            message: 'Error loading mobile invoices',
+            error: process.env.NODE_ENV === 'development' ? error : {}
+        });
+    }
+});
+
+// Mobile Payments Management
+router.get('/mobile/payments', getAppSettings, async (req, res) => {
+    try {
+        // Get payments list for mobile (you may need to implement this method)
+        const payments = []; // Placeholder - implement getPayments method if needed
+        
+        res.render('admin/billing/mobile-payments', {
+            title: 'Kelola Pembayaran - Mobile',
+            appSettings: req.appSettings,
+            payments: payments || []
+        });
+    } catch (error) {
+        logger.error('Error loading mobile payments:', error);
+        res.status(500).render('error', { 
+            message: 'Error loading mobile payments',
+            error: process.env.NODE_ENV === 'development' ? error : {}
+        });
+    }
+});
+
+// Mobile Map Management
+router.get('/mobile/map', getAppSettings, async (req, res) => {
+    try {
+        // Get customers with location data for map
+        const customers = await billingManager.getCustomers();
+        
+        res.render('admin/billing/mobile-map', {
+            title: 'Peta Pelanggan - Mobile',
+            appSettings: req.appSettings,
+            customers: customers || []
+        });
+    } catch (error) {
+        logger.error('Error loading mobile map:', error);
+        res.status(500).render('error', { 
+            message: 'Error loading mobile map',
+            error: process.env.NODE_ENV === 'development' ? error : {}
+        });
+    }
+});
 
 // Dashboard Billing
 router.get('/dashboard', getAppSettings, async (req, res) => {
@@ -1557,7 +1666,6 @@ router.get('/customers', getAppSettings, async (req, res) => {
             const db = require('../config/billing').db;
             db.all(`
                 SELECT o.id, o.name, o.code, o.capacity, o.used_ports, o.status, o.parent_odp_id,
-                       o.latitude, o.longitude,
                        p.name as parent_name, p.code as parent_code
                 FROM odps o
                 LEFT JOIN odps p ON o.parent_odp_id = p.id
@@ -1588,7 +1696,7 @@ router.get('/customers', getAppSettings, async (req, res) => {
 
 router.post('/customers', async (req, res) => {
     try {
-        const { name, username, phone, pppoe_username, email, address, package_id, odp_id, pppoe_profile, auto_suspension, billing_day, create_pppoe_user, pppoe_password, static_ip, assigned_ip, mac_address, latitude, longitude, cable_length, cable_type, port_number, cable_installation_date, cable_notes } = req.body;
+        const { name, username, phone, pppoe_username, email, address, package_id, odp_id, pppoe_profile, auto_suspension, billing_day, create_pppoe_user, pppoe_password, static_ip, assigned_ip, mac_address, latitude, longitude, cable_type, cable_length, port_number, cable_status, cable_notes } = req.body;
         
         // Validate required fields
         if (!name || !username || !phone || !package_id) {
@@ -1634,69 +1742,16 @@ router.post('/customers', async (req, res) => {
             assigned_ip: assigned_ip || null,
             mac_address: mac_address || null,
             latitude: latitude !== undefined && latitude !== '' ? parseFloat(latitude) : undefined,
-            longitude: longitude !== undefined && longitude !== '' ? parseFloat(longitude) : undefined
+            longitude: longitude !== undefined && longitude !== '' ? parseFloat(longitude) : undefined,
+            // Cable connection data
+            cable_type: cable_type || null,
+            cable_length: cable_length ? parseInt(cable_length) : null,
+            port_number: port_number ? parseInt(port_number) : null,
+            cable_status: cable_status || 'connected',
+            cable_notes: cable_notes || null
         };
 
         const result = await billingManager.createCustomer(customerData);
-
-        // Create cable route if ODP is selected
-        let cableRouteCreate = { attempted: false, created: false, message: '' };
-        try {
-            if (odp_id && odp_id !== '' && odp_id !== 'null') {
-                cableRouteCreate.attempted = true;
-                
-                // Calculate cable length if not provided
-                let calculatedLength = cable_length;
-                if (!cable_length && latitude && longitude) {
-                    // Get ODP coordinates for calculation
-                    const db = require('../config/billing').db;
-                    const odp = await new Promise((resolve, reject) => {
-                        db.get('SELECT latitude, longitude FROM odps WHERE id = ?', [odp_id], (err, row) => {
-                            if (err) reject(err);
-                            else resolve(row);
-                        });
-                    });
-                    
-                    if (odp && odp.latitude && odp.longitude) {
-                        // Calculate distance using Haversine formula
-                        const R = 6371; // Earth's radius in kilometers
-                        const dLat = (odp.latitude - parseFloat(latitude)) * Math.PI / 180;
-                        const dLon = (odp.longitude - parseFloat(longitude)) * Math.PI / 180;
-                        const a = 
-                            Math.sin(dLat/2) * Math.sin(dLat/2) +
-                            Math.cos(parseFloat(latitude) * Math.PI / 180) * Math.cos(odp.latitude * Math.PI / 180) * 
-                            Math.sin(dLon/2) * Math.sin(dLon/2);
-                        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-                        const distance = R * c; // Distance in kilometers
-                        calculatedLength = distance * 1000; // Convert to meters
-                    }
-                }
-                
-                const cableRouteData = {
-                    customer_id: result.id,
-                    odp_id: parseInt(odp_id),
-                    cable_length: calculatedLength,
-                    cable_type: cable_type || 'Fiber Optic',
-                    port_number: port_number ? parseInt(port_number) : null,
-                    installation_date: cable_installation_date || null,
-                    notes: cable_notes || null
-                };
-                
-                const cableResult = await billingManager.createCustomerCableRoute(cableRouteData);
-                if (cableResult) {
-                    cableRouteCreate.created = true;
-                    cableRouteCreate.message = 'Jalur kabel berhasil dibuat';
-                } else {
-                    cableRouteCreate.created = false;
-                    cableRouteCreate.message = 'Gagal membuat jalur kabel';
-                }
-            }
-        } catch (e) {
-            console.error('❌ Error creating cable route:', e);
-            logger.warn('Gagal membuat jalur kabel (opsional): ' + e.message);
-            cableRouteCreate.created = false;
-            cableRouteCreate.message = e.message;
-        }
 
         // Optional: create PPPoE user in Mikrotik
         let pppoeCreate = { attempted: false, created: false, message: '' };
@@ -1729,8 +1784,7 @@ router.post('/customers', async (req, res) => {
             success: true,
             message: 'Pelanggan berhasil ditambahkan',
             customer: result,
-            pppoeCreate,
-            cableRouteCreate
+            pppoeCreate
         });
     } catch (error) {
         logger.error('Error creating customer:', error);
@@ -1827,11 +1881,9 @@ router.get('/customers/:phone', getAppSettings, async (req, res) => {
 router.get('/api/customers/:phone', async (req, res) => {
     try {
         const { phone } = req.params;
-        console.log('🔍 API: Loading customer data for editing phone:', phone);
         logger.info(`API: Loading customer data for editing phone: ${phone}`);
         
         const customer = await billingManager.getCustomerByPhone(phone);
-        console.log('🔍 API: Customer found:', customer ? 'Yes' : 'No');
         
         if (!customer) {
             return res.status(404).json({
@@ -1840,18 +1892,9 @@ router.get('/api/customers/:phone', async (req, res) => {
             });
         }
 
-        // Get cable route data if exists
-        let cableRoute = null;
-        try {
-            cableRoute = await billingManager.getCustomerCableRoute(customer.id);
-        } catch (error) {
-            logger.warn('No cable route found for customer:', error.message);
-        }
-
         return res.json({
             success: true,
             customer: customer,
-            cableRoute: cableRoute,
             message: 'Customer data loaded successfully'
         });
     } catch (error) {
@@ -1942,19 +1985,8 @@ router.get('/customers/:username/test', async (req, res) => {
 router.put('/customers/:phone', async (req, res) => {
     try {
         const { phone } = req.params;
-        const { name, username, pppoe_username, email, address, package_id, odp_id, pppoe_profile, status, auto_suspension, billing_day, latitude, longitude, static_ip, assigned_ip, mac_address, cable_length, cable_type, port_number, cable_installation_date, cable_notes } = req.body;
+        const { name, username, pppoe_username, email, address, package_id, odp_id, pppoe_profile, status, auto_suspension, billing_day, latitude, longitude, static_ip, assigned_ip, mac_address, cable_type, cable_length, port_number, cable_status, cable_notes } = req.body;
         
-        console.log('🔍 Debug edit customer request:', {
-            phone,
-            odp_id,
-            cable_length,
-            cable_type,
-            port_number,
-            cable_installation_date,
-            cable_notes,
-            latitude,
-            longitude
-        });
         
         // Validate required fields
         if (!name || !username || !package_id) {
@@ -2014,86 +2046,22 @@ router.put('/customers/:phone', async (req, res) => {
             longitude: longitude !== undefined ? parseFloat(longitude) : currentCustomer.longitude,
             static_ip: static_ip !== undefined ? static_ip : currentCustomer.static_ip,
             assigned_ip: assigned_ip !== undefined ? assigned_ip : currentCustomer.assigned_ip,
-            mac_address: mac_address !== undefined ? mac_address : currentCustomer.mac_address
+            mac_address: mac_address !== undefined ? mac_address : currentCustomer.mac_address,
+            // Cable connection data
+            cable_type: cable_type !== undefined ? cable_type : currentCustomer.cable_type,
+            cable_length: cable_length !== undefined ? parseInt(cable_length) : currentCustomer.cable_length,
+            port_number: port_number !== undefined ? parseInt(port_number) : currentCustomer.port_number,
+            cable_status: cable_status !== undefined ? cable_status : currentCustomer.cable_status,
+            cable_notes: cable_notes !== undefined ? cable_notes : currentCustomer.cable_notes
         };
 
         // Use current phone for lookup, allow phone to be updated in customerData
         const result = await billingManager.updateCustomerByPhone(phone, customerData);
-
-        // Update cable route if ODP is selected
-        let cableRouteUpdate = { attempted: false, updated: false, message: '' };
-        try {
-            console.log('🔍 Debug cable route update:', {
-                odp_id,
-                cable_length,
-                cable_type,
-                port_number,
-                customer_id: result.id
-            });
-            
-            if (odp_id && odp_id !== '' && odp_id !== 'null') {
-                cableRouteUpdate.attempted = true;
-                
-                // Calculate cable length if not provided
-                let calculatedLength = cable_length;
-                if (!cable_length && latitude && longitude) {
-                    // Get ODP coordinates for calculation
-                    const db = require('../config/billing').db;
-                    const odp = await new Promise((resolve, reject) => {
-                        db.get('SELECT latitude, longitude FROM odps WHERE id = ?', [odp_id], (err, row) => {
-                            if (err) reject(err);
-                            else resolve(row);
-                        });
-                    });
-                    
-                    if (odp && odp.latitude && odp.longitude) {
-                        // Calculate distance using Haversine formula
-                        const R = 6371; // Earth's radius in kilometers
-                        const dLat = (odp.latitude - parseFloat(latitude)) * Math.PI / 180;
-                        const dLon = (odp.longitude - parseFloat(longitude)) * Math.PI / 180;
-                        const a = 
-                            Math.sin(dLat/2) * Math.sin(dLat/2) +
-                            Math.cos(parseFloat(latitude) * Math.PI / 180) * Math.cos(odp.latitude * Math.PI / 180) * 
-                            Math.sin(dLon/2) * Math.sin(dLon/2);
-                        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-                        const distance = R * c; // Distance in kilometers
-                        calculatedLength = distance * 1000; // Convert to meters
-                    }
-                }
-                
-                const cableRouteData = {
-                    customer_id: result.id,
-                    odp_id: parseInt(odp_id),
-                    cable_length: calculatedLength,
-                    cable_type: cable_type || 'Fiber Optic',
-                    port_number: port_number ? parseInt(port_number) : null,
-                    installation_date: cable_installation_date || null,
-                    notes: cable_notes || null
-                };
-                
-                const cableResult = await billingManager.updateCustomerCableRoute(cableRouteData);
-                console.log('🔍 Cable route update result:', cableResult);
-                
-                if (cableResult) {
-                    cableRouteUpdate.updated = true;
-                    cableRouteUpdate.message = 'Jalur kabel berhasil diupdate';
-                } else {
-                    cableRouteUpdate.updated = false;
-                    cableRouteUpdate.message = 'Gagal mengupdate jalur kabel';
-                }
-            }
-        } catch (e) {
-            console.error('❌ Error updating cable route:', e);
-            logger.warn('Gagal mengupdate jalur kabel (opsional): ' + e.message);
-            cableRouteUpdate.updated = false;
-            cableRouteUpdate.message = e.message;
-        }
         
         res.json({
             success: true,
             message: 'Pelanggan berhasil diupdate',
-            customer: result,
-            cableRouteUpdate
+            customer: result
         });
     } catch (error) {
         logger.error('Error updating customer:', error);
@@ -2673,7 +2641,7 @@ router.get('/api/packages', async (req, res) => {
 
 
 
-router.get('/api/customers', async (req, res) => {
+router.get('/api/customers', adminAuth, async (req, res) => {
     try {
         const customers = await billingManager.getCustomers();
         res.json({
@@ -2685,60 +2653,6 @@ router.get('/api/customers', async (req, res) => {
         res.status(500).json({ 
             success: false, 
             error: error.message 
-        });
-    }
-});
-
-// API endpoint untuk statistics
-router.get('/api/statistics', async (req, res) => {
-    try {
-        console.log('🔍 Statistics API called');
-        
-        // Get customers count
-        const customers = await billingManager.getCustomers();
-        const totalCustomers = customers.length;
-        const customersWithCoords = customers.filter(c => c.latitude && c.longitude).length;
-        
-        // Get GenieACS statistics if available
-        let totalDevices = 0;
-        let onlineDevices = 0;
-        let offlineDevices = 0;
-        
-        try {
-            const genieacs = require('../config/genieacs');
-            const devices = await genieacs.getDevices();
-            
-            totalDevices = devices.length;
-            const now = Date.now();
-            onlineDevices = devices.filter(dev => dev._lastInform && (now - new Date(dev._lastInform).getTime()) < 3600*1000).length;
-            offlineDevices = totalDevices - onlineDevices;
-            
-            console.log('🔍 GenieACS stats:', { totalDevices, onlineDevices, offlineDevices });
-        } catch (genieacsError) {
-            console.warn('⚠️ GenieACS not available, using default values:', genieacsError.message);
-            // Use default values if GenieACS is not available
-            totalDevices = 0;
-            onlineDevices = 0;
-            offlineDevices = 0;
-        }
-        
-        res.json({
-            success: true,
-            data: {
-                totalCustomers,
-                customersWithCoords,
-                totalDevices,
-                onlineDevices,
-                offlineDevices,
-                lastUpdated: new Date().toISOString()
-            }
-        });
-        
-    } catch (error) {
-        console.error('❌ Error getting statistics:', error);
-        res.status(500).json({
-            success: false,
-            error: error.message
         });
     }
 });
@@ -3238,35 +3152,17 @@ router.get('/mapping', getAppSettings, async (req, res) => {
     }
 });
 
-// Optimized Mapping page
-router.get('/mapping-optimized', getAppSettings, async (req, res) => {
-    try {
-        res.render('admin/billing/mapping-optimized', {
-            title: 'Network Mapping - Optimized',
-            page: 'mapping',
-            appSettings: req.appSettings
-        });
-    } catch (error) {
-        logger.error('Error loading optimized mapping page:', error);
-        res.status(500).render('error', {
-            message: 'Error loading optimized mapping page',
-            error: error.message,
-            appSettings: req.appSettings
-        });
-    }
-});
-
 // API untuk mapping data
 router.get('/api/mapping/data', async (req, res) => {
     try {
         const MappingUtils = require('../utils/mappingUtils');
-        const { limit = 1000 } = req.query;
         
-        // Ambil data customers dengan koordinat - OPTIMIZED
-        const customers = await billingManager.getCustomersForMappingCached(parseInt(limit));
+        // Ambil data customers dengan koordinat
+        const customers = await billingManager.getAllCustomers();
+        const customersWithCoords = customers.filter(c => c.latitude && c.longitude);
         
         // Validasi koordinat customer
-        const validatedCustomers = customers.map(customer => 
+        const validatedCustomers = customersWithCoords.map(customer => 
             MappingUtils.validateCustomerCoordinates(customer)
         );
         
@@ -3319,10 +3215,11 @@ router.get('/api/mapping/coverage', async (req, res) => {
     try {
         const MappingUtils = require('../utils/mappingUtils');
         
-        // Ambil data customers - OPTIMIZED
-        const customers = await billingManager.getCustomersForMappingCached();
+        // Ambil data customers
+        const customers = await billingManager.getAllCustomers();
+        const customersWithCoords = customers.filter(c => c.latitude && c.longitude);
         
-        if (customers.length < 3) {
+        if (customersWithCoords.length < 3) {
             return res.json({
                 success: false,
                 message: 'Minimal 3 koordinat diperlukan untuk analisis coverage'
@@ -3530,12 +3427,13 @@ router.get('/api/mapping/export', async (req, res) => {
     try {
         const { format = 'json' } = req.query;
         
-        // Ambil data mapping - OPTIMIZED
-        const customers = await billingManager.getCustomersForMappingCached();
+        // Ambil data mapping
+        const customers = await billingManager.getAllCustomers();
+        const customersWithCoords = customers.filter(c => c.latitude && c.longitude);
         
         if (format === 'csv') {
             // Export sebagai CSV
-            const csvData = customers.map(c => ({
+            const csvData = customersWithCoords.map(c => ({
                 id: c.id,
                 name: c.name,
                 phone: c.phone,
@@ -3610,6 +3508,86 @@ router.get('/api/packages/:id/price-with-tax', async (req, res) => {
             success: false,
             message: 'Error calculating price with tax',
             error: error.message
+        });
+    }
+});
+
+// GET: View individual payment
+router.get('/payments/:id', getAppSettings, async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        // Get payment data (placeholder - implement getPayment method if needed)
+        const payment = {
+            id: id,
+            customer_name: 'John Doe',
+            amount: 150000,
+            method: 'Transfer Bank',
+            status: 'Pending',
+            date: new Date().toISOString(),
+            reference: 'PAY' + id.toString().padStart(6, '0'),
+            description: 'Pembayaran tagihan bulanan'
+        };
+        
+        res.render('admin/billing/mobile-payment-detail', {
+            title: 'Detail Pembayaran - Mobile',
+            appSettings: req.appSettings,
+            payment: payment
+        });
+    } catch (error) {
+        logger.error('Error loading payment detail:', error);
+        res.status(500).render('error', { 
+            message: 'Error loading payment detail',
+            error: process.env.NODE_ENV === 'development' ? error : {}
+        });
+    }
+});
+
+// GET: Billing Settings
+router.get('/settings', getAppSettings, async (req, res) => {
+    try {
+        const settings = getSettingsWithCache();
+        
+        res.render('admin/billing/settings', {
+            title: 'Pengaturan Billing - Mobile',
+            appSettings: req.appSettings,
+            settings: settings
+        });
+    } catch (error) {
+        logger.error('Error loading billing settings:', error);
+        res.status(500).render('error', { 
+            message: 'Error loading billing settings',
+            error: process.env.NODE_ENV === 'development' ? error : {}
+        });
+    }
+});
+
+// GET: Billing Reports
+router.get('/reports', getAppSettings, async (req, res) => {
+    try {
+        const settings = getSettingsWithCache();
+        
+        // Get basic stats for reports
+        const totalCustomers = await billingManager.getTotalCustomers();
+        const totalInvoices = await billingManager.getTotalInvoices();
+        const totalRevenue = await billingManager.getTotalRevenue();
+        const pendingPayments = await billingManager.getPendingPayments();
+        
+        res.render('admin/billing/reports', {
+            title: 'Laporan Billing - Mobile',
+            appSettings: req.appSettings,
+            stats: {
+                totalCustomers,
+                totalInvoices,
+                totalRevenue,
+                pendingPayments
+            }
+        });
+    } catch (error) {
+        logger.error('Error loading billing reports:', error);
+        res.status(500).render('error', { 
+            message: 'Error loading billing reports',
+            error: process.env.NODE_ENV === 'development' ? error : {}
         });
     }
 });
