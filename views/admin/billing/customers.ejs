@@ -1030,7 +1030,22 @@
         $(document).ready(function() {
             const dt = $('#customersTable').DataTable({
                 language: {
-                    url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/id.json'
+                    url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/id.json',
+                    emptyTable: "Tidak ada data yang tersedia",
+                    info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ entri",
+                    infoEmpty: "Menampilkan 0 sampai 0 dari 0 entri",
+                    infoFiltered: "(disaring dari _MAX_ entri keseluruhan)",
+                    lengthMenu: "Tampilkan _MENU_ entri",
+                    loadingRecords: "Sedang memuat...",
+                    processing: "Sedang memproses...",
+                    search: "Cari:",
+                    zeroRecords: "Tidak ditemukan data yang sesuai",
+                    paginate: {
+                        first: "Pertama",
+                        last: "Terakhir",
+                        next: "Selanjutnya",
+                        previous: "Sebelumnya"
+                    }
                 },
                 pageLength: 25,
                 lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]]
@@ -2082,5 +2097,104 @@
             }
         }
     </script>
+
+    <!-- Bottom Navigation for Mobile -->
+    <nav class="bottom-nav d-md-none" style="position: fixed; bottom: 0; left: 0; right: 0; background: linear-gradient(180deg, rgba(11,20,55,0.96), rgba(15,28,79,0.96)); border-top: 1px solid rgba(255,255,255,0.08); height: 70px; display: grid; grid-template-columns: 1fr 1fr 1.5fr 1fr 1fr; z-index: 1000; backdrop-filter: blur(10px); padding: 8px 0;">
+        <a class="nav-item" href="/admin/billing/mobile/customers" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: white; text-decoration: none; transition: all 0.3s ease;">
+            <i class="bi bi-people" style="font-size: 1.2rem;"></i>
+            <span style="font-size: 0.7rem; font-weight: 500;">Pelanggan</span>
+        </a>
+        <a class="nav-item" href="/admin/billing/mobile/invoices" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: white; text-decoration: none; transition: all 0.3s ease;">
+            <i class="bi bi-receipt" style="font-size: 1.2rem;"></i>
+            <span style="font-size: 0.7rem; font-weight: 500;">Tagihan</span>
+        </a>
+        <a class="nav-item home-button active" href="/admin/billing/mobile" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: white; text-decoration: none; transition: all 0.3s ease; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; width: 56px; height: 56px; margin: -8px auto 0 auto; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); transform: translateY(-4px); border: 2px solid rgba(255,255,255,0.2); position: relative; overflow: hidden;">
+            <i class="bi bi-house" style="font-size: 1.2rem;"></i>
+            <span style="font-size: 0.7rem; font-weight: 500;">Home</span>
+        </a>
+        <a class="nav-item" href="/admin/billing/mobile/payments" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: white; text-decoration: none; transition: all 0.3s ease;">
+            <i class="bi bi-credit-card" style="font-size: 1.2rem;"></i>
+            <span style="font-size: 0.7rem; font-weight: 500;">Bayar</span>
+        </a>
+        <a class="nav-item" href="/admin/billing/mobile/map" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: white; text-decoration: none; transition: all 0.3s ease;">
+            <i class="bi bi-geo-alt" style="font-size: 1.2rem;"></i>
+            <span style="font-size: 0.7rem; font-weight: 500;">Map</span>
+        </a>
+    </nav>
+
+    <style>
+        /* Bottom Navigation Styles */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(180deg, rgba(11,20,55,0.96), rgba(15,28,79,0.96));
+            border-top: 1px solid rgba(255,255,255,0.08);
+            height: 70px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1.5fr 1fr 1fr;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            padding: 8px 0;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-item:hover {
+            color: #4cc9f0;
+            transform: translateY(-2px);
+        }
+        
+        .nav-item.active {
+            color: #4cc9f0;
+        }
+        
+        .nav-item.home-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+            margin: -8px auto 0 auto;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            transform: translateY(-4px);
+            border: 2px solid rgba(255,255,255,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-item.home-button:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        
+        .nav-item.home-button.active {
+            color: white;
+        }
+        
+        /* Add padding to body for bottom nav */
+        body {
+            padding-bottom: 80px;
+        }
+        
+        @media (min-width: 768px) {
+            .bottom-nav {
+                display: none;
+            }
+            
+            body {
+                padding-bottom: 0;
+            }
+        }
+    </style>
 </body>
 </html> 

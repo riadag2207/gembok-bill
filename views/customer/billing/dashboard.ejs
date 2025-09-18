@@ -8,6 +8,7 @@
   <meta name="theme-color" content="#0B1437">
   <link rel="apple-touch-icon" href="/img/icons/icon-192.png">
   <link rel="stylesheet" href="/css/pwa.css">
+  <link rel="stylesheet" href="/css/customer-responsive.css">
   <script defer src="/js/pwa-install.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -979,6 +980,7 @@
   <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
   <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
   <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+  <script src="/js/customer-mobile.js"></script>
 
     <script>
   $(document).ready(function() {
@@ -987,7 +989,22 @@
       $('#invoicesTable').DataTable({
         responsive: true,
         language: {
-          url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/id.json'
+          url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/id.json',
+          emptyTable: "Tidak ada data yang tersedia",
+          info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ entri",
+          infoEmpty: "Menampilkan 0 sampai 0 dari 0 entri",
+          infoFiltered: "(disaring dari _MAX_ entri keseluruhan)",
+          lengthMenu: "Tampilkan _MENU_ entri",
+          loadingRecords: "Sedang memuat...",
+          processing: "Sedang memproses...",
+          search: "Cari:",
+          zeroRecords: "Tidak ditemukan data yang sesuai",
+          paginate: {
+            first: "Pertama",
+            last: "Terakhir",
+            next: "Selanjutnya",
+            previous: "Sebelumnya"
+          }
         },
         dom: '<"top"f>rt<"bottom"lip><"clear">',
         ordering: true,
@@ -1050,7 +1067,7 @@
       <i class="bi bi-exclamation-triangle"></i>
       <span>Laporan</span>
     </a>
-    <a class="nav-item" href="/customer/dashboard" title="Home">
+    <a class="nav-item home-button" href="/customer/dashboard" title="Home">
       <i class="bi bi-house"></i>
       <span>Home</span>
     </a>

@@ -6,6 +6,7 @@
     <title><%= title %> - <%= appSettings.companyHeader %></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/customer-responsive.css">
     <style>
         body { background: #f8f9fa; }
         .payment-card { border: none; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
@@ -30,18 +31,18 @@
                             Mohon tunggu beberapa saat untuk konfirmasi.
                         </p>
 
-                        <div class="alert alert-warning">
+                        <div class="payment-alert alert-warning">
                             <i class="bi bi-info-circle"></i>
                             <strong>Status:</strong> Menunggu konfirmasi pembayaran
                         </div>
 
                         <% if (order_id) { %>
-                            <div class="alert alert-info">
+                            <div class="payment-order-id">
                                 <strong>Order ID:</strong> <%= order_id %>
                             </div>
                         <% } %>
 
-                        <div class="d-grid gap-2">
+                        <div class="d-grid gap-2 payment-buttons">
                             <button class="btn btn-warning" onclick="checkPaymentStatus()">
                                 <i class="bi bi-arrow-clockwise"></i> Cek Status Pembayaran
                             </button>
@@ -53,8 +54,8 @@
                             </a>
                         </div>
 
-                        <div class="mt-4">
-                            <small class="text-muted">
+                        <div class="payment-contact">
+                            <small>
                                 <i class="bi bi-telephone"></i> <%= appSettings.contact_phone || '0812-3456-7890' %> | 
                                 <i class="bi bi-whatsapp"></i> <%= appSettings.contact_whatsapp || '081947215703' %>
                             </small>
@@ -66,6 +67,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/customer-mobile.js"></script>
     <script>
         function checkPaymentStatus() {
             // Auto refresh after 5 seconds
