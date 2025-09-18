@@ -104,7 +104,8 @@ class BillingManager {
                         reject(err);
                     } else {
                         // Sinkronisasi cable routes jika ada data ODP atau cable
-                        if (odp_id !== undefined || (cable_type !== undefined && cable_type && cable_type.trim() !== '')) {
+                        if (odp_id !== undefined || cable_type !== undefined) {
+                            console.log(`🔧 Updating cable route for customer ${oldCustomer.username}, odp_id: ${odp_id}, cable_type: ${cable_type}`);
                             try {
                                 const db = this.db;
                                 const customerId = id;
@@ -119,6 +120,7 @@ class BillingManager {
                                 
                                 if (existingRoute) {
                                     // Update cable route yang ada
+                                    console.log(`📝 Found existing cable route for customer ${oldCustomer.username}, updating...`);
                                     const updateSql = `
                                         UPDATE cable_routes 
                                         SET odp_id = ?, cable_type = ?, cable_length = ?, port_number = ?, status = ?, notes = ?, updated_at = CURRENT_TIMESTAMP
@@ -140,8 +142,9 @@ class BillingManager {
                                             console.log(`✅ Successfully updated cable route for customer ${oldCustomer.username}`);
                                         }
                                     });
-                                } else if (odp_id && (cable_type && cable_type.trim() !== '')) {
+                                } else if (odp_id) {
                                     // Buat cable route baru jika belum ada
+                                    console.log(`📝 Creating new cable route for customer ${oldCustomer.username}...`);
                                     const cableRouteSql = `
                                         INSERT INTO cable_routes (customer_id, odp_id, cable_type, cable_length, port_number, status, notes)
                                         VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -150,7 +153,7 @@ class BillingManager {
                                     db.run(cableRouteSql, [
                                         customerId,
                                         odp_id,
-                                        cable_type,
+                                        cable_type || 'Fiber Optic',
                                         cable_length || 0,
                                         port_number || 1,
                                         cable_status || 'connected',
@@ -1227,7 +1230,8 @@ class BillingManager {
                         }
                         
                         // Jika ada data ODP atau cable yang berubah, update cable route
-                        if (odp_id !== undefined || (cable_type && cable_type.trim() !== '')) {
+                        if (odp_id !== undefined || cable_type !== undefined) {
+                            console.log(`🔧 Updating cable route for customer ${oldCustomer.username}, odp_id: ${odp_id}, cable_type: ${cable_type}`);
                             try {
                                 const customerId = oldCustomer.id;
                                 
@@ -1241,6 +1245,7 @@ class BillingManager {
                                 
                                 if (existingRoute) {
                                     // Update cable route yang ada
+                                    console.log(`📝 Found existing cable route for customer ${oldCustomer.username}, updating...`);
                                     const updateSql = `
                                         UPDATE cable_routes 
                                         SET odp_id = ?, cable_type = ?, cable_length = ?, port_number = ?, status = ?, notes = ?, updated_at = CURRENT_TIMESTAMP
@@ -1262,8 +1267,9 @@ class BillingManager {
                                             console.log(`✅ Successfully updated cable route for customer ${oldCustomer.username}`);
                                         }
                                     });
-                                } else if (odp_id && (cable_type && cable_type.trim() !== '')) {
+                                } else if (odp_id) {
                                     // Buat cable route baru jika belum ada
+                                    console.log(`📝 Creating new cable route for customer ${oldCustomer.username}...`);
                                     const cableRouteSql = `
                                         INSERT INTO cable_routes (customer_id, odp_id, cable_type, cable_length, port_number, status, notes)
                                         VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -1272,7 +1278,7 @@ class BillingManager {
                                     db.run(cableRouteSql, [
                                         customerId,
                                         odp_id,
-                                        cable_type,
+                                        cable_type || 'Fiber Optic',
                                         cable_length || 0,
                                         port_number || 1,
                                         cable_status || 'connected',
