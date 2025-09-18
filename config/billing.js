@@ -1789,6 +1789,59 @@ class BillingManager {
         });
     }
 
+    // Mobile dashboard specific methods
+    async getTotalCustomers() {
+        return new Promise((resolve, reject) => {
+            const sql = `SELECT COUNT(*) as count FROM customers`;
+            this.db.get(sql, [], (err, row) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(row.count || 0);
+                }
+            });
+        });
+    }
+
+    async getTotalInvoices() {
+        return new Promise((resolve, reject) => {
+            const sql = `SELECT COUNT(*) as count FROM invoices`;
+            this.db.get(sql, [], (err, row) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(row.count || 0);
+                }
+            });
+        });
+    }
+
+    async getTotalRevenue() {
+        return new Promise((resolve, reject) => {
+            const sql = `SELECT SUM(amount) as total FROM invoices WHERE status = 'paid'`;
+            this.db.get(sql, [], (err, row) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(row.total || 0);
+                }
+            });
+        });
+    }
+
+    async getPendingPayments() {
+        return new Promise((resolve, reject) => {
+            const sql = `SELECT COUNT(*) as count FROM invoices WHERE status = 'unpaid'`;
+            this.db.get(sql, [], (err, row) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(row.count || 0);
+                }
+            });
+        });
+    }
+
     async getOverdueInvoices() {
         return new Promise((resolve, reject) => {
             const sql = `
