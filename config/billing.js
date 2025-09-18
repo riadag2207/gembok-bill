@@ -787,8 +787,9 @@ class BillingManager {
                 } else {
                     const customer = { id: this.lastID, ...customerData };
                     
-                    // Jika ada data cable dan ODP, buat cable route otomatis
-                    if (cable_type && cable_type.trim() !== '' && odp_id) {
+                    // Jika ada data ODP, buat cable route otomatis
+                    if (odp_id) {
+                        console.log(`🔧 Creating cable route for new customer ${finalUsername}, odp_id: ${odp_id}, cable_type: ${cable_type}`);
                         try {
                             // Insert cable route langsung ke database
                             const cableRouteSql = `
@@ -799,7 +800,7 @@ class BillingManager {
                             db.run(cableRouteSql, [
                                 this.lastID,
                                 odp_id,
-                                cable_type,
+                                cable_type || 'Fiber Optic',
                                 cable_length || 0,
                                 port_number || 1,
                                 cable_status || 'connected',
