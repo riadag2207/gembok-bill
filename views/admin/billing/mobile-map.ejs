@@ -523,19 +523,17 @@
             const popupAddress = document.getElementById('popupAddress');
             
             // Real data from server
-            const customers = {
-                <% if (customers && customers.length > 0) { %>
-                    <% customers.forEach(function(customer) { %>
-                        '<%= customer.id || customer.phone %>': { 
-                            name: '<%= customer.name || customer.username || "Nama tidak tersedia" %>', 
-                            package: '<%= customer.package_name || "Paket tidak tersedia" %> - <%= customer.status === "active" ? "Aktif" : customer.status === "suspended" ? "Suspend" : customer.status === "pending" ? "Pending" : "Nonaktif" %>', 
-                            address: '<%= customer.address || "Alamat tidak tersedia" %>',
-                            phone: '<%= customer.phone || "No. telepon tidak tersedia" %>',
-                            status: '<%= customer.status || "inactive" %>'
-                        },
-                    <% }); %>
-                <% } %>
-            };
+            const customers = <%- JSON.stringify(customers.reduce((acc, customer) => {
+                const customerId = customer.id || customer.phone;
+                acc[customerId] = {
+                    name: customer.name || customer.username || "Nama tidak tersedia",
+                    package: (customer.package_name || "Paket tidak tersedia") + " - " + (customer.status === "active" ? "Aktif" : customer.status === "suspended" ? "Suspend" : customer.status === "pending" ? "Pending" : "Nonaktif"),
+                    address: customer.address || "Alamat tidak tersedia",
+                    phone: customer.phone || "No. telepon tidak tersedia",
+                    status: customer.status || "inactive"
+                };
+                return acc;
+            }, {})) %>;
             
             const customer = customers[customerId];
             if (customer) {
