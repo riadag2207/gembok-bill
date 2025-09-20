@@ -3,6 +3,366 @@
  * Handles mobile interactions and enhancements for admin billing interface
  */
 
+/**
+ * Mobile Mapping Functions
+ */
+class MobileMappingManager {
+    constructor() {
+        this.map = null;
+        this.layers = {
+            customers: null,
+            onus: null,
+            odps: null,
+            cables: null
+        };
+        this.layersVisible = {
+            customers: true,
+            onus: true,
+            odps: true,
+            cables: true
+        };
+        this.isFullscreen = false;
+    }
+
+    init() {
+        if (window.__adminMobileMapInited) return;
+        window.__adminMobileMapInited = true;
+
+        this.initializeMap();
+        this.loadMapData();
+        this.updateStats();
+        this.bindEvents();
+    }
+
+    initializeMap() {
+        const container = document.getElementById('networkMap');
+        if (!container || !window.L || this.map) return;
+
+        // Default center (Jakarta)
+        this.map = L.map(container);
+        this.map.setView([-6.2088, 106.8456], 13);
+        
+        // Add tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(this.map);
+
+        // Initialize layers
+        this.layers.customers = L.layerGroup().addTo(this.map);
+        this.layers.onus = L.layerGroup().addTo(this.map);
+        this.layers.odps = L.layerGroup().addTo(this.map);
+        this.layers.cables = L.layerGroup().addTo(this.map);
+    }
+
+    loadMapData() {
+        this.loadCustomers();
+        this.loadONUs();
+        this.loadODPs();
+        this.loadCables();
+    }
+
+    loadCustomers() {
+        // Sample customer data - in real app, this would come from API
+        const customers = [
+            { id: 1, name: 'John Doe', lat: -6.2088, lng: 106.8456, status: 'active' },
+            { id: 2, name: 'Jane Smith', lat: -6.2100, lng: 106.8500, status: 'active' },
+            { id: 3, name: 'Bob Johnson', lat: -6.2050, lng: 106.8400, status: 'suspended' }
+        ];
+
+        customers.forEach(customer => {
+            const marker = L.circleMarker([customer.lat, customer.lng], {
+                radius: 8,
+                fillColor: customer.status === 'active' ? '#28a745' : '#dc3545',
+                color: 'white',
+                weight: 2,
+                opacity: 1,
+                fillOpacity: 0.8,
+                className: 'mobile-customer-marker'
+            }).bindPopup(`
+                <div class="text-center">
+                    <h6>${customer.name}</h6>
+                    <p class="mb-1">Status: <span class="badge bg-${customer.status === 'active' ? 'success' : 'danger'}">${customer.status}</span></p>
+                    <small class="text-muted">ID: ${customer.id}</small>
+                </div>
+            `);
+            
+            this.layers.customers.addLayer(marker);
+        });
+    }
+
+    loadONUs() {
+        // Sample ONU data
+        const onus = [
+            { id: 1, name: 'ONU-001', lat: -6.2085, lng: 106.8450, status: 'online' },
+            { id: 2, name: 'ONU-002', lat: -6.2095, lng: 106.8500, status: 'online' },
+            { id: 3, name: 'ONU-003', lat: -6.2055, lng: 106.8405, status: 'offline' }
+        ];
+
+        onus.forEach(onu => {
+            const marker = L.circleMarker([onu.lat, onu.lng], {
+                radius: 6,
+                fillColor: onu.status === 'online' ? '#007bff' : '#dc3545',
+                color: 'white',
+                weight: 2,
+                opacity: 1,
+                fillOpacity: 0.8,
+                className: onu.status === 'online' ? 'mobile-onu-marker' : 'mobile-offline-marker'
+            }).bindPopup(`
+                <div class="text-center">
+                    <h6>${onu.name}</h6>
+                    <p class="mb-1">Status: <span class="badge bg-${onu.status === 'online' ? 'success' : 'danger'}">${onu.status}</span></p>
+                    <small class="text-muted">ID: ${onu.id}</small>
+                </div>
+            `);
+            
+            this.layers.onus.addLayer(marker);
+        });
+    }
+
+    loadODPs() {
+        // Sample ODP data
+        const odps = [
+            { id: 1, name: 'ODP-001', lat: -6.2080, lng: 106.8440, capacity: 16, used: 12 },
+            { id: 2, name: 'ODP-002', lat: -6.2100, lng: 106.8480, capacity: 8, used: 5 }
+        ];
+
+        odps.forEach(odp => {
+            const marker = L.circleMarker([odp.lat, odp.lng], {
+                radius: 10,
+                fillColor: '#ffc107',
+                color: 'white',
+                weight: 2,
+                opacity: 1,
+                fillOpacity: 0.8,
+                className: 'mobile-odp-marker'
+            }).bindPopup(`
+                <div class="text-center">
+                    <h6>${odp.name}</h6>
+                    <p class="mb-1">Kapasitas: ${odp.used}/${odp.capacity}</p>
+                    <div class="progress mb-2" style="height: 5px;">
+                        <div class="progress-bar" style="width: ${(odp.used/odp.capacity)*100}%"></div>
+                    </div>
+                    <small class="text-muted">ID: ${odp.id}</small>
+                </div>
+            `);
+            
+            this.layers.odps.addLayer(marker);
+        });
+    }
+
+    loadCables() {
+        // Sample cable routes
+        const cables = [
+            { from: [-6.2080, 106.8440], to: [-6.2085, 106.8450], status: 'connected' },
+            { from: [-6.2080, 106.8440], to: [-6.2095, 106.8500], status: 'connected' },
+            { from: [-6.2100, 106.8480], to: [-6.2055, 106.8405], status: 'disconnected' }
+        ];
+
+        cables.forEach(cable => {
+            const polyline = L.polyline([cable.from, cable.to], {
+                color: cable.status === 'connected' ? '#28a745' : '#dc3545',
+                weight: 3,
+                opacity: 0.8
+            });
+            
+            this.layers.cables.addLayer(polyline);
+        });
+    }
+
+    updateStats() {
+        // Update statistics
+        const stats = {
+            totalCustomers: this.layers.customers.getLayers().length,
+            totalONU: this.layers.onus.getLayers().length,
+            onlineONU: this.layers.onus.getLayers().filter(layer => 
+                layer.options.className === 'mobile-onu-marker'
+            ).length,
+            offlineONU: this.layers.onus.getLayers().filter(layer => 
+                layer.options.className === 'mobile-offline-marker'
+            ).length
+        };
+
+        document.getElementById('totalCustomers').textContent = stats.totalCustomers;
+        document.getElementById('totalONU').textContent = stats.totalONU;
+        document.getElementById('onlineONU').textContent = stats.onlineONU;
+        document.getElementById('offlineONU').textContent = stats.offlineONU;
+    }
+
+    bindEvents() {
+        // Bind layer toggle events
+        document.querySelectorAll('[onclick*="toggleLayer"]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const el = e.currentTarget;
+                const onClickVal = el.getAttribute('onclick') || '';
+                const match = onClickVal.match(/toggleLayer\('(\w+)'\)/);
+                if (match && match[1]) this.toggleLayer(match[1]);
+            });
+        });
+
+        // Bind action button events
+        document.querySelectorAll('.mobile-map-action-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const el = e.currentTarget;
+                const action = el.getAttribute('onclick');
+                if (action) {
+                    try { eval(action); } catch (err) { console.error(err); }
+                }
+            });
+        });
+    }
+
+    toggleLayer(layerName) {
+        if (!this.map) return;
+        if (!this.layers[layerName]) {
+            this.layers[layerName] = L.layerGroup().addTo(this.map);
+        }
+
+        this.layersVisible[layerName] = !this.layersVisible[layerName];
+        const layer = this.layers[layerName];
+        if (this.layersVisible[layerName]) {
+            this.map.addLayer(layer);
+        } else {
+            if (layer && this.map.hasLayer(layer)) this.map.removeLayer(layer);
+        }
+    }
+
+    toggleLayers() {
+        if (!this.map) return;
+        const allVisible = Object.values(this.layersVisible).every(v => v);
+        Object.keys(this.layersVisible).forEach(key => {
+            this.layersVisible[key] = !allVisible;
+            const layer = this.layers[key];
+            if (!layer) return;
+            if (this.layersVisible[key]) {
+                this.map.addLayer(layer);
+            } else {
+                if (this.map.hasLayer(layer)) this.map.removeLayer(layer);
+            }
+        });
+    }
+
+    centerMap() {
+        this.map.setView([-6.2088, 106.8456], 13);
+    }
+
+    refreshMap() {
+        // Clear existing layers
+        Object.values(this.layers).forEach(layer => {
+            layer.clearLayers();
+        });
+        
+        // Reload data
+        this.loadMapData();
+        this.updateStats();
+        
+        // Show success message
+        this.showToast('Peta berhasil di-refresh!', 'success');
+    }
+
+    toggleFullscreen() {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen();
+            this.isFullscreen = true;
+        } else {
+            document.exitFullscreen();
+            this.isFullscreen = false;
+        }
+    }
+
+    exportData() {
+        // Export map data
+        const data = {
+            customers: this.layers.customers.getLayers().length,
+            onus: this.layers.onus.getLayers().length,
+            odps: this.layers.odps.getLayers().length,
+            cables: this.layers.cables.getLayers().length,
+            exportDate: new Date().toISOString()
+        };
+        
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'map-data.json';
+        a.click();
+        URL.revokeObjectURL(url);
+        
+        this.showToast('Data berhasil di-export!', 'success');
+    }
+
+    showToast(message, type) {
+        const toast = document.createElement('div');
+        toast.className = `alert alert-${type} position-fixed`;
+        toast.style.cssText = 'top: 20px; right: 20px; z-index: 1060; min-width: 300px;';
+        toast.innerHTML = `
+            <div class="d-flex align-items-center">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                ${message}
+                <button type="button" class="btn-close ms-auto" onclick="this.parentElement.parentElement.remove()"></button>
+            </div>
+        `;
+        
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            if (toast.parentElement) {
+                toast.remove();
+            }
+        }, 3000);
+    }
+}
+
+// Global mapping manager instance
+let mobileMappingManager;
+
+// Initialize mobile mapping when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Respect inline mapping flag: if page handles mapping itself, skip global init
+    if (window.__USE_INLINE_MAPPING__) return;
+    // Check if this is mapping page
+    if (document.getElementById('networkMap')) {
+        mobileMappingManager = new MobileMappingManager();
+        mobileMappingManager.init();
+    }
+});
+
+// Global functions for onclick handlers
+function toggleLayer(layerName) {
+    if (mobileMappingManager) {
+        mobileMappingManager.toggleLayer(layerName);
+    }
+}
+
+function toggleLayers() {
+    if (mobileMappingManager) {
+        mobileMappingManager.toggleLayers();
+    }
+}
+
+function centerMap() {
+    if (mobileMappingManager) {
+        mobileMappingManager.centerMap();
+    }
+}
+
+function refreshMap() {
+    if (mobileMappingManager) {
+        mobileMappingManager.refreshMap();
+    }
+}
+
+function toggleFullscreen() {
+    if (mobileMappingManager) {
+        mobileMappingManager.toggleFullscreen();
+    }
+}
+
+function exportData() {
+    if (mobileMappingManager) {
+        mobileMappingManager.exportData();
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize mobile billing interface
     initMobileBilling();
@@ -229,9 +589,23 @@ function triggerRefresh() {
         indicator.innerHTML = '<i class="bi bi-arrow-clockwise spinner"></i> Refreshing...';
     }
     
-    // Simulate refresh (in real app, this would reload data)
+    // Use efficient data refresh instead of full page reload
     setTimeout(() => {
-        location.reload();
+        // Check if we're on mapping page and use refreshMap function
+        if (typeof refreshMap === 'function') {
+            refreshMap();
+        } else if (mobileMappingManager && typeof mobileMappingManager.refreshMap === 'function') {
+            mobileMappingManager.refreshMap();
+        } else {
+            // Fallback to location reload only if no refresh function available
+            location.reload();
+        }
+        
+        // Reset refreshing state
+        setTimeout(() => {
+            isRefreshing = false;
+            hideRefreshIndicator();
+        }, 2000);
     }, 1000);
 }
 
