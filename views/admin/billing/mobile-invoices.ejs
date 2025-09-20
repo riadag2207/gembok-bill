@@ -483,6 +483,19 @@
             const filterTabs = document.querySelectorAll('.filter-tab');
             const invoiceCards = document.querySelectorAll('.invoice-card');
             
+            // Check if required elements exist
+            if (!searchInput) {
+                console.log('Search input not found');
+                return;
+            }
+            
+            if (!filterTabs || filterTabs.length === 0) {
+                console.log('Filter tabs not found');
+                return;
+            }
+            
+            console.log(`Found ${invoiceCards.length} invoice cards for filtering`);
+            
             // Search functionality
             searchInput.addEventListener('input', function() {
                 const searchTerm = this.value.toLowerCase();
@@ -513,9 +526,30 @@
             const invoiceCards = document.querySelectorAll('.invoice-card');
             let visibleCount = 0;
             
+            // Check if invoice cards exist
+            if (!invoiceCards || invoiceCards.length === 0) {
+                console.log('No invoice cards found for filtering');
+                return;
+            }
+            
             invoiceCards.forEach(card => {
-                const invoiceNumber = card.querySelector('.invoice-number').textContent.toLowerCase();
-                const customerName = card.querySelector('.info-item').textContent.toLowerCase();
+                const invoiceNumberElement = card.querySelector('.invoice-number');
+                const customerNameElement = card.querySelector('.info-item');
+                
+                // Check if invoice number element exists
+                if (!invoiceNumberElement) {
+                    console.log('Invoice number element not found in card:', card);
+                    return;
+                }
+                
+                // Check if customer name element exists
+                if (!customerNameElement) {
+                    console.log('Customer name element not found in card:', card);
+                    return;
+                }
+                
+                const invoiceNumber = invoiceNumberElement.textContent.toLowerCase();
+                const customerName = customerNameElement.textContent.toLowerCase();
                 const invoiceStatus = card.dataset.status;
                 
                 const matchesSearch = invoiceNumber.includes(searchTerm) || customerName.includes(searchTerm);
@@ -533,12 +567,15 @@
             const emptyState = document.getElementById('emptyState');
             const invoicesList = document.getElementById('invoicesList');
             
-            if (visibleCount === 0) {
-                invoicesList.style.display = 'none';
-                emptyState.style.display = 'block';
-            } else {
-                invoicesList.style.display = 'block';
-                emptyState.style.display = 'none';
+            // Check if elements exist before manipulating them
+            if (emptyState && invoicesList) {
+                if (visibleCount === 0) {
+                    invoicesList.style.display = 'none';
+                    emptyState.style.display = 'block';
+                } else {
+                    invoicesList.style.display = 'block';
+                    emptyState.style.display = 'none';
+                }
             }
         }
     </script>

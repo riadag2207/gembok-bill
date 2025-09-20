@@ -425,6 +425,19 @@
             const filterTabs = document.querySelectorAll('.filter-tab');
             const customerCards = document.querySelectorAll('.customer-card');
             
+            // Check if required elements exist
+            if (!searchInput) {
+                console.log('Search input not found');
+                return;
+            }
+            
+            if (!filterTabs || filterTabs.length === 0) {
+                console.log('Filter tabs not found');
+                return;
+            }
+            
+            console.log(`Found ${customerCards.length} customer cards for filtering`);
+            
             // Search functionality
             searchInput.addEventListener('input', function() {
                 const searchTerm = this.value.toLowerCase();
@@ -455,8 +468,22 @@
             const customerCards = document.querySelectorAll('.customer-card');
             let visibleCount = 0;
             
+            // Check if customer cards exist
+            if (!customerCards || customerCards.length === 0) {
+                console.log('No customer cards found for filtering');
+                return;
+            }
+            
             customerCards.forEach(card => {
-                const customerName = card.querySelector('.customer-name').textContent.toLowerCase();
+                const customerNameElement = card.querySelector('.customer-name');
+                
+                // Check if customer name element exists
+                if (!customerNameElement) {
+                    console.log('Customer name element not found in card:', card);
+                    return;
+                }
+                
+                const customerName = customerNameElement.textContent.toLowerCase();
                 const customerStatus = card.dataset.status;
                 
                 const matchesSearch = customerName.includes(searchTerm);
@@ -474,12 +501,15 @@
             const emptyState = document.getElementById('emptyState');
             const customersList = document.getElementById('customersList');
             
-            if (visibleCount === 0) {
-                customersList.style.display = 'none';
-                emptyState.style.display = 'block';
-            } else {
-                customersList.style.display = 'block';
-                emptyState.style.display = 'none';
+            // Check if elements exist before manipulating them
+            if (emptyState && customersList) {
+                if (visibleCount === 0) {
+                    customersList.style.display = 'none';
+                    emptyState.style.display = 'block';
+                } else {
+                    customersList.style.display = 'block';
+                    emptyState.style.display = 'none';
+                }
             }
         }
     </script>

@@ -7,7 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/boxicons@2.0.7/css/boxicons.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
 </head>
 <body>
     <div class="container-fluid">
@@ -170,8 +170,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <script>
         $(document).ready(function() {
             $('#paymentsTable').DataTable({
@@ -198,6 +198,22 @@
                 order: [[0, 'desc']] // Sort by date descending
             });
         });
+
+        // Show technician navigation if accessed by technician
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if this is technician view
+            const isTechnicianView = window.location.pathname.includes('/technician/') || 
+                                   document.body.classList.contains('technician-view');
+            
+            if (isTechnicianView) {
+                // Hide admin nav and show technician nav
+                const adminNav = document.querySelector('.bottom-nav');
+                const technicianNav = document.getElementById('technicianNav');
+                
+                if (adminNav) adminNav.style.display = 'none';
+                if (technicianNav) technicianNav.style.display = 'block';
+            }
+        });
     </script>
 
     <!-- Bottom Navigation for Mobile -->
@@ -223,6 +239,46 @@
             <span style="font-size: 0.7rem; font-weight: 500;">Map</span>
         </a>
     </nav>
+
+    <!-- Bottom Navigation for Technician Mobile -->
+    <div class="d-md-none" id="technicianNav" style="display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 1030;">
+        <nav class="navbar fixed-bottom navbar-dark bg-dark" style="background: linear-gradient(180deg, rgba(4, 78, 59, 0.96), rgba(5, 150, 105, 0.96)) !important; position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important; z-index: 1030 !important;">
+            <div class="container-fluid">
+                <div class="row w-100">
+                    <div class="col text-center">
+                        <a href="/technician/dashboard" class="text-light text-decoration-none">
+                            <i class="bi bi-house d-block"></i>
+                            <small>Home</small>
+                        </a>
+                    </div>
+                    <div class="col text-center">
+                        <a href="/technician/monitoring" class="text-light text-decoration-none">
+                            <i class="bi bi-wifi d-block"></i>
+                            <small>Monitor</small>
+                        </a>
+                    </div>
+                    <div class="col text-center">
+                        <a href="/technician/troubletickets" class="text-light text-decoration-none">
+                            <i class="bi bi-ticket-detailed d-block" style="font-size: 1.5rem;"></i>
+                            <small>Tiket</small>
+                        </a>
+                    </div>
+                    <div class="col text-center">
+                        <a href="/technician/customers" class="text-light text-decoration-none">
+                            <i class="bi bi-people d-block"></i>
+                            <small>Customer</small>
+                        </a>
+                    </div>
+                    <div class="col text-center">
+                        <a href="/technician/mapping" class="text-light text-decoration-none">
+                            <i class="bi bi-geo-alt d-block"></i>
+                            <small>Map</small>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
 
     <style>
         /* Bottom Navigation Styles */
