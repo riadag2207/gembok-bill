@@ -154,6 +154,16 @@ router.get('/mobile/map', getAppSettings, async (req, res) => {
     }
 });
 
+// GET: Redirect untuk cable routes ke cable-network
+router.get('/cables', adminAuth, (req, res) => {
+    res.redirect('/admin/cable-network/cables');
+});
+
+// GET: Redirect untuk ODP ke cable-network
+router.get('/odp', adminAuth, (req, res) => {
+    res.redirect('/admin/cable-network/odp');
+});
+
 // Dashboard Billing
 router.get('/dashboard', getAppSettings, async (req, res) => {
     try {
@@ -2641,6 +2651,289 @@ router.get('/api/packages', async (req, res) => {
 
 
 
+// API endpoint untuk ODPs
+router.get('/api/odps', adminAuth, async (req, res) => {
+    try {
+        const db = require('../config/billing').db;
+        const odps = await new Promise((resolve, reject) => {
+            db.all(`
+                SELECT o.id, o.name, o.code, o.capacity, o.used_ports, o.status, o.parent_odp_id,
+                       o.latitude, o.longitude, o.address, o.notes,
+                       p.name as parent_name
+                FROM odps o
+                LEFT JOIN odps p ON o.parent_odp_id = p.id
+                ORDER BY o.name
+            `, (err, rows) => {
+                if (err) reject(err);
+                else resolve(rows);
+            });
+        });
+        
+        res.json({
+            success: true,
+            odps: odps
+        });
+    } catch (error) {
+        logger.error('Error getting ODPs for mobile mapping:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error loading ODPs data'
+        });
+    }
+});
+
+// Helper function untuk mendapatkan parameter value dari device
+function getParameterValue(device, parameterName) {
+    if (!device || !parameterName) return null;
+    
+    // Coba akses langsung
+    if (device[parameterName] !== undefined) {
+        return device[parameterName];
+    }
+    
+    // Coba dengan path array
+    const pathParts = parameterName.split('.');
+    let current = device;
+    
+    for (const part of pathParts) {
+        if (current && typeof current === 'object' && current[part] !== undefined) {
+            current = current[part];
+        } else {
+            return null;
+        }
+    }
+    
+    // Jika current adalah object dengan _value property, return _value
+    if (current && typeof current === 'object' && current._value !== undefined) {
+        return current._value;
+    }
+    
+    // Jika current adalah string/number, return langsung
+    if (typeof current === 'string' || typeof current === 'number') {
+        return current;
+    }
+    
+    return current;
+}
+
+// API endpoint untuk devices
+router.get('/api/devices', async (req, res) => {
+    try {
+        console.log('🔍 Loading devices from GenieACS...');
+        const { getDevicesCached } = require('../config/genieacs');
+        let devices = [];
+        
+        try {
+            devices = await getDevicesCached();
+            console.log(`📊 Found ${devices.length} devices from GenieACS`);
+        } catch (genieacsError) {
+            console.log('⚠️ GenieACS not available, creating fallback data...');
+            // Create fallback data from customers
+            const db = require('../config/billing').db;
+            const customers = await new Promise((resolve, reject) => {
+                db.all(`
+                    SELECT id, name, phone, pppoe_username, latitude, longitude 
+                    FROM customers 
+                    WHERE latitude IS NOT NULL AND longitude IS NOT NULL
+                    LIMIT 10
+                `, [], (err, rows) => {
+                    if (err) reject(err);
+                    else resolve(rows || []);
+                });
+            });
+            
+            devices = customers.map((customer, index) => ({
+                _id: `fallback_${customer.id}`,
+                'Device.DeviceInfo.SerialNumber': `SIM${customer.id.toString().padStart(4, '0')}`,
+                'Device.DeviceInfo.ModelName': 'Simulated ONU',
+                'InternetGatewayDevice.DeviceInfo.UpTime': index % 2 === 0 ? '7 days' : null,
+                'InternetGatewayDevice.LANDevice.1.WLANConfiguration.1.SSID': `SSID_${customer.id}`,
+                'InternetGatewayDevice.WANDevice.1.WANConnectionDevice.1.WANPPPConnection.1.Username': customer.pppoe_username,
+                _lastInform: new Date().toISOString()
+            }));
+            
+            console.log(`📊 Created ${devices.length} fallback devices from customers`);
+        }
+        
+        // Process devices with customer information
+        const processedDevices = [];
+        
+        for (const device of devices) {
+            // Debug: log first device structure
+            if (processedDevices.length === 0) {
+                console.log('🔍 Sample device structure:', Object.keys(device));
+                console.log('🔍 Sample device data:', JSON.stringify(device, null, 2).substring(0, 500) + '...');
+                
+                // Test parameter extraction
+                console.log('🧪 Testing parameter extraction:');
+                console.log('- Serial from ID:', device._id);
+                console.log('- VirtualParameters.getSerialNumber:', getParameterValue(device, 'VirtualParameters.getSerialNumber'));
+                console.log('- DeviceID.SerialNumber:', getParameterValue(device, 'DeviceID.SerialNumber'));
+                console.log('- DeviceID.ProductClass:', getParameterValue(device, 'DeviceID.ProductClass'));
+                console.log('- DeviceID.Manufacturer:', getParameterValue(device, 'DeviceID.Manufacturer'));
+                console.log('- VirtualParameters.getdeviceuptime:', getParameterValue(device, 'VirtualParameters.getdeviceuptime'));
+                console.log('- Device.DeviceInfo.VirtualParameters.getdeviceuptime:', getParameterValue(device, 'Device.DeviceInfo.VirtualParameters.getdeviceuptime'));
+                console.log('- InternetGatewayDevice.DeviceInfo.UpTime:', getParameterValue(device, 'InternetGatewayDevice.DeviceInfo.UpTime'));
+                console.log('- Last Inform:', device._lastInform);
+                console.log('- SSID:', getParameterValue(device, 'InternetGatewayDevice.LANDevice.1.WLANConfiguration.1.SSID'));
+                console.log('- PPPoE Username:', getParameterValue(device, 'VirtualParameters.pppoeUsername'));
+                
+                // Test status detection
+                const uptime1 = getParameterValue(device, 'VirtualParameters.getdeviceuptime');
+                const uptime2 = getParameterValue(device, 'Device.DeviceInfo.VirtualParameters.getdeviceuptime');
+                const uptime3 = getParameterValue(device, 'InternetGatewayDevice.DeviceInfo.UpTime');
+                const lastInform = device._lastInform;
+                const hasUptime = (uptime1 && uptime1 > 0) || (uptime2 && uptime2 > 0) || (uptime3 && uptime3 > 0);
+                const isRecentInform = lastInform && (Date.now() - new Date(lastInform).getTime()) < 5 * 60 * 1000;
+                console.log('- Status Detection - Uptime1:', uptime1, 'Uptime2:', uptime2, 'Uptime3:', uptime3);
+                console.log('- Status Detection - HasUptime:', hasUptime, 'IsRecentInform:', isRecentInform);
+                console.log('- Status Detection - Final Status:', hasUptime || isRecentInform ? 'Online' : 'Offline');
+                
+                // Test model extraction
+                const deviceId = device._id || '';
+                const modelMatch = deviceId.match(/-([A-Z0-9]+)-/);
+                console.log('- Model from ID regex:', modelMatch ? modelMatch[1] : 'No match');
+            }
+            
+            // Extract serial number - try multiple sources
+            const deviceId = device._id || '';
+            const virtualSerial = getParameterValue(device, 'VirtualParameters.getSerialNumber');
+            const deviceIdSerial = getParameterValue(device, 'DeviceID.SerialNumber');
+            const extractedSerial = deviceId.replace(/%2D/g, '-').replace(/-XPON-.*/, '');
+            
+            const serialNumber = virtualSerial || deviceIdSerial || extractedSerial || 'N/A';
+            
+            const processedDevice = {
+                id: device._id,
+                serialNumber: serialNumber,
+                model: (() => {
+                    // Try DeviceID.ProductClass first, then extract from device ID
+                    const productClass = getParameterValue(device, 'DeviceID.ProductClass');
+                    
+                    if (productClass && typeof productClass === 'string') {
+                        return productClass;
+                    }
+                    
+                    // Extract model from device ID (e.g., "F663NV3A" from "44FB5A-F663NV3A-ZTEGCB7552E1")
+                    const modelMatch = deviceId.match(/-([A-Z0-9]+)-/);
+                    return modelMatch ? modelMatch[1] : 'Unknown';
+                })(),
+                status: (() => {
+                    // Try multiple uptime parameters for different device types
+                    const uptime1 = getParameterValue(device, 'VirtualParameters.getdeviceuptime');
+                    const uptime2 = getParameterValue(device, 'Device.DeviceInfo.VirtualParameters.getdeviceuptime');
+                    const uptime3 = getParameterValue(device, 'InternetGatewayDevice.DeviceInfo.UpTime');
+                    const lastInform = device._lastInform;
+                    
+                    // Check if device has uptime > 0
+                    const hasUptime = (uptime1 && uptime1 > 0) || (uptime2 && uptime2 > 0) || (uptime3 && uptime3 > 0);
+                    
+                    // Check if device has recent inform (within last 5 minutes)
+                    const isRecentInform = lastInform && (Date.now() - new Date(lastInform).getTime()) < 5 * 60 * 1000;
+                    
+                    // Device is online if it has uptime OR recent inform
+                    return hasUptime || isRecentInform ? 'Online' : 'Offline';
+                })(),
+                ssid: getParameterValue(device, 'InternetGatewayDevice.LANDevice.1.WLANConfiguration.1.SSID') || 'N/A',
+                lastInform: device._lastInform || new Date().toISOString(),
+                latitude: null,
+                longitude: null,
+                customerName: null,
+                customerPhone: null
+            };
+            
+            // Try to find customer by PPPoE username - try multiple sources
+            const pppoeUsername = getParameterValue(device, 'VirtualParameters.pppoeUsername') || 
+                                 getParameterValue(device, 'InternetGatewayDevice.WANDevice.1.WANConnectionDevice.1.WANPPPConnection.1.Username');
+            if (pppoeUsername && pppoeUsername !== '-') {
+                try {
+                    const db = require('../config/billing').db;
+                    const customer = await new Promise((resolve, reject) => {
+                        db.get(`
+                            SELECT id, name, phone, latitude, longitude 
+                            FROM customers 
+                            WHERE pppoe_username = ? AND latitude IS NOT NULL AND longitude IS NOT NULL
+                        `, [pppoeUsername], (err, row) => {
+                            if (err) reject(err);
+                            else resolve(row);
+                        });
+                    });
+                    
+                    if (customer) {
+                        processedDevice.latitude = customer.latitude;
+                        processedDevice.longitude = customer.longitude;
+                        processedDevice.customerName = customer.name;
+                        processedDevice.customerPhone = customer.phone;
+                    }
+                } catch (customerError) {
+                    console.log(`⚠️ Error finding customer for device ${processedDevice.serialNumber}:`, customerError.message);
+                }
+            }
+            
+            processedDevices.push(processedDevice);
+        }
+        
+        console.log(`✅ Processed ${processedDevices.length} devices`);
+        
+        res.json({
+            success: true,
+            devices: processedDevices
+        });
+    } catch (error) {
+        console.error('❌ Error getting devices:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error loading devices data: ' + error.message
+        });
+    }
+});
+
+// API endpoint untuk cables
+router.get('/api/cables', adminAuth, async (req, res) => {
+    try {
+        const db = require('../config/billing').db;
+        const cables = await new Promise((resolve, reject) => {
+            db.all(`
+                SELECT c.id, c.name, c.from_odp_id, c.to_odp_id, c.cable_type, c.length,
+                       c.status, c.notes,
+                       o1.name as from_odp_name, o1.latitude as from_lat, o1.longitude as from_lng,
+                       o2.name as to_odp_name, o2.latitude as to_lat, o2.longitude as to_lng
+                FROM cable_routes c
+                LEFT JOIN odps o1 ON c.from_odp_id = o1.id
+                LEFT JOIN odps o2 ON c.to_odp_id = o2.id
+                WHERE o1.latitude IS NOT NULL AND o1.longitude IS NOT NULL
+                  AND o2.latitude IS NOT NULL AND o2.longitude IS NOT NULL
+                ORDER BY c.name
+            `, (err, rows) => {
+                if (err) reject(err);
+                else resolve(rows);
+            });
+        });
+        
+        // Format cables for map
+        const formattedCables = cables.map(cable => ({
+            id: cable.id,
+            name: cable.name,
+            from: [cable.from_lat, cable.from_lng],
+            to: [cable.to_lat, cable.to_lng],
+            type: cable.cable_type,
+            length: cable.length,
+            status: cable.status
+        }));
+        
+        res.json({
+            success: true,
+            cables: formattedCables
+        });
+    } catch (error) {
+        logger.error('Error getting cables for mobile mapping:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error loading cables data'
+        });
+    }
+});
+
 router.get('/api/customers', adminAuth, async (req, res) => {
     try {
         const customers = await billingManager.getCustomers();
@@ -3134,9 +3427,55 @@ router.delete('/api/expenses/:id', async (req, res) => {
     }
 });
 
+// Root billing page - redirect to dashboard
+router.get('/', getAppSettings, async (req, res) => {
+    res.redirect('/admin/billing/dashboard');
+});
+
+// Devices page
+router.get('/devices', getAppSettings, async (req, res) => {
+    try {
+        res.render('admin/billing/devices', {
+            title: 'Network Devices',
+            user: req.user,
+            settings: req.appSettings
+        });
+    } catch (error) {
+        console.error('Error rendering devices page:', error);
+        res.status(500).render('error', { 
+            message: 'Error loading devices page',
+            error: error 
+        });
+    }
+});
+
+// New Mapping page
+router.get('/mapping-new', getAppSettings, async (req, res) => {
+    try {
+        res.render('admin/billing/mapping-new', {
+            title: 'Network Mapping - New',
+            user: req.user,
+            settings: req.appSettings
+        });
+    } catch (error) {
+        console.error('Error rendering new mapping page:', error);
+        res.status(500).render('error', { 
+            message: 'Error loading mapping page',
+            error: error 
+        });
+    }
+});
+
 // Mapping page
 router.get('/mapping', getAppSettings, async (req, res) => {
     try {
+        // Check if mobile view is requested
+        const isMobile = req.query.mobile === 'true' || req.headers['user-agent'].includes('Mobile');
+        
+        if (isMobile) {
+            return res.redirect('/admin/billing/mobile/map');
+        }
+        
         res.render('admin/billing/mapping', {
             title: 'Network Mapping',
             page: 'mapping',
@@ -3152,13 +3491,46 @@ router.get('/mapping', getAppSettings, async (req, res) => {
     }
 });
 
+// Mobile Mapping page
+router.get('/mobile/mapping', getAppSettings, async (req, res) => {
+    try {
+        // Get mapping data for mobile
+        const customers = await billingManager.getCustomers();
+        const customersWithCoords = customers.filter(c => c.latitude && c.longitude);
+        
+        // Calculate stats
+        const totalCustomers = customersWithCoords.length;
+        const activeCustomers = customersWithCoords.filter(c => c.status === 'active').length;
+        const suspendedCustomers = customersWithCoords.filter(c => c.status === 'suspended').length;
+        
+        res.render('adminMobileMapping', {
+            title: 'Network Mapping Mobile',
+            page: 'mapping',
+            appSettings: req.appSettings,
+            customers: customersWithCoords,
+            stats: {
+                totalCustomers,
+                activeCustomers,
+                suspendedCustomers
+            }
+        });
+    } catch (error) {
+        logger.error('Error loading mobile mapping page:', error);
+        res.status(500).render('error', {
+            message: 'Error loading mobile mapping page',
+            error: error.message,
+            appSettings: req.appSettings
+        });
+    }
+});
+
 // API untuk mapping data
 router.get('/api/mapping/data', async (req, res) => {
     try {
         const MappingUtils = require('../utils/mappingUtils');
         
         // Ambil data customers dengan koordinat
-        const customers = await billingManager.getAllCustomers();
+        const customers = await billingManager.getCustomers();
         const customersWithCoords = customers.filter(c => c.latitude && c.longitude);
         
         // Validasi koordinat customer
@@ -3216,7 +3588,7 @@ router.get('/api/mapping/coverage', async (req, res) => {
         const MappingUtils = require('../utils/mappingUtils');
         
         // Ambil data customers
-        const customers = await billingManager.getAllCustomers();
+        const customers = await billingManager.getCustomers();
         const customersWithCoords = customers.filter(c => c.latitude && c.longitude);
         
         if (customersWithCoords.length < 3) {
@@ -3428,7 +3800,7 @@ router.get('/api/mapping/export', async (req, res) => {
         const { format = 'json' } = req.query;
         
         // Ambil data mapping
-        const customers = await billingManager.getAllCustomers();
+        const customers = await billingManager.getCustomers();
         const customersWithCoords = customers.filter(c => c.latitude && c.longitude);
         
         if (format === 'csv') {

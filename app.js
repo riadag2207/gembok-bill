@@ -157,6 +157,10 @@ app.use('/admin', adminDashboardRouter);
 const adminGenieacsRouter = require('./routes/adminGenieacs');
 app.use('/admin', adminGenieacsRouter);
 
+// Import dan gunakan route adminMappingNew
+const adminMappingNewRouter = require('./routes/adminMappingNew');
+app.use('/admin', adminMappingNewRouter);
+
 // Import dan gunakan route adminMikrotik
 const adminMikrotikRouter = require('./routes/adminMikrotik');
 app.use('/admin', adminMikrotikRouter);

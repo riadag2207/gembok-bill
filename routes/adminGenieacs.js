@@ -505,11 +505,16 @@ router.get('/api/statistics', adminAuth, async (req, res) => {
   }
 });
 
-// API endpoint untuk mapping - devices dengan koordinat customer
+// API endpoint untuk mapping - devices dengan koordinat customer dan data kabel dari database
 router.get('/api/mapping/devices', adminAuth, async (req, res) => {
   try {
     const billingManager = require('../config/billing');
+    const sqlite3 = require('sqlite3').verbose();
+    const path = require('path');
+    const dbPath = path.join(__dirname, '../data/billing.db');
     const { pppoe, phone } = req.query;
+    
+    console.log('🔍 Starting mapping devices API with database integration...');
     
     // Jika ada parameter query, filter devices berdasarkan kriteria
     if (pppoe || phone) {
@@ -528,6 +533,8 @@ router.get('/api/mapping/devices', adminAuth, async (req, res) => {
           data: {
             devicesWithCoords: [],
             devicesWithoutCoords: [],
+            cableRoutes: [],
+            odps: [],
             statistics: {
               totalDevices: 0,
               onlineDevices: 0,
@@ -746,14 +753,59 @@ router.get('/api/mapping/devices', adminAuth, async (req, res) => {
       serial_number: validDevicesWithCoords.filter(device => device.coordinateSource === 'serial_number').length
     };
     
-    // Ambil data ODP connections untuk backbone visualization
-    const sqlite3 = require('sqlite3').verbose();
-    const dbPath = path.join(__dirname, '../data/billing.db');
-    
+    // Ambil data lengkap dari database untuk mapping
     let odpConnections = [];
+    let cableRoutes = [];
+    let odps = [];
+    
     try {
-      console.log('🔍 Fetching ODP connections from database...');
+      console.log('🔍 Fetching complete mapping data from database...');
       const db = new sqlite3.Database(dbPath);
+      
+      // Ambil data ODP
+      odps = await new Promise((resolve, reject) => {
+        db.all(`
+          SELECT o.*, 
+                 COUNT(cr.id) as connected_customers,
+                 COUNT(CASE WHEN cr.status = 'connected' THEN 1 END) as active_connections
+          FROM odps o
+          LEFT JOIN cable_routes cr ON o.id = cr.odp_id
+          GROUP BY o.id
+          ORDER BY o.name
+        `, [], (err, rows) => {
+          if (err) {
+            console.error('❌ Database error getting ODPs:', err);
+            reject(err);
+          } else {
+            console.log(`✅ Found ${rows ? rows.length : 0} ODPs`);
+            resolve(rows || []);
+          }
+        });
+      });
+      
+      // Ambil data cable routes dengan detail customer dan ODP
+      cableRoutes = await new Promise((resolve, reject) => {
+        db.all(`
+          SELECT cr.*, 
+                 c.name as customer_name, c.phone as customer_phone,
+                 c.latitude as customer_latitude, c.longitude as customer_longitude,
+                 o.name as odp_name, o.latitude as odp_latitude, o.longitude as odp_longitude
+          FROM cable_routes cr
+          JOIN customers c ON cr.customer_id = c.id
+          JOIN odps o ON cr.odp_id = o.id
+          WHERE c.latitude IS NOT NULL AND c.longitude IS NOT NULL
+        `, [], (err, rows) => {
+          if (err) {
+            console.error('❌ Database error getting cable routes:', err);
+            reject(err);
+          } else {
+            console.log(`✅ Found ${rows ? rows.length : 0} cable routes`);
+            resolve(rows || []);
+          }
+        });
+      });
+      
+      // Ambil data ODP connections untuk backbone visualization
       odpConnections = await new Promise((resolve, reject) => {
         db.all(`
           SELECT oc.*, 
@@ -776,25 +828,55 @@ router.get('/api/mapping/devices', adminAuth, async (req, res) => {
           }
         });
       });
+      
       db.close();
     } catch (error) {
-      console.error('❌ Error getting ODP connections:', error.message);
+      console.error('❌ Error getting database mapping data:', error.message);
     }
 
-    console.log(`📊 API Response - Devices: ${validDevicesWithCoords.length}, ODP Connections: ${odpConnections.length}`);
+    // Ambil data customers untuk response lengkap
+    const customers = await new Promise((resolve, reject) => {
+      const customerDb = new sqlite3.Database(dbPath);
+      customerDb.all(`
+        SELECT id, name, phone, pppoe_username, latitude, longitude, status, 
+               address, package_name, created_at
+        FROM customers 
+        WHERE latitude IS NOT NULL AND longitude IS NOT NULL
+        ORDER BY name
+      `, [], (err, rows) => {
+        if (err) {
+          console.error('❌ Database error getting customers:', err);
+          resolve([]);
+        } else {
+          console.log(`✅ Found ${rows ? rows.length : 0} customers with coordinates`);
+          resolve(rows || []);
+        }
+        customerDb.close();
+      });
+    });
+
+    console.log(`📊 API Response - Customers: ${customers.length}, Devices: ${validDevicesWithCoords.length}, ODPs: ${odps.length}, Cable Routes: ${cableRoutes.length}, ODP Connections: ${odpConnections.length}`);
     
     res.json({
       success: true,
       data: {
+        customers: customers,
         devicesWithCoords: validDevicesWithCoords,
         devicesWithoutCoords: devicesWithoutCoords,
+        odps: odps,
+        cableRoutes: cableRoutes,
+        odpConnections: odpConnections,
         statistics: {
           totalDevices,
           onlineDevices,
-          offlineDevices
+          offlineDevices,
+          totalCustomers: customers.length,
+          totalODPs: odps.length,
+          totalCableRoutes: cableRoutes.length,
+          connectedCables: cableRoutes.filter(c => c.status === 'connected').length,
+          disconnectedCables: cableRoutes.filter(c => c.status === 'disconnected').length
         },
-        coordinateSources,
-        odpConnections: odpConnections
+        coordinateSources
       }
     });
     

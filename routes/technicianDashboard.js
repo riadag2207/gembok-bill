@@ -18,6 +18,12 @@ const { addPPPoESecret, getPPPoEProfiles } = require('../config/mikrotik');
  * Dashboard Teknisi - Halaman utama (reuse adminDashboard.ejs)
  */
 router.get('/dashboard', technicianAuth, async (req, res) => {
+    // Check if mobile view is requested
+    const isMobile = req.query.mobile === 'true' || req.headers['user-agent'].includes('Mobile');
+    
+    if (isMobile) {
+        return res.redirect('/technician/mobile/dashboard');
+    }
     try {
         // Get the same data as admin dashboard but with technician context
         let genieacsTotal = 0, genieacsOnline = 0, genieacsOffline = 0;
@@ -1900,6 +1906,306 @@ router.post('/genieacs/api/cache-clear', technicianAuth, async (req, res) => {
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
+});
+
+/**
+ * MOBILE ROUTES
+ */
+
+/**
+ * Mobile Dashboard Teknisi
+ */
+router.get('/mobile/dashboard', technicianAuth, async (req, res) => {
+    try {
+        // Get the same data as admin dashboard but with technician context
+        let genieacsTotal = 0, genieacsOnline = 0, genieacsOffline = 0;
+        let mikrotikTotal = 0, mikrotikAktif = 0, mikrotikOffline = 0;
+        let settings = {};
+        
+        try {
+            // Import functions for dashboard data
+            const { getDevices } = require('../config/genieacs');
+            const { getActivePPPoEConnections, getInactivePPPoEUsers } = require('../config/mikrotik');
+            const { getSettingsWithCache } = require('../config/settingsManager');
+            
+            // Baca settings.json
+            settings = getSettingsWithCache();
+            
+            // GenieACS data
+            const { getDevicesCached } = require('../config/genieacs');
+            const devices = await getDevicesCached();
+            genieacsTotal = devices.length;
+            const now = Date.now();
+            genieacsOnline = devices.filter(dev => dev._lastInform && (now - new Date(dev._lastInform).getTime()) < 3600*1000).length;
+            genieacsOffline = genieacsTotal - genieacsOnline;
+            
+            // Mikrotik data
+            const aktifResult = await getActivePPPoEConnections();
+            mikrotikAktif = aktifResult.success ? aktifResult.data.length : 0;
+            const offlineResult = await getInactivePPPoEUsers();
+            mikrotikOffline = offlineResult.success ? offlineResult.totalInactive : 0;
+            mikrotikTotal = (offlineResult.success ? offlineResult.totalSecrets : 0);
+            
+        } catch (e) {
+            console.error('Error getting dashboard data for technician mobile:', e);
+            // Use default values if error
+        }
+
+        // Log activity
+        await authManager.logActivity(req.technician.id, 'mobile_dashboard_access', 'Mengakses mobile dashboard');
+
+        // Render mobile dashboard
+        res.render('technicianMobileDashboard', {
+            title: 'Dashboard Teknisi',
+            page: 'dashboard',
+            genieacsTotal,
+            genieacsOnline,
+            genieacsOffline,
+            mikrotikTotal,
+            mikrotikAktif,
+            mikrotikOffline,
+            settings,
+            technician: req.technician,
+            isTechnicianView: true
+        });
+
+    } catch (error) {
+        logger.error('Error loading technician mobile dashboard:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+/**
+ * Mobile Monitoring Teknisi
+ */
+router.get('/mobile/monitoring', technicianAuth, async (req, res) => {
+    try {
+        // Get the same data as admin GenieACS page
+        const { getDevices } = require('../config/genieacs');
+        const { getSettingsWithCache } = require('../config/settingsManager');
+        
+        // Get devices data
+        const { getDevicesCached } = require('../config/genieacs');
+        const devicesRaw = await getDevicesCached();
+        
+        // Use the exact same parameter paths as admin GenieACS
+        const parameterPaths = {
+            pppUsername: [
+                'VirtualParameters.pppoeUsername',
+                'VirtualParameters.pppUsername',
+                'InternetGatewayDevice.WANDevice.1.WANConnectionDevice.1.WANPPPConnection.1.Username'
+            ],
+            rxPower: [
+                'VirtualParameters.RXPower',
+                'VirtualParameters.redaman',
+                'InternetGatewayDevice.WANDevice.1.WANPONInterfaceConfig.RXPower'
+            ],
+            deviceTags: [
+                'Tags',
+                '_tags',
+                'VirtualParameters.Tags'
+            ],
+            serialNumber: [
+                'DeviceID.SerialNumber',
+                'InternetGatewayDevice.DeviceInfo.SerialNumber._value'
+            ],
+            model: [
+                'DeviceID.ProductClass',
+                'InternetGatewayDevice.DeviceInfo.ModelName._value'
+            ],
+            status: [
+                'InternetGatewayDevice.WANDevice.1.WANConnectionDevice.1.WANIPConnection.1.Status._value',
+                'InternetGatewayDevice.WANDevice.1.WANConnectionDevice.1.WANPPPConnection.1.Status._value',
+                'VirtualParameters.Status'
+            ],
+            ssid: [
+                'InternetGatewayDevice.LANDevice.1.WLANConfiguration.1.SSID._value',
+                'InternetGatewayDevice.LANDevice.1.WLANConfiguration.5.SSID._value',
+                'VirtualParameters.SSID'
+            ],
+            password: [
+                'InternetGatewayDevice.LANDevice.1.WLANConfiguration.1.KeyPassphrase._value',
+                'InternetGatewayDevice.LANDevice.1.WLANConfiguration.5.KeyPassphrase._value',
+                'VirtualParameters.Password'
+            ],
+            userConnected: [
+                'InternetGatewayDevice.LANDevice.1.WLANConfiguration.1.TotalAssociations'
+            ]
+        };
+        
+        // Use the exact same getParameterWithPaths function as admin
+        function getParameterWithPaths(device, paths) {
+            for (const path of paths) {
+                const parts = path.split('.');
+                let value = device;
+                
+                for (const part of parts) {
+                    if (value && typeof value === 'object' && part in value) {
+                        value = value[part];
+                        if (value && value._value !== undefined) value = value._value;
+                    } else {
+                        value = undefined;
+                        break;
+                    }
+                }
+                
+                if (value !== undefined && value !== null && value !== '') {
+                    // Handle special case for device tags
+                    if (path.includes('Tags') || path.includes('_tags')) {
+                        if (Array.isArray(value)) {
+                            return value.filter(tag => tag && tag !== '').join(', ');
+                        } else if (typeof value === 'string') {
+                            return value;
+                        }
+                    }
+                    return value;
+                }
+            }
+            return '-';
+        }
+        
+        // Map devices data exactly like admin GenieACS
+        const devices = devicesRaw.map((device, i) => ({
+            id: device._id || '-',
+            serialNumber: device.DeviceID?.SerialNumber || device._id || '-',
+            model: device.DeviceID?.ProductClass || device.InternetGatewayDevice?.DeviceInfo?.ModelName?._value || '-',
+            lastInform: device._lastInform ? new Date(device._lastInform).toLocaleString('id-ID') : '-',
+            pppoeUsername: getParameterWithPaths(device, parameterPaths.pppUsername),
+            ssid: device.InternetGatewayDevice?.LANDevice?.['1']?.WLANConfiguration?.['1']?.SSID?._value || device.VirtualParameters?.SSID || '-',
+            password: device.InternetGatewayDevice?.LANDevice?.['1']?.WLANConfiguration?.['1']?.KeyPassphrase?._value || '-',
+            userKonek: device.InternetGatewayDevice?.LANDevice?.['1']?.WLANConfiguration?.['1']?.TotalAssociations?._value || '-',
+            rxPower: getParameterWithPaths(device, parameterPaths.rxPower),
+            tag: (Array.isArray(device.Tags) && device.Tags.length > 0)
+                ? device.Tags.join(', ')
+                : (typeof device.Tags === 'string' && device.Tags)
+                    ? device.Tags
+                    : (Array.isArray(device._tags) && device._tags.length > 0)
+                        ? device._tags.join(', ')
+                        : (typeof device._tags === 'string' && device._tags)
+                            ? device._tags
+                            : '-'
+        }));
+        
+        // Calculate statistics
+        const genieacsTotal = devicesRaw.length;
+        const now = Date.now();
+        const genieacsOnline = devicesRaw.filter(dev => dev._lastInform && (now - new Date(dev._lastInform).getTime()) < 3600*1000).length;
+        const genieacsOffline = genieacsTotal - genieacsOnline;
+        const settings = getSettingsWithCache();
+        
+        // Log activity
+        await authManager.logActivity(req.technician.id, 'mobile_monitoring_access', 'Mengakses mobile monitoring');
+
+        // Render mobile monitoring
+        res.render('technicianMobileMonitoring', {
+            title: 'Monitoring Device - Portal Teknisi',
+            devices,
+            settings,
+            genieacsTotal,
+            genieacsOnline,
+            genieacsOffline,
+            isTechnicianView: true,
+            technician: req.technician,
+            technicianRole: req.technician.role
+        });
+
+    } catch (error) {
+        logger.error('Error loading technician mobile monitoring:', error);
+        res.render('technicianMobileMonitoring', {
+            title: 'Monitoring Device - Portal Teknisi',
+            devices: [],
+            settings: {},
+            genieacsTotal: 0,
+            genieacsOnline: 0,
+            genieacsOffline: 0,
+            error: 'Gagal mengambil data device.',
+            isTechnicianView: true,
+            technician: req.technician,
+            technicianRole: req.technician.role
+        });
+    }
+});
+
+/**
+ * Mobile Customers Teknisi
+ */
+router.get('/mobile/customers', technicianAuth, async (req, res) => {
+    try {
+        // Ambil data customers & packages
+        const allCustomers = await billingManager.getCustomers();
+        const packages = await billingManager.getPackages();
+        
+        // Get ODPs for dropdown selection (termasuk sub ODP)
+        const odps = await new Promise((resolve, reject) => {
+            const db = require('../config/billing').db;
+            db.all(`
+                SELECT o.id, o.name, o.code, o.capacity, o.used_ports, o.status, o.parent_odp_id,
+                       p.name as parent_name, p.code as parent_code
+                FROM odps o
+                LEFT JOIN odps p ON o.parent_odp_id = p.id
+                WHERE o.status = 'active' 
+                ORDER BY p.name, o.name
+            `, (err, rows) => {
+                if (err) reject(err);
+                else resolve(rows || []);
+            });
+        });
+
+        // Query params untuk pencarian & pagination
+        const search = (req.query.search || '').trim();
+        const page = Math.max(parseInt(req.query.page) || 1, 1);
+        const limit = 20;
+
+        // Filter sederhana di sisi server (name/phone/username)
+        const filtered = !search
+            ? allCustomers
+            : allCustomers.filter(c => {
+                const s = search.toLowerCase();
+                return (
+                    (c.name || '').toLowerCase().includes(s) ||
+                    (c.phone || '').toLowerCase().includes(s) ||
+                    (c.username || '').toLowerCase().includes(s)
+                );
+            });
+
+        const totalCustomers = filtered.length;
+        const totalPages = Math.max(1, Math.ceil(totalCustomers / limit));
+        const currentPage = Math.min(page, totalPages);
+        const offset = (currentPage - 1) * limit;
+        const customers = filtered.slice(offset, offset + limit);
+
+        // Log activity
+        await authManager.logActivity(req.technician.id, 'mobile_customers_access', 'Mengakses mobile pelanggan');
+
+        // Render mobile customers
+        res.render('technicianMobileCustomers', {
+            title: 'Kelola Pelanggan - Portal Teknisi',
+            page: 'customers',
+            customers,
+            packages,
+            odps,
+            search,
+            pagination: {
+                currentPage,
+                totalPages,
+                totalCustomers,
+                hasNext: currentPage < totalPages,
+                hasPrev: currentPage > 1
+            },
+            settings: {
+                company_header: getSetting('company_header', 'GEMBOK'),
+                footer_info: getSetting('footer_info', 'Portal Teknisi'),
+                logo_filename: getSetting('logo_filename', 'logo.png')
+            },
+            isTechnicianView: true,
+            technician: req.technician,
+            technicianRole: req.technician.role
+        });
+
+    } catch (error) {
+        logger.error('Error loading technician mobile customers:', error);
+        res.status(500).send('Internal Server Error');
+    }
 });
 
 module.exports = router;
