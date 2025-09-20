@@ -19,6 +19,43 @@
             --dark-text: #2d3436;
         }
 
+        /* Animasi untuk data flow pada kabel */
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.2);
+                opacity: 0.7;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes dataFlow {
+            0% {
+                stroke-dashoffset: 0;
+            }
+            100% {
+                stroke-dashoffset: 20;
+            }
+        }
+
+        /* Styling untuk marker data flow */
+        .data-flow-marker {
+            animation: pulse 2s infinite;
+            z-index: 1000;
+        }
+
+        /* Styling untuk kabel dengan animasi */
+        .animated-cable {
+            stroke-dasharray: 5, 5;
+            animation: dataFlow 3s linear infinite;
+        }
+
         body {
             background-color: var(--light-bg);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -1267,15 +1304,28 @@
         }
 
         function refreshMap() {
-            // Clear existing markers
-            markers.forEach(marker => map.removeLayer(marker));
-            markers = [];
-            
-            // Reload customer data (in real implementation, this would fetch from server)
-            addCustomerMarkers();
-            
-            // Show success message
-            alert('Peta berhasil di-refresh!');
+            try {
+                // Clear existing markers with proper error handling
+                if (markers && markers.length > 0) {
+                    markers.forEach(marker => {
+                        if (marker && map.hasLayer) {
+                            if (map.hasLayer(marker)) {
+                                map.removeLayer(marker);
+                            }
+                        }
+                    });
+                    markers = [];
+                }
+                
+                // Reload customer data
+                addCustomerMarkers();
+                
+                // Show success message
+                alert('Peta berhasil di-refresh!');
+            } catch (error) {
+                console.error('❌ Error refreshing technician map:', error);
+                alert('Error refreshing map: ' + error.message);
+            }
         }
 
         function centerMap() {
@@ -1595,7 +1645,7 @@
             map.addLayer(technicianODPLayer);
         }
 
-        // Load cable routes for technician
+        // Load cable routes for technician with animation
         function loadTechnicianCableRoutes() {
             if (!technicianCableNetworkData || !technicianCableNetworkData.cableRoutes) return;
             
@@ -1606,7 +1656,7 @@
             
             technicianCableLayer = L.layerGroup();
             
-            technicianCableNetworkData.cableRoutes.forEach(cable => {
+            technicianCableNetworkData.cableRoutes.forEach((cable, index) => {
                 if (cable.customer_latitude && cable.customer_longitude && 
                     cable.odp_latitude && cable.odp_longitude) {
                     
@@ -1630,7 +1680,7 @@
                             break;
                     }
                     
-                    // Create cable route polyline
+                    // Create cable route polyline with animation
                     const polyline = L.polyline([
                         [cable.odp_latitude, cable.odp_longitude],
                         [cable.customer_latitude, cable.customer_longitude]
@@ -1639,8 +1689,13 @@
                         weight: 4,
                         opacity: 0.9,
                         dashArray: dashArray,
-                        className: `technician-cable-route technician-cable-${cable.status}`
+                        className: `technician-cable-route technician-cable-${cable.status} animated-cable`
                     });
+                    
+                    // Add animated data flow for connected cables
+                    if (cable.status === 'connected') {
+                        createTechnicianDataFlowAnimation(cable, polyline, index);
+                    }
                     
                     // Create popup content
                     const popupContent = `
@@ -1695,6 +1750,67 @@
             });
             
             map.addLayer(technicianCableLayer);
+            console.log(`✅ Loaded ${technicianCableNetworkData.cableRoutes.length} cable routes for technician with animations`);
+        }
+
+        // Create animated data flow on cables for technician
+        function createTechnicianDataFlowAnimation(cable, polyline, index) {
+            const startLat = cable.odp_latitude;
+            const startLng = cable.odp_longitude;
+            const endLat = cable.customer_latitude;
+            const endLng = cable.customer_longitude;
+            
+            // Create animated marker for data flow
+            const dataFlowMarker = L.circleMarker([startLat, startLng], {
+                radius: 3,
+                fillColor: '#00ff00',
+                color: '#ffffff',
+                weight: 1,
+                opacity: 1,
+                fillOpacity: 0.8,
+                className: 'data-flow-marker'
+            });
+            
+            // Add pulsing effect
+            dataFlowMarker.on('add', function() {
+                this.getElement().style.animation = 'pulse 2s infinite';
+            });
+            
+            technicianCableLayer.addLayer(dataFlowMarker);
+            
+            // Animate data flow along the cable
+            const totalDistance = Math.sqrt(
+                Math.pow(endLat - startLat, 2) + Math.pow(endLng - startLng, 2)
+            );
+            
+            let progress = 0;
+            const animationSpeed = 0.02; // Adjust speed
+            const animationDelay = index * 200; // Stagger animations
+            
+            setTimeout(() => {
+                const animateFlow = () => {
+                    if (progress >= 1) {
+                        progress = 0; // Reset for continuous flow
+                    }
+                    
+                    const currentLat = startLat + (endLat - startLat) * progress;
+                    const currentLng = startLng + (endLng - startLng) * progress;
+                    
+                    dataFlowMarker.setLatLng([currentLat, currentLng]);
+                    
+                    // Change color based on direction (upload/download simulation)
+                    const isUpload = progress < 0.5;
+                    dataFlowMarker.setStyle({
+                        fillColor: isUpload ? '#00ff00' : '#0066ff',
+                        radius: isUpload ? 3 : 2
+                    });
+                    
+                    progress += animationSpeed;
+                    requestAnimationFrame(animateFlow);
+                };
+                
+                animateFlow();
+            }, animationDelay);
         }
 
         // Load network segments for technician
@@ -1851,5 +1967,48 @@
             setTimeout(loadTechnicianCableNetworkData, 2000);
         });
     </script>
+
+    <!-- Bottom Navigation for Mobile -->
+    <div class="d-md-none" style="position: fixed; bottom: 0; left: 0; right: 0; z-index: 1030;">
+        <nav class="navbar fixed-bottom navbar-dark bg-dark" style="background: linear-gradient(180deg, rgba(4, 78, 59, 0.96), rgba(5, 150, 105, 0.96)) !important; position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important; z-index: 1030 !important;">
+            <div class="container-fluid">
+                <div class="row w-100">
+                    <div class="col text-center">
+                        <a href="/technician/dashboard" class="text-light text-decoration-none">
+                            <i class="bi bi-house d-block"></i>
+                            <small>Home</small>
+                        </a>
+                    </div>
+                    <div class="col text-center">
+                        <a href="/technician/monitoring" class="text-light text-decoration-none">
+                            <i class="bi bi-wifi d-block"></i>
+                            <small>Monitor</small>
+                        </a>
+                    </div>
+                    <div class="col text-center">
+                        <a href="/technician/troubletickets" class="text-light text-decoration-none">
+                            <i class="bi bi-ticket-detailed d-block" style="font-size: 1.5rem;"></i>
+                            <small>Tiket</small>
+                        </a>
+                    </div>
+                    <div class="col text-center">
+                        <a href="/technician/customers" class="text-light text-decoration-none">
+                            <i class="bi bi-people d-block"></i>
+                            <small>Customer</small>
+                        </a>
+                    </div>
+                    <div class="col text-center">
+                        <a href="/technician/mapping" class="text-light text-decoration-none active">
+                            <i class="bi bi-geo-alt d-block"></i>
+                            <small>Map</small>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Add bottom padding for mobile -->
+    <div class="d-md-none" style="height: 80px;"></div>
 </body>
 </html>

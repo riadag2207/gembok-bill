@@ -223,6 +223,7 @@
         @media (max-width: 768px) {
             .main-content {
                 padding: 1rem;
+                padding-bottom: 100px; /* Add space for bottom nav */
             }
             
             .sidebar {
@@ -241,6 +242,12 @@
 
             .monitoring-grid {
                 grid-template-columns: 1fr;
+            }
+
+            /* Ensure bottom nav is visible */
+            .navbar.fixed-bottom {
+                display: block !important;
+                z-index: 1030;
             }
         }
     </style>
@@ -499,6 +506,49 @@
         </div>
     </div>
 
+    <!-- Bottom Navigation for Mobile -->
+    <div class="d-md-none" style="position: fixed; bottom: 0; left: 0; right: 0; z-index: 1030;">
+        <nav class="navbar fixed-bottom navbar-dark bg-dark" style="background: linear-gradient(180deg, rgba(4, 78, 59, 0.96), rgba(5, 150, 105, 0.96)) !important; position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important; z-index: 1030 !important;">
+            <div class="container-fluid">
+                <div class="row w-100">
+                    <div class="col text-center">
+                        <a href="/technician/dashboard" class="text-light text-decoration-none">
+                            <i class="bi bi-house d-block"></i>
+                            <small>Home</small>
+                        </a>
+                    </div>
+                    <div class="col text-center">
+                        <a href="/technician/monitoring" class="text-light text-decoration-none active">
+                            <i class="bi bi-wifi d-block"></i>
+                            <small>Monitor</small>
+                        </a>
+                    </div>
+                    <div class="col text-center">
+                        <a href="/technician/dashboard" class="text-light text-decoration-none">
+                            <i class="bi bi-house-fill d-block" style="font-size: 1.5rem;"></i>
+                            <small>Home</small>
+                        </a>
+                    </div>
+                    <div class="col text-center">
+                        <a href="/technician/customers" class="text-light text-decoration-none">
+                            <i class="bi bi-people d-block"></i>
+                            <small>Customer</small>
+                        </a>
+                    </div>
+                    <div class="col text-center">
+                        <a href="/technician/mapping" class="text-light text-decoration-none">
+                            <i class="bi bi-geo-alt d-block"></i>
+                            <small>Map</small>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Add bottom padding for mobile -->
+    <div class="d-md-none" style="height: 80px;"></div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         let trafficChart;
@@ -524,16 +574,17 @@
         function initializeTrafficChart() {
             const ctx = document.getElementById('trafficChart').getContext('2d');
             
-            // Generate sample data for the last 24 hours
+            // Initialize with empty data - will be populated with real data
             const labels = [];
             const downloadData = [];
             const uploadData = [];
             
+            // Generate time labels for the last 24 hours
             for (let i = 23; i >= 0; i--) {
                 const time = new Date(Date.now() - i * 60 * 60 * 1000);
                 labels.push(time.getHours() + ':00');
-                downloadData.push(Math.random() * 100 + 20); // Sample download data
-                uploadData.push(Math.random() * 50 + 10);    // Sample upload data
+                downloadData.push(0); // Will be updated with real data
+                uploadData.push(0);   // Will be updated with real data
             }
 
             trafficChart = new Chart(ctx, {
@@ -592,9 +643,11 @@
         }
 
         function updateMetrics() {
-            // Simulate random updates to metrics
-            const activeConnections = Math.floor(Math.random() * 50) + 150;
-            const bandwidth = (Math.random() * 500 + 100).toFixed(1) + ' Mbps';
+            // Get real metrics from the devices data
+            const onlineDevices = devices.filter(device => device.status === 'online').length;
+            const totalDevices = devices.length;
+            const activeConnections = onlineDevices;
+            const bandwidth = 'N/A'; // Will be calculated from real device data
             
             document.getElementById('activeConnections').textContent = activeConnections;
             document.getElementById('totalBandwidth').textContent = bandwidth;
@@ -610,10 +663,16 @@
             trafficChart.data.labels.push(timeLabel);
             trafficChart.data.labels.shift();
             
-            trafficChart.data.datasets[0].data.push(Math.random() * 100 + 20);
+            // Use real data from devices instead of random data
+            const onlineDevices = devices.filter(device => device.status === 'online').length;
+            const totalDevices = devices.length;
+            const downloadRate = totalDevices > 0 ? (onlineDevices / totalDevices) * 100 : 0;
+            const uploadRate = totalDevices > 0 ? (onlineDevices / totalDevices) * 50 : 0;
+            
+            trafficChart.data.datasets[0].data.push(downloadRate);
             trafficChart.data.datasets[0].data.shift();
             
-            trafficChart.data.datasets[1].data.push(Math.random() * 50 + 10);
+            trafficChart.data.datasets[1].data.push(uploadRate);
             trafficChart.data.datasets[1].data.shift();
             
             trafficChart.update('none');

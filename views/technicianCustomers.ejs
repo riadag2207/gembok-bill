@@ -860,5 +860,48 @@
             }
         }
     </script>
+
+    <!-- Bottom Navigation for Mobile -->
+    <div class="d-md-none" style="position: fixed; bottom: 0; left: 0; right: 0; z-index: 1030;">
+        <nav class="navbar fixed-bottom navbar-dark bg-dark" style="background: linear-gradient(180deg, rgba(4, 78, 59, 0.96), rgba(5, 150, 105, 0.96)) !important; position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important; z-index: 1030 !important;">
+            <div class="container-fluid">
+                <div class="row w-100">
+                    <div class="col text-center">
+                        <a href="/technician/dashboard" class="text-light text-decoration-none">
+                            <i class="bi bi-house d-block"></i>
+                            <small>Home</small>
+                        </a>
+                    </div>
+                    <div class="col text-center">
+                        <a href="/technician/monitoring" class="text-light text-decoration-none">
+                            <i class="bi bi-wifi d-block"></i>
+                            <small>Monitor</small>
+                        </a>
+                    </div>
+                    <div class="col text-center">
+                        <a href="/technician/dashboard" class="text-light text-decoration-none">
+                            <i class="bi bi-house-fill d-block" style="font-size: 1.5rem;"></i>
+                            <small>Home</small>
+                        </a>
+                    </div>
+                    <div class="col text-center">
+                        <a href="/technician/customers" class="text-light text-decoration-none active">
+                            <i class="bi bi-people d-block"></i>
+                            <small>Customer</small>
+                        </a>
+                    </div>
+                    <div class="col text-center">
+                        <a href="/technician/mapping" class="text-light text-decoration-none">
+                            <i class="bi bi-geo-alt d-block"></i>
+                            <small>Map</small>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Add bottom padding for mobile -->
+    <div class="d-md-none" style="height: 80px;"></div>
 </body>
 </html>
