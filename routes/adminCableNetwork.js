@@ -165,7 +165,10 @@ router.get('/odp', adminAuth, getAppSettings, async (req, res) => {
 // POST: Tambah ODP baru
 router.post('/odp', adminAuth, async (req, res) => {
     try {
-        const { name, code, parent_odp_id, latitude, longitude, address, capacity, status, notes } = req.body;
+        const { 
+            name, code, parent_odp_id, latitude, longitude, address, capacity, status, notes,
+            enable_connection, from_odp_id, connection_type, cable_capacity, connection_status, connection_notes, cable_length
+        } = req.body;
         
         // Validasi input
         if (!name || !code || !latitude || !longitude) {
@@ -202,7 +205,7 @@ router.post('/odp', adminAuth, async (req, res) => {
         }
         
         // Insert ODP baru
-        await new Promise((resolve, reject) => {
+        const newODPId = await new Promise((resolve, reject) => {
             db.run(`
                 INSERT INTO odps (name, code, parent_odp_id, latitude, longitude, address, capacity, status, notes)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -212,12 +215,68 @@ router.post('/odp', adminAuth, async (req, res) => {
             });
         });
         
+        // Jika ada koneksi ODP yang diaktifkan
+        if (enable_connection && from_odp_id) {
+            try {
+                // Validasi ODP sumber ada
+                const sourceODP = await new Promise((resolve, reject) => {
+                    db.get('SELECT id, name, code FROM odps WHERE id = ?', [from_odp_id], (err, row) => {
+                        if (err) reject(err);
+                        else resolve(row);
+                    });
+                });
+                
+                if (!sourceODP) {
+                    throw new Error('ODP sumber tidak ditemukan');
+                }
+                
+                // Cek apakah koneksi sudah ada
+                const existingConnection = await new Promise((resolve, reject) => {
+                    db.get(`
+                        SELECT id FROM odp_connections 
+                        WHERE (from_odp_id = ? AND to_odp_id = ?) OR (from_odp_id = ? AND to_odp_id = ?)
+                    `, [from_odp_id, newODPId, newODPId, from_odp_id], (err, row) => {
+                        if (err) reject(err);
+                        else resolve(row);
+                    });
+                });
+                
+                if (existingConnection) {
+                    logger.warn(`Connection already exists between ODP ${from_odp_id} and ${newODPId}`);
+                } else {
+                    // Insert koneksi ODP
+                    await new Promise((resolve, reject) => {
+                        db.run(`
+                            INSERT INTO odp_connections (from_odp_id, to_odp_id, connection_type, cable_length, cable_capacity, status, notes)
+                            VALUES (?, ?, ?, ?, ?, ?, ?)
+                        `, [
+                            from_odp_id, 
+                            newODPId, 
+                            connection_type || 'fiber', 
+                            cable_length || null, 
+                            cable_capacity || '1G', 
+                            connection_status || 'active', 
+                            connection_notes || `Auto-created connection from ${sourceODP.name} to ${name}`
+                        ], function(err) {
+                            if (err) reject(err);
+                            else resolve(this.lastID);
+                        });
+                    });
+                    
+                    logger.info(`ODP connection created: ${sourceODP.name} (${sourceODP.code}) -> ${name} (${code})`);
+                }
+            } catch (connectionError) {
+                logger.error('Error creating ODP connection:', connectionError);
+                // Jangan gagal seluruh proses jika koneksi gagal
+            }
+        }
+        
         db.close();
         
         res.json({
             success: true,
-            message: 'ODP berhasil ditambahkan',
-            data: { id: this.lastID }
+            message: 'ODP berhasil ditambahkan' + (enable_connection ? ' dengan koneksi kabel' : ''),
+            data: { id: newODPId }
         });
         
     } catch (error) {

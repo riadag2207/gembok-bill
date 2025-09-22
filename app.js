@@ -173,6 +173,10 @@ app.use('/admin/hotspot', adminHotspotRouter);
 const { router: adminSettingRouter } = require('./routes/adminSetting');
 app.use('/admin/settings', adminAuth, adminSettingRouter);
 
+// Import dan gunakan route configValidation
+const configValidationRouter = require('./routes/configValidation');
+app.use('/admin/config', configValidationRouter);
+
 // Import dan gunakan route adminTroubleReport
 const adminTroubleReportRouter = require('./routes/adminTroubleReport');
 app.use('/admin/trouble', adminAuth, adminTroubleReportRouter);
@@ -192,6 +196,10 @@ app.use('/admin/technicians', adminAuth, adminTechniciansRouter);
 // Import dan gunakan route adminCableNetwork
 const adminCableNetworkRouter = require('./routes/adminCableNetwork');
 app.use('/admin/cable-network', adminAuth, adminCableNetworkRouter);
+
+// Import dan gunakan route cache management
+const cacheManagementRouter = require('./routes/cacheManagement');
+app.use('/admin/cache', cacheManagementRouter);
 
 // Import dan gunakan route payment
 const paymentRouter = require('./routes/payment');
@@ -346,12 +354,13 @@ try {
                 });
             }
 
-            // Initialize RX Power monitoring
+            // Initialize Interval Manager (replaces individual monitoring systems)
             try {
-                rxPowerMonitor.startRXPowerMonitoring();
-                logger.info('RX Power monitoring initialized');
+                const intervalManager = require('./config/intervalManager');
+                intervalManager.initialize();
+                logger.info('Interval Manager initialized with all monitoring systems');
             } catch (err) {
-                logger.error('Error initializing RX Power monitoring:', err);
+                logger.error('Error initializing Interval Manager:', err);
             }
         }
     }).catch(err => {

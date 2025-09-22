@@ -348,8 +348,8 @@ router.post('/purchase', async (req, res) => {
             let invoiceDbId;
             const voucherCustomerId = await getVoucherCustomerId();
             await new Promise((resolve, reject) => {
-                const sql = `INSERT INTO invoices (customer_id, invoice_number, amount, status, created_at, due_date, notes, package_id, package_name)
-                           VALUES (?, ?, ?, 'pending', datetime('now'), ?, ?, ?, ?)`;
+                const sql = `INSERT INTO invoices (customer_id, invoice_number, amount, status, created_at, due_date, notes, package_id, package_name, invoice_type)
+                           VALUES (?, ?, ?, 'pending', datetime('now'), ?, ?, ?, ?, 'voucher')`;
                 db.run(sql, [voucherCustomerId, invoiceId, totalAmount, dueDate, `Voucher Hotspot ${selectedPackage.name} x${quantity}`, 1, selectedPackage.name], function(err) {
                     if (err) reject(err);
                     else {

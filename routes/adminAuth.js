@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { getSetting } = require('../config/settingsManager');
+const { validateConfiguration, getValidationSummary, checkForDefaultSettings } = require('../config/configValidator');
 
 // Cache untuk admin credentials (optional, untuk performance)
 let adminCredentials = null;
@@ -61,6 +62,42 @@ router.post('/login', async (req, res) => {
     if (username === credentials.username && password === credentials.password) {
       req.session.isAdmin = true;
       req.session.adminUser = username;
+      
+      // Validasi konfigurasi sistem setelah login berhasil (non-blocking)
+      // Jalankan validasi secara asinkron tanpa menghambat login
+      setImmediate(() => {
+        console.log('🔍 [ADMIN_LOGIN] Memvalidasi konfigurasi sistem secara asinkron...');
+        
+        validateConfiguration().then(validationResults => {
+          console.log('🔍 [ADMIN_LOGIN] Validasi selesai, menyimpan hasil ke session...');
+          
+            // Simpan hasil validasi ke session untuk ditampilkan di dashboard
+            // Selalu simpan hasil, baik valid maupun tidak valid
+            req.session.configValidation = {
+              hasValidationRun: true,
+              results: validationResults,
+              summary: getValidationSummary(),
+              defaultSettingsWarnings: checkForDefaultSettings(),
+              lastValidationTime: Date.now()
+            };
+          
+          if (!validationResults.overall.isValid) {
+            console.log('⚠️ [ADMIN_LOGIN] Konfigurasi sistem bermasalah - warning akan ditampilkan di dashboard');
+          } else {
+            console.log('✅ [ADMIN_LOGIN] Konfigurasi sistem valid');
+          }
+        }).catch(error => {
+          console.error('❌ [ADMIN_LOGIN] Error saat validasi konfigurasi:', error);
+          // Simpan error state tapi tetap biarkan admin login
+          req.session.configValidation = {
+            hasValidationRun: true,
+            results: null,
+            summary: { status: 'error', message: 'Gagal memvalidasi konfigurasi sistem' },
+            defaultSettingsWarnings: [],
+            lastValidationTime: Date.now()
+          };
+        });
+      });
       
       // Fast response untuk AJAX
       if (req.xhr || (req.headers.accept && req.headers.accept.indexOf('json') > -1)) {

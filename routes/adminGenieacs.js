@@ -303,6 +303,16 @@ async function updateSSIDOptimized(deviceId, newSSID, genieacsUrl, username, pas
     
     if (mainTaskSuccess) {
       console.log(`✅ SSID update completed for device: ${deviceId}: ${newSSID}`);
+      
+      // Invalidate GenieACS cache after successful update
+      try {
+        const cacheManager = require('../config/cacheManager');
+        cacheManager.invalidatePattern('genieacs:*');
+        console.log('🔄 GenieACS cache invalidated after SSID update');
+      } catch (cacheError) {
+        console.warn('⚠️ Failed to invalidate cache:', cacheError.message);
+      }
+      
       return { success: true, wifi5GFound };
     } else {
       console.error(`❌ SSID update failed for device: ${deviceId}: ${results[0].reason?.message || 'Unknown error'}`);

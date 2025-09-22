@@ -7,7 +7,7 @@ const { technicianAuth, authManager } = require('./technicianAuth');
 const logger = require('../config/logger');
 
 // Database connection
-const dbPath = path.join(__dirname, '../data/test-fresh.db');
+const dbPath = path.join(__dirname, '../data/billing.db');
 const db = new sqlite3.Database(dbPath);
 
 // Billing manager untuk akses data
@@ -86,7 +86,9 @@ router.get('/dashboard', technicianAuth, async (req, res) => {
             },
             // Add technician context to differentiate from admin
             isTechnicianView: true,
-            technician: req.technician
+            technician: req.technician,
+            // Fix: Add configValidation to prevent ReferenceError
+            configValidation: req.session.configValidation || null
         });
 
     } catch (error) {

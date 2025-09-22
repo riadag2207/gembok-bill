@@ -164,9 +164,16 @@ router.post('/save', (req, res) => {
                 logger.warn('Gagal reload payment gateway setelah simpan settings:', e.message);
             }
 
+            // Clear hasil validasi konfigurasi lama dari session
+            // Ini akan memaksa validasi ulang saat admin kembali ke dashboard
+            if (req.session.configValidation) {
+                console.log('🔄 [SETTINGS] Clearing old config validation results...');
+                delete req.session.configValidation;
+            }
+
             res.json({ 
                 success: true, 
-                message: 'Pengaturan berhasil disimpan',
+                message: 'Pengaturan berhasil disimpan! Hasil validasi konfigurasi akan di-update saat kembali ke dashboard.',
                 missingFields: missing 
             });
         });
@@ -176,6 +183,133 @@ router.post('/save', (req, res) => {
         res.status(500).json({ 
             success: false, 
             error: 'Terjadi kesalahan saat menyimpan pengaturan: ' + error.message 
+        });
+    }
+});
+
+// POST: Save Interval Settings
+router.post('/save-intervals', (req, res) => {
+    try {
+        const intervalData = req.body;
+        
+        // Validasi input
+        if (!intervalData || typeof intervalData !== 'object') {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Data interval tidak valid' 
+            });
+        }
+
+        // Validasi field yang diperlukan
+        const requiredFields = [
+            'rx_power_warning_interval_hours',
+            'rxpower_recap_interval_hours',
+            'offline_notification_interval_hours'
+        ];
+
+        for (const field of requiredFields) {
+            if (!intervalData[field]) {
+                return res.status(400).json({ 
+                    success: false, 
+                    error: `Field ${field} harus diisi` 
+                });
+            }
+        }
+
+        // Validasi nilai jam
+        const hoursFields = [
+            'rx_power_warning_interval_hours',
+            'rxpower_recap_interval_hours',
+            'offline_notification_interval_hours'
+        ];
+
+        for (const field of hoursFields) {
+            const value = parseInt(intervalData[field]);
+            if (isNaN(value) || value < 1 || value > 168) { // 1 jam - 7 hari
+                return res.status(400).json({ 
+                    success: false, 
+                    error: `${field} harus berupa nilai jam valid (1-168 jam)` 
+                });
+            }
+        }
+
+        // Konversi jam ke millisecond
+        const rxPowerWarningMs = parseInt(intervalData.rx_power_warning_interval_hours) * 60 * 60 * 1000;
+        const rxPowerRecapMs = parseInt(intervalData.rxpower_recap_interval_hours) * 60 * 60 * 1000;
+        const offlineNotifMs = parseInt(intervalData.offline_notification_interval_hours) * 60 * 60 * 1000;
+
+        // Update intervalData dengan nilai millisecond
+        intervalData.rx_power_warning_interval = rxPowerWarningMs.toString();
+        intervalData.rxpower_recap_interval = rxPowerRecapMs.toString();
+        intervalData.offline_notification_interval = offlineNotifMs.toString();
+
+        // Baca settings lama
+        let oldSettings = {};
+        try {
+            oldSettings = getSettingsWithCache();
+        } catch (e) {
+            console.warn('Gagal membaca settings.json lama, menggunakan default:', e.message);
+            oldSettings = {};
+        }
+
+        // Merge dengan settings lama
+        const mergedSettings = { ...oldSettings, ...intervalData };
+        
+        // Tulis ke file
+        fs.writeFileSync(settingsPath, JSON.stringify(mergedSettings, null, 2));
+        
+        // Log perubahan
+        logger.info('Interval settings updated via web interface', {
+            rx_power_warning_interval_hours: intervalData.rx_power_warning_interval_hours,
+            rxpower_recap_interval_hours: intervalData.rxpower_recap_interval_hours,
+            offline_notification_interval_hours: intervalData.offline_notification_interval_hours
+        });
+
+        // Restart interval monitoring dengan pengaturan baru
+        try {
+            const intervalManager = require('../config/intervalManager');
+            intervalManager.restartAll();
+            logger.info('All monitoring intervals restarted with new settings');
+        } catch (error) {
+            logger.error('Error restarting intervals:', error.message);
+            // Tidak menghentikan response karena settings sudah tersimpan
+        }
+
+        res.json({ 
+            success: true, 
+            message: 'Pengaturan interval berhasil disimpan dan diterapkan tanpa restart aplikasi',
+            data: {
+                rx_power_warning_interval_hours: intervalData.rx_power_warning_interval_hours,
+                rxpower_recap_interval_hours: intervalData.rxpower_recap_interval_hours,
+                offline_notification_interval_hours: intervalData.offline_notification_interval_hours
+            }
+        });
+
+    } catch (error) {
+        console.error('Error dalam route /save-intervals:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Terjadi kesalahan saat menyimpan pengaturan interval: ' + error.message 
+        });
+    }
+});
+
+// GET: Get interval status
+router.get('/interval-status', (req, res) => {
+    try {
+        const intervalManager = require('../config/intervalManager');
+        const status = intervalManager.getStatus();
+        const settings = intervalManager.getCurrentSettings();
+        
+        res.json({
+            success: true,
+            status: status,
+            settings: settings
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: 'Error getting interval status: ' + error.message
         });
     }
 });

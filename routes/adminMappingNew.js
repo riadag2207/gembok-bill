@@ -661,4 +661,497 @@ router.get('/api/mapping/new', adminAuth, async (req, res) => {
     }
 });
 
+// API endpoint untuk update ONU device
+router.post('/update-onu', adminAuth, async (req, res) => {
+    try {
+        console.log('🔄 Update ONU API - Processing request...');
+        console.log('📋 Request data:', req.body);
+        
+        const { id, name, serial_number, mac_address, ip_address, status, latitude, longitude, customer_id, odp_id } = req.body;
+        
+        // Validate required fields
+        if (!id || !name || !serial_number || !mac_address) {
+            return res.status(400).json({
+                success: false,
+                message: 'Missing required fields: id, name, serial_number, mac_address'
+            });
+        }
+        
+        const dbPath = path.join(__dirname, '../data/billing.db');
+        const db = new sqlite3.Database(dbPath);
+        
+        // Check if ONU device exists in database
+        const existingDevice = await new Promise((resolve, reject) => {
+            db.get(`
+                SELECT id FROM onu_devices WHERE id = ?
+            `, [id], (err, row) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(row);
+                }
+            });
+        });
+        
+        if (existingDevice) {
+            // Update existing ONU device
+            await new Promise((resolve, reject) => {
+                db.run(`
+                    UPDATE onu_devices SET 
+                        name = ?, 
+                        serial_number = ?, 
+                        mac_address = ?, 
+                        ip_address = ?, 
+                        status = ?, 
+                        latitude = ?, 
+                        longitude = ?, 
+                        customer_id = ?, 
+                        odp_id = ?,
+                        updated_at = CURRENT_TIMESTAMP
+                    WHERE id = ?
+                `, [name, serial_number, mac_address, ip_address, status, latitude, longitude, customer_id, odp_id, id], function(err) {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        console.log(`✅ Updated ONU device: ${id}`);
+                        resolve();
+                    }
+                });
+            });
+        } else {
+            // Insert new ONU device
+            await new Promise((resolve, reject) => {
+                db.run(`
+                    INSERT INTO onu_devices (
+                        id, name, serial_number, mac_address, ip_address, status, 
+                        latitude, longitude, customer_id, odp_id, created_at, updated_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                `, [id, name, serial_number, mac_address, ip_address, status, latitude, longitude, customer_id, odp_id], function(err) {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        console.log(`✅ Created new ONU device: ${id}`);
+                        resolve();
+                    }
+                });
+            });
+        }
+        
+        db.close();
+        
+        console.log('✅ ONU device updated successfully in database');
+        
+        // Invalidate GenieACS cache after successful update
+        try {
+            const cacheManager = require('../config/cacheManager');
+            cacheManager.invalidatePattern('genieacs:*');
+            console.log('🔄 GenieACS cache invalidated after ONU update');
+        } catch (cacheError) {
+            console.warn('⚠️ Failed to invalidate cache:', cacheError.message);
+        }
+        
+        res.json({
+            success: true,
+            message: 'ONU device updated successfully',
+            data: {
+                id: id,
+                name: name,
+                serial_number: serial_number,
+                mac_address: mac_address,
+                ip_address: ip_address,
+                status: status,
+                latitude: latitude,
+                longitude: longitude,
+                customer_id: customer_id,
+                odp_id: odp_id
+            }
+        });
+        
+    } catch (error) {
+        console.error('❌ Error updating ONU device:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error updating ONU device: ' + error.message
+        });
+    }
+});
+
+// API endpoint untuk update ODP
+router.post('/update-odp', adminAuth, async (req, res) => {
+    try {
+        console.log('🔄 Update ODP API - Processing request...');
+        console.log('📋 Request data:', req.body);
+        
+        const { id, name, code, capacity, used_ports, status, address, latitude, longitude, installation_date } = req.body;
+        
+        // Validate required fields
+        if (!id || !name || !code || !capacity) {
+            return res.status(400).json({
+                success: false,
+                message: 'Missing required fields: id, name, code, capacity'
+            });
+        }
+        
+        const dbPath = path.join(__dirname, '../data/billing.db');
+        const db = new sqlite3.Database(dbPath);
+        
+        // Check if ODP exists in database
+        const existingODP = await new Promise((resolve, reject) => {
+            db.get(`
+                SELECT id FROM odps WHERE id = ?
+            `, [id], (err, row) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(row);
+                }
+            });
+        });
+        
+        if (existingODP) {
+            // Update existing ODP
+            await new Promise((resolve, reject) => {
+                db.run(`
+                    UPDATE odps SET 
+                        name = ?, 
+                        code = ?, 
+                        capacity = ?, 
+                        used_ports = ?, 
+                        status = ?, 
+                        address = ?, 
+                        latitude = ?, 
+                        longitude = ?, 
+                        installation_date = ?,
+                        updated_at = CURRENT_TIMESTAMP
+                    WHERE id = ?
+                `, [name, code, capacity, used_ports, status, address, latitude, longitude, installation_date, id], function(err) {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        console.log(`✅ Updated ODP: ${id}`);
+                        resolve();
+                    }
+                });
+            });
+        } else {
+            // Insert new ODP
+            await new Promise((resolve, reject) => {
+                db.run(`
+                    INSERT INTO odps (
+                        id, name, code, capacity, used_ports, status, 
+                        address, latitude, longitude, installation_date, 
+                        created_at, updated_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                `, [id, name, code, capacity, used_ports, status, address, latitude, longitude, installation_date], function(err) {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        console.log(`✅ Created new ODP: ${id}`);
+                        resolve();
+                    }
+                });
+            });
+        }
+        
+        db.close();
+        
+        console.log('✅ ODP updated successfully in database');
+        
+        // Invalidate GenieACS cache after successful update
+        try {
+            const cacheManager = require('../config/cacheManager');
+            cacheManager.invalidatePattern('genieacs:*');
+            console.log('🔄 GenieACS cache invalidated after ODP update');
+        } catch (cacheError) {
+            console.warn('⚠️ Failed to invalidate cache:', cacheError.message);
+        }
+        
+        res.json({
+            success: true,
+            message: 'ODP updated successfully',
+            data: {
+                id: id,
+                name: name,
+                code: code,
+                capacity: capacity,
+                used_ports: used_ports,
+                status: status,
+                address: address,
+                latitude: latitude,
+                longitude: longitude,
+                installation_date: installation_date
+            }
+        });
+        
+    } catch (error) {
+        console.error('❌ Error updating ODP:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error updating ODP: ' + error.message
+        });
+    }
+});
+
+// API endpoint untuk update Customer
+router.post('/update-customer', adminAuth, async (req, res) => {
+    try {
+        console.log('🔄 Update Customer API - Processing request...');
+        console.log('📋 Request data:', req.body);
+        
+        const { id, name, phone, email, pppoe_username, status, address, latitude, longitude, package_id, odp_id, join_date } = req.body;
+        
+        // Validate required fields
+        if (!id || !name || !phone) {
+            return res.status(400).json({
+                success: false,
+                message: 'Missing required fields: id, name, phone'
+            });
+        }
+        
+        const dbPath = path.join(__dirname, '../data/billing.db');
+        const db = new sqlite3.Database(dbPath);
+        
+        // Check if Customer exists in database
+        const existingCustomer = await new Promise((resolve, reject) => {
+            db.get(`
+                SELECT id FROM customers WHERE id = ?
+            `, [id], (err, row) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(row);
+                }
+            });
+        });
+        
+        if (existingCustomer) {
+            // Update existing Customer
+            await new Promise((resolve, reject) => {
+                db.run(`
+                    UPDATE customers SET 
+                        name = ?, 
+                        phone = ?, 
+                        email = ?, 
+                        pppoe_username = ?, 
+                        status = ?, 
+                        address = ?, 
+                        latitude = ?, 
+                        longitude = ?, 
+                        package_id = ?, 
+                        odp_id = ?, 
+                        join_date = ?,
+                        updated_at = CURRENT_TIMESTAMP
+                    WHERE id = ?
+                `, [name, phone, email, pppoe_username, status, address, latitude, longitude, package_id, odp_id, join_date, id], function(err) {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        console.log(`✅ Updated Customer: ${id}`);
+                        resolve();
+                    }
+                });
+            });
+        } else {
+            // Insert new Customer
+            await new Promise((resolve, reject) => {
+                db.run(`
+                    INSERT INTO customers (
+                        id, name, phone, email, pppoe_username, status, 
+                        address, latitude, longitude, package_id, odp_id, join_date, 
+                        created_at, updated_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                `, [id, name, phone, email, pppoe_username, status, address, latitude, longitude, package_id, odp_id, join_date], function(err) {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        console.log(`✅ Created new Customer: ${id}`);
+                        resolve();
+                    }
+                });
+            });
+        }
+        
+        db.close();
+        
+        console.log('✅ Customer updated successfully in database');
+        
+        // Invalidate GenieACS cache after successful update
+        try {
+            const cacheManager = require('../config/cacheManager');
+            cacheManager.invalidatePattern('genieacs:*');
+            console.log('🔄 GenieACS cache invalidated after Customer update');
+        } catch (cacheError) {
+            console.warn('⚠️ Failed to invalidate cache:', cacheError.message);
+        }
+        
+        res.json({
+            success: true,
+            message: 'Customer updated successfully',
+            data: {
+                id: id,
+                name: name,
+                phone: phone,
+                email: email,
+                pppoe_username: pppoe_username,
+                status: status,
+                address: address,
+                latitude: latitude,
+                longitude: longitude,
+                package_id: package_id,
+                odp_id: odp_id,
+                join_date: join_date
+            }
+        });
+        
+    } catch (error) {
+        console.error('❌ Error updating Customer:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error updating Customer: ' + error.message
+        });
+    }
+});
+
+// API endpoint untuk restart ONU device via GenieACS
+router.post('/restart-onu', adminAuth, async (req, res) => {
+    try {
+        console.log('🔄 Restart ONU API - Processing request...');
+        console.log('📋 Request data:', req.body);
+        
+        const { deviceId, deviceName, serialNumber, customerName } = req.body;
+        
+        // Validate required fields
+        if (!deviceId) {
+            return res.status(400).json({
+                success: false,
+                message: 'Missing required field: deviceId'
+            });
+        }
+        
+        // Import GenieACS configuration
+        const { getGenieACSConfig } = require('../config/genieacs');
+        const genieacsConfig = getGenieACSConfig();
+        
+        if (!genieacsConfig || !genieacsConfig.url || !genieacsConfig.username || !genieacsConfig.password) {
+            return res.status(500).json({
+                success: false,
+                message: 'GenieACS configuration not found or incomplete'
+            });
+        }
+        
+        console.log(`🔄 Restarting ONU device: ${deviceId} (${deviceName})`);
+        console.log(`👤 Customer: ${customerName}`);
+        console.log(`📱 Serial: ${serialNumber}`);
+        
+        // Call GenieACS API to restart device
+        const genieacsUrl = `${genieacsConfig.url}/devices/${encodeURIComponent(deviceId)}/tasks`;
+        const auth = Buffer.from(`${genieacsConfig.username}:${genieacsConfig.password}`).toString('base64');
+        
+        const restartTask = {
+            name: 'reboot',
+            objectName: 'Device.Reboot',
+            object: 'Device.Reboot',
+            parameters: {
+                'CommandKey': 'Reboot'
+            }
+        };
+        
+        console.log(`🌐 Calling GenieACS API: ${genieacsUrl}`);
+        console.log(`📋 Restart task:`, restartTask);
+        
+        const response = await fetch(genieacsUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Basic ${auth}`
+            },
+            body: JSON.stringify(restartTask)
+        });
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('❌ GenieACS API error:', response.status, errorText);
+            return res.status(500).json({
+                success: false,
+                message: `GenieACS API error: ${response.status} - ${errorText}`
+            });
+        }
+        
+        const result = await response.json();
+        console.log('✅ GenieACS restart task created:', result);
+        
+        // Log the restart action to database (optional)
+        try {
+            const dbPath = path.join(__dirname, '../data/billing.db');
+            const db = new sqlite3.Database(dbPath);
+            
+            await new Promise((resolve, reject) => {
+                db.run(`
+                    INSERT INTO device_actions (
+                        device_id, device_name, serial_number, customer_name, 
+                        action_type, action_status, action_details, created_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+                `, [
+                    deviceId, 
+                    deviceName || 'Unknown', 
+                    serialNumber || 'Unknown', 
+                    customerName || 'Unknown',
+                    'restart',
+                    'initiated',
+                    JSON.stringify({
+                        genieacs_task_id: result._id,
+                        restart_time: new Date().toISOString(),
+                        api_response: result
+                    })
+                ], function(err) {
+                    if (err) {
+                        console.error('❌ Error logging restart action:', err);
+                        // Don't fail the request if logging fails
+                    } else {
+                        console.log(`✅ Logged restart action for device: ${deviceId}`);
+                    }
+                    resolve();
+                });
+            });
+            
+            db.close();
+        } catch (logError) {
+            console.error('❌ Error logging restart action to database:', logError);
+            // Don't fail the request if logging fails
+        }
+        
+        console.log('✅ ONU restart initiated successfully');
+        
+        // Invalidate GenieACS cache after successful restart
+        try {
+            const cacheManager = require('../config/cacheManager');
+            cacheManager.invalidatePattern('genieacs:*');
+            console.log('🔄 GenieACS cache invalidated after ONU restart');
+        } catch (cacheError) {
+            console.warn('⚠️ Failed to invalidate cache:', cacheError.message);
+        }
+        
+        res.json({
+            success: true,
+            message: 'ONU restart initiated successfully',
+            data: {
+                deviceId: deviceId,
+                deviceName: deviceName,
+                serialNumber: serialNumber,
+                customerName: customerName,
+                genieacsTaskId: result._id,
+                restartTime: new Date().toISOString(),
+                status: 'initiated'
+            }
+        });
+        
+    } catch (error) {
+        console.error('❌ Error restarting ONU device:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error restarting ONU device: ' + error.message
+        });
+    }
+});
+
 module.exports = router;

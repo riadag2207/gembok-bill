@@ -3,9 +3,9 @@
   "admin_username": "admin",
   "admin_password": "admin",
   "genieacs_url": "http://192.168.8.151:7557",
-  "genieacs_username": "admim",
+  "genieacs_username": "admin",
   "genieacs_password": "admin",
-  "mikrotik_host": "192.168.88.1",
+  "mikrotik_host": "192.168.8.1",
   "mikrotik_port": "8728",
   "mikrotik_user": "admin",
   "mikrotik_password": "admin",
@@ -39,6 +39,7 @@
   "rxpower_recap_interval": "21600000",
   "offline_notification_enable": true,
   "offline_notification_interval": "43200000",
+  "offline_device_threshold_hours": "24",
   "user_auth_mode": "mikrotik",
   "server_port": "3003",
   "logo_filename": "logo.png",
@@ -95,5 +96,15 @@
   "version_name": "WhatsApp Modular + Role System + Network Mapping",
   "version_date": "2025-01-27",
   "version_notes": "Added technician role, trouble report, PPPoE WhatsApp commands, PPN feature, and Network Mapping",
-  "build_number": "20250127"
+  "build_number": "20250127",
+  "rx_power_warning_interval_hours": "10",
+  "rxpower_recap_interval_hours": "6",
+  "offline_notification_interval_hours": "12",
+  "voucher_cleanup": {
+    "enabled": true,
+    "expiry_hours": "24",
+    "cleanup_interval_hours": "6",
+    "delete_expired_invoices": true,
+    "log_cleanup_actions": true
+  }
 }

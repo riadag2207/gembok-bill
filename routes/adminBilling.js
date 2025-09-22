@@ -117,8 +117,8 @@ router.get('/mobile/invoices', getAppSettings, async (req, res) => {
 // Mobile Payments Management
 router.get('/mobile/payments', getAppSettings, async (req, res) => {
     try {
-        // Get payments list for mobile (you may need to implement this method)
-        const payments = []; // Placeholder - implement getPayments method if needed
+        // Get payments list for mobile
+        const payments = await billingManager.getPayments();
         
         res.render('admin/billing/mobile-payments', {
             title: 'Kelola Pembayaran - Mobile',
@@ -167,6 +167,9 @@ router.get('/odp', adminAuth, (req, res) => {
 // Dashboard Billing
 router.get('/dashboard', getAppSettings, async (req, res) => {
     try {
+        // Jalankan cleanup data konsistensi terlebih dahulu
+        await billingManager.cleanupDataConsistency();
+        
         const stats = await billingManager.getBillingStats();
         const overdueInvoices = await billingManager.getOverdueInvoices();
         const recentInvoices = await billingManager.getInvoices();
@@ -224,6 +227,313 @@ router.get('/api/financial-report', async (req, res) => {
         res.json({ success: true, data: financialData });
     } catch (error) {
         logger.error('Error getting financial report data:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// API untuk cleanup data konsistensi
+router.post('/api/cleanup-data', adminAuth, async (req, res) => {
+    try {
+        await billingManager.cleanupDataConsistency();
+        const stats = await billingManager.getBillingStats();
+        
+        res.json({ 
+            success: true, 
+            message: 'Data konsistensi berhasil diperbaiki',
+            stats 
+        });
+    } catch (error) {
+        logger.error('Error cleaning up data:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// API untuk mendapatkan statistik real-time
+router.get('/api/stats', adminAuth, async (req, res) => {
+    try {
+        const stats = await billingManager.getBillingStats();
+        res.json({ success: true, data: stats });
+    } catch (error) {
+        logger.error('Error getting billing stats:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// Halaman Invoice by Type
+router.get('/invoices-by-type', adminAuth, async (req, res) => {
+    try {
+        // Get invoices by type
+        const monthlyInvoices = await billingManager.getInvoicesByType('monthly');
+        const voucherInvoices = await billingManager.getInvoicesByType('voucher');
+        const manualInvoices = await billingManager.getInvoicesByType('manual');
+        
+        // Get stats by type
+        const monthlyStats = await billingManager.getInvoiceStatsByType('monthly');
+        const voucherStats = await billingManager.getInvoiceStatsByType('voucher');
+        const manualStats = await billingManager.getInvoiceStatsByType('manual');
+        
+        res.render('admin/billing/invoices-by-type', {
+            title: 'Invoice by Type',
+            monthlyInvoices: monthlyInvoices.slice(0, 50), // Limit to 50 per type
+            voucherInvoices: voucherInvoices.slice(0, 50),
+            manualInvoices: manualInvoices.slice(0, 50),
+            monthlyStats,
+            voucherStats,
+            manualStats
+        });
+    } catch (error) {
+        logger.error('Error loading invoices by type:', error);
+        res.status(500).render('error', { 
+            message: 'Gagal memuat halaman invoice by type',
+            error: error.message 
+        });
+    }
+});
+
+// API untuk cleanup voucher manual
+router.post('/api/voucher-cleanup', adminAuth, async (req, res) => {
+    try {
+        const result = await billingManager.cleanupExpiredVoucherInvoices();
+        
+        res.json({
+            success: result.success,
+            message: result.message,
+            cleaned: result.cleaned,
+            expiredInvoices: result.expiredInvoices || []
+        });
+    } catch (error) {
+        logger.error('Error in manual voucher cleanup:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Gagal melakukan cleanup voucher',
+            error: error.message
+        });
+    }
+});
+
+// API untuk melihat expired voucher invoices
+router.get('/api/expired-vouchers', adminAuth, async (req, res) => {
+    try {
+        const expiredInvoices = await billingManager.getExpiredVoucherInvoices();
+        
+        res.json({
+            success: true,
+            data: expiredInvoices,
+            count: expiredInvoices.length
+        });
+    } catch (error) {
+        logger.error('Error getting expired voucher invoices:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Gagal mengambil data expired voucher',
+            error: error.message
+        });
+    }
+});
+
+// Halaman Monthly Summary
+router.get('/monthly-summary', adminAuth, async (req, res) => {
+    try {
+        const summaries = await billingManager.getAllMonthlySummaries(24); // Last 24 months
+        
+        res.render('admin/billing/monthly-summary', {
+            title: 'Summary Bulanan',
+            summaries,
+            appSettings: req.appSettings
+        });
+    } catch (error) {
+        logger.error('Error loading monthly summary:', error);
+        res.status(500).render('error', { 
+            message: 'Gagal memuat summary bulanan',
+            error: error.message 
+        });
+    }
+});
+
+// API untuk generate summary bulanan manual
+router.post('/api/generate-monthly-summary', adminAuth, async (req, res) => {
+    try {
+        const result = await billingManager.generateMonthlySummary();
+        
+        res.json({
+            success: result.success,
+            message: result.message,
+            year: result.year,
+            month: result.month,
+            stats: result.stats
+        });
+    } catch (error) {
+        logger.error('Error generating monthly summary:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Gagal generate summary bulanan',
+            error: error.message
+        });
+    }
+});
+
+// API untuk mendapatkan summary bulanan
+router.get('/api/monthly-summary', adminAuth, async (req, res) => {
+    try {
+        const { year, month } = req.query;
+        
+        if (year && month) {
+            const summary = await billingManager.getMonthlySummary(parseInt(year), parseInt(month));
+            res.json({
+                success: true,
+                data: summary
+            });
+        } else {
+            const summaries = await billingManager.getAllMonthlySummaries(12);
+            res.json({
+                success: true,
+                data: summaries
+            });
+        }
+    } catch (error) {
+        logger.error('Error getting monthly summary:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Gagal mengambil summary bulanan',
+            error: error.message
+        });
+    }
+});
+
+// Export laporan keuangan bulanan ke Excel
+router.get('/export/monthly-summary.xlsx', adminAuth, async (req, res) => {
+    try {
+        const ExcelJS = require('exceljs');
+        const summaries = await billingManager.getAllMonthlySummaries(24);
+        
+        // Buat workbook Excel
+        const workbook = new ExcelJS.Workbook();
+        
+        // Sheet 1: Summary Data
+        const summarySheet = workbook.addWorksheet('Summary Bulanan');
+        summarySheet.columns = [
+            { header: 'Tahun', key: 'year', width: 8 },
+            { header: 'Bulan', key: 'month', width: 10 },
+            { header: 'Total Pelanggan', key: 'total_customers', width: 15 },
+            { header: 'Pelanggan Aktif', key: 'active_customers', width: 15 },
+            { header: 'Invoice Bulanan', key: 'monthly_invoices', width: 15 },
+            { header: 'Invoice Voucher', key: 'voucher_invoices', width: 15 },
+            { header: 'Lunas Bulanan', key: 'paid_monthly_invoices', width: 15 },
+            { header: 'Lunas Voucher', key: 'paid_voucher_invoices', width: 15 },
+            { header: 'Belum Lunas Bulanan', key: 'unpaid_monthly_invoices', width: 18 },
+            { header: 'Belum Lunas Voucher', key: 'unpaid_voucher_invoices', width: 18 },
+            { header: 'Pendapatan Bulanan', key: 'monthly_revenue', width: 18 },
+            { header: 'Pendapatan Voucher', key: 'voucher_revenue', width: 18 },
+            { header: 'Total Pendapatan', key: 'total_revenue', width: 18 },
+            { header: 'Belum Dibayar', key: 'total_unpaid', width: 15 },
+            { header: 'Tanggal Generate', key: 'created_at', width: 20 }
+        ];
+        
+        // Tambahkan data summary
+        summaries.forEach(summary => {
+            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            summarySheet.addRow({
+                year: summary.year,
+                month: monthNames[summary.month - 1],
+                total_customers: summary.total_customers,
+                active_customers: summary.active_customers,
+                monthly_invoices: summary.monthly_invoices,
+                voucher_invoices: summary.voucher_invoices,
+                paid_monthly_invoices: summary.paid_monthly_invoices,
+                paid_voucher_invoices: summary.paid_voucher_invoices,
+                unpaid_monthly_invoices: summary.unpaid_monthly_invoices,
+                unpaid_voucher_invoices: summary.unpaid_voucher_invoices,
+                monthly_revenue: summary.monthly_revenue,
+                voucher_revenue: summary.voucher_revenue,
+                total_revenue: summary.total_revenue,
+                total_unpaid: summary.total_unpaid,
+                created_at: new Date(summary.created_at).toLocaleDateString('id-ID')
+            });
+        });
+        
+        // Format currency untuk kolom revenue
+        summarySheet.getColumn('monthly_revenue').numFmt = '"Rp" #,##0.00';
+        summarySheet.getColumn('voucher_revenue').numFmt = '"Rp" #,##0.00';
+        summarySheet.getColumn('total_revenue').numFmt = '"Rp" #,##0.00';
+        summarySheet.getColumn('total_unpaid').numFmt = '"Rp" #,##0.00';
+        
+        // Sheet 2: Analisis Trend
+        const trendSheet = workbook.addWorksheet('Analisis Trend');
+        trendSheet.columns = [
+            { header: 'Metrik', key: 'metric', width: 25 },
+            { header: 'Nilai Terbaru', key: 'latest', width: 20 },
+            { header: 'Nilai Sebelumnya', key: 'previous', width: 20 },
+            { header: 'Growth (%)', key: 'growth', width: 15 },
+            { header: 'Status', key: 'status', width: 15 }
+        ];
+        
+        if (summaries.length >= 2) {
+            const latest = summaries[0];
+            const previous = summaries[1];
+            
+            const metrics = [
+                { name: 'Total Revenue', latest: latest.total_revenue, previous: previous.total_revenue },
+                { name: 'Monthly Revenue', latest: latest.monthly_revenue, previous: previous.monthly_revenue },
+                { name: 'Voucher Revenue', latest: latest.voucher_revenue, previous: previous.voucher_revenue },
+                { name: 'Total Customers', latest: latest.total_customers, previous: previous.total_customers },
+                { name: 'Active Customers', latest: latest.active_customers, previous: previous.active_customers },
+                { name: 'Monthly Invoices', latest: latest.monthly_invoices, previous: previous.monthly_invoices },
+                { name: 'Voucher Invoices', latest: latest.voucher_invoices, previous: previous.voucher_invoices }
+            ];
+            
+            metrics.forEach(metric => {
+                const growth = ((metric.latest - metric.previous) / metric.previous * 100).toFixed(1);
+                let status = 'Stable';
+                if (growth > 5) status = 'Growth';
+                else if (growth < -5) status = 'Decline';
+                
+                trendSheet.addRow({
+                    metric: metric.name,
+                    latest: metric.latest,
+                    previous: metric.previous,
+                    growth: growth + '%',
+                    status: status
+                });
+            });
+        }
+        
+        // Sheet 3: KPI Summary
+        const kpiSheet = workbook.addWorksheet('KPI Summary');
+        kpiSheet.columns = [
+            { header: 'KPI', key: 'kpi', width: 30 },
+            { header: 'Nilai', key: 'value', width: 20 },
+            { header: 'Keterangan', key: 'description', width: 40 }
+        ];
+        
+        if (summaries.length > 0) {
+            const latest = summaries[0];
+            const avgRevenue = summaries.reduce((sum, s) => sum + s.total_revenue, 0) / summaries.length;
+            const bestMonth = summaries.reduce((max, s) => s.total_revenue > max.total_revenue ? s : max);
+            
+            const kpis = [
+                { kpi: 'Total Revenue Terbaru', value: `Rp ${latest.total_revenue.toLocaleString('id-ID')}`, description: 'Pendapatan total bulan terbaru' },
+                { kpi: 'Rata-rata Revenue', value: `Rp ${avgRevenue.toLocaleString('id-ID')}`, description: 'Rata-rata pendapatan per bulan' },
+                { kpi: 'Bulan Terbaik', value: `${bestMonth.month}/${bestMonth.year}`, description: `Rp ${bestMonth.total_revenue.toLocaleString('id-ID')}` },
+                { kpi: 'Total Pelanggan', value: latest.total_customers, description: 'Jumlah pelanggan terdaftar' },
+                { kpi: 'Pelanggan Aktif', value: latest.active_customers, description: 'Pelanggan dengan status aktif' },
+                { kpi: 'Collection Rate', value: `${((latest.paid_monthly_invoices + latest.paid_voucher_invoices) / (latest.monthly_invoices + latest.voucher_invoices) * 100).toFixed(1)}%`, description: 'Persentase invoice yang dibayar' }
+            ];
+            
+            kpis.forEach(kpi => {
+                kpiSheet.addRow(kpi);
+            });
+        }
+        
+        // Set response header
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', `attachment; filename=laporan-keuangan-bulanan-${new Date().toISOString().split('T')[0]}.xlsx`);
+        
+        // Write to response
+        await workbook.xlsx.write(res);
+        res.end();
+        
+    } catch (error) {
+        logger.error('Error exporting monthly summary:', error);
         res.status(500).json({ success: false, message: error.message });
     }
 });
@@ -2715,6 +3025,30 @@ function getParameterValue(device, parameterName) {
     
     return current;
 }
+
+// API endpoint untuk mendapatkan PPPoE users dari Mikrotik
+router.get('/api/pppoe-users', async (req, res) => {
+    try {
+        const { getPPPoEUsers } = require('../config/mikrotik');
+        const pppoeUsers = await getPPPoEUsers();
+        
+        res.json({
+            success: true,
+            data: pppoeUsers.map(user => ({
+                username: user.name,
+                profile: user.profile,
+                active: user.active || false
+            }))
+        });
+    } catch (error) {
+        console.error('Error fetching PPPoE users:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Gagal mengambil data PPPoE users',
+            error: error.message
+        });
+    }
+});
 
 // API endpoint untuk devices
 router.get('/api/devices', async (req, res) => {
