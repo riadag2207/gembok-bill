@@ -1463,17 +1463,17 @@ class BillingManager {
     // Invoice Management
     async createInvoice(invoiceData) {
         return new Promise((resolve, reject) => {
-            const { customer_id, package_id, amount, due_date, notes, base_amount, tax_rate } = invoiceData;
+            const { customer_id, package_id, amount, due_date, notes, base_amount, tax_rate, invoice_type = 'monthly' } = invoiceData;
             const invoice_number = this.generateInvoiceNumber();
             
             // Check if base_amount and tax_rate columns exist
             let sql, params;
             if (base_amount !== undefined && tax_rate !== undefined) {
-                sql = `INSERT INTO invoices (customer_id, package_id, invoice_number, amount, base_amount, tax_rate, due_date, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
-                params = [customer_id, package_id, invoice_number, amount, base_amount, tax_rate, due_date, notes];
+                sql = `INSERT INTO invoices (customer_id, package_id, invoice_number, amount, base_amount, tax_rate, due_date, notes, invoice_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+                params = [customer_id, package_id, invoice_number, amount, base_amount, tax_rate, due_date, notes, invoice_type];
             } else {
-                sql = `INSERT INTO invoices (customer_id, package_id, invoice_number, amount, due_date, notes) VALUES (?, ?, ?, ?, ?, ?)`;
-                params = [customer_id, package_id, invoice_number, amount, due_date, notes];
+                sql = `INSERT INTO invoices (customer_id, package_id, invoice_number, amount, due_date, notes, invoice_type) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+                params = [customer_id, package_id, invoice_number, amount, due_date, notes, invoice_type];
             }
             
             this.db.run(sql, params, function(err) {
@@ -1792,20 +1792,371 @@ class BillingManager {
 
     async getBillingStats() {
         return new Promise((resolve, reject) => {
+            // Query yang lebih aman dan terpisah untuk menghindari duplikasi data
             const sql = `
                 SELECT 
-                    COUNT(DISTINCT c.id) as total_customers,
-                    COUNT(CASE WHEN c.status = 'active' THEN 1 END) as active_customers,
-                    COUNT(i.id) as total_invoices,
-                    COUNT(CASE WHEN i.status = 'paid' THEN 1 END) as paid_invoices,
-                    COUNT(CASE WHEN i.status = 'unpaid' THEN 1 END) as unpaid_invoices,
-                    SUM(CASE WHEN i.status = 'paid' THEN i.amount ELSE 0 END) as total_revenue,
-                    SUM(CASE WHEN i.status = 'unpaid' THEN i.amount ELSE 0 END) as total_unpaid
-                FROM customers c
-                LEFT JOIN invoices i ON c.id = i.customer_id
+                    (SELECT COUNT(*) FROM customers) as total_customers,
+                    (SELECT COUNT(*) FROM customers WHERE status = 'active') as active_customers,
+                    (SELECT COUNT(*) FROM invoices WHERE invoice_type = 'monthly') as monthly_invoices,
+                    (SELECT COUNT(*) FROM invoices WHERE invoice_type = 'voucher') as voucher_invoices,
+                    (SELECT COUNT(*) FROM invoices WHERE invoice_type = 'monthly' AND status = 'paid') as paid_monthly_invoices,
+                    (SELECT COUNT(*) FROM invoices WHERE invoice_type = 'monthly' AND status = 'unpaid') as unpaid_monthly_invoices,
+                    (SELECT COUNT(*) FROM invoices WHERE invoice_type = 'voucher' AND status = 'paid') as paid_voucher_invoices,
+                    (SELECT COUNT(*) FROM invoices WHERE invoice_type = 'voucher' AND status = 'unpaid') as unpaid_voucher_invoices,
+                    (SELECT COALESCE(SUM(amount), 0) FROM invoices WHERE invoice_type = 'monthly' AND status = 'paid') as monthly_revenue,
+                    (SELECT COALESCE(SUM(amount), 0) FROM invoices WHERE invoice_type = 'voucher' AND status = 'paid') as voucher_revenue,
+                    (SELECT COALESCE(SUM(amount), 0) FROM invoices WHERE invoice_type = 'monthly' AND status = 'unpaid') as monthly_unpaid,
+                    (SELECT COALESCE(SUM(amount), 0) FROM invoices WHERE invoice_type = 'voucher' AND status = 'unpaid') as voucher_unpaid
             `;
             
             this.db.get(sql, [], (err, row) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    // Pastikan semua nilai adalah angka dan tidak null
+                    const stats = {
+                        // Customer stats
+                        total_customers: parseInt(row.total_customers) || 0,
+                        active_customers: parseInt(row.active_customers) || 0,
+                        
+                        // Invoice counts by type
+                        monthly_invoices: parseInt(row.monthly_invoices) || 0,
+                        voucher_invoices: parseInt(row.voucher_invoices) || 0,
+                        
+                        // Paid invoices by type
+                        paid_monthly_invoices: parseInt(row.paid_monthly_invoices) || 0,
+                        paid_voucher_invoices: parseInt(row.paid_voucher_invoices) || 0,
+                        
+                        // Unpaid invoices by type
+                        unpaid_monthly_invoices: parseInt(row.unpaid_monthly_invoices) || 0,
+                        unpaid_voucher_invoices: parseInt(row.unpaid_voucher_invoices) || 0,
+                        
+                        // Revenue by type
+                        monthly_revenue: parseFloat(row.monthly_revenue) || 0,
+                        voucher_revenue: parseFloat(row.voucher_revenue) || 0,
+                        
+                        // Unpaid amounts by type
+                        monthly_unpaid: parseFloat(row.monthly_unpaid) || 0,
+                        voucher_unpaid: parseFloat(row.voucher_unpaid) || 0,
+                        
+                        // Legacy fields for backward compatibility
+                        total_invoices: (parseInt(row.monthly_invoices) || 0) + (parseInt(row.voucher_invoices) || 0),
+                        paid_invoices: (parseInt(row.paid_monthly_invoices) || 0) + (parseInt(row.paid_voucher_invoices) || 0),
+                        unpaid_invoices: (parseInt(row.unpaid_monthly_invoices) || 0) + (parseInt(row.unpaid_voucher_invoices) || 0),
+                        total_revenue: (parseFloat(row.monthly_revenue) || 0) + (parseFloat(row.voucher_revenue) || 0),
+                        total_unpaid: (parseFloat(row.monthly_unpaid) || 0) + (parseFloat(row.voucher_unpaid) || 0)
+                    };
+                    
+                    // Validasi logika: active_customers tidak boleh lebih dari total_customers
+                    if (stats.active_customers > stats.total_customers) {
+                        console.warn('Warning: Active customers count is higher than total customers. This indicates data inconsistency.');
+                        // Set active_customers to total_customers as fallback
+                        stats.active_customers = stats.total_customers;
+                    }
+                    
+                    resolve(stats);
+                }
+            });
+        });
+    }
+
+    // Fungsi untuk membersihkan data duplikat dan memperbaiki konsistensi
+    async cleanupDataConsistency() {
+        return new Promise((resolve, reject) => {
+            const cleanupQueries = [
+                // 1. Hapus duplikat customers berdasarkan phone (keep yang terbaru)
+                `DELETE FROM customers 
+                 WHERE id NOT IN (
+                     SELECT MAX(id) 
+                     FROM customers 
+                     GROUP BY phone
+                 )`,
+                
+                // 2. Update status customers yang tidak valid
+                `UPDATE customers 
+                 SET status = 'inactive' 
+                 WHERE status NOT IN ('active', 'inactive', 'suspended')`,
+                
+                // 3. Update status invoices yang tidak valid
+                `UPDATE invoices 
+                 SET status = 'unpaid' 
+                 WHERE status NOT IN ('paid', 'unpaid', 'cancelled')`,
+                
+                // 4. Pastikan amount invoice tidak null atau negatif
+                `UPDATE invoices 
+                 SET amount = 0 
+                 WHERE amount IS NULL OR amount < 0`,
+                
+                // 5. Hapus invoices yang tidak memiliki customer
+                `DELETE FROM invoices 
+                 WHERE customer_id NOT IN (SELECT id FROM customers)`
+            ];
+            
+            let completed = 0;
+            const total = cleanupQueries.length;
+            
+            cleanupQueries.forEach((query, index) => {
+                this.db.run(query, [], (err) => {
+                    if (err) {
+                        console.warn(`Cleanup query ${index + 1} failed:`, err.message);
+                    }
+                    
+                    completed++;
+                    if (completed === total) {
+                        console.log('Data consistency cleanup completed');
+                        resolve(true);
+                    }
+                });
+            });
+        });
+    }
+
+    // Fungsi untuk mendapatkan invoice berdasarkan type
+    async getInvoicesByType(invoiceType = 'monthly') {
+        return new Promise((resolve, reject) => {
+            const sql = `
+                SELECT i.*, c.username as customer_username, c.name as customer_name, c.phone as customer_phone, c.address as customer_address,
+                       p.name as package_name, p.speed as package_speed
+                FROM invoices i
+                JOIN customers c ON i.customer_id = c.id
+                LEFT JOIN packages p ON i.package_id = p.id
+                WHERE i.invoice_type = ?
+                ORDER BY i.created_at DESC
+            `;
+            
+            this.db.all(sql, [invoiceType], (err, rows) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(rows);
+                }
+            });
+        });
+    }
+
+    // Fungsi untuk mendapatkan statistik berdasarkan invoice type
+    async getInvoiceStatsByType(invoiceType = 'monthly') {
+        return new Promise((resolve, reject) => {
+            const sql = `
+                SELECT 
+                    COUNT(*) as total_invoices,
+                    COUNT(CASE WHEN status = 'paid' THEN 1 END) as paid_invoices,
+                    COUNT(CASE WHEN status = 'unpaid' THEN 1 END) as unpaid_invoices,
+                    COALESCE(SUM(CASE WHEN status = 'paid' THEN amount ELSE 0 END), 0) as total_revenue,
+                    COALESCE(SUM(CASE WHEN status = 'unpaid' THEN amount ELSE 0 END), 0) as total_unpaid
+                FROM invoices 
+                WHERE invoice_type = ?
+            `;
+            
+            this.db.get(sql, [invoiceType], (err, row) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve({
+                        total_invoices: parseInt(row.total_invoices) || 0,
+                        paid_invoices: parseInt(row.paid_invoices) || 0,
+                        unpaid_invoices: parseInt(row.unpaid_invoices) || 0,
+                        total_revenue: parseFloat(row.total_revenue) || 0,
+                        total_unpaid: parseFloat(row.total_unpaid) || 0
+                    });
+                }
+            });
+        });
+    }
+
+    // Voucher cleanup methods
+    async cleanupExpiredVoucherInvoices() {
+        return new Promise((resolve, reject) => {
+            const { getSetting } = require('./settings');
+            const cleanupEnabled = getSetting('voucher_cleanup.enabled', true);
+            const expiryHours = parseInt(getSetting('voucher_cleanup.expiry_hours', '24'));
+            const deleteInvoices = getSetting('voucher_cleanup.delete_expired_invoices', true);
+            const logActions = getSetting('voucher_cleanup.log_cleanup_actions', true);
+            
+            if (!cleanupEnabled) {
+                resolve({ success: true, message: 'Voucher cleanup disabled', cleaned: 0 });
+                return;
+            }
+            
+            // Calculate expiry time
+            const expiryTime = new Date();
+            expiryTime.setHours(expiryTime.getHours() - expiryHours);
+            const expiryTimeStr = expiryTime.toISOString();
+            
+            if (logActions) {
+                console.log(`🧹 Starting voucher cleanup for invoices older than ${expiryHours} hours (before ${expiryTimeStr})`);
+            }
+            
+            // First, get expired invoices for logging
+            const selectSql = `
+                SELECT i.id, i.invoice_number, i.amount, i.created_at, i.status, c.name as customer_name
+                FROM invoices i
+                JOIN customers c ON i.customer_id = c.id
+                WHERE i.invoice_type = 'voucher' 
+                AND i.status = 'unpaid' 
+                AND i.created_at < ?
+                ORDER BY i.created_at ASC
+            `;
+            
+            this.db.all(selectSql, [expiryTimeStr], (err, expiredInvoices) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                
+                if (expiredInvoices.length === 0) {
+                    if (logActions) {
+                        console.log('✅ No expired voucher invoices found');
+                    }
+                    resolve({ success: true, message: 'No expired invoices found', cleaned: 0 });
+                    return;
+                }
+                
+                if (logActions) {
+                    console.log(`📋 Found ${expiredInvoices.length} expired voucher invoices:`);
+                    expiredInvoices.forEach(invoice => {
+                        console.log(`   - ${invoice.invoice_number} (${invoice.customer_name}) - ${invoice.amount} - ${invoice.created_at}`);
+                    });
+                }
+                
+                if (deleteInvoices) {
+                    // Delete expired invoices
+                    const deleteSql = `
+                        DELETE FROM invoices 
+                        WHERE invoice_type = 'voucher' 
+                        AND status = 'unpaid' 
+                        AND created_at < ?
+                    `;
+                    
+                    this.db.run(deleteSql, [expiryTimeStr], function(err) {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            const deletedCount = this.changes;
+                            if (logActions) {
+                                console.log(`🗑️  Deleted ${deletedCount} expired voucher invoices`);
+                            }
+                            resolve({ 
+                                success: true, 
+                                message: `Cleaned up ${deletedCount} expired voucher invoices`,
+                                cleaned: deletedCount,
+                                expiredInvoices: expiredInvoices
+                            });
+                        }
+                    });
+                } else {
+                    // Just mark as expired without deleting
+                    const updateSql = `
+                        UPDATE invoices 
+                        SET notes = COALESCE(notes, '') || ' [EXPIRED - NOT DELETED]'
+                        WHERE invoice_type = 'voucher' 
+                        AND status = 'unpaid' 
+                        AND created_at < ?
+                    `;
+                    
+                    this.db.run(updateSql, [expiryTimeStr], function(err) {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            const updatedCount = this.changes;
+                            if (logActions) {
+                                console.log(`🏷️  Marked ${updatedCount} expired voucher invoices as expired`);
+                            }
+                            resolve({ 
+                                success: true, 
+                                message: `Marked ${updatedCount} expired voucher invoices as expired`,
+                                cleaned: updatedCount,
+                                expiredInvoices: expiredInvoices
+                            });
+                        }
+                    });
+                }
+            });
+        });
+    }
+    
+    async getExpiredVoucherInvoices() {
+        return new Promise((resolve, reject) => {
+            const { getSetting } = require('./settings');
+            const expiryHours = parseInt(getSetting('voucher_cleanup.expiry_hours', '24'));
+            
+            const expiryTime = new Date();
+            expiryTime.setHours(expiryTime.getHours() - expiryHours);
+            const expiryTimeStr = expiryTime.toISOString();
+            
+            const sql = `
+                SELECT i.id, i.invoice_number, i.amount, i.created_at, i.status, i.notes,
+                       c.name as customer_name, c.phone as customer_phone
+                FROM invoices i
+                JOIN customers c ON i.customer_id = c.id
+                WHERE i.invoice_type = 'voucher' 
+                AND i.status = 'unpaid' 
+                AND i.created_at < ?
+                ORDER BY i.created_at ASC
+            `;
+            
+            this.db.all(sql, [expiryTimeStr], (err, rows) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(rows);
+                }
+            });
+        });
+    }
+
+    // Monthly summary methods
+    async saveMonthlySummary(year, month, stats, notes = null) {
+        return new Promise((resolve, reject) => {
+            const sql = `
+                INSERT OR REPLACE INTO monthly_summary (
+                    year, month, total_customers, active_customers,
+                    monthly_invoices, voucher_invoices,
+                    paid_monthly_invoices, paid_voucher_invoices,
+                    unpaid_monthly_invoices, unpaid_voucher_invoices,
+                    monthly_revenue, voucher_revenue,
+                    monthly_unpaid, voucher_unpaid,
+                    total_revenue, total_unpaid, notes
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `;
+            
+            const params = [
+                year, month,
+                stats.total_customers || 0,
+                stats.active_customers || 0,
+                stats.monthly_invoices || 0,
+                stats.voucher_invoices || 0,
+                stats.paid_monthly_invoices || 0,
+                stats.paid_voucher_invoices || 0,
+                stats.unpaid_monthly_invoices || 0,
+                stats.unpaid_voucher_invoices || 0,
+                stats.monthly_revenue || 0,
+                stats.voucher_revenue || 0,
+                stats.monthly_unpaid || 0,
+                stats.voucher_unpaid || 0,
+                stats.total_revenue || 0,
+                stats.total_unpaid || 0,
+                notes
+            ];
+            
+            this.db.run(sql, params, function(err) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve({ id: this.lastID, year, month });
+                }
+            });
+        });
+    }
+
+    async getMonthlySummary(year, month) {
+        return new Promise((resolve, reject) => {
+            const sql = `
+                SELECT * FROM monthly_summary 
+                WHERE year = ? AND month = ?
+            `;
+            
+            this.db.get(sql, [year, month], (err, row) => {
                 if (err) {
                     reject(err);
                 } else {
@@ -1813,6 +2164,53 @@ class BillingManager {
                 }
             });
         });
+    }
+
+    async getAllMonthlySummaries(limit = 12) {
+        return new Promise((resolve, reject) => {
+            const sql = `
+                SELECT * FROM monthly_summary 
+                ORDER BY year DESC, month DESC 
+                LIMIT ?
+            `;
+            
+            this.db.all(sql, [limit], (err, rows) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(rows);
+                }
+            });
+        });
+    }
+
+    async generateMonthlySummary() {
+        try {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = now.getMonth() + 1; // JavaScript months are 0-based
+            
+            // Get current stats
+            const stats = await this.getBillingStats();
+            
+            // Save to monthly summary
+            const notes = `Summary generated on ${now.toISOString().split('T')[0]}`;
+            const result = await this.saveMonthlySummary(year, month, stats, notes);
+            
+            logger.info(`Monthly summary saved for ${year}-${month}: ${JSON.stringify(stats)}`);
+            
+            return {
+                success: true,
+                message: `Monthly summary saved for ${year}-${month}`,
+                year,
+                month,
+                stats,
+                id: result.id
+            };
+        } catch (error) {
+            logger.error('Error generating monthly summary:', error);
+            throw error;
+        }
     }
 
     // Mobile dashboard specific methods

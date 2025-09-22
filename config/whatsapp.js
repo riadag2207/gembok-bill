@@ -2953,6 +2953,16 @@ async function changeSSID(deviceId, newSSID) {
             });
             
             console.log(`SSID change successful`);
+            
+            // Invalidate GenieACS cache after successful update
+            try {
+                const cacheManager = require('./cacheManager');
+                cacheManager.invalidatePattern('genieacs:*');
+                console.log('🔄 GenieACS cache invalidated after SSID update');
+            } catch (cacheError) {
+                console.warn('⚠️ Failed to invalidate cache:', cacheError.message);
+            }
+            
             return { success: true, message: "SSID berhasil diubah" };
         } catch (apiError) {
             console.error(`API Error: ${apiError.message}`);
@@ -2999,6 +3009,16 @@ async function changeSSID(deviceId, newSSID) {
                     });
                     
                     console.log(`SSID change successful using alternative path`);
+                    
+                    // Invalidate GenieACS cache after successful update
+                    try {
+                        const cacheManager = require('./cacheManager');
+                        cacheManager.invalidatePattern('genieacs:*');
+                        console.log('🔄 GenieACS cache invalidated after SSID update');
+                    } catch (cacheError) {
+                        console.warn('⚠️ Failed to invalidate cache:', cacheError.message);
+                    }
+                    
                     return { success: true, message: "SSID berhasil diubah (menggunakan path alternatif)" };
                 } catch (altError) {
                     console.error(`Alternative path also failed: ${altError.message}`);

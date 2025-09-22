@@ -5,6 +5,7 @@ const { getSetting } = require('./settingsManager');
 const mysql = require('mysql2/promise');
 const fs = require('fs');
 const path = require('path');
+const cacheManager = require('./cacheManager');
 
 let sock = null;
 let mikrotikConnection = null;
@@ -149,18 +150,36 @@ async function deletePPPoEUser(id) {
 // Fungsi untuk mendapatkan daftar koneksi PPPoE aktif
 async function getActivePPPoEConnections() {
     try {
+        // Check cache first
+        const cacheKey = 'mikrotik:pppoe:active';
+        const cachedData = cacheManager.get(cacheKey);
+        
+        if (cachedData) {
+            logger.debug(`✅ Using cached active PPPoE connections (${cachedData.data.length} connections)`);
+            return cachedData;
+        }
+
         const conn = await getMikrotikConnection();
         if (!conn) {
             logger.error('No Mikrotik connection available');
             return { success: false, message: 'Koneksi ke Mikrotik gagal', data: [] };
         }
+        
+        logger.debug('🔍 Fetching active PPPoE connections from Mikrotik API...');
         // Dapatkan daftar koneksi PPPoE aktif
         const pppConnections = await conn.write('/ppp/active/print');
-        return {
+        
+        const result = {
             success: true,
             message: `Ditemukan ${pppConnections.length} koneksi PPPoE aktif`,
             data: pppConnections
         };
+        
+        // Cache the response for 1 minute (shorter TTL for real-time data)
+        cacheManager.set(cacheKey, result, 1 * 60 * 1000);
+        
+        logger.debug(`✅ Found ${pppConnections.length} active PPPoE connections from API`);
+        return result;
     } catch (error) {
         logger.error(`Error getting active PPPoE connections: ${error.message}`);
         return { success: false, message: `Gagal ambil data PPPoE: ${error.message}`, data: [] };
@@ -196,6 +215,17 @@ async function getOfflinePPPoEUsers() {
 // Fungsi untuk mendapatkan informasi user PPPoE yang tidak aktif (untuk whatsapp.js)
 async function getInactivePPPoEUsers() {
     try {
+        // Check cache first
+        const cacheKey = 'mikrotik:pppoe:inactive';
+        const cachedData = cacheManager.get(cacheKey);
+        
+        if (cachedData) {
+            logger.debug(`✅ Using cached inactive PPPoE users (${cachedData.totalInactive} users)`);
+            return cachedData;
+        }
+
+        logger.debug('🔍 Fetching inactive PPPoE users from Mikrotik API...');
+        
         // Dapatkan semua secret PPPoE
         const pppSecrets = await getMikrotikConnection().then(conn => {
             if (!conn) return [];
@@ -213,7 +243,7 @@ async function getInactivePPPoEUsers() {
         const inactiveUsers = pppSecrets.filter(secret => !activeUsers.includes(secret.name));
         
         // Format hasil untuk whatsapp.js
-        return {
+        const result = {
             success: true,
             totalSecrets: pppSecrets.length,
             totalActive: activeUsers.length,
@@ -225,6 +255,12 @@ async function getInactivePPPoEUsers() {
                 lastLogout: user['last-logged-out'] || 'N/A'
             }))
         };
+        
+        // Cache the response for 1 minute (shorter TTL for real-time data)
+        cacheManager.set(cacheKey, result, 1 * 60 * 1000);
+        
+        logger.debug(`✅ Found ${inactiveUsers.length} inactive PPPoE users from API`);
+        return result;
     } catch (error) {
         logger.error(`Error getting inactive PPPoE users: ${error.message}`);
         return {

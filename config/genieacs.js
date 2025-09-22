@@ -3,7 +3,7 @@ const { sendTechnicianMessage } = require('./sendMessage');
 const mikrotik = require('./mikrotik');
 const { getMikrotikConnection } = require('./mikrotik');
 const { getSetting } = require('./settingsManager');
-const cacheManager = require('./cache');
+const cacheManager = require('./cacheManager');
 
 // Helper untuk membuat axios instance dinamis
 function getAxiosInstance() {
@@ -27,13 +27,28 @@ function getAxiosInstance() {
 const genieacsApi = {
     async getDevices() {
         try {
-            console.log('Getting all devices...');
+            // Check cache first
+            const cacheKey = 'genieacs:devices';
+            const cachedData = cacheManager.get(cacheKey);
+            
+            if (cachedData) {
+                console.log(`✅ Using cached devices data (${cachedData.length} devices)`);
+                return cachedData;
+            }
+
+            console.log('🔍 Fetching devices from GenieACS API...');
             const axiosInstance = getAxiosInstance();
             const response = await axiosInstance.get('/devices');
-            console.log(`Found ${response.data?.length || 0} devices`);
-            return response.data;
+            const devices = response.data || [];
+            
+            console.log(`✅ Found ${devices.length} devices from API`);
+            
+            // Cache the response for 2 minutes
+            cacheManager.set(cacheKey, devices, 2 * 60 * 1000);
+            
+            return devices;
         } catch (error) {
-            console.error('Error getting devices:', error.response?.data || error.message);
+            console.error('❌ Error getting devices:', error.response?.data || error.message);
             throw error;
         }
     },
@@ -563,8 +578,12 @@ function getDeviceSerialNumber(device) {
 }
 
 // Fungsi untuk memantau perangkat yang tidak aktif (offline)
-async function monitorOfflineDevices(thresholdHours = 24) {
+async function monitorOfflineDevices(thresholdHours = null) {
     try {
+        // Jika thresholdHours tidak diberikan, ambil dari settings
+        if (thresholdHours === null) {
+            thresholdHours = parseInt(getSetting('offline_device_threshold_hours', '24'));
+        }
         console.log(`Memulai pemantauan perangkat offline dengan threshold ${thresholdHours} jam`);
         
         // Ambil semua perangkat
@@ -680,8 +699,8 @@ function scheduleMonitoring() {
     }, 5 * 60 * 1000); // Mulai 5 menit setelah server berjalan
 }
 
-// Jalankan penjadwalan monitoring
-scheduleMonitoring();
+// Jalankan penjadwalan monitoring - DISABLED (using IntervalManager instead)
+// scheduleMonitoring();
 
 // ===== ENHANCEMENT: CACHED VERSIONS (Tidak mengubah fungsi existing) =====
 
@@ -690,21 +709,19 @@ scheduleMonitoring();
  * Fallback ke fungsi original jika cache miss
  */
 async function getDevicesCached() {
-    const cacheKey = 'genieacs_devices';
+    // Use the same cache key as getDevices method
+    const cacheKey = 'genieacs:devices';
     const cached = cacheManager.get(cacheKey);
     
     if (cached) {
-        console.log('📦 Using cached devices data');
+        console.log(`📦 Using cached devices data (${cached.length} devices)`);
         return cached;
     }
     
     console.log('🔄 Fetching fresh devices data from GenieACS');
     const devices = await genieacsApi.getDevices();
     
-    // Cache untuk 3 menit (lebih pendek untuk data real-time)
-    cacheManager.set(cacheKey, devices, 3 * 60 * 1000);
-    
-    return devices;
+    return devices; // getDevices already handles caching
 }
 
 /**

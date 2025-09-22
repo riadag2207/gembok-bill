@@ -43,6 +43,38 @@ class InvoiceScheduler {
         
         logger.info('Due date reminder scheduler initialized - will run daily at 09:00');
 
+        // Schedule voucher cleanup every 6 hours
+        cron.schedule('0 */6 * * *', async () => {
+            try {
+                logger.info('Starting voucher cleanup...');
+                await this.cleanupExpiredVoucherInvoices();
+                logger.info('Voucher cleanup completed');
+            } catch (error) {
+                logger.error('Error in voucher cleanup:', error);
+            }
+        }, {
+            scheduled: true,
+            timezone: "Asia/Jakarta"
+        });
+        
+        logger.info('Voucher cleanup scheduler initialized - will run every 6 hours');
+
+        // Schedule monthly summary generation on 1st of every month at 23:59
+        cron.schedule('59 23 1 * *', async () => {
+            try {
+                logger.info('Starting monthly summary generation...');
+                await this.generateMonthlySummary();
+                logger.info('Monthly summary generation completed');
+            } catch (error) {
+                logger.error('Error in monthly summary generation:', error);
+            }
+        }, {
+            scheduled: true,
+            timezone: "Asia/Jakarta"
+        });
+        
+        logger.info('Monthly summary scheduler initialized - will run on 1st of every month at 23:59');
+
         // Schedule daily service suspension check at 10:00
         cron.schedule('0 10 * * *', async () => {
             try {
@@ -226,7 +258,8 @@ class InvoiceScheduler {
                         base_amount: basePrice, // Store base price for reference
                         tax_rate: taxRate, // Store tax rate for reference
                         due_date: dueDate.toISOString().split('T')[0],
-                        notes: `Tagihan bulanan ${currentDate.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}`
+                        notes: `Tagihan bulanan ${currentDate.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}`,
+                        invoice_type: 'monthly'
                     };
 
                     // Create the invoice
@@ -338,6 +371,46 @@ class InvoiceScheduler {
             return { success: true, message: 'Monthly invoices generated successfully' };
         } catch (error) {
             logger.error('Error in manual monthly invoice generation:', error);
+            throw error;
+        }
+    }
+
+    async cleanupExpiredVoucherInvoices() {
+        try {
+            logger.info('Starting voucher cleanup process...');
+            const result = await billingManager.cleanupExpiredVoucherInvoices();
+            
+            if (result.success) {
+                if (result.cleaned > 0) {
+                    logger.info(`Voucher cleanup completed: ${result.message}`);
+                } else {
+                    logger.info('Voucher cleanup completed: No expired invoices found');
+                }
+            } else {
+                logger.error('Voucher cleanup failed:', result.message);
+            }
+            
+            return result;
+        } catch (error) {
+            logger.error('Error in cleanupExpiredVoucherInvoices:', error);
+            throw error;
+        }
+    }
+
+    async generateMonthlySummary() {
+        try {
+            logger.info('Starting monthly summary generation...');
+            const result = await billingManager.generateMonthlySummary();
+            
+            if (result.success) {
+                logger.info(`Monthly summary generated: ${result.message}`);
+            } else {
+                logger.error('Monthly summary generation failed:', result.message);
+            }
+            
+            return result;
+        } catch (error) {
+            logger.error('Error in generateMonthlySummary:', error);
             throw error;
         }
     }

@@ -310,9 +310,10 @@ async function sendToTechnicians(message, priority = 'normal') {
 function startRXPowerMonitoring() {
   const notificationEnabled = getSetting('rx_power_notification_enable', true);
   
-  // Ambil interval dalam jam, konversi ke milidetik
-  const intervalHours = parseFloat(getSetting('rx_power_notification_interval_hours', '1'));
-  const interval = intervalHours * 60 * 60 * 1000; // Convert hours to milliseconds
+  // Ambil interval dalam millisecond langsung dari settings
+  const intervalMs = parseInt(getSetting('rx_power_warning_interval', 36000000)); // Default 10 jam
+  const intervalHours = Math.round(intervalMs / (1000 * 60 * 60));
+  const interval = intervalMs;
   
   if (!notificationEnabled) {
     console.log('📊 RX Power monitoring is DISABLED in settings');
