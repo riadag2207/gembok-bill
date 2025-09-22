@@ -82,7 +82,7 @@
                 <div class="tech-stat-icon">
                     <i class="bi bi-check-circle text-success"></i>
                 </div>
-                <div class="tech-stat-value text-success" id="active-customers">0</div>
+                <div class="tech-stat-value text-success" id="active-customers"><%= customers.filter(c => c.status === 'active').length %></div>
                 <div class="tech-stat-label">Aktif</div>
             </div>
             
@@ -90,7 +90,7 @@
                 <div class="tech-stat-icon">
                     <i class="bi bi-pause-circle text-warning"></i>
                 </div>
-                <div class="tech-stat-value text-warning" id="suspended-customers">0</div>
+                <div class="tech-stat-value text-warning" id="suspended-customers"><%= customers.filter(c => c.status === 'suspended').length %></div>
                 <div class="tech-stat-label">Suspend</div>
             </div>
             
@@ -98,7 +98,7 @@
                 <div class="tech-stat-icon">
                     <i class="bi bi-plus-circle text-primary"></i>
                 </div>
-                <div class="tech-stat-value text-primary" id="new-customers">0</div>
+                <div class="tech-stat-value text-primary" id="new-customers"><%= customers.length %></div>
                 <div class="tech-stat-label">Baru</div>
             </div>
         </div>

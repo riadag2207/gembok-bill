@@ -232,6 +232,153 @@
         <% } %>
         
         <main class="col-md-10 ms-sm-auto main-content">
+            <!-- CONFIGURATION VALIDATION ALERTS -->
+            <% if (configValidation && configValidation.hasValidationRun) { %>
+                <% if (configValidation.summary && configValidation.summary.status !== 'valid') { %>
+                <div class="alert alert-warning alert-dismissible fade show mb-3 auto-dismiss" role="alert" data-auto-dismiss="12000">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+                        <div class="flex-grow-1">
+                            <strong>⚠️ Konfigurasi Sistem Perlu Diperbaiki!</strong>
+                            <div class="mt-1">
+                                <%= configValidation.summary.message %>
+                            </div>
+                            <div class="mt-2">
+                                <strong>Solusi:</strong> Silakan periksa dan perbaiki konfigurasi GenieACS dan Mikrotik di halaman pengaturan.
+                            </div>
+                            <div class="mt-2">
+                                <a href="/admin/settings" class="btn btn-warning btn-sm">
+                                    <i class="bi bi-gear-fill me-1"></i>Perbaiki Konfigurasi Sekarang
+                                </a>
+                                <button type="button" class="btn btn-outline-warning btn-sm ms-2" onclick="clearConfigWarning()">
+                                    <i class="bi bi-eye-slash me-1"></i>Sembunyikan
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <% } %>
+                
+                <% if (configValidation.defaultSettingsWarnings && configValidation.defaultSettingsWarnings.length > 0) { %>
+                <div class="alert alert-info alert-dismissible fade show mb-3 auto-dismiss" role="alert" data-auto-dismiss="6000">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-info-circle-fill me-2 fs-5"></i>
+                        <div class="flex-grow-1">
+                            <strong>Rekomendasi Keamanan:</strong>
+                            <ul class="mb-2 mt-1">
+                                <% configValidation.defaultSettingsWarnings.forEach(function(warning) { %>
+                                <li><%= warning %></li>
+                                <% }); %>
+                            </ul>
+                            <div>
+                                <a href="/admin/settings" class="btn btn-outline-info btn-sm">
+                                    <i class="bi bi-shield-check me-1"></i>Update Pengaturan Keamanan
+                                </a>
+                                <button type="button" class="btn btn-outline-secondary btn-sm ms-2" onclick="clearConfigWarning()">
+                                    <i class="bi bi-eye-slash me-1"></i>Sembunyikan
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <% } %>
+                
+                <% if (configValidation.results && configValidation.results.genieacs && !configValidation.results.genieacs.isValid) { %>
+                <div class="alert alert-danger alert-dismissible fade show mb-3 auto-dismiss" role="alert" data-auto-dismiss="10000">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-x-circle-fill me-2 fs-5"></i>
+                        <div class="flex-grow-1">
+                            <strong>GenieACS Bermasalah:</strong>
+                            <div class="mt-1">
+                                <% if (configValidation.results.genieacs.errors.length > 0) { %>
+                                    <ul class="mb-2">
+                                        <% configValidation.results.genieacs.errors.forEach(function(error) { %>
+                                        <li><%= error %></li>
+                                        <% }); %>
+                                    </ul>
+                                <% } %>
+                            </div>
+                            <div>
+                                <a href="/admin/settings" class="btn btn-outline-danger btn-sm">
+                                    <i class="bi bi-wrench me-1"></i>Perbaiki Konfigurasi GenieACS
+                                </a>
+                                <button type="button" class="btn btn-outline-secondary btn-sm ms-2" onclick="clearConfigWarning()">
+                                    <i class="bi bi-eye-slash me-1"></i>Sembunyikan
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <% } %>
+                
+                <% if (configValidation.results && configValidation.results.mikrotik && !configValidation.results.mikrotik.isValid) { %>
+                <div class="alert alert-danger alert-dismissible fade show mb-3 auto-dismiss" role="alert" data-auto-dismiss="10000">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-x-circle-fill me-2 fs-5"></i>
+                        <div class="flex-grow-1">
+                            <strong>Mikrotik Bermasalah:</strong>
+                            <div class="mt-1">
+                                <% if (configValidation.results.mikrotik.errors.length > 0) { %>
+                                    <ul class="mb-2">
+                                        <% configValidation.results.mikrotik.errors.forEach(function(error) { %>
+                                        <li><%= error %></li>
+                                        <% }); %>
+                                    </ul>
+                                <% } %>
+                            </div>
+                            <div>
+                                <a href="/admin/settings" class="btn btn-outline-danger btn-sm">
+                                    <i class="bi bi-router me-1"></i>Perbaiki Konfigurasi Mikrotik
+                                </a>
+                                <button type="button" class="btn btn-outline-secondary btn-sm ms-2" onclick="clearConfigWarning()">
+                                    <i class="bi bi-eye-slash me-1"></i>Sembunyikan
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <% } %>
+                
+                <% if (configValidation.summary && configValidation.summary.status === 'valid') { %>
+                <div class="alert alert-success alert-dismissible fade show mb-3 auto-dismiss" role="alert" data-auto-dismiss="4000">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+                        <div class="flex-grow-1">
+                            <strong>Sistem Siap Digunakan!</strong>
+                            <div class="mt-1">
+                                <%= configValidation.summary.message %>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <% } %>
+            <% } %>
+
+            <!-- MANUAL VALIDATION BUTTON -->
+            <div class="row mb-3">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Dashboard Sistem</h5>
+                        <div>
+                            <button type="button" class="btn btn-outline-primary btn-sm" id="validateConfigBtn">
+                                <i class="bi bi-gear-fill me-1"></i>Validasi Konfigurasi
+                            </button>
+                            <a href="/admin/settings" class="btn btn-outline-success btn-sm ms-2">
+                                <i class="bi bi-sliders me-1"></i>Pengaturan Sistem
+                            </a>
+                            <button type="button" class="btn btn-outline-secondary btn-sm ms-2" id="refreshDashboardBtn">
+                                <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- GENIEACS CARDS -->
             <div class="row mb-4">
               <div class="col-md-4 mb-3">
@@ -239,7 +386,13 @@
                   <div class="card-body text-center">
                     <i class="bi bi-hdd-network fs-2 mb-2"></i>
                     <div class="fw-bold">Total Device GenieACS</div>
-                    <div class="fs-3" id="genieacs-total"><%= typeof genieacsTotal !== 'undefined' ? genieacsTotal : '-' %></div>
+                    <div class="fs-3" id="genieacs-total">
+                      <% if (typeof genieacsTotal !== 'undefined' && genieacsTotal !== null) { %>
+                        <%= genieacsTotal %>
+                      <% } else { %>
+                        <i class="bi bi-hourglass-split"></i> Loading...
+                      <% } %>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -248,7 +401,13 @@
                   <div class="card-body text-center">
                     <i class="bi bi-wifi fs-2 mb-2"></i>
                     <div class="fw-bold">Device Online</div>
-                    <div class="fs-3" id="genieacs-online"><%= typeof genieacsOnline !== 'undefined' ? genieacsOnline : '-' %></div>
+                    <div class="fs-3" id="genieacs-online">
+                      <% if (typeof genieacsOnline !== 'undefined' && genieacsOnline !== null) { %>
+                        <%= genieacsOnline %>
+                      <% } else { %>
+                        <i class="bi bi-hourglass-split"></i> Loading...
+                      <% } %>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -257,7 +416,13 @@
                   <div class="card-body text-center">
                     <i class="bi bi-wifi-off fs-2 mb-2"></i>
                     <div class="fw-bold">Device Offline</div>
-                    <div class="fs-3" id="genieacs-offline"><%= typeof genieacsOffline !== 'undefined' ? genieacsOffline : '-' %></div>
+                    <div class="fs-3" id="genieacs-offline">
+                      <% if (typeof genieacsOffline !== 'undefined' && genieacsOffline !== null) { %>
+                        <%= genieacsOffline %>
+                      <% } else { %>
+                        <i class="bi bi-hourglass-split"></i> Loading...
+                      <% } %>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -981,7 +1146,149 @@ $(function() {
       }
     });
   });
+  
+  // Handler untuk tombol validasi konfigurasi
+  $('#validateConfigBtn').on('click', function() {
+    const $btn = $(this);
+    const originalText = $btn.html();
+    
+    // Loading state
+    $btn.prop('disabled', true).html('<i class="bi bi-hourglass-split me-1"></i>Memvalidasi...');
+    
+    $.ajax({
+      url: '/admin/config/validate',
+      method: 'GET',
+      success: function(response) {
+        if (response.success) {
+          showToast('success', 'Validasi Selesai', 'Konfigurasi sistem telah divalidasi. Halaman akan di-refresh untuk menampilkan hasil.');
+          
+          // Refresh halaman setelah 2 detik untuk menampilkan hasil validasi
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
+        } else {
+          showToast('error', 'Validasi Gagal', response.message || 'Gagal menjalankan validasi konfigurasi');
+        }
+      },
+      error: function(xhr) {
+        const errorMsg = xhr.responseJSON?.message || 'Gagal menghubungi server';
+        showToast('error', 'Error', errorMsg);
+      },
+      complete: function() {
+        // Reset button
+        $btn.prop('disabled', false).html(originalText);
+      }
+    });
+  });
+  
+  // Handler untuk tombol refresh dashboard
+  $('#refreshDashboardBtn').on('click', function() {
+    const $btn = $(this);
+    const originalText = $btn.html();
+    
+    // Loading state
+    $btn.prop('disabled', true).html('<i class="bi bi-hourglass-split me-1"></i>Refresh...');
+    
+    // Refresh halaman
+    setTimeout(() => {
+      window.location.reload();
+    }, 500);
+  });
+  
+  // Auto-dismiss untuk alert konfigurasi
+  function initAutoDismissAlerts() {
+    $('.auto-dismiss').each(function() {
+      const $alert = $(this);
+      const autoDismissTime = parseInt($alert.data('auto-dismiss')) || 5000;
+      
+      // Set timer untuk auto dismiss
+      setTimeout(() => {
+        if ($alert.is(':visible')) {
+          $alert.fadeOut(500, function() {
+            $(this).remove();
+          });
+        }
+      }, autoDismissTime);
+      
+      // Hover pause - jika user hover alert, pause auto dismiss
+      let autoDismissTimer;
+      let isPaused = false;
+      
+      const startTimer = () => {
+        if (!isPaused) {
+          autoDismissTimer = setTimeout(() => {
+            if ($alert.is(':visible')) {
+              $alert.fadeOut(500, function() {
+                $(this).remove();
+              });
+            }
+          }, autoDismissTime);
+        }
+      };
+      
+      const pauseTimer = () => {
+        isPaused = true;
+        if (autoDismissTimer) {
+          clearTimeout(autoDismissTimer);
+        }
+      };
+      
+      const resumeTimer = () => {
+        isPaused = false;
+        startTimer();
+      };
+      
+      // Event handlers
+      $alert.on('mouseenter', pauseTimer);
+      $alert.on('mouseleave', resumeTimer);
+      
+      // Start initial timer
+      startTimer();
+    });
+  }
+  
+  // Initialize auto-dismiss saat halaman load
+  initAutoDismissAlerts();
+  
+  // Auto-refresh dashboard data jika ada loading indicators
+  function checkAndRefreshDashboard() {
+    const loadingElements = $('.fs-3:contains("Loading...")');
+    if (loadingElements.length > 0) {
+      console.log('🔄 [DASHBOARD] Detected loading indicators, refreshing in 10 seconds...');
+      setTimeout(() => {
+        window.location.reload();
+      }, 10000);
+    }
+  }
+  
+  // Check untuk loading indicators setiap 5 detik
+  setInterval(checkAndRefreshDashboard, 5000);
 });
+
+// Fungsi untuk clear config warning
+function clearConfigWarning() {
+  // Kirim request untuk clear hasil validasi dari session
+  $.ajax({
+    url: '/admin/config/clear',
+    method: 'POST',
+    success: function(response) {
+      if (response.success) {
+        showToast('success', 'Warning Dihapus', 'Hasil validasi konfigurasi telah dihapus. Warning tidak akan muncul lagi sampai konfigurasi berubah.');
+        
+        // Sembunyikan semua alert konfigurasi
+        $('.alert').fadeOut(500, function() {
+          $(this).remove();
+        });
+      } else {
+        showToast('error', 'Gagal', 'Gagal menghapus warning: ' + (response.message || 'Unknown error'));
+      }
+    },
+    error: function(xhr) {
+      const errorMsg = xhr.responseJSON?.message || 'Gagal menghubungi server';
+      showToast('error', 'Error', errorMsg);
+    }
+  });
+}
 </script>
 
 </body>

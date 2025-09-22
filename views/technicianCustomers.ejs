@@ -752,7 +752,35 @@
             if (window.__leafletMapInited) return;
             const defaultLat = -6.2088, defaultLng = 106.8456;
             const map = L.map('map').setView([defaultLat, defaultLng], 11);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
+            // Define tile layers
+            const lightLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '© OpenStreetMap contributors © CARTO',
+                subdomains: 'abcd',
+                maxZoom: 20
+            });
+            
+            const darkLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '© OpenStreetMap contributors © CARTO',
+                subdomains: 'abcd',
+                maxZoom: 20
+            });
+            
+            const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                attribution: '© Esri — Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+                maxZoom: 20
+            });
+            
+            // Add default satellite layer
+            satelliteLayer.addTo(map);
+            
+            // Create layer control
+            const baseMaps = {
+                "Light": lightLayer,
+                "Dark": darkLayer,
+                "Satellite": satelliteLayer
+            };
+            
+            L.control.layers(baseMaps).addTo(map);
             let marker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(map);
             document.getElementById('pickedLat').textContent = defaultLat.toFixed(8);
             document.getElementById('pickedLng').textContent = defaultLng.toFixed(8);

@@ -147,6 +147,31 @@
                             <i class="bi bi-gear text-primary"></i> Pengaturan Sistem
                         </h5>
                         
+                        <!-- Alert Panduan Konfigurasi -->
+                        <div class="alert alert-info alert-custom mb-4" role="alert">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-info-circle-fill me-2 fs-5 mt-1"></i>
+                                <div>
+                                    <h6 class="alert-heading mb-2">
+                                        <i class="bi bi-lightbulb me-1"></i>Panduan Konfigurasi Sistem
+                                    </h6>
+                                    <p class="mb-2">
+                                        Pastikan konfigurasi GenieACS dan Mikrotik sudah benar agar sistem dapat berjalan optimal:
+                                    </p>
+                                    <ul class="mb-2 small">
+                                        <li><strong>GenieACS URL:</strong> Gunakan IP lokal yang dapat diakses (contoh: http://192.168.1.100:7557)</li>
+                                        <li><strong>GenieACS Credentials:</strong> Pastikan username dan password benar</li>
+                                        <li><strong>Mikrotik Host:</strong> Gunakan IP router Mikrotik yang benar</li>
+                                        <li><strong>Mikrotik Port:</strong> Biasanya 8728 untuk API atau 8729 untuk SSL</li>
+                                        <li><strong>Mikrotik Credentials:</strong> Gunakan user dengan akses API</li>
+                                    </ul>
+                                    <p class="mb-0 small text-muted">
+                                        <i class="bi bi-exclamation-triangle me-1"></i>
+                                        Jika ada masalah koneksi, sistem akan menampilkan warning di dashboard dengan link ke halaman ini.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                         
                         <form id="settingsForm">
                             <div id="settingsFields">
@@ -154,6 +179,9 @@
                             </div>
                             <div id="settingsSuccess" class="alert alert-success d-none" role="alert"></div>
                             <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-3">
+                                <button type="button" class="btn btn-outline-info me-2" id="testConnectionBtn">
+                                    <i class="bi bi-wifi"></i> Test Koneksi
+                                </button>
                                 <button type="submit" class="btn btn-primary">
                                     <i class="bi bi-save"></i> Simpan Perubahan
                                 </button>
@@ -823,8 +851,7 @@ $(function() {
             'rx_power_warning': 'RX Power Warning (dBm)',
             'rx_power_critical': 'RX Power Critical (dBm)',
             'rx_power_notification_enable': 'Notifikasi RX Power',
-            'rx_power_notification_interval_hours': 'Interval Notifikasi RX Power (Jam)',
-            'rx_power_warning_interval_hours': 'Interval Warning RX Power (Jam)',
+            'rx_power_warning_interval_hours': 'Interval Peringatan RX Power (Jam)',
             'company_header': 'Header Perusahaan',
             'app_name': 'Nama Aplikasi',
             'footer_info': 'Info Footer',
@@ -835,12 +862,11 @@ $(function() {
             'trouble_report.enabled': 'Laporan Gangguan',
             'trouble_report.categories': 'Kategori Laporan',
             'trouble_report.auto_ticket': 'Auto Ticket',
-            'rxpower_recap_enable': 'Recap RX Power',
-            'rxpower_recap_interval': 'Interval Recap RX Power',
-            'rxpower_recap_interval_hours': 'Interval Recap RX Power (Jam)',
-            'offline_notification_enable': 'Notifikasi Offline',
-            'offline_notification_interval': 'Interval Notifikasi Offline',
+            'rxpower_recap_enable': 'Ringkasan RX Power',
+            'rxpower_recap_interval_hours': 'Interval Ringkasan RX Power (Jam)',
+            'offline_notification_enable': 'Notifikasi Perangkat Offline',
             'offline_notification_interval_hours': 'Interval Notifikasi Offline (Jam)',
+            'offline_device_threshold_hours': 'Batas Waktu Offline (Jam)',
             'tax_settings.default_tax_rate': 'PPN Default (%)',
             'tax_settings.tax_name': 'Nama Pajak',
             'tax_settings.tax_enabled': 'Sistem PPN',
@@ -850,69 +876,94 @@ $(function() {
     }
 
     // Field yang tidak perlu ditampilkan di form settings
-    // Kategori: Version Info, Technical Fields, Sensitive Data, UI Fields
+    // Hanya menyembunyikan field teknis yang tidak perlu diubah di server baru
     const hiddenFields = [
-        // Version Info - Sembunyikan karena sudah ada di sidebar/footer
-        'app_version',
-        'version_name', 
-        'version_date',
-        'version_notes',
-        'build_number',
-        'app_name',
+        // Version Info - Tidak perlu diubah manual
+        'app_version', 'version_name', 'version_date', 'version_notes', 'build_number',
         
-        // Technical Fields - Internal system settings
-        'pppoe_notifications.monitorInterval',
-        'secret_key',
-        'reconnect_interval',
-        'log_level',
-        'rx_power_notification_interval',
-        'whatsapp_log_level',
-        'pppoe_monitor_interval',
-        'server_port',
-        'whatsapp_session_path',
-        'admin_enabled',
+        // Interval Settings (millisecond format) - hanya tampilkan format jam
+        'rx_power_warning_interval', 'rxpower_recap_interval', 'offline_notification_interval',
         
-        // Admin Numbers - Tetap ditampilkan untuk kemudahan admin
-        // 'admins.0', 'admins.1', 'admins.2' - DITAMPILKAN
-        // 'technician_numbers.0', 'technician_numbers.1', 'technician_numbers.2' - DITAMPILKAN
-        
-        // Payment Gateway Sensitive Fields - API keys & secrets
-        'payment_gateway.tripay.merchant_code',
-        'payment_gateway.tripay.merchant_key',
-        'payment_gateway.tripay.private_key',
-        'payment_gateway.xendit.api_key',
-        'payment_gateway.xendit.callback_token',
-        'payment_gateway.xendit.base_url',
-        'payment_gateway.midtrans.api_key',
-        'payment_gateway.midtrans.api_secret',
-        'payment_gateway.midtrans.server_key',
-        'payment_gateway.midtrans.client_key',
-        'payment_gateway.midtrans.merchant_id',
-        'payment_gateway.midtrans.base_url',
-        'payment_gateway.active',
-        'payment_gateway.xendit.enabled',
-        'payment_gateway.xendit.production',
-        'payment_gateway.xendit.api_key',
-        'payment_gateway.xendit.callback_token',
-        'payment_gateway.tripay.enabled',
-        'payment_gateway.tripay.production',
-        'payment_gateway.tripay.api_key',
-        'payment_gateway.tripay.private_key',
-        'payment_gateway.tripay.merchant_code',
-        'payment_gateway.tripay.merchant_key',
-        'payment_gateway.tripay.base_url',
-        'payment_gateway.midtrans.enabled',
-        'payment_gateway.midtrans.production',
-        'payment_gateway.midtrans.api_key',
-        'payment_gateway.midtrans.api_secret',
-        'payment_gateway.midtrans.server_key',
-        'payment_gateway.midtrans.client_key',
-        'payment_gateway.midtrans.merchant_id',
-        'payment_gateway.active',
-        
-        // UI Fields - File paths & display settings
-        'logo_filename'
+        // Duplicate/Alternative Fields
+        'pppoe_notifications.enabled', 'pppoe_notifications.loginNotifications', 
+        'pppoe_notifications.logoutNotifications', 'pppoe_notifications.includeOfflineList',
+        'pppoe_notifications.maxOfflineListCount'
     ];
+
+    // Keterangan bahasa Indonesia untuk setiap pengaturan
+    function getFieldDescription(key) {
+        const descriptions = {
+            'auto_suspension_enabled': 'Aktifkan isolir otomatis untuk pelanggan yang tidak membayar',
+            'suspension_grace_period_days': 'Jumlah hari sebelum layanan disuspend setelah jatuh tempo',
+            'default_pppoe_profile': 'Profile PPPoE yang akan digunakan untuk pelanggan baru',
+            'isolir_profile': 'Profile PPPoE untuk pelanggan yang diisolir',
+            'static_ip_suspension_method': 'Metode untuk suspend IP statis (address_list atau disable)',
+            'suspension_bandwidth_limit': 'Batas bandwidth untuk pelanggan yang diisolir (contoh: 1k/1k)',
+            'admins.0': 'Nomor WhatsApp admin utama untuk menerima notifikasi',
+            'admins.1': 'Nomor WhatsApp admin tambahan (opsional)',
+            'admin_username': 'Username untuk login ke admin panel',
+            'admin_password': 'Password untuk login ke admin panel',
+            'genieacs_url': 'URL server GenieACS untuk monitoring perangkat',
+            'genieacs_username': 'Username untuk koneksi ke GenieACS',
+            'genieacs_password': 'Password untuk koneksi ke GenieACS',
+            'mikrotik_host': 'Alamat IP atau hostname router MikroTik',
+            'mikrotik_port': 'Port API MikroTik (default: 8728)',
+            'mikrotik_user': 'Username untuk koneksi ke MikroTik API',
+            'mikrotik_password': 'Password untuk koneksi ke MikroTik API',
+            'main_interface': 'Interface utama MikroTik untuk monitoring PPPoE',
+            'pppoe_monitor_enable': 'Aktifkan monitoring koneksi PPPoE secara real-time',
+            'technician_numbers.0': 'Nomor WhatsApp teknisi pertama',
+            'technician_numbers.1': 'Nomor WhatsApp teknisi kedua',
+            'technician_group_id': 'ID grup WhatsApp untuk teknisi',
+            'whatsapp_keep_alive': 'Pertahankan koneksi WhatsApp tetap aktif',
+            'whatsapp_restart_on_error': 'Restart otomatis WhatsApp jika terjadi error',
+            'rx_power_warning': 'Threshold RX Power untuk peringatan (dBm)',
+            'rx_power_critical': 'Threshold RX Power untuk kondisi kritis (dBm)',
+            'rx_power_notification_enable': 'Aktifkan notifikasi monitoring RX Power',
+            'rx_power_warning_interval_hours': 'Interval pengecekan RX Power (dalam jam)',
+            'company_header': 'Header yang ditampilkan di aplikasi',
+            'app_name': 'Nama aplikasi yang ditampilkan',
+            'footer_info': 'Informasi footer aplikasi',
+            'customerPortalOtp': 'Aktifkan OTP untuk customer portal',
+            'otp_length': 'Panjang kode OTP (4-6 digit)',
+            'otp_expiry_minutes': 'Masa berlaku OTP dalam menit',
+            'server_host': 'Alamat IP atau hostname server',
+            'trouble_report.enabled': 'Aktifkan fitur laporan gangguan',
+            'trouble_report.categories': 'Kategori laporan gangguan (pisahkan dengan koma)',
+            'trouble_report.auto_ticket': 'Buat tiket otomatis untuk laporan gangguan',
+            'rxpower_recap_enable': 'Aktifkan ringkasan RX Power harian',
+            'rxpower_recap_interval_hours': 'Interval pengiriman ringkasan RX Power (dalam jam)',
+            'offline_notification_enable': 'Aktifkan notifikasi perangkat offline',
+            'offline_notification_interval_hours': 'Interval pengecekan perangkat offline (dalam jam)',
+            'offline_device_threshold_hours': 'Batas waktu perangkat dianggap offline (dalam jam)',
+            'tax_settings.default_tax_rate': 'Tarif PPN default dalam persen',
+            'tax_settings.tax_name': 'Nama pajak yang ditampilkan (contoh: PPN)',
+            'tax_settings.tax_enabled': 'Aktifkan sistem PPN',
+            'tax_settings.tax_inclusive': 'Harga sudah termasuk PPN',
+            'user_auth_mode': 'Mode autentikasi user (mikrotik atau local)',
+            'server_port': 'Port server aplikasi',
+            'logo_filename': 'Nama file logo perusahaan',
+            'company_website': 'Website perusahaan',
+            'company_slogan': 'Slogan perusahaan',
+            'invoice_notes': 'Catatan yang ditampilkan di invoice',
+            'payment_bank_name': 'Nama bank untuk pembayaran',
+            'payment_account_number': 'Nomor rekening bank',
+            'payment_account_holder': 'Nama pemilik rekening',
+            'payment_cash_address': 'Alamat untuk pembayaran tunai',
+            'payment_cash_hours': 'Jam operasional untuk pembayaran tunai',
+            'contact_phone': 'Nomor telepon kontak',
+            'contact_email': 'Email kontak perusahaan',
+            'contact_address': 'Alamat perusahaan',
+            'contact_whatsapp': 'Nomor WhatsApp kontak',
+            'whatsapp_rate_limit.maxMessagesPerBatch': 'Maksimal pesan per batch WhatsApp',
+            'whatsapp_rate_limit.delayBetweenBatches': 'Jeda antar batch pesan (detik)',
+            'whatsapp_rate_limit.delayBetweenMessages': 'Jeda antar pesan individual (detik)',
+            'whatsapp_rate_limit.maxRetries': 'Maksimal percobaan ulang jika gagal',
+            'whatsapp_rate_limit.dailyMessageLimit': 'Batas pesan harian (0 = tidak terbatas)',
+            'whatsapp_rate_limit.enabled': 'Aktifkan pembatasan tingkat pesan WhatsApp'
+        };
+        return descriptions[key] || '';
+    }
     // Ambil data settings.json
     $.get('/admin/settings/data', function(data) {
         var html = '';
@@ -925,7 +976,14 @@ $(function() {
             } else {
                 html += '<div class="mb-3">';
                 if (key === 'user_auth_mode') {
+                    var fieldDescription = getFieldDescription(key);
                     html += '<label class="form-label">Mode Autentikasi User</label>';
+                    
+                    // Tambahkan keterangan jika tersedia
+                    if (fieldDescription) {
+                        html += '<div class="form-text text-muted mb-2">'+fieldDescription+'</div>';
+                    }
+                    
                     html += '<div class="form-check">';
                     html += '<input class="form-check-input" type="radio" name="user_auth_mode" id="auth_mode_mikrotik" value="mikrotik"'+(val==="mikrotik"?" checked":"")+'> ';
                     html += '<label class="form-check-label" for="auth_mode_mikrotik">Mikrotik (RouterOS API)</label>';
@@ -937,30 +995,40 @@ $(function() {
                 } else if (typeof val === 'boolean' || val === true || val === false || val === 'true' || val === 'false') {
                     var checked = (val === true || val === 'true') ? 'checked' : '';
                     var fieldLabel = getFieldLabel(key);
+                    var fieldDescription = getFieldDescription(key);
                     html += '<label class="form-label">'+fieldLabel+'</label>';
+                    
+                    // Tambahkan keterangan jika tersedia
+                    if (fieldDescription) {
+                        html += '<div class="form-text text-muted mb-2">'+fieldDescription+'</div>';
+                    }
+                    
                     html += '<div class="form-check">';
                     html += '<input class="form-check-input" type="checkbox" name="'+key+'" id="setting_'+key+'" '+checked+'> ';
                     html += '<label class="form-check-label" for="setting_'+key+'">'+(checked ? 'Aktif' : 'Tidak Aktif')+'</label>';
                     html += '</div>';
                 } else {
                     var fieldLabel = getFieldLabel(key);
+                    var fieldDescription = getFieldDescription(key);
                     html += '<label class="form-label">'+fieldLabel+'</label>';
+                    
+                    // Tambahkan keterangan jika tersedia
+                    if (fieldDescription) {
+                        html += '<div class="form-text text-muted mb-2">'+fieldDescription+'</div>';
+                    }
+                    
                     if (key === 'suspension_grace_period_days') {
                         html += '<input type="number" class="form-control" name="'+key+'" value="'+val+'" min="1" max="365">';
-                        html += '<div class="form-text">Jumlah hari sebelum layanan disuspend setelah jatuh tempo</div>';
                     } else if (key === 'tax_settings.default_tax_rate') {
                         html += '<input type="number" class="form-control" name="'+key+'" value="'+val+'" step="0.01" min="0" max="100">';
-                        html += '<div class="form-text">Persentase PPN default untuk paket internet (0-100%)</div>';
                     } else if (key === 'tax_settings.tax_name') {
                         html += '<input type="text" class="form-control" name="'+key+'" value="'+val+'">';
-                        html += '<div class="form-text">Nama pajak yang akan ditampilkan (contoh: PPN, VAT, dll)</div>';
                     } else if (key === 'tax_settings.tax_enabled') {
                         var checked = (val === true || val === 'true') ? 'checked' : '';
                         html += '<div class="form-check">';
                         html += '<input class="form-check-input" type="checkbox" name="'+key+'" id="setting_'+key+'" '+checked+'> ';
                         html += '<label class="form-check-label" for="setting_'+key+'">'+(checked ? 'Aktif' : 'Tidak Aktif')+'</label>';
                         html += '</div>';
-                        html += '<div class="form-text">Aktifkan atau nonaktifkan sistem PPN</div>';
                     } else if (key === 'tax_settings.tax_inclusive') {
                         var checked = (val === true || val === 'true') ? 'checked' : '';
                         html += '<div class="form-check">';
@@ -968,6 +1036,10 @@ $(function() {
                         html += '<label class="form-check-label" for="setting_'+key+'">'+(checked ? 'Ya' : 'Tidak')+'</label>';
                         html += '</div>';
                         html += '<div class="form-text">Harga paket sudah termasuk PPN (tax inclusive) atau belum (tax exclusive)</div>';
+                    } else if (key.includes('password') || key.includes('Password')) {
+                        // Field password - gunakan input type="password"
+                        html += '<input type="password" class="form-control" name="'+key+'" value="'+val+'" placeholder="Masukkan password">';
+                        html += '<div class="form-text text-warning">⚠️ Hati-hati saat mengubah password. Pastikan password benar untuk menghindari error koneksi.</div>';
                     } else {
                         html += '<input type="text" class="form-control" name="'+key+'" value="'+val+'">';
                     }
@@ -2427,6 +2499,55 @@ $(document).ready(function() {
 
         document.body.removeChild(textArea);
     }
+    
+    // Handler untuk tombol Test Koneksi
+    $('#testConnectionBtn').on('click', function() {
+        const $btn = $(this);
+        const originalText = $btn.html();
+        
+        // Loading state
+        $btn.prop('disabled', true).html('<i class="bi bi-hourglass-split me-1"></i>Testing...');
+        
+        // Kirim request test koneksi
+        $.ajax({
+            url: '/admin/config/validate',
+            method: 'GET',
+            success: function(response) {
+                if (response.success) {
+                    const results = response.data.results;
+                    const summary = response.data.summary;
+                    
+                    if (results && results.overall && results.overall.isValid) {
+                        showNotification('success', '✅ Semua koneksi berhasil! Konfigurasi sistem valid.');
+                    } else {
+                        let errorMsg = '⚠️ Ditemukan masalah koneksi:\n';
+                        
+                        if (results && results.genieacs && !results.genieacs.isValid) {
+                            errorMsg += '• GenieACS: ' + results.genieacs.errors.join(', ') + '\n';
+                        }
+                        
+                        if (results && results.mikrotik && !results.mikrotik.isValid) {
+                            errorMsg += '• Mikrotik: ' + results.mikrotik.errors.join(', ') + '\n';
+                        }
+                        
+                        errorMsg += '\nSilakan perbaiki konfigurasi dan test kembali.';
+                        
+                        showNotification('warning', errorMsg);
+                    }
+                } else {
+                    showNotification('error', 'Gagal menjalankan test koneksi: ' + (response.message || 'Unknown error'));
+                }
+            },
+            error: function(xhr) {
+                const errorMsg = xhr.responseJSON?.message || 'Gagal menghubungi server';
+                showNotification('error', 'Error: ' + errorMsg);
+            },
+            complete: function() {
+                // Reset button
+                $btn.prop('disabled', false).html(originalText);
+            }
+        });
+    });
 });
 </script>
 
@@ -2482,6 +2603,7 @@ $('#previewIsolationScript').on('click', function() {
     $('#previewScriptContent').text(script);
     new bootstrap.Modal(document.getElementById('scriptPreviewModal')).show();
 });
+
 </script>
 
 </body>
