@@ -30,6 +30,18 @@
                         <i class="bx bx-speedometer"></i> Dashboard Billing
                     </h1>
                     <div>
+                        <a href="/admin/billing/monthly-summary" class="btn btn-secondary me-2">
+                            <i class="bx bx-calendar"></i> Summary Bulanan
+                        </a>
+                        <a href="/admin/billing/invoices-by-type" class="btn btn-info me-2">
+                            <i class="bx bx-receipt"></i> Invoice by Type
+                        </a>
+                        <button id="cleanupVoucherBtn" class="btn btn-danger me-2" onclick="cleanupVouchers()">
+                            <i class="bx bx-trash"></i> Hapus Voucher Expired
+                        </button>
+                        <button id="cleanupDataBtn" class="btn btn-warning me-2" onclick="cleanupData()">
+                            <i class="bx bx-refresh"></i> Perbaiki Data
+                        </button>
                         <a href="/admin/billing/payment-settings" class="btn btn-primary">
                             <i class="bx bx-cog"></i> Payment Settings
                         </a>
@@ -67,11 +79,11 @@
                             <div class="card-body">
                                 <div class="d-flex justify-content-between">
                                     <div>
-                                        <h5 class="text-muted fw-normal mt-0" title="Total Revenue">Total Pendapatan</h5>
-                                        <h3 class="mt-3 mb-3">Rp <%= (stats.total_revenue || 0).toLocaleString('id-ID') %></h3>
+                                        <h5 class="text-muted fw-normal mt-0" title="Monthly Revenue">Pendapatan Bulanan</h5>
+                                        <h3 class="mt-3 mb-3">Rp <%= (stats.monthly_revenue || 0).toLocaleString('id-ID') %></h3>
                                         <p class="mb-0 text-muted">
                                             <span class="text-success me-2">
-                                                <i class="mdi mdi-arrow-up-bold"></i> <%= stats.paid_invoices || 0 %>
+                                                <i class="mdi mdi-arrow-up-bold"></i> <%= stats.paid_monthly_invoices || 0 %>
                                             </span>
                                             <span class="text-nowrap">Tagihan Lunas</span>
                                         </p>
@@ -91,18 +103,18 @@
                             <div class="card-body">
                                 <div class="d-flex justify-content-between">
                                     <div>
-                                        <h5 class="text-muted fw-normal mt-0" title="Unpaid Invoices">Tagihan Belum Lunas</h5>
-                                        <h3 class="mt-3 mb-3">Rp <%= (stats.total_unpaid || 0).toLocaleString('id-ID') %></h3>
+                                        <h5 class="text-muted fw-normal mt-0" title="Voucher Revenue">Pendapatan Voucher</h5>
+                                        <h3 class="mt-3 mb-3">Rp <%= (stats.voucher_revenue || 0).toLocaleString('id-ID') %></h3>
                                         <p class="mb-0 text-muted">
-                                            <span class="text-danger me-2">
-                                                <i class="mdi mdi-arrow-down-bold"></i> <%= stats.unpaid_invoices || 0 %>
+                                            <span class="text-info me-2">
+                                                <i class="mdi mdi-ticket-confirmation"></i> <%= stats.paid_voucher_invoices || 0 %>
                                             </span>
-                                            <span class="text-nowrap">Tagihan</span>
+                                            <span class="text-nowrap">Voucher Lunas</span>
                                         </p>
                                     </div>
                                     <div class="avatar-sm">
-                                        <span class="avatar-title bg-soft-warning rounded">
-                                            <i class="mdi mdi-receipt font-20 text-warning"></i>
+                                        <span class="avatar-title bg-soft-info rounded">
+                                            <i class="mdi mdi-ticket-confirmation font-20 text-info"></i>
                                         </span>
                                     </div>
                                 </div>
@@ -115,19 +127,94 @@
                             <div class="card-body">
                                 <div class="d-flex justify-content-between">
                                     <div>
-                                        <h5 class="text-muted fw-normal mt-0" title="Total Invoices">Total Tagihan</h5>
-                                        <h3 class="mt-3 mb-3"><%= stats.total_invoices || 0 %></h3>
+                                        <h5 class="text-muted fw-normal mt-0" title="Total Revenue">Total Pendapatan</h5>
+                                        <h3 class="mt-3 mb-3">Rp <%= (stats.total_revenue || 0).toLocaleString('id-ID') %></h3>
                                         <p class="mb-0 text-muted">
-                                            <span class="text-info me-2">
+                                            <span class="text-success me-2">
                                                 <i class="mdi mdi-chart-line"></i> <%= stats.paid_invoices || 0 %>/<%= stats.total_invoices || 0 %>
                                             </span>
                                             <span class="text-nowrap">Lunas</span>
                                         </p>
                                     </div>
                                     <div class="avatar-sm">
-                                        <span class="avatar-title bg-soft-info rounded">
-                                            <i class="mdi mdi-file-document font-20 text-info"></i>
+                                        <span class="avatar-title bg-soft-warning rounded">
+                                            <i class="mdi mdi-receipt font-20 text-warning"></i>
                                         </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Invoice Type Breakdown -->
+                <div class="row mt-4">
+                    <div class="col-xl-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="bx bx-receipt"></i> Tagihan Bulanan
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row text-center">
+                                    <div class="col-4">
+                                        <h4 class="text-primary"><%= stats.monthly_invoices || 0 %></h4>
+                                        <p class="text-muted mb-0">Total</p>
+                                    </div>
+                                    <div class="col-4">
+                                        <h4 class="text-success"><%= stats.paid_monthly_invoices || 0 %></h4>
+                                        <p class="text-muted mb-0">Lunas</p>
+                                    </div>
+                                    <div class="col-4">
+                                        <h4 class="text-danger"><%= stats.unpaid_monthly_invoices || 0 %></h4>
+                                        <p class="text-muted mb-0">Belum Lunas</p>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <div class="d-flex justify-content-between">
+                                        <span>Pendapatan:</span>
+                                        <strong class="text-success">Rp <%= (stats.monthly_revenue || 0).toLocaleString('id-ID') %></strong>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <span>Belum Dibayar:</span>
+                                        <strong class="text-danger">Rp <%= (stats.monthly_unpaid || 0).toLocaleString('id-ID') %></strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="bx bx-ticket"></i> Tagihan Voucher
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row text-center">
+                                    <div class="col-4">
+                                        <h4 class="text-primary"><%= stats.voucher_invoices || 0 %></h4>
+                                        <p class="text-muted mb-0">Total</p>
+                                    </div>
+                                    <div class="col-4">
+                                        <h4 class="text-success"><%= stats.paid_voucher_invoices || 0 %></h4>
+                                        <p class="text-muted mb-0">Lunas</p>
+                                    </div>
+                                    <div class="col-4">
+                                        <h4 class="text-danger"><%= stats.unpaid_voucher_invoices || 0 %></h4>
+                                        <p class="text-muted mb-0">Belum Lunas</p>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <div class="d-flex justify-content-between">
+                                        <span>Pendapatan:</span>
+                                        <strong class="text-success">Rp <%= (stats.voucher_revenue || 0).toLocaleString('id-ID') %></strong>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <span>Belum Dibayar:</span>
+                                        <strong class="text-danger">Rp <%= (stats.voucher_unpaid || 0).toLocaleString('id-ID') %></strong>
                                     </div>
                                 </div>
                             </div>
@@ -506,5 +593,168 @@
             }
         }
     </style>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Fungsi untuk membersihkan data konsistensi
+        async function cleanupData() {
+            const btn = document.getElementById('cleanupDataBtn');
+            const originalText = btn.innerHTML;
+            
+            // Disable button dan show loading
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i>Memperbaiki...';
+            
+            try {
+                const response = await fetch('/admin/billing/api/cleanup-data', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Show success message
+                    showAlert('success', 'Berhasil!', result.message);
+                    
+                    // Reload page setelah 2 detik
+                    setTimeout(() => {
+                        location.reload();
+                    }, 2000);
+                } else {
+                    showAlert('danger', 'Error!', result.message);
+                }
+            } catch (error) {
+                showAlert('danger', 'Error!', 'Gagal memperbaiki data: ' + error.message);
+            } finally {
+                // Restore button
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        }
+
+        // Fungsi untuk membersihkan voucher expired
+        async function cleanupVouchers() {
+            const btn = document.getElementById('cleanupVoucherBtn');
+            const originalText = btn.innerHTML;
+            
+            // Konfirmasi sebelum menghapus
+            if (!confirm('Apakah Anda yakin ingin menghapus invoice voucher yang expired? Tindakan ini tidak dapat dibatalkan!')) {
+                return;
+            }
+            
+            // Disable button dan show loading
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i>Menghapus...';
+            
+            try {
+                const response = await fetch('/admin/billing/api/voucher-cleanup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Show success message dengan detail
+                    let message = result.message;
+                    if (result.cleaned > 0) {
+                        message += ` (${result.cleaned} invoice dihapus)`;
+                    }
+                    showAlert('success', 'Berhasil!', message);
+                    
+                    // Reload page setelah 2 detik
+                    setTimeout(() => {
+                        location.reload();
+                    }, 2000);
+                } else {
+                    showAlert('danger', 'Error!', result.message);
+                }
+            } catch (error) {
+                showAlert('danger', 'Error!', 'Gagal menghapus voucher expired: ' + error.message);
+            } finally {
+                // Restore button
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        }
+
+        // Fungsi untuk menampilkan alert
+        function showAlert(type, title, message) {
+            const alertHtml = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    <strong>${title}:</strong> ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            
+            // Insert alert di atas content
+            const mainContent = document.querySelector('.main-content');
+            const firstChild = mainContent.firstElementChild;
+            firstChild.insertAdjacentHTML('afterend', alertHtml);
+            
+            // Auto dismiss setelah 5 detik
+            setTimeout(() => {
+                const alert = document.querySelector('.alert');
+                if (alert) {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                }
+            }, 5000);
+        }
+
+        // Auto refresh stats setiap 30 detik
+        setInterval(async () => {
+            try {
+                const response = await fetch('/admin/billing/api/stats');
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Update stats tanpa reload page
+                    updateStatsDisplay(result.data);
+                }
+            } catch (error) {
+                console.log('Auto refresh stats failed:', error);
+            }
+        }, 30000);
+
+        // Fungsi untuk update tampilan stats
+        function updateStatsDisplay(stats) {
+            // Update total customers
+            const totalCustomersEl = document.querySelector('h3:contains("Total Pelanggan")');
+            if (totalCustomersEl) {
+                totalCustomersEl.textContent = stats.total_customers || 0;
+            }
+            
+            // Update active customers
+            const activeCustomersEl = document.querySelector('.text-success .mdi-arrow-up-bold');
+            if (activeCustomersEl) {
+                activeCustomersEl.nextElementSibling.textContent = stats.active_customers || 0;
+            }
+            
+            // Update total revenue
+            const totalRevenueEl = document.querySelector('h3:contains("Total Pendapatan")');
+            if (totalRevenueEl) {
+                totalRevenueEl.textContent = 'Rp ' + (stats.total_revenue || 0).toLocaleString('id-ID');
+            }
+            
+            // Update unpaid amount
+            const unpaidAmountEl = document.querySelector('h3:contains("Tagihan Belum Lunas")');
+            if (unpaidAmountEl) {
+                unpaidAmountEl.textContent = 'Rp ' + (stats.total_unpaid || 0).toLocaleString('id-ID');
+            }
+            
+            // Update total invoices
+            const totalInvoicesEl = document.querySelector('h3:contains("Total Tagihan")');
+            if (totalInvoicesEl) {
+                totalInvoicesEl.textContent = stats.total_invoices || 0;
+            }
+        }
+    </script>
 </body>
 </html>

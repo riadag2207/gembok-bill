@@ -268,6 +268,92 @@
                             </select>
                             <small class="form-text text-muted">Pilih Parent ODP jika ini adalah Sub ODP. Kosongkan jika ini adalah ODP utama.</small>
                         </div>
+                        
+                        <!-- ODP Connection Section -->
+                        <div class="card border-info mb-3">
+                            <div class="card-header bg-info text-white">
+                                <h6 class="mb-0"><i class="bx bx-link me-2"></i>Koneksi Kabel ODP</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="enableODPConnection" name="enable_connection">
+                                    <label class="form-check-label" for="enableODPConnection">
+                                        <strong>Buat koneksi kabel langsung ke ODP yang sudah ada</strong>
+                                    </label>
+                                </div>
+                                
+                                <div id="odpConnectionFields" style="display: none;">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">ODP Awal (Sumber) *</label>
+                                                <select class="form-select" name="from_odp_id" id="fromOdpSelect">
+                                                    <option value="">Pilih ODP Awal</option>
+                                                    <% if (parentOdps && parentOdps.length > 0) { %>
+                                                        <% parentOdps.forEach(function(odp) { %>
+                                                            <option value="<%= odp.id %>" data-lat="<%= odp.latitude %>" data-lng="<%= odp.longitude %>">
+                                                                <%= odp.name %> (<%= odp.code %>) - <%= odp.used_ports %>/<%= odp.capacity %> ports
+                                                            </option>
+                                                        <% }); %>
+                                                    <% } %>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Jenis Koneksi</label>
+                                                <select class="form-select" name="connection_type">
+                                                    <option value="fiber">Fiber Optic</option>
+                                                    <option value="copper">Copper</option>
+                                                    <option value="wireless">Wireless</option>
+                                                    <option value="microwave">Microwave</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Kapasitas Kabel</label>
+                                                <select class="form-select" name="cable_capacity">
+                                                    <option value="100M">100 Mbps</option>
+                                                    <option value="1G" selected>1 Gbps</option>
+                                                    <option value="10G">10 Gbps</option>
+                                                    <option value="100G">100 Gbps</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Status Koneksi</label>
+                                                <select class="form-select" name="connection_status">
+                                                    <option value="active" selected>Aktif</option>
+                                                    <option value="maintenance">Maintenance</option>
+                                                    <option value="inactive">Tidak Aktif</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Catatan Koneksi</label>
+                                        <textarea class="form-control" name="connection_notes" rows="2" placeholder="Catatan untuk koneksi kabel ODP..."></textarea>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Panjang Kabel (meter)</label>
+                                        <input type="number" class="form-control" name="cable_length" id="cableLengthField" step="0.01" placeholder="Akan dihitung otomatis" readonly>
+                                        <small class="form-text text-muted">Panjang kabel akan dihitung otomatis berdasarkan jarak antara ODP awal dan ODP baru</small>
+                                    </div>
+                                    <div class="alert alert-info">
+                                        <i class="bx bx-info-circle me-2"></i>
+                                        <strong>Info:</strong> Panjang kabel akan dihitung otomatis berdasarkan jarak antara ODP awal dan ODP baru yang akan dibuat.
+                                    </div>
+                                    <div id="connectionPreview" class="alert alert-success" style="display: none;">
+                                        <i class="bx bx-check-circle me-2"></i>
+                                        <strong>Koneksi akan dibuat:</strong> <span id="connectionPreviewText"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div class="mb-3">
                             <label class="form-label">Koordinat Lokasi *</label>
                             <div class="row">
@@ -552,12 +638,115 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
+        // Toggle ODP Connection Fields
+        document.getElementById('enableODPConnection').addEventListener('change', function() {
+            const connectionFields = document.getElementById('odpConnectionFields');
+            const fromOdpSelect = document.getElementById('fromOdpSelect');
+            
+            if (this.checked) {
+                connectionFields.style.display = 'block';
+                fromOdpSelect.required = true;
+            } else {
+                connectionFields.style.display = 'none';
+                fromOdpSelect.required = false;
+            }
+        });
+
+        // Calculate distance between two coordinates
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Radius of the Earth in kilometers
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                    Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            const distance = R * c; // Distance in kilometers
+            return distance * 1000; // Convert to meters
+        }
+
+        // Update cable length when coordinates change
+        function updateCableLength() {
+            const enableConnection = document.getElementById('enableODPConnection');
+            if (!enableConnection.checked) return;
+
+            const fromOdpSelect = document.getElementById('fromOdpSelect');
+            const selectedOption = fromOdpSelect.options[fromOdpSelect.selectedIndex];
+            
+            if (!selectedOption || !selectedOption.value) return;
+
+            const fromLat = parseFloat(selectedOption.dataset.lat);
+            const fromLng = parseFloat(selectedOption.dataset.lng);
+            const toLat = parseFloat(document.getElementById('addODPLatitude').value);
+            const toLng = parseFloat(document.getElementById('addODPLongitude').value);
+
+            if (fromLat && fromLng && toLat && toLng) {
+                const distance = calculateDistance(fromLat, fromLng, toLat, toLng);
+                // Update cable length field
+                const cableLengthField = document.getElementById('cableLengthField');
+                if (cableLengthField) {
+                    cableLengthField.value = Math.round(distance);
+                }
+                
+                // Update connection preview
+                updateConnectionPreview(selectedOption.textContent, Math.round(distance));
+            }
+        }
+
+        // Update connection preview
+        function updateConnectionPreview(fromOdpName, distance) {
+            const preview = document.getElementById('connectionPreview');
+            const previewText = document.getElementById('connectionPreviewText');
+            const newOdpName = document.querySelector('input[name="name"]').value || 'ODP Baru';
+            
+            if (preview && previewText) {
+                previewText.textContent = `${fromOdpName} → ${newOdpName} (${distance}m)`;
+                preview.style.display = 'block';
+            }
+        }
+
+        // Add event listeners for coordinate changes
+        document.getElementById('addODPLatitude').addEventListener('input', updateCableLength);
+        document.getElementById('addODPLongitude').addEventListener('input', updateCableLength);
+        document.getElementById('fromOdpSelect').addEventListener('change', updateCableLength);
+        document.querySelector('input[name="name"]').addEventListener('input', updateCableLength);
+
         // Add ODP Form Handler
         document.getElementById('addODPForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const formData = new FormData(this);
             const data = Object.fromEntries(formData);
+            
+            // Check if connection is enabled
+            const enableConnection = document.getElementById('enableODPConnection').checked;
+            if (enableConnection) {
+                // Add connection data to the main data object
+                data.enable_connection = true;
+                data.from_odp_id = data.from_odp_id;
+                data.connection_type = data.connection_type;
+                data.cable_capacity = data.cable_capacity;
+                data.connection_status = data.connection_status;
+                data.connection_notes = data.connection_notes;
+                
+                // Calculate cable length if not provided
+                if (!data.cable_length || data.cable_length === '') {
+                    const fromOdpSelect = document.getElementById('fromOdpSelect');
+                    const selectedOption = fromOdpSelect.options[fromOdpSelect.selectedIndex];
+                    
+                    if (selectedOption && selectedOption.value) {
+                        const fromLat = parseFloat(selectedOption.dataset.lat);
+                        const fromLng = parseFloat(selectedOption.dataset.lng);
+                        const toLat = parseFloat(data.latitude);
+                        const toLng = parseFloat(data.longitude);
+
+                        if (fromLat && fromLng && toLat && toLng) {
+                            const distance = calculateDistance(fromLat, fromLng, toLat, toLng);
+                            data.cable_length = Math.round(distance);
+                        }
+                    }
+                }
+            }
             
             try {
                 const response = await fetch('/admin/cable-network/odp', {
@@ -603,6 +792,12 @@
                 addODPMap = null;
                 addODPMarker = null;
             }
+            
+            // Reset form
+            document.getElementById('addODPForm').reset();
+            document.getElementById('odpConnectionFields').style.display = 'none';
+            document.getElementById('connectionPreview').style.display = 'none';
+            document.getElementById('enableODPConnection').checked = false;
         });
 
         document.getElementById('editODPModal').addEventListener('hidden.bs.modal', function() {
@@ -634,10 +829,35 @@
             // Initialize map
             addODPMap = L.map('addODPMap').setView([defaultLat, defaultLng], 13);
             
-            // Add tile layer
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
-            }).addTo(addODPMap);
+            // Define tile layers
+            const lightLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '© OpenStreetMap contributors © CARTO',
+                subdomains: 'abcd',
+                maxZoom: 20
+            });
+            
+            const darkLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '© OpenStreetMap contributors © CARTO',
+                subdomains: 'abcd',
+                maxZoom: 20
+            });
+            
+            const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                attribution: '© Esri — Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+                maxZoom: 20
+            });
+            
+            // Add default satellite layer
+            satelliteLayer.addTo(addODPMap);
+            
+            // Create layer control
+            const baseMaps = {
+                "Light": lightLayer,
+                "Dark": darkLayer,
+                "Satellite": satelliteLayer
+            };
+            
+            L.control.layers(baseMaps).addTo(addODPMap);
             
             // Add marker
             addODPMarker = L.marker([defaultLat, defaultLng], {
@@ -807,10 +1027,35 @@
             // Initialize map
             editODPMap = L.map('editODPMap').setView([lat, lng], 15);
             
-            // Add tile layer
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
-            }).addTo(editODPMap);
+            // Define tile layers
+            const lightLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '© OpenStreetMap contributors © CARTO',
+                subdomains: 'abcd',
+                maxZoom: 20
+            });
+            
+            const darkLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '© OpenStreetMap contributors © CARTO',
+                subdomains: 'abcd',
+                maxZoom: 20
+            });
+            
+            const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                attribution: '© Esri — Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+                maxZoom: 20
+            });
+            
+            // Add default satellite layer
+            satelliteLayer.addTo(editODPMap);
+            
+            // Create layer control
+            const baseMaps = {
+                "Light": lightLayer,
+                "Dark": darkLayer,
+                "Satellite": satelliteLayer
+            };
+            
+            L.control.layers(baseMaps).addTo(editODPMap);
             
             // Add marker
             editODPMarker = L.marker([lat, lng], {

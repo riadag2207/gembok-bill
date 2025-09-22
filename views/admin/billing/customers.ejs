@@ -17,6 +17,128 @@
             min-width: 300px;
         }
         
+        /* PPPoE Username styling */
+        .spin {
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        #pppoe_username.border-success {
+            border-color: #198754 !important;
+            box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
+        }
+        
+        #pppoe_username.border-warning {
+            border-color: #ffc107 !important;
+            box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
+        }
+        
+        /* Custom PPPoE Dropdown Styles */
+        .pppoe-dropdown {
+            position: fixed !important;
+            background: white !important;
+            border: 2px solid #007bff !important;
+            border-radius: 0.375rem !important;
+            max-height: 200px !important;
+            overflow-y: auto !important;
+            z-index: 99999 !important;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3) !important;
+            display: none !important;
+            width: 300px !important;
+            min-height: 40px !important;
+        }
+        
+        .pppoe-dropdown.show {
+            display: block !important;
+        }
+        
+        /* Ensure input group has relative positioning */
+        .input-group {
+            position: relative !important;
+        }
+        
+        /* Modal z-index fix */
+        .modal {
+            z-index: 1050 !important;
+        }
+        
+        .modal-backdrop {
+            z-index: 1040 !important;
+        }
+        
+        /* Modal body overflow fix */
+        .modal-body {
+            overflow: visible !important;
+        }
+        
+        /* Form overflow fix */
+        .modal-body form {
+            overflow: visible !important;
+        }
+        
+        .pppoe-dropdown-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #f8f9fa;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .pppoe-dropdown-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .pppoe-dropdown-item.active {
+            background-color: #e3f2fd;
+        }
+        
+        .pppoe-dropdown-item .username {
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .pppoe-dropdown-item .profile {
+            font-size: 0.875rem;
+            color: #6c757d;
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 3px;
+            display: none; /* Hidden since profile is not needed */
+        }
+        
+        .pppoe-dropdown-item .status {
+            font-size: 0.75rem;
+            padding: 1px 4px;
+            border-radius: 2px;
+        }
+        
+        .pppoe-dropdown-item .status.active {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .pppoe-dropdown-item .status.inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .pppoe-dropdown-no-results {
+            padding: 12px;
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+        }
+        
+        /* Input group relative positioning for dropdown */
+        .input-group {
+            position: relative;
+        }
+        
         /* Mobile Responsive Styles */
         @media (max-width: 768px) {
             .main-content {
@@ -561,7 +683,16 @@
                         </div>
                         <div class="mb-3">
                             <label for="pppoe_username" class="form-label">PPPoE Username (opsional)</label>
-                            <input type="text" class="form-control" id="pppoe_username" name="pppoe_username" placeholder="username@domain">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="pppoe_username" name="pppoe_username" placeholder="Ketik untuk mencari PPPoE username..." autocomplete="off">
+                                <button class="btn btn-outline-secondary" type="button" id="loadPppoeUsers" title="Load PPPoE users from Mikrotik">
+                                    <i class="bi bi-arrow-clockwise"></i>
+                                </button>
+                            </div>
+                            <div id="pppoe_dropdown" class="pppoe-dropdown" style="display: none;">
+                                <!-- Custom dropdown will be loaded here -->
+                            </div>
+                            <small class="form-text text-muted">Klik tombol refresh untuk mengambil daftar PPPoE users dari Mikrotik</small>
                         </div>
                         <div class="form-check mb-2">
                             <input class="form-check-input" type="checkbox" id="create_pppoe_user" name="create_pppoe_user">
@@ -795,7 +926,16 @@
                         </div>
                         <div class="mb-3">
                             <label for="edit_pppoe_username" class="form-label">PPPoE Username</label>
-                            <input type="text" class="form-control" id="edit_pppoe_username" name="pppoe_username">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="edit_pppoe_username" name="pppoe_username" autocomplete="off" placeholder="Ketik untuk mencari PPPoE username...">
+                                <button class="btn btn-outline-secondary" type="button" id="loadEditPppoeUsers" title="Load PPPoE users from Mikrotik">
+                                    <i class="bi bi-arrow-clockwise"></i>
+                                </button>
+                            </div>
+                            <div id="edit_pppoe_dropdown" class="pppoe-dropdown" style="display: none;">
+                                <!-- Custom dropdown will be loaded here -->
+                            </div>
+                            <small class="form-text text-muted">Klik tombol refresh untuk mengambil daftar PPPoE users dari Mikrotik</small>
                         </div>
                         
                         <!-- Static IP Configuration Section for Edit -->
@@ -1311,6 +1451,472 @@
                 profileInput.value = selectedOption.dataset.profile;
             }
         }
+
+        // Global variables for PPPoE users
+        let pppoeUsers = [];
+        let filteredPppoeUsers = [];
+        
+        // Load PPPoE users from Mikrotik
+        function loadPppoeUsers() {
+            const loadBtn = $('#loadPppoeUsers');
+            const originalIcon = loadBtn.html();
+            
+            // Show loading state
+            loadBtn.prop('disabled', true).html('<i class="bi bi-arrow-clockwise spin"></i>');
+            
+            console.log('🔄 Loading PPPoE users from Mikrotik...');
+            
+            fetch('/admin/billing/api/pppoe-users')
+                .then(response => {
+                    console.log('📡 API Response status:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('📊 API Response data:', data);
+                    
+                    if (data.success && data.data && data.data.length > 0) {
+                        pppoeUsers = data.data;
+                        filteredPppoeUsers = [...pppoeUsers];
+                        
+                        console.log(`📝 Loaded ${pppoeUsers.length} users to memory`);
+                        showToast('success', `Loaded ${pppoeUsers.length} PPPoE users from Mikrotik`);
+                    } else {
+                        console.warn('⚠️ No data from API, using test data');
+                        loadTestPppoeUsers();
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Fetch Error:', error);
+                    console.warn('⚠️ API Error, using test data');
+                    loadTestPppoeUsers();
+                })
+                .finally(() => {
+                    // Restore button state
+                    loadBtn.prop('disabled', false).html(originalIcon);
+                });
+        }
+        
+        // Load test PPPoE users for testing
+        function loadTestPppoeUsers() {
+            const testUsers = [
+                { username: 'test1@gembok.com', profile: 'default', active: true },
+                { username: 'test2@gembok.com', profile: 'premium', active: false },
+                { username: 'test3@gembok.com', profile: 'basic', active: true },
+                { username: 'admin@gembok.com', profile: 'admin', active: true },
+                { username: 'user1@gembok.com', profile: 'default', active: false }
+            ];
+            
+            pppoeUsers = testUsers;
+            filteredPppoeUsers = [...pppoeUsers];
+            
+            console.log('🧪 Loading test PPPoE users...');
+            showToast('info', `Loaded ${testUsers.length} test PPPoE users (API unavailable)`);
+            console.log('🧪 Test users loaded:', pppoeUsers.length);
+        }
+        
+        // Show custom dropdown
+        function showPppoeDropdown(inputId, dropdownId) {
+            console.log(`🔍 showPppoeDropdown called: ${inputId}, ${dropdownId}`);
+            
+            const input = $(`#${inputId}`);
+            const dropdown = $(`#${dropdownId}`);
+            const searchTerm = input.val().toLowerCase();
+            
+            console.log(`📋 Input element found:`, input.length);
+            console.log(`📋 Dropdown element found:`, dropdown.length);
+            console.log(`📋 Search term:`, searchTerm);
+            console.log(`📋 PPPoE users available:`, pppoeUsers.length);
+            
+            // Filter users based on search term
+            filteredPppoeUsers = pppoeUsers.filter(user => 
+                user.username.toLowerCase().includes(searchTerm)
+            );
+            
+            console.log(`📋 Filtered users:`, filteredPppoeUsers.length);
+            
+            // Clear dropdown
+            dropdown.empty();
+            
+            if (filteredPppoeUsers.length === 0) {
+                dropdown.html('<div class="pppoe-dropdown-no-results">Tidak ada PPPoE user yang cocok</div>');
+                console.log('📋 No results message added');
+            } else {
+                // Show max 10 results
+                const displayUsers = filteredPppoeUsers.slice(0, 10);
+                console.log(`📋 Displaying ${displayUsers.length} users`);
+                
+                displayUsers.forEach((user, index) => {
+                    const item = $(`
+                        <div class="pppoe-dropdown-item" data-username="${user.username}" data-active="${user.active}">
+                            <span class="username">${user.username}</span>
+                            <div>
+                                <span class="status ${user.active ? 'active' : 'inactive'}">${user.active ? 'Aktif' : 'Tidak Aktif'}</span>
+                            </div>
+                        </div>
+                    `);
+                    
+                    dropdown.append(item);
+                    if (index < 3) { // Log first 3 for debugging
+                        console.log(`✅ Added item ${index}: ${user.username} (${user.active ? 'active' : 'inactive'})`);
+                    }
+                });
+            }
+            
+            // Calculate position relative to input
+            const inputOffset = input.offset();
+            const inputHeight = input.outerHeight();
+            
+            // Position dropdown below input
+            dropdown.css({
+                'position': 'fixed',
+                'top': (inputOffset.top + inputHeight + 5) + 'px',
+                'left': inputOffset.left + 'px',
+                'width': input.outerWidth() + 'px',
+                'display': 'block',
+                'z-index': '99999',
+                'background': 'white',
+                'border': '2px solid #007bff',
+                'box-shadow': '0 4px 12px rgba(0,0,0,0.3)'
+            });
+            
+            // Show dropdown
+            dropdown.addClass('show');
+            
+            console.log(`📋 Dropdown positioned at:`, {
+                top: inputOffset.top + inputHeight + 5,
+                left: inputOffset.left,
+                width: input.outerWidth()
+            });
+            console.log(`📋 Dropdown shown, visible:`, dropdown.is(':visible'));
+            console.log(`📋 Dropdown height:`, dropdown.height());
+            console.log(`📋 Dropdown items count:`, dropdown.find('.pppoe-dropdown-item').length);
+        }
+        
+        // Hide custom dropdown
+        function hidePppoeDropdown(dropdownId) {
+            const dropdown = $(`#${dropdownId}`);
+            dropdown.removeClass('show').css('display', 'none');
+            console.log(`📋 Dropdown hidden: ${dropdownId}`);
+        }
+        
+        // Handle dropdown item selection
+        function selectPppoeUser(inputId, dropdownId) {
+            const input = $(`#${inputId}`);
+            const username = input.data('selected-username');
+            const isActive = input.data('selected-active');
+            
+            if (username) {
+                // Show status indicator
+                if (isActive) {
+                    input.addClass('border-success').removeClass('border-warning');
+                } else {
+                    input.addClass('border-warning').removeClass('border-success');
+                }
+                
+                console.log(`✅ Selected PPPoE user: ${username} (active: ${isActive})`);
+            }
+        }
+        
+        // Load PPPoE users button click
+        $('#loadPppoeUsers').on('click', function() {
+            loadPppoeUsers();
+        });
+        
+        // Auto-load PPPoE users when modal opens
+        $('#addCustomerModal').on('shown.bs.modal', function() {
+            console.log('🔄 Add customer modal opened, loading PPPoE users...');
+            loadPppoeUsers();
+        });
+        
+        // Load PPPoE users for edit form
+        function loadEditPppoeUsers() {
+            const loadBtn = $('#loadEditPppoeUsers');
+            const originalIcon = loadBtn.html();
+            
+            // Show loading state
+            loadBtn.prop('disabled', true).html('<i class="bi bi-arrow-clockwise spin"></i>');
+            
+            console.log('🔄 Loading PPPoE users for edit form...');
+            
+            fetch('/admin/billing/api/pppoe-users')
+                .then(response => {
+                    console.log('📡 Edit API Response status:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('📊 Edit API Response data:', data);
+                    
+                    if (data.success && data.data && data.data.length > 0) {
+                        pppoeUsers = data.data;
+                        filteredPppoeUsers = [...pppoeUsers];
+                        
+                        console.log(`📝 Loaded ${pppoeUsers.length} users to memory for edit`);
+                        showToast('success', `Loaded ${pppoeUsers.length} PPPoE users from Mikrotik`);
+                    } else {
+                        console.warn('⚠️ No data from API, using test data for edit');
+                        loadTestEditPppoeUsers();
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Edit Fetch Error:', error);
+                    console.warn('⚠️ API Error, using test data for edit');
+                    loadTestEditPppoeUsers();
+                })
+                .finally(() => {
+                    // Restore button state
+                    loadBtn.prop('disabled', false).html(originalIcon);
+                });
+        }
+        
+        // Load test PPPoE users for edit form
+        function loadTestEditPppoeUsers() {
+            const testUsers = [
+                { username: 'test1@gembok.com', profile: 'default', active: true },
+                { username: 'test2@gembok.com', profile: 'premium', active: false },
+                { username: 'test3@gembok.com', profile: 'basic', active: true },
+                { username: 'admin@gembok.com', profile: 'admin', active: true },
+                { username: 'user1@gembok.com', profile: 'default', active: false }
+            ];
+            
+            pppoeUsers = testUsers;
+            filteredPppoeUsers = [...pppoeUsers];
+            
+            console.log('🧪 Loading test PPPoE users for edit...');
+            showToast('info', `Loaded ${testUsers.length} test PPPoE users for edit (API unavailable)`);
+            console.log('🧪 Test edit users loaded:', pppoeUsers.length);
+        }
+        
+        // Test function for edit form (can be called from console)
+        window.testEditForm = function() {
+            console.log('🧪 Testing edit form...');
+            
+            // Test 1: Check if elements exist
+            console.log('📋 Edit PPPoE username field exists:', $('#edit_pppoe_username').length);
+            console.log('📋 Edit PPPoE profile field exists:', $('#edit_pppoe_profile').length);
+            console.log('📋 Edit dropdown exists:', $('#edit_pppoe_dropdown').length);
+            
+            // Test 2: Load test data
+            loadTestEditPppoeUsers();
+            
+            // Test 3: Test dropdown
+            setTimeout(() => {
+                console.log('🧪 Testing dropdown...');
+                $('#edit_pppoe_username').val('test1@gembok.com').trigger('input');
+                console.log('📋 Username should be filled with: test1@gembok.com');
+            }, 1000);
+        };
+        
+        // Test custom dropdown functionality
+        window.testDropdown = function() {
+            console.log('🧪 Testing custom dropdown functionality...');
+            
+            // Test 1: Check users loaded
+            console.log('📋 PPPoE users loaded:', pppoeUsers.length);
+            console.log('📋 Filtered users:', filteredPppoeUsers.length);
+            
+            // Test 2: Check first few users
+            pppoeUsers.slice(0, 3).forEach((user, i) => {
+                console.log(`User ${i}:`, user.username, user.active);
+            });
+            
+            // Test 3: Test input focus
+            $('#edit_pppoe_username').focus();
+            console.log('📋 Input focused, check if dropdown appears');
+            
+            // Test 4: Test typing
+            $('#edit_pppoe_username').val('aang').trigger('input');
+            console.log('📋 Typed "aang", check if suggestions appear');
+        };
+        
+        // Test add form dropdown functionality
+        window.testAddForm = function() {
+            console.log('🧪 Testing add form dropdown functionality...');
+            
+            // Test 1: Check users loaded
+            console.log('📋 PPPoE users loaded:', pppoeUsers.length);
+            console.log('📋 Filtered users:', filteredPppoeUsers.length);
+            
+            // Test 2: Check first few users
+            pppoeUsers.slice(0, 3).forEach((user, i) => {
+                console.log(`User ${i}:`, user.username, user.active);
+            });
+            
+            // Test 3: Check elements
+            console.log('📋 Input element exists:', $('#pppoe_username').length);
+            console.log('📋 Dropdown element exists:', $('#pppoe_dropdown').length);
+            console.log('📋 Input group exists:', $('.input-group').length);
+            
+            // Test 4: Test input focus
+            $('#pppoe_username').focus();
+            console.log('📋 Add form input focused, check if dropdown appears');
+            
+            // Test 5: Test typing
+            $('#pppoe_username').val('aang').trigger('input');
+            console.log('📋 Add form typed "aang", check if suggestions appear');
+            
+            // Test 6: Manual show dropdown
+            console.log('📋 Manually showing dropdown...');
+            showPppoeDropdown('pppoe_username', 'pppoe_dropdown');
+        };
+        
+        // Test dropdown visibility
+        window.testDropdownVisibility = function() {
+            console.log('🧪 Testing dropdown visibility...');
+            
+            const dropdown = $('#pppoe_dropdown');
+            console.log('📋 Dropdown element:', dropdown.length);
+            console.log('📋 Dropdown visible:', dropdown.is(':visible'));
+            console.log('📋 Dropdown display:', dropdown.css('display'));
+            console.log('📋 Dropdown classes:', dropdown.attr('class'));
+            console.log('📋 Dropdown height:', dropdown.height());
+            console.log('📋 Dropdown width:', dropdown.width());
+            console.log('📋 Dropdown position:', dropdown.position());
+            console.log('📋 Dropdown offset:', dropdown.offset());
+        };
+        
+        // Force show dropdown for debugging
+        window.forceShowDropdown = function() {
+            console.log('🧪 Force showing dropdown...');
+            
+            const dropdown = $('#pppoe_dropdown');
+            const input = $('#pppoe_username');
+            
+            // Add some test content
+            dropdown.html(`
+                <div class="pppoe-dropdown-item" style="background: yellow; padding: 10px;">
+                    <strong>TEST DROPDOWN - SHOULD BE VISIBLE</strong>
+                </div>
+                <div class="pppoe-dropdown-item" style="background: lightgreen; padding: 10px;">
+                    <span class="username">test-user-1</span>
+                    <span class="status active">Aktif</span>
+                </div>
+                <div class="pppoe-dropdown-item" style="background: lightblue; padding: 10px;">
+                    <span class="username">test-user-2</span>
+                    <span class="status inactive">Tidak Aktif</span>
+                </div>
+            `);
+            
+            // Calculate position
+            const inputOffset = input.offset();
+            const inputHeight = input.outerHeight();
+            
+            // Force show with fixed positioning
+            dropdown.css({
+                'position': 'fixed',
+                'top': (inputOffset.top + inputHeight + 5) + 'px',
+                'left': inputOffset.left + 'px',
+                'width': input.outerWidth() + 'px',
+                'display': 'block',
+                'z-index': '99999',
+                'background': 'red',
+                'border': '5px solid blue',
+                'height': '200px'
+            });
+            
+            console.log('📋 Dropdown forced visible with test content');
+            console.log('📋 Position:', {
+                top: inputOffset.top + inputHeight + 5,
+                left: inputOffset.left,
+                width: input.outerWidth()
+            });
+            console.log('📋 Check if you can see a red box with blue border below the input field');
+        };
+        
+        // Load PPPoE users button click for edit form
+        $('#loadEditPppoeUsers').on('click', function() {
+            loadEditPppoeUsers();
+        });
+        
+        // Auto-load PPPoE users when edit modal opens
+        $('#editCustomerModal').on('shown.bs.modal', function() {
+            console.log('🔄 Edit modal opened, loading PPPoE users...');
+            loadEditPppoeUsers();
+        });
+        
+        // Edit Customer Form - PPPoE Username Input Events
+        $('#edit_pppoe_username').on('input focus', function() {
+            if (pppoeUsers.length > 0) {
+                showPppoeDropdown('edit_pppoe_username', 'edit_pppoe_dropdown');
+            }
+        });
+        
+        $('#edit_pppoe_username').on('blur', function() {
+            // Delay hide to allow click on dropdown items
+            setTimeout(() => {
+                hidePppoeDropdown('edit_pppoe_dropdown');
+            }, 200);
+        });
+        
+        // Edit Customer Form - Dropdown Item Click
+        $(document).on('click', '#edit_pppoe_dropdown .pppoe-dropdown-item', function() {
+            const username = $(this).data('username');
+            const isActive = $(this).data('active');
+            
+            // Set input value
+            $('#edit_pppoe_username').val(username);
+            
+            // Store selection data
+            $('#edit_pppoe_username').data('selected-username', username);
+            $('#edit_pppoe_username').data('selected-active', isActive);
+            
+            // Show status indicator
+            if (isActive) {
+                $('#edit_pppoe_username').addClass('border-success').removeClass('border-warning');
+            } else {
+                $('#edit_pppoe_username').addClass('border-warning').removeClass('border-success');
+            }
+            
+            // Hide dropdown
+            hidePppoeDropdown('edit_pppoe_dropdown');
+            
+            console.log(`✅ Selected edit PPPoE user: ${username} (active: ${isActive})`);
+        });
+        
+        // Add Customer Form - PPPoE Username Input Events
+        $('#pppoe_username').on('input focus', function() {
+            console.log('🔍 Add form PPPoE username input/focus triggered');
+            console.log('📋 PPPoE users available:', pppoeUsers.length);
+            
+            if (pppoeUsers.length > 0) {
+                console.log('✅ Showing dropdown for add form');
+                showPppoeDropdown('pppoe_username', 'pppoe_dropdown');
+            } else {
+                console.log('❌ No PPPoE users available, loading data...');
+                loadPppoeUsers();
+            }
+        });
+        
+        $('#pppoe_username').on('blur', function() {
+            // Delay hide to allow click on dropdown items
+            setTimeout(() => {
+                hidePppoeDropdown('pppoe_dropdown');
+            }, 200);
+        });
+        
+        // Add Customer Form - Dropdown Item Click
+        $(document).on('click', '#pppoe_dropdown .pppoe-dropdown-item', function() {
+            const username = $(this).data('username');
+            const isActive = $(this).data('active');
+            
+            // Set input value
+            $('#pppoe_username').val(username);
+            
+            // Store selection data
+            $('#pppoe_username').data('selected-username', username);
+            $('#pppoe_username').data('selected-active', isActive);
+            
+            // Show status indicator
+            if (isActive) {
+                $('#pppoe_username').addClass('border-success').removeClass('border-warning');
+            } else {
+                $('#pppoe_username').addClass('border-warning').removeClass('border-success');
+            }
+            
+            // Hide dropdown
+            hidePppoeDropdown('pppoe_dropdown');
+            
+            console.log(`✅ Selected PPPoE user: ${username} (active: ${isActive})`);
+        });
 
         // Add Customer Form
         $('#addCustomerForm').on('submit', function(e) {
@@ -1892,29 +2498,70 @@
 
         // Open map picker modal
         function openMapPicker() {
-            // Create map picker modal
+            // Create map picker modal with enhanced styling
             const modalHtml = `
                 <div class="modal fade" id="mapPickerModal" tabindex="-1">
-                    <div class="modal-dialog modal-lg">
+                    <div class="modal-dialog modal-xl">
                         <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title">Pilih Lokasi dari Peta</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            <div class="modal-header bg-primary text-white">
+                                <h5 class="modal-title">
+                                    <i class="fas fa-map-marked-alt me-2"></i>Pilih Lokasi dari Peta
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                             </div>
-                            <div class="modal-body">
-                                <div class="mb-3">
-                                    <input type="text" class="form-control" id="mapSearch" placeholder="Cari lokasi (contoh: Jakarta, Bandung)">
+                            <div class="modal-body p-0">
+                                <div class="row g-0">
+                                    <div class="col-12">
+                                        <div class="p-3 border-bottom">
+                                            <div class="row">
+                                                <div class="col-md-8">
+                                                    <input type="text" class="form-control" id="mapSearch" placeholder="Cari lokasi (contoh: Jakarta, Bandung, Jl. Sudirman)">
                                 </div>
-                                <div id="map" style="height: 400px; width: 100%; border: 1px solid #ddd;"></div>
-                                <div class="mt-3">
-                                    <strong>Koordinat yang dipilih:</strong><br>
-                                    Latitude: <span id="selectedLat">-</span><br>
-                                    Longitude: <span id="selectedLng">-</span>
+                                                <div class="col-md-4">
+                                                    <div class="d-flex gap-2">
+                                                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="getCurrentLocation()">
+                                                            <i class="fas fa-crosshairs me-1"></i>GPS
+                                                        </button>
+                                                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="resetMapLocation()">
+                                                            <i class="fas fa-undo me-1"></i>Reset
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="map" style="height: 500px; width: 100%; position: relative;"></div>
+                                        <div class="p-3 border-top bg-light">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <strong class="text-primary">Koordinat yang dipilih:</strong><br>
+                                                    <div class="mt-2">
+                                                        <span class="badge bg-primary me-2">Latitude</span>
+                                                        <code id="selectedLat">-6.2088</code><br>
+                                                        <span class="badge bg-primary me-2">Longitude</span>
+                                                        <code id="selectedLng">106.8456</code>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="alert alert-info mb-0">
+                                                        <i class="fas fa-info-circle me-2"></i>
+                                                        <strong>Petunjuk:</strong><br>
+                                                        • Klik di peta untuk memilih lokasi<br>
+                                                        • Gunakan GPS untuk lokasi saat ini<br>
+                                                        • Pilih layer peta sesuai kebutuhan
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                                <button type="button" class="btn btn-primary" onclick="applyMapLocation()">Gunakan Lokasi Ini</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                    <i class="fas fa-times me-1"></i>Batal
+                                </button>
+                                <button type="button" class="btn btn-primary" onclick="applyMapLocation()">
+                                    <i class="fas fa-check me-1"></i>Gunakan Lokasi Ini
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -1937,61 +2584,180 @@
             }, 500);
         }
 
-        // Initialize map picker
+        // Initialize map picker with enhanced features
         function initMapPicker() {
             // Default location (Jakarta)
             const defaultLat = -6.2088;
             const defaultLng = 106.8456;
             
-            // Create map using Leaflet (free alternative to Google Maps)
-            const map = L.map('map').setView([defaultLat, defaultLng], 10);
+            // Create map using Leaflet and store globally
+            window.mapPickerMap = L.map('map').setView([defaultLat, defaultLng], 12);
             
-            // Add OpenStreetMap tiles
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
-            }).addTo(map);
+            // Define tile layers (same as mapping-new.ejs)
+            const lightLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '© OpenStreetMap contributors © CARTO',
+                subdomains: 'abcd',
+                maxZoom: 20
+            });
             
-            // Add marker
-            let marker = L.marker([defaultLat, defaultLng]).addTo(map);
+            const darkLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '© OpenStreetMap contributors © CARTO',
+                subdomains: 'abcd',
+                maxZoom: 20
+            });
+            
+            const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                attribution: '© Esri — Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+                maxZoom: 20
+            });
+            
+            // Add default satellite layer
+            satelliteLayer.addTo(window.mapPickerMap);
+            
+            // Create layer control
+            const baseMaps = {
+                "Light": lightLayer,
+                "Dark": darkLayer,
+                "Satellite": satelliteLayer
+            };
+            
+            L.control.layers(baseMaps).addTo(window.mapPickerMap);
+            
+            // Create custom marker icon
+            const createCustomMarker = (lat, lng) => {
+                return L.marker([lat, lng], {
+                    icon: L.divIcon({
+                        className: 'custom-marker',
+                        html: '<div style="background: linear-gradient(135deg, #007bff, #0056b3); color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3);"><i class="fas fa-map-marker-alt"></i></div>',
+                        iconSize: [30, 30],
+                        iconAnchor: [15, 30]
+                    })
+                });
+            };
+            
+            // Add initial marker and store globally
+            window.mapPickerMarker = createCustomMarker(defaultLat, defaultLng).addTo(window.mapPickerMap);
             
             // Update coordinates display
             document.getElementById('selectedLat').textContent = defaultLat.toFixed(8);
             document.getElementById('selectedLng').textContent = defaultLng.toFixed(8);
             
             // Handle map click
-            map.on('click', function(e) {
+            window.mapPickerMap.on('click', function(e) {
                 const lat = e.latlng.lat;
                 const lng = e.latlng.lng;
                 
-                // Update marker
-                marker.setLatLng([lat, lng]);
+                // Remove existing marker
+                window.mapPickerMap.removeLayer(window.mapPickerMarker);
+                
+                // Add new marker
+                window.mapPickerMarker = createCustomMarker(lat, lng).addTo(window.mapPickerMap);
                 
                 // Update coordinates display
                 document.getElementById('selectedLat').textContent = lat.toFixed(8);
                 document.getElementById('selectedLng').textContent = lng.toFixed(8);
             });
             
-            // Handle search
+            // Handle search with enhanced geocoding
             document.getElementById('mapSearch').addEventListener('input', function(e) {
                 const query = e.target.value;
                 if (query.length > 3) {
-                    // Simple geocoding using OpenStreetMap Nominatim
-                    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`)
+                    // Enhanced geocoding using OpenStreetMap Nominatim
+                    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1&countrycodes=id&addressdetails=1`)
                         .then(response => response.json())
                         .then(data => {
                             if (data.length > 0) {
                                 const lat = parseFloat(data[0].lat);
                                 const lng = parseFloat(data[0].lon);
                                 
-                                map.setView([lat, lng], 15);
-                                marker.setLatLng([lat, lng]);
+                                window.mapPickerMap.setView([lat, lng], 15);
+                                
+                                // Remove existing marker
+                                window.mapPickerMap.removeLayer(window.mapPickerMarker);
+                                
+                                // Add new marker
+                                window.mapPickerMarker = createCustomMarker(lat, lng).addTo(window.mapPickerMap);
                                 
                                 document.getElementById('selectedLat').textContent = lat.toFixed(8);
                                 document.getElementById('selectedLng').textContent = lng.toFixed(8);
+                                
+                                // Show success message
+                                showToast(`Lokasi ditemukan: ${data[0].display_name}`, 'success');
                             }
                         })
-                        .catch(error => console.error('Geocoding error:', error));
+                        .catch(error => {
+                            console.error('Geocoding error:', error);
+                            showToast('Gagal mencari lokasi', 'error');
+                        });
                 }
+            });
+            
+        }
+
+        // Get current GPS location
+        function getCurrentLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    
+                    // Update map view
+                    if (window.mapPickerMap) {
+                        window.mapPickerMap.setView([lat, lng], 15);
+                        
+                        // Remove existing marker
+                        if (window.mapPickerMarker) {
+                            window.mapPickerMap.removeLayer(window.mapPickerMarker);
+                        }
+                        
+                        // Add new marker
+                        window.mapPickerMarker = createCustomMarker(lat, lng).addTo(window.mapPickerMap);
+                        
+                        document.getElementById('selectedLat').textContent = lat.toFixed(8);
+                        document.getElementById('selectedLng').textContent = lng.toFixed(8);
+                        
+                        showToast('Lokasi GPS berhasil diambil', 'success');
+                    }
+                }, function(error) {
+                    showToast('Gagal mengambil lokasi GPS', 'error');
+                });
+            } else {
+                showToast('GPS tidak tersedia di browser ini', 'error');
+            }
+        }
+        
+        // Reset map to default location
+        function resetMapLocation() {
+            const defaultLat = -6.2088;
+            const defaultLng = 106.8456;
+            
+            if (window.mapPickerMap) {
+                window.mapPickerMap.setView([defaultLat, defaultLng], 12);
+                
+                // Remove existing marker
+                if (window.mapPickerMarker) {
+                    window.mapPickerMap.removeLayer(window.mapPickerMarker);
+                }
+                
+                // Add new marker
+                window.mapPickerMarker = createCustomMarker(defaultLat, defaultLng).addTo(window.mapPickerMap);
+                
+                document.getElementById('selectedLat').textContent = defaultLat.toFixed(8);
+                document.getElementById('selectedLng').textContent = defaultLng.toFixed(8);
+                
+                showToast('Peta direset ke lokasi default', 'info');
+            }
+        }
+        
+        // Create custom marker function (global)
+        function createCustomMarker(lat, lng) {
+            return L.marker([lat, lng], {
+                icon: L.divIcon({
+                    className: 'custom-marker',
+                    html: '<div style="background: linear-gradient(135deg, #007bff, #0056b3); color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3);"><i class="fas fa-map-marker-alt"></i></div>',
+                    iconSize: [30, 30],
+                    iconAnchor: [15, 30]
+                })
             });
         }
 
