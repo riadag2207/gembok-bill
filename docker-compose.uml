@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  gembok-bill:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3003:3003"
+    volumes:
+      - ./settings.json:/app/settings.json
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./whatsapp-session:/app/whatsapp-session
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
