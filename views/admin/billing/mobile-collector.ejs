@@ -3,15 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kelola Pembayaran - <%= appSettings.companyHeader %></title>
+    <title>Tukang Tagih - <%= appSettings.companyHeader %></title>
     <link rel="manifest" href="/manifest.webmanifest">
     <meta name="theme-color" content="#0B1437">
     <link rel="apple-touch-icon" href="/img/icons/icon-192.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/admin-mobile-billing.css">
     <style>
-        .payment-card {
+        .collector-card {
             background: white;
             border-radius: 12px;
             padding: 1rem;
@@ -21,34 +22,26 @@
             transition: all 0.3s ease;
         }
         
-        .payment-card:hover {
+        .collector-card:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(0,0,0,0.15);
         }
         
-        .payment-card.pending {
-            border-left-color: #ffc107;
-        }
-        
-        .payment-card.failed {
-            border-left-color: #dc3545;
-        }
-        
-        .payment-header {
+        .collector-header {
             display: flex;
-            justify-content: between;
+            justify-content: space-between;
             align-items: center;
             margin-bottom: 0.5rem;
         }
         
-        .payment-id {
+        .collector-name {
             font-weight: 600;
             font-size: 1rem;
             color: #2c3e50;
             margin: 0;
         }
         
-        .payment-status {
+        .collector-status {
             padding: 0.25rem 0.5rem;
             border-radius: 20px;
             font-size: 0.75rem;
@@ -56,22 +49,17 @@
             text-transform: uppercase;
         }
         
-        .status-success {
+        .status-active {
             background: #d4edda;
             color: #155724;
         }
         
-        .status-pending {
-            background: #fff3cd;
-            color: #856404;
-        }
-        
-        .status-failed {
+        .status-inactive {
             background: #f8d7da;
             color: #721c24;
         }
         
-        .payment-info {
+        .collector-info {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 0.5rem;
@@ -90,14 +78,32 @@
             width: 16px;
         }
         
-        .payment-amount {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: #2c3e50;
-            margin: 0.5rem 0;
+        .collector-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+            padding: 0.75rem;
+            background: #f8f9fa;
+            border-radius: 8px;
         }
         
-        .payment-actions {
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+        
+        .stat-label {
+            font-size: 0.75rem;
+            color: #6c757d;
+        }
+        
+        .collector-actions {
             display: flex;
             gap: 0.5rem;
             margin-top: 0.75rem;
@@ -123,30 +129,21 @@
             background: #0056b3;
         }
         
-        .btn-approve {
+        .btn-payments {
             background: #28a745;
             color: white;
         }
         
-        .btn-approve:hover {
+        .btn-payments:hover {
             background: #1e7e34;
         }
         
-        .btn-reject {
-            background: #dc3545;
-            color: white;
-        }
-        
-        .btn-reject:hover {
-            background: #c82333;
-        }
-        
-        .btn-refund {
+        .btn-assign {
             background: #ffc107;
             color: #212529;
         }
         
-        .btn-refund:hover {
+        .btn-assign:hover {
             background: #e0a800;
         }
         
@@ -213,12 +210,12 @@
             right: 20px;
             width: 56px;
             height: 56px;
-            background: linear-gradient(135deg, #ffc107, #e0a800);
+            background: linear-gradient(135deg, #28a745, #1e7e34);
             border: none;
             border-radius: 50%;
-            color: #212529;
+            color: white;
             font-size: 1.5rem;
-            box-shadow: 0 4px 15px rgba(255,193,7,0.4);
+            box-shadow: 0 4px 15px rgba(40,167,69,0.4);
             cursor: pointer;
             transition: all 0.3s ease;
             z-index: 999;
@@ -226,7 +223,7 @@
         
         .floating-add-btn:hover {
             transform: scale(1.1);
-            box-shadow: 0 6px 20px rgba(255,193,7,0.6);
+            box-shadow: 0 6px 20px rgba(40,167,69,0.6);
         }
         
         .floating-add-btn:active {
@@ -280,27 +277,12 @@
             font-weight: 500;
         }
         
-        .payment-method {
-            display: inline-flex;
-            align-items: center;
-            padding: 0.25rem 0.5rem;
-            background: #f8f9fa;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            color: #495057;
-            margin-top: 0.25rem;
-        }
-        
-        .payment-method i {
-            margin-right: 0.25rem;
-        }
-        
         @media (max-width: 480px) {
-            .payment-info {
+            .collector-info {
                 grid-template-columns: 1fr;
             }
             
-            .payment-actions {
+            .collector-actions {
                 flex-direction: column;
             }
             
@@ -323,12 +305,12 @@
                     <i class="bi bi-arrow-left" style="font-size: 1.2rem;"></i>
                 </a>
                 <div>
-                    <h4 class="mb-1">Kelola Pembayaran</h4>
-                    <p class="mb-0 opacity-75">Daftar dan kelola pembayaran</p>
+                    <h4 class="mb-1">Tukang Tagih</h4>
+                    <p class="mb-0 opacity-75">Kelola tukang tagih dan pembayaran</p>
                 </div>
             </div>
             <div class="text-end">
-                <i class="bi bi-credit-card" style="font-size: 1.5rem; opacity: 0.8;"></i>
+                <i class="bi bi-person-check" style="font-size: 1.5rem; opacity: 0.8;"></i>
             </div>
         </div>
     </div>
@@ -337,12 +319,12 @@
         <!-- Summary Cards -->
         <div class="summary-cards">
             <div class="summary-card">
-                <div class="summary-value text-success">Rp <%= statistics.todayRevenue ? statistics.todayRevenue.toLocaleString('id-ID') : '0' %></div>
-                <div class="summary-label">Pembayaran Hari Ini</div>
+                <div class="summary-value text-success"><%= statistics.totalCollectors || 0 %></div>
+                <div class="summary-label">Total Tukang Tagih</div>
             </div>
             <div class="summary-card">
-                <div class="summary-value text-warning"><%= statistics.pendingCount || 0 %></div>
-                <div class="summary-label">Menunggu Konfirmasi</div>
+                <div class="summary-value text-warning">Rp <%= statistics.todayPayments ? statistics.todayPayments.toLocaleString('id-ID') : '0' %></div>
+                <div class="summary-label">Pembayaran Hari Ini</div>
             </div>
         </div>
 
@@ -350,7 +332,7 @@
         <div class="search-bar">
             <div class="position-relative">
                 <i class="bi bi-search search-icon"></i>
-                <input type="text" class="search-input" placeholder="Cari pembayaran..." id="searchInput">
+                <input type="text" class="search-input" placeholder="Cari tukang tagih..." id="searchInput">
             </div>
         </div>
 
@@ -359,85 +341,73 @@
             <div class="filter-tab active" data-filter="all">
                 <i class="bi bi-list me-1"></i>Semua
             </div>
-            <div class="filter-tab" data-filter="success">
-                <i class="bi bi-check-circle me-1"></i>Berhasil
+            <div class="filter-tab" data-filter="active">
+                <i class="bi bi-check-circle me-1"></i>Aktif
             </div>
-            <div class="filter-tab" data-filter="pending">
-                <i class="bi bi-clock me-1"></i>Pending
-            </div>
-            <div class="filter-tab" data-filter="failed">
-                <i class="bi bi-x-circle me-1"></i>Gagal
+            <div class="filter-tab" data-filter="inactive">
+                <i class="bi bi-x-circle me-1"></i>Nonaktif
             </div>
         </div>
 
-        <!-- Payments List -->
-        <div id="paymentsList">
-            <% if (payments && payments.length > 0) { %>
-                <% payments.forEach(function(payment) { %>
-                    <div class="payment-card <%= payment.status || 'pending' %>" data-status="<%= payment.status || 'pending' %>">
-                        <div class="payment-header">
-                            <h6 class="payment-id"><%= payment.payment_id || 'PAY-' + payment.id %></h6>
-                            <span class="payment-status status-<%= payment.status || 'pending' %>">
-                                <%= payment.status === 'success' ? 'Berhasil' : 
-                                    payment.status === 'failed' ? 'Gagal' : 'Pending' %>
+        <!-- Collectors List -->
+        <div id="collectorsList">
+            <% if (collectors && collectors.length > 0) { %>
+                <% collectors.forEach(function(collector) { %>
+                    <div class="collector-card" data-status="<%= collector.status || 'active' %>">
+                        <div class="collector-header">
+                            <h6 class="collector-name"><%= collector.name %></h6>
+                            <span class="collector-status status-<%= collector.status || 'active' %>">
+                                <%= collector.status === 'active' ? 'Aktif' : 'Nonaktif' %>
                             </span>
                         </div>
-                        <div class="payment-info">
+                        <div class="collector-info">
                             <div class="info-item">
-                                <i class="bi bi-person"></i>
-                                <%= payment.customer_name || 'Nama tidak tersedia' %>
+                                <i class="bi bi-telephone"></i>
+                                <%= collector.phone %>
+                            </div>
+                            <div class="info-item">
+                                <i class="bi bi-geo-alt"></i>
+                                <%= collector.address || 'Alamat tidak tersedia' %>
+                            </div>
+                            <div class="info-item">
+                                <i class="bi bi-percent"></i>
+                                Komisi: <%= collector.commission_rate || 5 %>% 
                             </div>
                             <div class="info-item">
                                 <i class="bi bi-calendar"></i>
-                                <%= payment.created_at ? new Date(payment.created_at).toLocaleDateString('id-ID') : 'Tanggal tidak tersedia' %>
-                            </div>
-                            <div class="info-item">
-                                <i class="bi bi-receipt"></i>
-                                <%= payment.invoice_number || 'INV-' + payment.invoice_id || 'Tagihan tidak tersedia' %>
-                            </div>
-                            <div class="info-item">
-                                <i class="bi bi-clock"></i>
-                                <%= payment.created_at ? new Date(payment.created_at).toLocaleTimeString('id-ID', {hour: '2-digit', minute: '2-digit'}) + ' WIB' : 'Waktu tidak tersedia' %>
+                                Bergabung: <%= collector.created_at ? new Date(collector.created_at).toLocaleDateString('id-ID') : 'Tidak diketahui' %>
                             </div>
                         </div>
-                        <div class="payment-amount">Rp <%= payment.amount ? payment.amount.toLocaleString('id-ID') : '0' %></div>
-                        <div class="payment-method">
-                            <i class="bi bi-<%= payment.method === 'bank_transfer' ? 'credit-card' : payment.method === 'ewallet' ? 'phone' : 'credit-card' %>"></i>
-                            <%= payment.method === 'bank_transfer' ? 'Transfer Bank' : 
-                                payment.method === 'ewallet' ? 'E-Wallet' : 
-                                payment.method === 'credit_card' ? 'Kartu Kredit' : 
-                                payment.method || 'Metode tidak tersedia' %>
+                        <div class="collector-stats">
+                            <div class="stat-item">
+                                <div class="stat-value text-success"><%= collector.total_payments || 0 %></div>
+                                <div class="stat-label">Total Pembayaran</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value text-warning">Rp <%= collector.total_commission ? collector.total_commission.toLocaleString('id-ID') : '0' %></div>
+                                <div class="stat-label">Total Komisi</div>
+                            </div>
                         </div>
-                        <div class="payment-actions">
-                            <button class="action-btn btn-view" onclick="viewPayment('<%= payment.id %>')">
-                                <i class="bi bi-eye me-1"></i>Lihat
+                        <div class="collector-actions">
+                            <button class="action-btn btn-view" onclick="viewCollector('<%= collector.id %>')">
+                                <i class="bi bi-eye me-1"></i>Detail
                             </button>
-                            <% if (payment.status === 'success') { %>
-                                <button class="action-btn btn-refund" onclick="refundPayment('<%= payment.id %>')">
-                                    <i class="bi bi-arrow-counterclockwise me-1"></i>Refund
-                                </button>
-                            <% } else if (payment.status === 'pending') { %>
-                                <button class="action-btn btn-approve" onclick="approvePayment('<%= payment.id %>')">
-                                    <i class="bi bi-check me-1"></i>Setujui
-                                </button>
-                                <button class="action-btn btn-reject" onclick="rejectPayment('<%= payment.id %>')">
-                                    <i class="bi bi-x me-1"></i>Tolak
-                                </button>
-                            <% } else if (payment.status === 'failed') { %>
-                                <button class="action-btn btn-retry" onclick="retryPayment('<%= payment.id %>')">
-                                    <i class="bi bi-arrow-clockwise me-1"></i>Ulangi
-                                </button>
-                            <% } %>
+                            <button class="action-btn btn-payments" onclick="viewPayments('<%= collector.id %>')">
+                                <i class="bi bi-credit-card me-1"></i>Pembayaran
+                            </button>
+                            <button class="action-btn btn-assign" onclick="assignCustomers('<%= collector.id %>')">
+                                <i class="bi bi-people me-1"></i>Assign
+                            </button>
                         </div>
                     </div>
                 <% }); %>
             <% } else { %>
                 <div id="emptyState" class="empty-state" style="display: block;">
-                    <i class="bi bi-credit-card"></i>
-                    <h5>Tidak ada pembayaran</h5>
-                    <p>Belum ada pembayaran yang tercatat atau sesuai dengan filter yang dipilih.</p>
-                    <button class="btn btn-primary" onclick="addPayment()">
-                        <i class="bi bi-plus me-2"></i>Input Pembayaran
+                    <i class="bi bi-person-check"></i>
+                    <h5>Tidak ada tukang tagih</h5>
+                    <p>Belum ada tukang tagih yang terdaftar atau sesuai dengan filter yang dipilih.</p>
+                    <button class="btn btn-primary" onclick="addCollector()">
+                        <i class="bi bi-plus me-2"></i>Tambah Tukang Tagih
                     </button>
                 </div>
             <% } %>
@@ -446,8 +416,14 @@
     </div>
 
     <!-- Floating Add Button -->
-    <button class="floating-add-btn" onclick="addPayment()" title="Input Pembayaran">
+    <button class="floating-add-btn" onclick="addCollector()" title="Tambah Tukang Tagih">
         <i class="bi bi-plus"></i>
+    </button>
+
+    <!-- Floating Payment Button -->
+    <button class="floating-add-btn" onclick="inputPayment()" title="Input Pembayaran" 
+            style="bottom: 160px; background: linear-gradient(135deg, #007bff, #0056b3);">
+        <i class="bi bi-credit-card"></i>
     </button>
 
     <!-- Bottom Navigation -->
@@ -464,66 +440,50 @@
             <i class="bi bi-house"></i>
             <span>Home</span>
         </a>
-        <a class="nav-item active" href="/admin/billing/mobile/payments">
+        <a class="nav-item" href="/admin/billing/mobile/payments">
             <i class="bi bi-credit-card"></i>
             <span>Bayar</span>
         </a>
-        <a class="nav-item" href="/admin/billing/mobile/map">
-            <i class="bi bi-geo-alt"></i>
-            <span>Map</span>
+        <a class="nav-item active" href="/admin/billing/mobile/collector">
+            <i class="bi bi-person-check"></i>
+            <span>Tagih</span>
         </a>
     </nav>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/js/admin-mobile-billing.js"></script>
     <script>
-        // Payment management functions
-        function addPayment() {
-            window.location.href = '/admin/billing/payments?action=add';
+        // Collector management functions
+        function addCollector() {
+            window.location.href = '/admin/billing/collectors?action=add';
         }
         
-        function viewPayment(id) {
-            window.location.href = `/admin/billing/payments/${id}`;
+        function viewCollector(id) {
+            window.location.href = `/admin/billing/collectors/${id}`;
         }
         
-        function approvePayment(id) {
-            if (confirm('Apakah Anda yakin ingin menyetujui pembayaran ini?')) {
-                // Implement approve logic
-                showNotification('Pembayaran berhasil disetujui', 'success');
-            }
+        function viewPayments(id) {
+            window.location.href = `/admin/billing/collectors/${id}/payments`;
         }
         
-        function rejectPayment(id) {
-            if (confirm('Apakah Anda yakin ingin menolak pembayaran ini?')) {
-                // Implement reject logic
-                showNotification('Pembayaran berhasil ditolak', 'warning');
-            }
+        function assignCustomers(id) {
+            window.location.href = `/admin/billing/collectors/${id}/assignments`;
         }
         
-        function refundPayment(id) {
-            if (confirm('Apakah Anda yakin ingin melakukan refund untuk pembayaran ini?')) {
-                // Implement refund logic
-                showNotification('Refund berhasil diproses', 'info');
-            }
-        }
-        
-        function retryPayment(id) {
-            if (confirm('Apakah Anda yakin ingin mencoba ulang pembayaran ini?')) {
-                // Implement retry logic
-                showNotification('Pembayaran sedang diproses ulang', 'info');
-            }
+        function inputPayment() {
+            window.location.href = '/admin/billing/mobile/collector/payment';
         }
         
         // Search and filter functionality
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('searchInput');
             const filterTabs = document.querySelectorAll('.filter-tab');
-            const paymentCards = document.querySelectorAll('.payment-card');
+            const collectorCards = document.querySelectorAll('.collector-card');
             
             // Search functionality
             searchInput.addEventListener('input', function() {
                 const searchTerm = this.value.toLowerCase();
-                filterPayments(searchTerm, getActiveFilter());
+                filterCollectors(searchTerm, getActiveFilter());
             });
             
             // Filter functionality
@@ -534,9 +494,9 @@
                     // Add active class to clicked tab
                     this.classList.add('active');
                     
-                    // Filter payments
+                    // Filter collectors
                     const searchTerm = searchInput.value.toLowerCase();
-                    filterPayments(searchTerm, this.dataset.filter);
+                    filterCollectors(searchTerm, this.dataset.filter);
                 });
             });
         });
@@ -546,17 +506,17 @@
             return activeTab ? activeTab.dataset.filter : 'all';
         }
         
-        function filterPayments(searchTerm, statusFilter) {
-            const paymentCards = document.querySelectorAll('.payment-card');
+        function filterCollectors(searchTerm, statusFilter) {
+            const collectorCards = document.querySelectorAll('.collector-card');
             let visibleCount = 0;
             
-            paymentCards.forEach(card => {
-                const paymentId = card.querySelector('.payment-id').textContent.toLowerCase();
-                const customerName = card.querySelector('.info-item').textContent.toLowerCase();
-                const paymentStatus = card.dataset.status;
+            collectorCards.forEach(card => {
+                const collectorName = card.querySelector('.collector-name').textContent.toLowerCase();
+                const collectorPhone = card.querySelector('.info-item').textContent.toLowerCase();
+                const collectorStatus = card.dataset.status;
                 
-                const matchesSearch = paymentId.includes(searchTerm) || customerName.includes(searchTerm);
-                const matchesFilter = statusFilter === 'all' || paymentStatus === statusFilter;
+                const matchesSearch = collectorName.includes(searchTerm) || collectorPhone.includes(searchTerm);
+                const matchesFilter = statusFilter === 'all' || collectorStatus === statusFilter;
                 
                 if (matchesSearch && matchesFilter) {
                     card.style.display = 'block';
@@ -568,16 +528,19 @@
             
             // Show/hide empty state
             const emptyState = document.getElementById('emptyState');
-            const paymentsList = document.getElementById('paymentsList');
+            const collectorsList = document.getElementById('collectorsList');
             
             if (visibleCount === 0) {
-                paymentsList.style.display = 'none';
+                collectorsList.style.display = 'none';
                 emptyState.style.display = 'block';
             } else {
-                paymentsList.style.display = 'block';
+                collectorsList.style.display = 'block';
                 emptyState.style.display = 'none';
             }
         }
     </script>
+
+    <!-- Mobile Bottom Navigation -->
+    <%- include('../../partials/mobile-navbar', { currentPage: 'collector' }) %>
 </body>
 </html>

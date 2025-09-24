@@ -1316,7 +1316,7 @@
 
         // Initialize map
         function initMap() {
-            console.log('🗺️ Initializing map...');
+            console.log('🗺️ Initializing map with satellite view as default...');
             
             // Create map centered on Jakarta
             map = L.map('map').setView([-6.2088, 106.8456], 13);
@@ -1338,14 +1338,14 @@
                 attribution: '© Esri © DigitalGlobe © GeoEye © i-cubed © USDA FSA © USGS © AeroGRID © IGN © IGP'
             });
             
-            // Add default light theme
-            lightTheme.addTo(map);
+            // Add default satellite theme
+            satelliteTheme.addTo(map);
             
-            // Create base layers object
+            // Create base layers object (Satellite is default)
             const baseLayers = {
+                "Satellite": satelliteTheme,
                 "Light Theme": lightTheme,
-                "Dark Theme": darkTheme,
-                "Satellite": satelliteTheme
+                "Dark Theme": darkTheme
             };
                 
             // Initialize layers
@@ -1389,7 +1389,7 @@
                 }
             }, 100);
             
-            console.log('✅ Map initialized successfully');
+            console.log('✅ Map initialized successfully with satellite view as default');
             
             // Load network data
             loadNetworkData();
@@ -2379,6 +2379,10 @@
             document.getElementById('editOnuCustomerId').value = onuDevice.customer_id || '';
             document.getElementById('editOnuOdpId').value = onuDevice.odp_id || '';
             
+            // Populate WiFi configuration from GenieACS data
+            document.getElementById('editOnuSsid').value = onuDevice.ssid || '';
+            document.getElementById('editOnuPassword').value = onuDevice.password || '';
+            
             // Show edit modal
             const editModal = new bootstrap.Modal(document.getElementById('editONUModal'));
             editModal.show();
@@ -2414,6 +2418,23 @@
             }
         }
         
+        // Toggle password visibility
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('editOnuPassword');
+            const toggleBtn = document.getElementById('togglePassword');
+            const icon = toggleBtn.querySelector('i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+        
         // Save ONU changes
         function saveONU() {
             const form = document.getElementById('editONUForm');
@@ -2437,6 +2458,73 @@
             saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
             saveBtn.disabled = true;
             
+            // Check if SSID or password needs to be updated via GenieACS
+            const ssid = onuData.ssid;
+            const password = onuData.password;
+            const deviceId = onuData.id;
+            
+            // If SSID or password is provided, update via GenieACS API
+            if (ssid || password) {
+                console.log('Updating WiFi settings via GenieACS:', { deviceId, ssid, password });
+                
+                // Update SSID if provided
+                if (ssid) {
+                    fetch('/admin/genieacs/edit', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify({
+                            id: deviceId,
+                            ssid: ssid
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            console.log('SSID updated successfully:', data);
+                        } else {
+                            console.error('SSID update failed:', data);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error updating SSID:', error);
+                    });
+                }
+                
+                // Update password if provided
+                if (password) {
+                    fetch('/admin/genieacs/edit', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify({
+                            id: deviceId,
+                            password: password
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            console.log('Password updated successfully:', data);
+                        } else {
+                            console.error('Password update failed:', data);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error updating password:', error);
+                    });
+                }
+            }
+            
+            // Send basic ONU data to server (without SSID/password as they're handled by GenieACS)
+            const basicOnuData = { ...onuData };
+            delete basicOnuData.ssid;
+            delete basicOnuData.password;
+            
             // Send data to server
             fetch('/admin/billing/update-onu', {
                 method: 'POST',
@@ -2444,7 +2532,7 @@
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                 },
-                body: JSON.stringify(onuData)
+                body: JSON.stringify(basicOnuData)
             })
             .then(response => response.json())
             .then(data => {
@@ -2653,6 +2741,34 @@
             initMap();
             initMobileToggles();
             
+            // Inject per-field save buttons for SSID and WiFi password in Edit ONU modal
+            try {
+                const ssidInput = document.getElementById('editOnuSsid');
+                if (ssidInput && !document.getElementById('saveSsidBtn')) {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'btn btn-sm btn-primary ms-2';
+                    btn.id = 'saveSsidBtn';
+                    btn.innerHTML = '<i class="fas fa-save me-1"></i>Simpan SSID';
+                    ssidInput.parentElement.appendChild(btn);
+                }
+                const pwdInput = document.getElementById('editOnuPassword');
+                if (pwdInput && !document.getElementById('saveWifiPasswordBtn')) {
+                    const btn2 = document.createElement('button');
+                    btn2.type = 'button';
+                    btn2.className = 'btn btn-sm btn-warning ms-2';
+                    btn2.id = 'saveWifiPasswordBtn';
+                    btn2.innerHTML = '<i class="fas fa-key me-1"></i>Simpan Password WiFi';
+                    pwdInput.parentElement.appendChild(btn2);
+                }
+            } catch (_) {}
+
+            // Add event listener for password toggle
+            const togglePasswordBtn = document.getElementById('togglePassword');
+            if (togglePasswordBtn) {
+                togglePasswordBtn.addEventListener('click', togglePasswordVisibility);
+            }
+            
             // Add event listeners for modal buttons
             document.addEventListener('click', function(e) {
                 if (e.target.id === 'edit-odp-btn') {
@@ -2669,6 +2785,66 @@
                     restartONU(deviceId);
                 } else if (e.target.id === 'saveOnuBtn') {
                     saveONU();
+                } else if (e.target.id === 'saveSsidBtn') {
+                    // Save only SSID via GenieACS, without touching other settings
+                    const deviceId = document.getElementById('editOnuId')?.value;
+                    const ssidVal = document.getElementById('editOnuSsid')?.value || '';
+                    if (!deviceId || !ssidVal) {
+                        alert('Device ID atau SSID belum diisi');
+                        return;
+                    }
+                    e.target.disabled = true;
+                    const original = e.target.innerHTML;
+                    e.target.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+                    fetch('/admin/genieacs/edit', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ id: deviceId, ssid: ssidVal })
+                    }).then(r => r.json()).then(data => {
+                        if (!data.success) throw new Error(data.message || 'Gagal update SSID');
+                        alert('SSID berhasil dikirim. Perubahan diproses di background.');
+                        // Auto-close modal setelah berhasil
+                        const editModal = bootstrap.Modal.getInstance(document.getElementById('editONUModal'));
+                        if (editModal) editModal.hide();
+                    }).catch(err => {
+                        console.error(err);
+                        alert('Gagal menyimpan SSID: ' + err.message);
+                    }).finally(() => {
+                        e.target.disabled = false;
+                        e.target.innerHTML = original;
+                    });
+                } else if (e.target.id === 'saveWifiPasswordBtn') {
+                    // Save only WiFi password via GenieACS, without touching other settings
+                    const deviceId = document.getElementById('editOnuId')?.value;
+                    const pwdVal = document.getElementById('editOnuPassword')?.value || '';
+                    if (!deviceId || !pwdVal) {
+                        alert('Device ID atau Password belum diisi');
+                        return;
+                    }
+                    e.target.disabled = true;
+                    const original = e.target.innerHTML;
+                    e.target.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+                    fetch('/admin/genieacs/edit', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ id: deviceId, password: pwdVal })
+                    }).then(r => r.json()).then(data => {
+                        if (!data.success) throw new Error(data.message || 'Gagal update Password');
+                        alert('Password WiFi berhasil dikirim. Perubahan diproses di background.');
+                        // Auto-close modal setelah berhasil
+                        const editModal = bootstrap.Modal.getInstance(document.getElementById('editONUModal'));
+                        if (editModal) editModal.hide();
+                    }).catch(err => {
+                        console.error(err);
+                        alert('Gagal menyimpan Password WiFi: ' + err.message);
+                    }).finally(() => {
+                        e.target.disabled = false;
+                        e.target.innerHTML = original;
+                    });
                 } else if (e.target.id === 'saveOdpBtn') {
                     saveODP();
                 } else if (e.target.id === 'saveCustomerBtn') {

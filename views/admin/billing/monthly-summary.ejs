@@ -187,6 +187,9 @@
                         <button id="generateSummaryBtn" class="btn btn-success me-2" onclick="generateSummary()">
                             <i class="bx bx-plus"></i> Generate Summary Bulan Ini
                         </button>
+                        <button id="monthlyResetBtn" class="btn btn-danger me-2" onclick="monthlyReset()">
+                            <i class="bx bx-reset"></i> Reset Bulanan
+                        </button>
                         <a href="/admin/billing/dashboard" class="btn btn-outline-primary">
                             <i class="bx bx-arrow-back"></i> Kembali ke Dashboard
                         </a>
@@ -763,6 +766,79 @@
                 }
             }, 5000);
         }
+
+        // Monthly Reset Function
+        async function monthlyReset() {
+            if (!confirm('⚠️ PERINGATAN!\n\nAnda akan melakukan reset bulanan yang akan:\n\n✅ Menyimpan snapshot data bulanan\n🔄 Reset statistik ke nol\n📊 Data historis tetap tersimpan\n\nApakah Anda yakin ingin melanjutkan?')) {
+                return;
+            }
+
+            const resetBtn = document.getElementById('monthlyResetBtn');
+            const originalText = resetBtn.innerHTML;
+            
+            try {
+                // Show loading state
+                resetBtn.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> Processing...';
+                resetBtn.disabled = true;
+
+                // Call API
+                const response = await fetch('/admin/billing/api/monthly-reset', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert('success', 'Reset Bulanan Berhasil!', 
+                        'Data bulanan telah direset. Statistik akan dimulai dari nol untuk bulan ini.');
+                    
+                    // Reload page setelah 2 detik
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                } else {
+                    showAlert('danger', 'Reset Gagal!', result.message || 'Terjadi kesalahan saat reset bulanan.');
+                }
+
+            } catch (error) {
+                console.error('Error in monthly reset:', error);
+                showAlert('danger', 'Reset Gagal!', 'Terjadi kesalahan jaringan. Silakan coba lagi.');
+            } finally {
+                // Reset button state
+                resetBtn.innerHTML = originalText;
+                resetBtn.disabled = false;
+            }
+        }
+
+        // Get monthly reset status
+        async function getMonthlyResetStatus() {
+            try {
+                const response = await fetch('/admin/billing/api/monthly-reset-status');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const data = result.data;
+                    console.log('Monthly reset status:', data);
+                    
+                    // Update UI dengan informasi reset
+                    if (data.lastReset) {
+                        const lastResetDate = new Date(data.lastReset).toLocaleDateString('id-ID');
+                        console.log(`Last reset: ${lastResetDate}`);
+                    }
+                }
+            } catch (error) {
+                console.error('Error getting reset status:', error);
+            }
+        }
+
+        // Load reset status saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', function() {
+            getMonthlyResetStatus();
+        });
     </script>
 </body>
 </html>

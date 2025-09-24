@@ -325,12 +325,12 @@
 
             $.post('/admin/billing/service-suspension/check-overdue', function(response) {
                 if (response.success) {
-                    showToast('success', 'Check Overdue Complete', 
-                        `Checked: ${response.checked}, Suspended: ${response.suspended}, Errors: ${response.errors}`);
+                    const message = `Checked: ${response.checked || 0}, Suspended: ${response.suspended || 0}, Errors: ${response.errors || 0}`;
+                    showToast('success', 'Check Overdue Complete', message);
                     loadStats();
                     loadSuspendedCustomers();
                 } else {
-                    showToast('error', 'Error', response.message);
+                    showToast('error', 'Error', response.message || 'Unknown error occurred');
                 }
             }).fail(function(xhr) {
                 const response = xhr.responseJSON || {};
@@ -347,12 +347,12 @@
 
             $.post('/admin/billing/service-suspension/check-paid', function(response) {
                 if (response.success) {
-                    showToast('success', 'Check Paid Complete', 
-                        `Checked: ${response.checked}, Restored: ${response.restored}, Errors: ${response.errors}`);
+                    const message = `Checked: ${response.checked || 0}, Restored: ${response.restored || 0}, Errors: ${response.errors || 0}`;
+                    showToast('success', 'Check Paid Complete', message);
                     loadStats();
                     loadSuspendedCustomers();
                 } else {
-                    showToast('error', 'Error', response.message);
+                    showToast('error', 'Error', response.message || 'Unknown error occurred');
                 }
             }).fail(function(xhr) {
                 const response = xhr.responseJSON || {};
@@ -383,10 +383,18 @@
 
         // Restore customer
         function restoreCustomer(username) {
+            if (!username || username.trim() === '') {
+                showToast('error', 'Error', 'Username tidak valid');
+                return;
+            }
+
             if (!confirm(`Yakin ingin restore layanan untuk pelanggan ${username}?`)) return;
 
             const reason = prompt('Masukkan alasan buka isolir (opsional):', 'Manual restore');
             if (reason === null) return; // user canceled prompt
+
+            // Show loading state
+            showToast('info', 'Processing', `Sedang mengaktifkan layanan ${username}...`);
 
             $.post(`/admin/billing/service-suspension/restore/${username}`, { reason }, function(response) {
                 if (response.success) {
@@ -396,7 +404,7 @@
                     loadStats();
                     loadSuspendedCustomers();
                 } else {
-                    showToast('error', 'Error', response.message);
+                    showToast('error', 'Error', response.message || 'Gagal mengaktifkan layanan');
                 }
             }).fail(function(xhr) {
                 const response = xhr.responseJSON || {};
@@ -457,9 +465,12 @@
                                 sel.appendChild(opt);
                                 sel.value = current;
                             }
-                        } else {
+                        }
+                        else {
                             loadIsolirProfiles(current);
                         }
+                        // tandai siap agar change berikutnya dianggap aksi user
+                        isolirSelectReady = true;
                     }
                 })
                 .catch(() => {});
@@ -489,10 +500,53 @@
             });
         });
 
+        // Autosave saat pilihan profil berubah
+        let isolirSelectReady = false;
+        $(document).on('change', '#isolirProfileSelect', function(){
+            if (!isolirSelectReady) return; // hindari trigger saat inisialisasi
+            const value = this.value || 'isolir';
+            fetch('/admin/billing/service-suspension/isolir-profile', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+                body: new URLSearchParams({ isolir_profile: value }).toString()
+            }).then(r => r.json()).then(data => {
+                if (data && data.success) {
+                    showToast('success', 'Tersimpan', `Isolir profile diset ke: ${value}`);
+                } else {
+                    showToast('error', 'Gagal', data.message || 'Gagal menyimpan');
+                }
+            }).catch(() => {
+                showToast('error', 'Gagal', 'Gagal menyimpan');
+            });
+        });
+
         // Reload profiles button
         $('#reloadIsolirProfilesBtn').click(function(){
-            const current = document.getElementById('isolirProfileSelect')?.value;
-            loadIsolirProfiles(current);
+            // Ambil nilai terkini dari settings.json lalu reload profiles dengan pilihan itu
+            fetch('/admin/billing/service-suspension/isolir-profile')
+                .then(r => r.json())
+                .then(data => {
+                    const current = (data && data.success && data.isolir_profile) ? data.isolir_profile : (document.getElementById('isolirProfileSelect')?.value || 'isolir');
+                    loadIsolirProfiles(current);
+                    // Setelah memuat, paksa set value ke current jika perlu
+                    setTimeout(() => {
+                        const sel = document.getElementById('isolirProfileSelect');
+                        if (sel) {
+                            sel.value = current;
+                            if (sel.value !== current) {
+                                const opt = document.createElement('option');
+                                opt.value = current;
+                                opt.textContent = current;
+                                sel.appendChild(opt);
+                                sel.value = current;
+                            }
+                        }
+                    }, 300);
+                })
+                .catch(() => {
+                    const current = document.getElementById('isolirProfileSelect')?.value;
+                    loadIsolirProfiles(current);
+                });
         });
     </script>
 </body>

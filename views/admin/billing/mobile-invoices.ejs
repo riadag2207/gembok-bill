@@ -323,11 +323,11 @@
         <!-- Summary Cards -->
         <div class="summary-cards">
             <div class="summary-card">
-                <div class="summary-value text-success">Rp 15.000.000</div>
+                <div class="summary-value text-success">Rp <%= statistics.totalRevenue ? statistics.totalRevenue.toLocaleString('id-ID') : '0' %></div>
                 <div class="summary-label">Total Pendapatan</div>
             </div>
             <div class="summary-card">
-                <div class="summary-value text-warning">5</div>
+                <div class="summary-value text-warning"><%= statistics.overdueCount || 0 %></div>
                 <div class="summary-label">Tagihan Overdue</div>
             </div>
         </div>
