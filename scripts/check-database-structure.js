@@ -1,113 +1,88 @@
+/**
+ * Check Database Structure
+ * Script untuk mengecek struktur database yang ada
+ */
+
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 
-// Path ke database billing
-const dbPath = path.join(__dirname, '../data/billing.db');
-
-// Buat koneksi database
-const db = new sqlite3.Database(dbPath, (err) => {
-    if (err) {
-        console.error('Error opening database:', err.message);
+async function checkDatabaseStructure() {
+    try {
+        console.log('🔍 Checking database structure...');
+        
+        const dbPath = path.join(__dirname, '../data/billing.db');
+        const db = new sqlite3.Database(dbPath);
+        
+        // Check if database exists and is accessible
+        console.log('📊 Database path:', dbPath);
+        
+        // Get all tables
+        const tables = await new Promise((resolve, reject) => {
+            db.all("SELECT name FROM sqlite_master WHERE type='table'", (err, rows) => {
+                if (err) reject(err);
+                else resolve(rows || []);
+            });
+        });
+        
+        console.log('📋 Existing tables:');
+        tables.forEach(table => {
+            console.log(`  ✅ ${table.name}`);
+        });
+        
+        // Check customers table structure
+        if (tables.some(t => t.name === 'customers')) {
+            console.log('\n👥 Customers table structure:');
+            const customerColumns = await new Promise((resolve, reject) => {
+                db.all("PRAGMA table_info(customers)", (err, rows) => {
+                    if (err) reject(err);
+                    else resolve(rows || []);
+                });
+            });
+            
+            customerColumns.forEach(col => {
+                console.log(`  - ${col.name} (${col.type})`);
+            });
+        } else {
+            console.log('\n❌ Customers table not found!');
+        }
+        
+        // Check invoices table structure
+        if (tables.some(t => t.name === 'invoices')) {
+            console.log('\n🧾 Invoices table structure:');
+            const invoiceColumns = await new Promise((resolve, reject) => {
+                db.all("PRAGMA table_info(invoices)", (err, rows) => {
+                    if (err) reject(err);
+                    else resolve(rows || []);
+                });
+            });
+            
+            invoiceColumns.forEach(col => {
+                console.log(`  - ${col.name} (${col.type})`);
+            });
+        } else {
+            console.log('\n❌ Invoices table not found!');
+        }
+        
+        // Check if collectors tables exist
+        const collectorTables = ['collectors', 'collector_payments', 'collector_assignments'];
+        console.log('\n👥 Collector tables status:');
+        for (const tableName of collectorTables) {
+            const exists = tables.some(t => t.name === tableName);
+            console.log(`  ${exists ? '✅' : '❌'} ${tableName}`);
+        }
+        
+        db.close();
+        console.log('\n🎉 Database structure check completed!');
+        
+    } catch (error) {
+        console.error('💥 Error checking database structure:', error);
         process.exit(1);
     }
-    console.log('✅ Connected to billing database');
-});
-
-// Fungsi untuk memeriksa struktur database
-function checkDatabaseStructure() {
-    return new Promise((resolve, reject) => {
-        console.log('🔍 Checking database structure for financial reporting...\n');
-        
-        // Cek struktur tabel payment_gateway_transactions
-        db.all("PRAGMA table_info(payment_gateway_transactions)", (err, columns) => {
-            if (err) {
-                console.log('❌ Table payment_gateway_transactions not found');
-                resolve();
-                return;
-            }
-            
-            console.log('📊 Table: payment_gateway_transactions');
-            console.log('Columns:');
-            columns.forEach(col => {
-                console.log(`  - ${col.name}: ${col.type} - ${col.notnull ? 'REQUIRED' : 'OPTIONAL'}`);
-            });
-            
-            // Cek kolom yang dibutuhkan untuk laporan keuangan
-            const requiredColumns = ['payment_method', 'gateway_name'];
-            const missingColumns = requiredColumns.filter(col => 
-                !columns.some(c => c.name === col)
-            );
-            
-            if (missingColumns.length > 0) {
-                console.log(`\n❌ Missing columns: ${missingColumns.join(', ')}`);
-            } else {
-                console.log('\n✅ All required columns exist');
-            }
-            
-            // Cek struktur tabel invoices
-            db.all("PRAGMA table_info(invoices)", (err, invoiceColumns) => {
-                if (err) {
-                    console.log('❌ Table invoices not found');
-                    resolve();
-                    return;
-                }
-                
-                console.log('\n📊 Table: invoices');
-                console.log('Columns:');
-                invoiceColumns.forEach(col => {
-                    console.log(`  - ${col.name}: ${col.type} - ${col.notnull ? 'REQUIRED' : 'OPTIONAL'}`);
-                });
-                
-                // Cek kolom PPN
-                const ppnColumns = ['base_amount', 'tax_rate'];
-                const missingPPNColumns = ppnColumns.filter(col => 
-                    !invoiceColumns.some(c => c.name === col)
-                );
-                
-                if (missingPPNColumns.length > 0) {
-                    console.log(`\n❌ Missing PPN columns: ${missingPPNColumns.join(', ')}`);
-                } else {
-                    console.log('\n✅ All PPN columns exist');
-                }
-                
-                // Cek struktur tabel expenses
-                db.all("PRAGMA table_info(expenses)", (err, expenseColumns) => {
-                    if (err) {
-                        console.log('❌ Table expenses not found');
-                        resolve();
-                        return;
-                    }
-                    
-                    console.log('\n📊 Table: expenses');
-                    console.log('Columns:');
-                    expenseColumns.forEach(col => {
-                        console.log(`  - ${col.name}: ${col.type} - ${col.notnull ? 'REQUIRED' : 'OPTIONAL'}`);
-                    });
-                    
-                    resolve();
-                });
-            });
-        });
-    });
 }
 
-// Jalankan script
+// Run check if called directly
 if (require.main === module) {
-    checkDatabaseStructure()
-        .then(() => {
-            console.log('\n🎯 Database structure check completed!');
-            db.close((err) => {
-                if (err) {
-                    console.error('❌ Error closing database:', err.message);
-                } else {
-                    console.log('🔒 Database connection closed');
-                }
-            });
-        })
-        .catch(error => {
-            console.error('\n💥 Script failed:', error.message);
-            process.exit(1);
-        });
+    checkDatabaseStructure();
 }
 
-module.exports = { checkDatabaseStructure };
+module.exports = checkDatabaseStructure;
