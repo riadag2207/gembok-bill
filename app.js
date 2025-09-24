@@ -51,6 +51,9 @@ const app = express();
 // Import route adminAuth
 const { router: adminAuthRouter, adminAuth } = require('./routes/adminAuth');
 
+// Import middleware untuk access control (harus diimport sebelum digunakan)
+const { blockTechnicianAccess } = require('./middleware/technicianAccessControl');
+
 // Middleware dasar - Optimized
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
@@ -151,55 +154,59 @@ app.use('/admin', adminAuthRouter);
 
 // Import dan gunakan route adminDashboard
 const adminDashboardRouter = require('./routes/adminDashboard');
-app.use('/admin', adminDashboardRouter);
+app.use('/admin', blockTechnicianAccess, adminDashboardRouter);
 
 // Import dan gunakan route adminGenieacs
 const adminGenieacsRouter = require('./routes/adminGenieacs');
-app.use('/admin', adminGenieacsRouter);
+app.use('/admin', blockTechnicianAccess, adminGenieacsRouter);
 
 // Import dan gunakan route adminMappingNew
 const adminMappingNewRouter = require('./routes/adminMappingNew');
-app.use('/admin', adminMappingNewRouter);
+app.use('/admin', blockTechnicianAccess, adminMappingNewRouter);
 
 // Import dan gunakan route adminMikrotik
 const adminMikrotikRouter = require('./routes/adminMikrotik');
-app.use('/admin', adminMikrotikRouter);
+app.use('/admin', blockTechnicianAccess, adminMikrotikRouter);
 
 // Import dan gunakan route adminHotspot
 const adminHotspotRouter = require('./routes/adminHotspot');
-app.use('/admin/hotspot', adminHotspotRouter);
+app.use('/admin/hotspot', blockTechnicianAccess, adminHotspotRouter);
 
 // Import dan gunakan route adminSetting
 const { router: adminSettingRouter } = require('./routes/adminSetting');
-app.use('/admin/settings', adminAuth, adminSettingRouter);
+app.use('/admin/settings', blockTechnicianAccess, adminAuth, adminSettingRouter);
 
 // Import dan gunakan route configValidation
 const configValidationRouter = require('./routes/configValidation');
-app.use('/admin/config', configValidationRouter);
+app.use('/admin/config', blockTechnicianAccess, configValidationRouter);
 
 // Import dan gunakan route adminTroubleReport
 const adminTroubleReportRouter = require('./routes/adminTroubleReport');
-app.use('/admin/trouble', adminAuth, adminTroubleReportRouter);
+app.use('/admin/trouble', blockTechnicianAccess, adminAuth, adminTroubleReportRouter);
 
 // Import dan gunakan route adminBilling (dipindah ke bawah agar tidak mengganggu route login)
 const adminBillingRouter = require('./routes/adminBilling');
-app.use('/admin/billing', adminAuth, adminBillingRouter);
+app.use('/admin/billing', blockTechnicianAccess, adminAuth, adminBillingRouter);
 
 // Import dan gunakan route adminInstallationJobs
 const adminInstallationJobsRouter = require('./routes/adminInstallationJobs');
-app.use('/admin/installations', adminAuth, adminInstallationJobsRouter);
+app.use('/admin/installations', blockTechnicianAccess, adminAuth, adminInstallationJobsRouter);
 
 // Import dan gunakan route adminTechnicians
 const adminTechniciansRouter = require('./routes/adminTechnicians');
-app.use('/admin/technicians', adminAuth, adminTechniciansRouter);
+app.use('/admin/technicians', blockTechnicianAccess, adminAuth, adminTechniciansRouter);
 
 // Import dan gunakan route adminCableNetwork
 const adminCableNetworkRouter = require('./routes/adminCableNetwork');
-app.use('/admin/cable-network', adminAuth, adminCableNetworkRouter);
+app.use('/admin/cable-network', blockTechnicianAccess, adminAuth, adminCableNetworkRouter);
+
+// Import dan gunakan route adminCollectors
+const adminCollectorsRouter = require('./routes/adminCollectors');
+app.use('/admin/collectors', blockTechnicianAccess, adminCollectorsRouter);
 
 // Import dan gunakan route cache management
 const cacheManagementRouter = require('./routes/cacheManagement');
-app.use('/admin/cache', cacheManagementRouter);
+app.use('/admin/cache', blockTechnicianAccess, cacheManagementRouter);
 
 // Import dan gunakan route payment
 const paymentRouter = require('./routes/payment');
@@ -318,6 +325,14 @@ const technicianCableNetworkRouter = require('./routes/technicianCableNetwork');
 app.use('/technician', technicianCableNetworkRouter);
 // Alias Bahasa Indonesia untuk technician cable network
 app.use('/teknisi', technicianCableNetworkRouter);
+
+// Import dan gunakan route tukang tagih (collector)
+const { router: collectorAuthRouter } = require('./routes/collectorAuth');
+app.use('/collector', collectorAuthRouter);
+
+// Import dan gunakan route dashboard tukang tagih
+const collectorDashboardRouter = require('./routes/collectorDashboard');
+app.use('/collector', collectorDashboardRouter);
 
 // Inisialisasi WhatsApp dan PPPoE monitoring
 try {
