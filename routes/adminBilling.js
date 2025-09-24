@@ -1,5 +1,7 @@
 const express = require('express');
 const router = express.Router();
+const path = require('path');
+const sqlite3 = require('sqlite3').verbose();
 const billingManager = require('../config/billing');
 const logger = require('../config/logger');
 const serviceSuspension = require('../config/serviceSuspension');
@@ -100,10 +102,26 @@ router.get('/mobile/invoices', getAppSettings, async (req, res) => {
         // Get invoices list for mobile
         const invoices = await billingManager.getInvoices();
         
+        // Calculate statistics from database
+        const totalRevenue = invoices
+            .filter(invoice => invoice.status === 'paid')
+            .reduce((sum, invoice) => sum + (parseFloat(invoice.amount) || 0), 0);
+        
+        const overdueCount = invoices.filter(invoice => {
+            if (invoice.status !== 'unpaid') return false;
+            const dueDate = new Date(invoice.due_date);
+            const today = new Date();
+            return dueDate < today;
+        }).length;
+        
         res.render('admin/billing/mobile-invoices', {
             title: 'Kelola Tagihan - Mobile',
             appSettings: req.appSettings,
-            invoices: invoices || []
+            invoices: invoices || [],
+            statistics: {
+                totalRevenue: totalRevenue,
+                overdueCount: overdueCount
+            }
         });
     } catch (error) {
         logger.error('Error loading mobile invoices:', error);
@@ -120,16 +138,755 @@ router.get('/mobile/payments', getAppSettings, async (req, res) => {
         // Get payments list for mobile
         const payments = await billingManager.getPayments();
         
+        // Calculate statistics from database
+        const today = new Date();
+        const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+        
+        const todayPayments = payments.filter(payment => {
+            const paymentDate = new Date(payment.payment_date);
+            return paymentDate >= startOfDay && paymentDate < endOfDay && payment.status === 'success';
+        });
+        
+        const todayRevenue = todayPayments.reduce((sum, payment) => sum + (parseFloat(payment.amount) || 0), 0);
+        
+        const pendingCount = payments.filter(payment => payment.status === 'pending').length;
+        
         res.render('admin/billing/mobile-payments', {
             title: 'Kelola Pembayaran - Mobile',
             appSettings: req.appSettings,
-            payments: payments || []
+            payments: payments || [],
+            statistics: {
+                todayRevenue: todayRevenue,
+                pendingCount: pendingCount
+            }
         });
     } catch (error) {
         logger.error('Error loading mobile payments:', error);
         res.status(500).render('error', { 
             message: 'Error loading mobile payments',
             error: process.env.NODE_ENV === 'development' ? error : {}
+        });
+    }
+});
+
+// Monthly Reset Management
+router.post('/api/monthly-reset', adminAuth, async (req, res) => {
+    try {
+        console.log('🔄 Manual monthly reset requested...');
+        
+        const MonthlyResetSystem = require('../scripts/monthly-reset-simple');
+        const resetSystem = new MonthlyResetSystem();
+        
+        const result = await resetSystem.runMonthlyReset();
+        
+        res.json({
+            success: true,
+            message: 'Monthly reset completed successfully',
+            timestamp: new Date().toISOString()
+        });
+        
+    } catch (error) {
+        console.error('Error in manual monthly reset:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error in monthly reset: ' + error.message
+        });
+    }
+});
+
+// Get monthly reset status
+router.get('/api/monthly-reset-status', adminAuth, async (req, res) => {
+    try {
+        const dbPath = path.join(__dirname, '../data/billing.db');
+        const db = new sqlite3.Database(dbPath);
+        
+        // Get last reset date
+        const lastReset = await new Promise((resolve, reject) => {
+            db.get(`
+                SELECT value FROM system_settings 
+                WHERE key = 'monthly_reset_date'
+            `, (err, row) => {
+                if (err) reject(err);
+                else resolve(row ? row.value : null);
+            });
+        });
+        
+        // Get current month stats
+        const currentStats = await new Promise((resolve, reject) => {
+            const MonthlyResetSystem = require('../scripts/monthly-reset-simple');
+            const resetSystem = new MonthlyResetSystem();
+            resetSystem.getCurrentStatistics()
+                .then(stats => resolve(stats))
+                .catch(err => reject(err));
+        });
+        
+        db.close();
+        
+        res.json({
+            success: true,
+            data: {
+                lastReset: lastReset,
+                currentStats: currentStats,
+                nextReset: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1).toISOString()
+            }
+        });
+        
+    } catch (error) {
+        console.error('Error getting monthly reset status:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error getting reset status: ' + error.message
+        });
+    }
+});
+
+// Mobile Collector Management
+router.get('/mobile/collector', getAppSettings, async (req, res) => {
+    try {
+        // Get collectors list for mobile
+        const dbPath = path.join(__dirname, '../data/billing.db');
+        const db = new sqlite3.Database(dbPath);
+        
+        // Get collectors with statistics - dengan validasi data
+        const collectors = await new Promise((resolve, reject) => {
+            db.all(`
+                SELECT c.*, 
+                       COUNT(cp.id) as total_payments,
+                       COALESCE(SUM(cp.payment_amount), 0) as total_collected,
+                       COALESCE(SUM(cp.commission_amount), 0) as total_commission
+                FROM collectors c
+                LEFT JOIN collector_payments cp ON c.id = cp.collector_id 
+                    AND cp.status = 'completed'
+                GROUP BY c.id
+                ORDER BY c.name
+            `, (err, rows) => {
+                if (err) reject(err);
+                else {
+                    // Validasi dan format data collectors
+                    const validCollectors = (rows || []).map(row => ({
+                        ...row,
+                        commission_rate: Math.max(0, Math.min(100, parseFloat(row.commission_rate || 5))),
+                        total_payments: parseInt(row.total_payments || 0),
+                        total_collected: Math.round(parseFloat(row.total_collected || 0)),
+                        total_commission: Math.round(parseFloat(row.total_commission || 0)),
+                        name: row.name || 'Unknown Collector',
+                        status: row.status || 'active'
+                    }));
+                    resolve(validCollectors);
+                }
+            });
+        });
+        
+        // Calculate statistics
+        const today = new Date();
+        const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+        
+        const todayPayments = await new Promise((resolve, reject) => {
+            db.get(`
+                SELECT COALESCE(SUM(payment_amount), 0) as total
+                FROM collector_payments 
+                WHERE collected_at >= ? AND collected_at < ? AND status = 'completed'
+            `, [startOfDay.toISOString(), endOfDay.toISOString()], (err, row) => {
+                if (err) reject(err);
+                else resolve(Math.round(parseFloat(row ? row.total : 0))); // Rounding untuk konsistensi
+            });
+        });
+        
+        const totalCollectors = collectors.length;
+        
+        db.close();
+        
+        res.render('admin/billing/mobile-collector', {
+            title: 'Tukang Tagih - Mobile',
+            appSettings: req.appSettings,
+            collectors: collectors,
+            statistics: {
+                totalCollectors: totalCollectors,
+                todayPayments: todayPayments
+            }
+        });
+    } catch (error) {
+        logger.error('Error loading mobile collectors:', error);
+        res.status(500).render('error', { 
+            message: 'Error loading mobile collectors',
+            error: process.env.NODE_ENV === 'development' ? error : {}
+        });
+    }
+});
+
+// API: Get customer invoices for collector payment
+router.get('/api/customer-invoices/:customerId', adminAuth, async (req, res) => {
+    try {
+        const { customerId } = req.params;
+        const dbPath = path.join(__dirname, '../data/billing.db');
+        const db = new sqlite3.Database(dbPath);
+        
+        const invoices = await new Promise((resolve, reject) => {
+            db.all(`
+                SELECT i.*, p.name as package_name
+                FROM invoices i
+                LEFT JOIN packages p ON i.package_id = p.id
+                WHERE i.customer_id = ? AND i.status = 'unpaid'
+                ORDER BY i.created_at DESC
+            `, [customerId], (err, rows) => {
+                if (err) reject(err);
+                else resolve(rows || []);
+            });
+        });
+        
+        db.close();
+        
+        res.json({
+            success: true,
+            data: invoices
+        });
+        
+    } catch (error) {
+        console.error('Error getting customer invoices:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error getting customer invoices: ' + error.message
+        });
+    }
+});
+
+// API: Submit collector payment
+router.post('/api/collector-payment', adminAuth, async (req, res) => {
+    try {
+        const { collector_id, customer_id, payment_amount, payment_method, notes, invoice_ids } = req.body;
+        
+        if (!collector_id || !customer_id || !payment_amount) {
+            return res.status(400).json({
+                success: false,
+                message: 'Missing required fields'
+            });
+        }
+        
+        // Validasi jumlah pembayaran
+        const paymentAmountNum = Number(payment_amount);
+        if (paymentAmountNum <= 0 || paymentAmountNum > 999999999) {
+            return res.status(400).json({
+                success: false,
+                message: 'Jumlah pembayaran tidak valid (harus > 0 dan < 999,999,999)'
+            });
+        }
+        
+        const dbPath = path.join(__dirname, '../data/billing.db');
+        const db = new sqlite3.Database(dbPath);
+        
+        // Mulai transaction untuk operasi kompleks
+        await new Promise((resolve, reject) => {
+            db.run('BEGIN TRANSACTION', (err) => {
+                if (err) reject(err);
+                else resolve();
+            });
+        });
+        
+        try {
+            // Get collector commission rate
+        const collector = await new Promise((resolve, reject) => {
+            db.get('SELECT commission_rate FROM collectors WHERE id = ?', [collector_id], (err, row) => {
+                if (err) reject(err);
+                else resolve(row);
+            });
+        });
+        
+        if (!collector) {
+            return res.status(400).json({
+                success: false,
+                message: 'Collector not found'
+            });
+        }
+        
+        const commissionRate = collector.commission_rate || 5;
+        
+        // Validasi commission rate
+        if (commissionRate < 0 || commissionRate > 100) {
+            return res.status(400).json({
+                success: false,
+                message: 'Rate komisi tidak valid (harus antara 0-100%)'
+            });
+        }
+        
+        const commissionAmount = Math.round((paymentAmountNum * commissionRate) / 100); // Rounding untuk komisi
+        
+        // Insert collector payment (ensure legacy 'amount' column is populated)
+        const paymentId = await new Promise((resolve, reject) => {
+            db.run(`
+                INSERT INTO collector_payments (
+                    collector_id, customer_id, amount, payment_amount, commission_amount,
+                    payment_method, notes, status, collected_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, 'completed', CURRENT_TIMESTAMP)
+            `, [collector_id, customer_id, paymentAmountNum, paymentAmountNum, commissionAmount, payment_method, notes], function(err) {
+                if (err) reject(err);
+                else resolve(this.lastID);
+            });
+        });
+        
+        // Update invoices if specified, else auto-allocate to oldest unpaid invoices
+        if (invoice_ids && invoice_ids.length > 0) {
+            for (const invoiceId of invoice_ids) {
+                // Tandai invoice lunas
+                await billingManager.updateInvoiceStatus(Number(invoiceId), 'paid', payment_method);
+                // Catat entri payment sesuai nilai invoice
+                const inv = await billingManager.getInvoiceById(Number(invoiceId));
+                const invAmount = parseFloat(inv?.amount || 0) || 0;
+                await billingManager.recordPayment({
+                    invoice_id: Number(invoiceId),
+                    amount: invAmount,
+                    payment_method,
+                    reference_number: '',
+                    notes: notes || `Collector ${collector_id}`
+                });
+            }
+        } else {
+            // Auto allocate payment to unpaid invoices (oldest first)
+            let remaining = Number(payment_amount) || 0;
+            if (remaining > 0) {
+                const unpaidInvoices = await new Promise((resolve, reject) => {
+                    db.all(`
+                        SELECT id, amount FROM invoices 
+                        WHERE customer_id = ? AND status = 'unpaid'
+                        ORDER BY due_date ASC, id ASC
+                    `, [customer_id], (err, rows) => {
+                        if (err) reject(err);
+                        else resolve(rows || []);
+                    });
+                });
+                for (const inv of unpaidInvoices) {
+                    const invAmount = Number(inv.amount) || 0;
+                    if (remaining >= invAmount && invAmount > 0) {
+                        await billingManager.updateInvoiceStatus(inv.id, 'paid', payment_method);
+                        await billingManager.recordPayment({
+                            invoice_id: inv.id,
+                            amount: invAmount,
+                            payment_method,
+                            reference_number: '',
+                            notes: notes || `Collector ${collector_id}`
+                        });
+                        remaining -= invAmount;
+                        if (remaining <= 0) break;
+                    } else {
+                        break; // skip partial for now
+                    }
+                }
+            }
+        }
+        
+            // Commit transaction jika semua operasi berhasil
+            await new Promise((resolve, reject) => {
+                db.run('COMMIT', (err) => {
+                    if (err) reject(err);
+                    else resolve();
+                });
+            });
+            
+        } catch (error) {
+            // Rollback transaction jika ada error
+            await new Promise((resolve) => {
+                db.run('ROLLBACK', () => resolve());
+            });
+            throw error;
+        } finally {
+            db.close();
+        }
+        
+        res.json({
+            success: true,
+            message: 'Payment recorded successfully',
+            payment_id: paymentId,
+            commission_amount: commissionAmount
+        });
+        
+    } catch (error) {
+        console.error('Error recording collector payment:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error recording payment: ' + error.message
+        });
+    }
+});
+
+// Mobile Collector Payment Input
+router.get('/mobile/collector/payment', getAppSettings, async (req, res) => {
+    try {
+        // Get collectors and customers for payment form
+        const dbPath = path.join(__dirname, '../data/billing.db');
+        const db = new sqlite3.Database(dbPath);
+        
+        const [collectors, customers] = await Promise.all([
+            new Promise((resolve, reject) => {
+                db.all('SELECT * FROM collectors WHERE status = "active" ORDER BY name', (err, rows) => {
+                    if (err) reject(err);
+                    else resolve(rows || []);
+                });
+            }),
+            new Promise((resolve, reject) => {
+                db.all('SELECT * FROM customers WHERE status = "active" ORDER BY name', (err, rows) => {
+                    if (err) reject(err);
+                    else resolve(rows || []);
+                });
+            })
+        ]);
+        
+        db.close();
+        
+        res.render('admin/billing/mobile-collector-payment', {
+            title: 'Input Pembayaran - Mobile',
+            appSettings: req.appSettings,
+            collectors: collectors,
+            customers: customers
+        });
+    } catch (error) {
+        logger.error('Error loading collector payment form:', error);
+        res.status(500).render('error', { 
+            message: 'Error loading payment form',
+            error: process.env.NODE_ENV === 'development' ? error : {}
+        });
+    }
+});
+
+// Collector Reports
+router.get('/collector-reports', getAppSettings, async (req, res) => {
+    try {
+        const { dateFrom, dateTo, collector } = req.query;
+        const dbPath = path.join(__dirname, '../data/billing.db');
+        const db = new sqlite3.Database(dbPath);
+        
+        // Check if collectors table exists
+        const tableExists = await new Promise((resolve, reject) => {
+            db.get(`
+                SELECT name FROM sqlite_master 
+                WHERE type='table' AND name='collectors'
+            `, (err, row) => {
+                if (err) reject(err);
+                else resolve(!!row);
+            });
+        });
+        
+        if (!tableExists) {
+            db.close();
+            return res.render('admin/billing/collector-reports', {
+                title: 'Laporan Kolektor',
+                appSettings: req.appSettings,
+                collectors: [],
+                summary: {
+                    total_collectors: 0,
+                    total_payments: 0,
+                    total_commissions: 0,
+                    total_setoran: 0
+                },
+                filters: {
+                    dateFrom: dateFrom || '',
+                    dateTo: dateTo || '',
+                    collector: collector || ''
+                },
+                error: 'Tabel kolektor belum tersedia. Silakan tambahkan kolektor terlebih dahulu.'
+            });
+        }
+        
+        // Set default date range (last 30 days)
+        const defaultDateTo = new Date();
+        const defaultDateFrom = new Date();
+        defaultDateFrom.setDate(defaultDateFrom.getDate() - 30);
+        
+        const startDate = dateFrom || defaultDateFrom.toISOString().split('T')[0];
+        const endDate = dateTo || defaultDateTo.toISOString().split('T')[0];
+        
+        // Build date filter
+        const dateFilter = `AND cp.collected_at >= '${startDate}' AND cp.collected_at <= '${endDate} 23:59:59'`;
+        
+        // Build collector filter
+        const collectorFilter = collector ? `AND c.id = ${collector}` : '';
+        
+        // Get collectors with statistics
+        const collectors = await new Promise((resolve, reject) => {
+            db.all(`
+                SELECT c.*, 
+                       COUNT(cp.id) as total_payments,
+                       COALESCE(SUM(cp.payment_amount), 0) as total_payment_amount,
+                       COALESCE(SUM(cp.commission_amount), 0) as total_commission,
+                       COALESCE(SUM(cp.payment_amount - cp.commission_amount), 0) as total_setoran
+                FROM collectors c
+                LEFT JOIN collector_payments cp ON c.id = cp.collector_id 
+                    AND cp.status = 'completed'
+                    ${dateFilter}
+                WHERE c.status = 'active' ${collectorFilter}
+                GROUP BY c.id
+                ORDER BY c.name
+            `, (err, rows) => {
+                if (err) {
+                    console.error('Error in collectors query:', err);
+                    reject(err);
+                } else {
+                    resolve(rows || []);
+                }
+            });
+        });
+        
+        // Get summary statistics
+        const summary = await new Promise((resolve, reject) => {
+            db.get(`
+                SELECT 
+                    COUNT(DISTINCT c.id) as total_collectors,
+                    COALESCE(SUM(cp.payment_amount), 0) as total_payments,
+                    COALESCE(SUM(cp.commission_amount), 0) as total_commissions,
+                    COALESCE(SUM(cp.payment_amount - cp.commission_amount), 0) as total_setoran
+                FROM collectors c
+                LEFT JOIN collector_payments cp ON c.id = cp.collector_id 
+                    AND cp.status = 'completed'
+                    ${dateFilter}
+                WHERE c.status = 'active' ${collectorFilter}
+            `, (err, row) => {
+                if (err) {
+                    console.error('Error in summary query:', err);
+                    reject(err);
+                } else {
+                    resolve(row || {
+                        total_collectors: 0,
+                        total_payments: 0,
+                        total_commissions: 0,
+                        total_setoran: 0
+                    });
+                }
+            });
+        });
+        
+        db.close();
+        
+        res.render('admin/billing/collector-reports', {
+            title: 'Laporan Kolektor',
+            appSettings: req.appSettings,
+            collectors: collectors,
+            summary: summary,
+            filters: {
+                dateFrom: startDate,
+                dateTo: endDate,
+                collector: collector || ''
+            }
+        });
+        
+    } catch (error) {
+        logger.error('Error loading collector reports:', error);
+        res.status(500).render('error', { 
+            message: 'Error loading collector reports',
+            error: process.env.NODE_ENV === 'development' ? error : {}
+        });
+    }
+});
+
+// Collector Details
+router.get('/collector-details/:id', getAppSettings, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { dateFrom, dateTo } = req.query;
+        const dbPath = path.join(__dirname, '../data/billing.db');
+        const db = new sqlite3.Database(dbPath);
+        
+        // Set default date range (last 30 days)
+        const defaultDateTo = new Date();
+        const defaultDateFrom = new Date();
+        defaultDateFrom.setDate(defaultDateFrom.getDate() - 30);
+        
+        const startDate = dateFrom || defaultDateFrom.toISOString().split('T')[0];
+        const endDate = dateTo || defaultDateTo.toISOString().split('T')[0];
+        
+        // Get collector details
+        const collector = await new Promise((resolve, reject) => {
+            db.get('SELECT * FROM collectors WHERE id = ?', [id], (err, row) => {
+                if (err) reject(err);
+                else resolve(row);
+            });
+        });
+        
+        if (!collector) {
+            db.close();
+            return res.status(404).render('error', { 
+                message: 'Kolektor tidak ditemukan',
+                error: {}
+            });
+        }
+        
+        // Get collector payments with date filter
+        const payments = await new Promise((resolve, reject) => {
+            db.all(`
+                SELECT cp.*, c.name as customer_name, c.phone as customer_phone
+                FROM collector_payments cp
+                LEFT JOIN customers c ON cp.customer_id = c.id
+                WHERE cp.collector_id = ? 
+                AND cp.collected_at >= ? 
+                AND cp.collected_at <= ?
+                ORDER BY cp.collected_at DESC
+            `, [id, startDate, endDate + ' 23:59:59'], (err, rows) => {
+                if (err) reject(err);
+                else resolve(rows || []);
+            });
+        });
+        
+        // Get collector statistics
+        const stats = await new Promise((resolve, reject) => {
+            db.get(`
+                SELECT 
+                    COUNT(*) as total_payments,
+                    COALESCE(SUM(payment_amount), 0) as total_payment_amount,
+                    COALESCE(SUM(commission_amount), 0) as total_commission,
+                    COALESCE(SUM(payment_amount - commission_amount), 0) as total_setoran
+                FROM collector_payments 
+                WHERE collector_id = ? 
+                AND collected_at >= ? 
+                AND collected_at <= ?
+                AND status = 'completed'
+            `, [id, startDate, endDate + ' 23:59:59'], (err, row) => {
+                if (err) reject(err);
+                else resolve(row || {
+                    total_payments: 0,
+                    total_payment_amount: 0,
+                    total_commission: 0,
+                    total_setoran: 0
+                });
+            });
+        });
+        
+        db.close();
+        
+        res.render('admin/billing/collector-details', {
+            title: `Detail Kolektor - ${collector.name}`,
+            appSettings: req.appSettings,
+            collector: collector,
+            payments: payments,
+            stats: stats,
+            filters: {
+                dateFrom: startDate,
+                dateTo: endDate
+            }
+        });
+        
+    } catch (error) {
+        logger.error('Error loading collector details:', error);
+        res.status(500).render('error', { 
+            message: 'Error loading collector details',
+            error: process.env.NODE_ENV === 'development' ? error : {}
+        });
+    }
+});
+
+// Collector Remittance
+router.get('/collector-remittance', getAppSettings, async (req, res) => {
+    try {
+        const dbPath = path.join(__dirname, '../data/billing.db');
+        const db = new sqlite3.Database(dbPath);
+        
+        // Get collectors with pending amounts (show all active collectors)
+        const collectors = await new Promise((resolve, reject) => {
+            db.all(`
+                SELECT c.*, 
+                       COALESCE(SUM(cp.payment_amount - cp.commission_amount), 0) as pending_amount
+                FROM collectors c
+                LEFT JOIN collector_payments cp ON c.id = cp.collector_id 
+                    AND cp.status = 'completed'
+                    AND cp.remittance_status IS NULL
+                WHERE c.status = 'active'
+                GROUP BY c.id
+                ORDER BY c.name
+            `, (err, rows) => {
+                if (err) reject(err);
+                else resolve(rows || []);
+            });
+        });
+        
+        // Get recent remittances
+        const remittances = await new Promise((resolve, reject) => {
+            db.all(`
+                SELECT cr.*, c.name as collector_name
+                FROM collector_remittances cr
+                LEFT JOIN collectors c ON cr.collector_id = c.id
+                ORDER BY cr.received_at DESC
+                LIMIT 20
+            `, (err, rows) => {
+                if (err) reject(err);
+                else resolve(rows || []);
+            });
+        });
+        
+        db.close();
+        
+        res.render('admin/billing/collector-remittance', {
+            title: 'Terima Setoran Kolektor',
+            appSettings: req.appSettings,
+            collectors: collectors,
+            remittances: remittances
+        });
+        
+    } catch (error) {
+        logger.error('Error loading collector remittance:', error);
+        res.status(500).render('error', { 
+            message: 'Error loading collector remittance',
+            error: process.env.NODE_ENV === 'development' ? error : {}
+        });
+    }
+});
+
+// API: Record Collector Remittance
+router.post('/api/collector-remittance', adminAuth, async (req, res) => {
+    try {
+        const { collector_id, remittance_amount, payment_method, notes, remittance_date } = req.body;
+        
+        if (!collector_id || !remittance_amount || !payment_method) {
+            return res.status(400).json({
+                success: false,
+                message: 'Missing required fields'
+            });
+        }
+        
+        const dbPath = path.join(__dirname, '../data/billing.db');
+        const db = new sqlite3.Database(dbPath);
+        
+        // Record remittance
+        const remittanceId = await new Promise((resolve, reject) => {
+            db.run(`
+                INSERT INTO collector_remittances (
+                    collector_id, amount, payment_method, notes, received_at, received_by
+                ) VALUES (?, ?, ?, ?, ?, ?)
+            `, [
+                collector_id,
+                remittance_amount,
+                payment_method,
+                notes,
+                remittance_date,
+                (req.session && (req.session.admin?.id || req.session.adminUser)) || 'admin'
+            ], function(err) {
+                if (err) reject(err);
+                else resolve(this.lastID);
+            });
+        });
+        
+        // Update collector payments status
+        await new Promise((resolve, reject) => {
+            db.run(`
+                UPDATE collector_payments 
+                SET remittance_status = 'received', remittance_id = ?
+                WHERE collector_id = ? AND status = 'completed' AND remittance_status IS NULL
+            `, [remittanceId, collector_id], (err) => {
+                if (err) reject(err);
+                else resolve();
+            });
+        });
+        
+        db.close();
+        
+        res.json({
+            success: true,
+            message: 'Setoran berhasil diterima',
+            remittance_id: remittanceId
+        });
+        
+    } catch (error) {
+        console.error('Error recording collector remittance:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error recording remittance: ' + error.message
         });
     }
 });
@@ -255,6 +1012,52 @@ router.get('/api/stats', adminAuth, async (req, res) => {
         res.json({ success: true, data: stats });
     } catch (error) {
         logger.error('Error getting billing stats:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// Revenue summary API (payments-based)
+router.get('/api/revenue/summary', adminAuth, async (req, res) => {
+    try {
+        const { from, to } = req.query;
+        const dbPath = path.join(__dirname, '../data/billing.db');
+        const db = new sqlite3.Database(dbPath);
+
+        function getDateStr(d) { return new Date(d).toISOString().split('T')[0]; }
+        const todayStr = getDateStr(new Date());
+        const weekAgoStr = getDateStr(new Date(Date.now() - 6 * 24 * 3600 * 1000));
+
+        const dateFrom = from || weekAgoStr;
+        const dateTo = to || todayStr;
+
+        const [todayRevenue, weekRevenue, monthRevenue] = await Promise.all([
+            new Promise((resolve, reject) => {
+                db.get(`
+                    SELECT COALESCE(SUM(amount),0) AS total
+                    FROM payments
+                    WHERE date(payment_date) = date(?)
+                `, [todayStr], (err, row) => err ? reject(err) : resolve(row?.total || 0));
+            }),
+            new Promise((resolve, reject) => {
+                db.get(`
+                    SELECT COALESCE(SUM(amount),0) AS total
+                    FROM payments
+                    WHERE date(payment_date) BETWEEN date(?) AND date(?)
+                `, [weekAgoStr, todayStr], (err, row) => err ? reject(err) : resolve(row?.total || 0));
+            }),
+            new Promise((resolve, reject) => {
+                db.get(`
+                    SELECT COALESCE(SUM(amount),0) AS total
+                    FROM payments
+                    WHERE strftime('%Y-%m', payment_date) = strftime('%Y-%m', 'now')
+                `, [], (err, row) => err ? reject(err) : resolve(row?.total || 0));
+            }),
+        ]);
+
+        db.close();
+        res.json({ success: true, data: { todayRevenue, weekRevenue, monthRevenue, dateFrom, dateTo } });
+    } catch (error) {
+        logger.error('Error getting revenue summary:', error);
         res.status(500).json({ success: false, message: error.message });
     }
 });
@@ -3346,11 +4149,27 @@ router.post('/service-suspension/suspend/:username', async (req, res) => {
         const { username } = req.params;
         const { reason } = req.body;
         
-        const customer = await billingManager.getCustomerByUsername(username);
+        // Validasi input
+        if (!username || username.trim() === '') {
+            return res.status(400).json({
+                success: false,
+                message: 'Username tidak boleh kosong'
+            });
+        }
+
+        const customer = await billingManager.getCustomerByUsername(username.trim());
         if (!customer) {
             return res.status(404).json({
                 success: false,
-                message: 'Customer not found'
+                message: 'Customer tidak ditemukan'
+            });
+        }
+
+        // Cek apakah customer sudah suspended
+        if (customer.status === 'suspended') {
+            return res.status(400).json({
+                success: false,
+                message: 'Customer sudah dalam status suspended'
             });
         }
 
@@ -3361,7 +4180,8 @@ router.post('/service-suspension/suspend/:username', async (req, res) => {
             success: result.success,
             message: result.success ? 'Service suspended successfully' : 'Failed to suspend service',
             results: result.results,
-            customer: result.customer
+            customer: result.customer,
+            reason: result.reason || (reason || 'Manual suspension')
         });
     } catch (error) {
         logger.error('Error suspending service:', error);
@@ -3377,11 +4197,27 @@ router.post('/service-suspension/restore/:username', async (req, res) => {
         const { username } = req.params;
         const { reason } = req.body || {};
         
-        const customer = await billingManager.getCustomerByUsername(username);
+        // Validasi input
+        if (!username || username.trim() === '') {
+            return res.status(400).json({
+                success: false,
+                message: 'Username tidak boleh kosong'
+            });
+        }
+
+        const customer = await billingManager.getCustomerByUsername(username.trim());
         if (!customer) {
             return res.status(404).json({
                 success: false,
-                message: 'Customer not found'
+                message: 'Customer tidak ditemukan'
+            });
+        }
+
+        // Cek apakah customer sudah active
+        if (customer.status === 'active') {
+            return res.status(400).json({
+                success: false,
+                message: 'Customer sudah dalam status active'
             });
         }
 

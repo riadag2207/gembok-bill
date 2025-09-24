@@ -202,6 +202,7 @@ class ServiceSuspensionManager {
                 if (customer.id) {
                     logger.info(`[SUSPEND] Updating billing status by id=${customer.id} to 'suspended' (username=${customer.username||customer.pppoe_username||'-'})`);
                     await billingManager.setCustomerStatusById(customer.id, 'suspended');
+                    results.billing = true;
                 } else {
                     // Resolve by username first, then phone, to obtain reliable id
                     let resolved = null;
@@ -217,9 +218,11 @@ class ServiceSuspensionManager {
                     if (resolved && resolved.id) {
                         logger.info(`[SUSPEND] Resolved customer id=${resolved.id} (username=${resolved.pppoe_username||resolved.username||'-'}) → set 'suspended'`);
                         await billingManager.setCustomerStatusById(resolved.id, 'suspended');
+                        results.billing = true;
                     } else if (customer.phone) {
                         logger.warn(`[SUSPEND] Falling back to update by phone=${customer.phone} (no id resolved)`);
                         await billingManager.updateCustomer(customer.phone, { ...customer, status: 'suspended' });
+                        results.billing = true;
                     } else {
                         logger.error(`[SUSPEND] Unable to resolve customer identifier for status update`);
                     }
@@ -393,6 +396,7 @@ class ServiceSuspensionManager {
                 if (customer.id) {
                     logger.info(`[RESTORE] Updating billing status by id=${customer.id} to 'active' (username=${customer.username||customer.pppoe_username||'-'})`);
                     await billingManager.setCustomerStatusById(customer.id, 'active');
+                    results.billing = true;
                 } else {
                     // Resolve by username first, then phone
                     let resolved = null;
@@ -408,9 +412,11 @@ class ServiceSuspensionManager {
                     if (resolved && resolved.id) {
                         logger.info(`[RESTORE] Resolved customer id=${resolved.id} (username=${resolved.pppoe_username||resolved.username||'-'}) → set 'active'`);
                         await billingManager.setCustomerStatusById(resolved.id, 'active');
+                        results.billing = true;
                     } else if (customer.phone) {
                         logger.warn(`[RESTORE] Falling back to update by phone=${customer.phone} (no id resolved)`);
                         await billingManager.updateCustomer(customer.phone, { ...customer, status: 'active' });
+                        results.billing = true;
                     } else {
                         logger.error(`[RESTORE] Unable to resolve customer identifier for status update`);
                     }

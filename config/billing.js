@@ -1455,9 +1455,10 @@ class BillingManager {
     // Helper function to calculate price with tax
     calculatePriceWithTax(price, taxRate) {
         if (!taxRate || taxRate === 0) {
-            return price;
+            return Math.round(price);
         }
-        return price * (1 + taxRate / 100);
+        const amount = price * (1 + taxRate / 100);
+        return Math.round(amount); // Konsisten rounding untuk menghilangkan desimal
     }
 
     // Invoice Management

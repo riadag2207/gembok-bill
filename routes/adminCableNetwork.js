@@ -1120,7 +1120,7 @@ router.get('/api/odp-connections', adminAuth, async (req, res) => {
 // POST: Tambah ODP connection
 router.post('/api/odp-connections', adminAuth, async (req, res) => {
     try {
-        const { from_odp_id, to_odp_id, connection_type, cable_length, cable_capacity, status, installation_date, notes } = req.body;
+        const { from_odp_id, to_odp_id, connection_type, cable_length, cable_capacity, status, installation_date, notes, polyline_geojson } = req.body;
         
         // Validasi
         if (!from_odp_id || !to_odp_id) {
@@ -1138,6 +1138,13 @@ router.post('/api/odp-connections', adminAuth, async (req, res) => {
         }
         
         const db = getDatabase();
+
+        // Ensure optional column exists (idempotent)
+        try {
+            await new Promise((resolve) => {
+                db.run('ALTER TABLE odp_connections ADD COLUMN polyline_geojson TEXT', () => resolve());
+            });
+        } catch (_) { /* ignore */ }
         
         // Cek apakah connection sudah ada
         const existingConnection = await new Promise((resolve, reject) => {
@@ -1158,12 +1165,13 @@ router.post('/api/odp-connections', adminAuth, async (req, res) => {
             });
         }
         
-        // Insert connection
+        // Insert connection (with optional polyline)
         const result = await new Promise((resolve, reject) => {
             db.run(`
-                INSERT INTO odp_connections (from_odp_id, to_odp_id, connection_type, cable_length, cable_capacity, status, installation_date, notes)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            `, [from_odp_id, to_odp_id, connection_type, cable_length, cable_capacity, status, installation_date, notes], function(err) {
+                INSERT INTO odp_connections (
+                    from_odp_id, to_odp_id, connection_type, cable_length, cable_capacity, status, installation_date, notes, polyline_geojson
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `, [from_odp_id, to_odp_id, connection_type, cable_length, cable_capacity, status, installation_date, notes, polyline_geojson || null], function(err) {
                 if (err) reject(err);
                 else resolve({ id: this.lastID });
             });
@@ -1190,17 +1198,24 @@ router.post('/api/odp-connections', adminAuth, async (req, res) => {
 router.put('/api/odp-connections/:id', adminAuth, async (req, res) => {
     try {
         const { id } = req.params;
-        const { from_odp_id, to_odp_id, connection_type, cable_length, cable_capacity, status, installation_date, notes } = req.body;
+        const { from_odp_id, to_odp_id, connection_type, cable_length, cable_capacity, status, installation_date, notes, polyline_geojson } = req.body;
         
         const db = getDatabase();
+
+        // Ensure optional column exists (idempotent)
+        try {
+            await new Promise((resolve) => {
+                db.run('ALTER TABLE odp_connections ADD COLUMN polyline_geojson TEXT', () => resolve());
+            });
+        } catch (_) { /* ignore */ }
         
         const result = await new Promise((resolve, reject) => {
             db.run(`
                 UPDATE odp_connections 
                 SET from_odp_id = ?, to_odp_id = ?, connection_type = ?, cable_length = ?, 
-                    cable_capacity = ?, status = ?, installation_date = ?, notes = ?, updated_at = CURRENT_TIMESTAMP
+                    cable_capacity = ?, status = ?, installation_date = ?, notes = ?, polyline_geojson = ?, updated_at = CURRENT_TIMESTAMP
                 WHERE id = ?
-            `, [from_odp_id, to_odp_id, connection_type, cable_length, cable_capacity, status, installation_date, notes, id], function(err) {
+            `, [from_odp_id, to_odp_id, connection_type, cable_length, cable_capacity, status, installation_date, notes, polyline_geojson || null, id], function(err) {
                 if (err) reject(err);
                 else resolve({ changes: this.changes });
             });

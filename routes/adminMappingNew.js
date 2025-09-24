@@ -464,6 +464,9 @@ router.get('/api/mapping/new', adminAuth, async (req, res) => {
                                    ssid: getParameterValue(device, 'InternetGatewayDevice.LANDevice.1.WLANConfiguration.1.SSID') || 
                                         getParameterValue(device, 'Device.WiFi.SSID.1.SSID') ||
                                         getParameterValue(device, 'VirtualParameters.wifiSSID') || 'N/A',
+                                   password: getParameterValue(device, 'InternetGatewayDevice.LANDevice.1.WLANConfiguration.1.KeyPassphrase') || 
+                                            getParameterValue(device, 'InternetGatewayDevice.LANDevice.1.WLANConfiguration.1.PreSharedKey.1.KeyPassphrase') ||
+                                            getParameterValue(device, 'VirtualParameters.wifiPassword') || 'N/A',
                                 latitude: customerData.latitude,
                                 longitude: customerData.longitude,
                                 customerName: customerData.name,

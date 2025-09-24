@@ -15,15 +15,9 @@ const billingManager = require('../config/billing');
 const { addPPPoESecret, getPPPoEProfiles } = require('../config/mikrotik');
 
 /**
- * Dashboard Teknisi - Halaman utama (reuse adminDashboard.ejs)
+ * Dashboard Teknisi - Halaman utama terpisah dari admin
  */
 router.get('/dashboard', technicianAuth, async (req, res) => {
-    // Check if mobile view is requested
-    const isMobile = req.query.mobile === 'true' || req.headers['user-agent'].includes('Mobile');
-    
-    if (isMobile) {
-        return res.redirect('/technician/mobile/dashboard');
-    }
     try {
         // Get the same data as admin dashboard but with technician context
         let genieacsTotal = 0, genieacsOnline = 0, genieacsOffline = 0;
@@ -64,31 +58,17 @@ router.get('/dashboard', technicianAuth, async (req, res) => {
         // Log activity
         await authManager.logActivity(req.technician.id, 'dashboard_access', 'Mengakses dashboard');
 
-        // Render using adminDashboard.ejs but with technician context
-        res.render('adminDashboard', {
+        // Render using technician dashboard template
+        res.render('technician/dashboard', {
             title: 'Dashboard Teknisi',
-            page: 'dashboard',
+            technician: req.technician,
             genieacsTotal,
             genieacsOnline,
             genieacsOffline,
             mikrotikTotal,
             mikrotikAktif,
             mikrotikOffline,
-            settings,
-            versionInfo: {
-                version: 'Technician Portal',
-                companyHeader: settings.company_header || 'Portal Teknisi',
-                buildNumber: new Date().toISOString().slice(0, 10).replace(/-/g, '')
-            },
-            versionBadge: {
-                text: req.technician.role || 'technician',
-                class: 'bg-primary'
-            },
-            // Add technician context to differentiate from admin
-            isTechnicianView: true,
-            technician: req.technician,
-            // Fix: Add configValidation to prevent ReferenceError
-            configValidation: req.session.configValidation || null
+            settings
         });
 
     } catch (error) {
@@ -302,7 +282,7 @@ router.get('/customers', technicianAuth, async (req, res) => {
         await authManager.logActivity(req.technician.id, 'customers_access', 'Mengakses halaman pelanggan');
 
         // Render technician customers view
-        res.render('technicianCustomers', {
+        res.render('technician/customers', {
             title: 'Kelola Pelanggan - Portal Teknisi',
             page: 'customers',
             customers,
@@ -316,6 +296,7 @@ router.get('/customers', technicianAuth, async (req, res) => {
                 hasNext: currentPage < totalPages,
                 hasPrev: currentPage > 1
             },
+            technician: req.technician,
             // View ini mengakses settings.company_header
             settings: {
                 company_header: getSetting('company_header', 'GEMBOK'),
@@ -444,19 +425,130 @@ router.get('/api/mikrotik/pppoe-profiles', technicianAuth, async (req, res) => {
     }
 });
 
+
 /**
- * Get single customer (JSON)
+ * Update customer (PUT)
  */
-router.get('/customers/:id', technicianAuth, async (req, res) => {
+router.put('/api/customers/:id', technicianAuth, async (req, res) => {
     try {
-        const id = parseInt(req.params.id);
-        if (!id) return res.status(400).json({ success: false, message: 'ID tidak valid' });
-        const customer = await billingManager.getCustomerById(id);
-        if (!customer) return res.status(404).json({ success: false, message: 'Pelanggan tidak ditemukan' });
-        res.json({ success: true, customer });
+        const customerId = parseInt(req.params.id);
+        if (!customerId) {
+            return res.status(400).json({ success: false, message: 'ID customer tidak valid' });
+        }
+
+        const {
+            name,
+            phone,
+            email,
+            address,
+            package_id,
+            status,
+            pppoe_username,
+            odp_id,
+            notes
+        } = req.body;
+
+        // Validate required fields
+        if (!name || !phone) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Nama dan nomor telepon harus diisi' 
+            });
+        }
+
+        // Validate phone format
+        const phoneRegex = /^(\+62|62|0)[0-9]{9,13}$/;
+        if (!phoneRegex.test(phone)) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Format nomor telepon tidak valid' 
+            });
+        }
+
+        // Check if customer exists
+        const existingCustomer = await billingManager.getCustomerById(customerId);
+        if (!existingCustomer) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'Customer tidak ditemukan' 
+            });
+        }
+
+        // Validate package if provided
+        if (package_id) {
+            const packages = await billingManager.getPackages();
+            const packageExists = packages.some(pkg => pkg.id === parseInt(package_id));
+            if (!packageExists) {
+                return res.status(400).json({ 
+                    success: false, 
+                    message: 'Package tidak valid' 
+                });
+            }
+        }
+
+        // Validate ODP if provided
+        if (odp_id) {
+            const db = require('../config/billing').db;
+            const odp = await new Promise((resolve, reject) => {
+                db.get('SELECT id FROM odps WHERE id = ? AND status = "active"', [odp_id], (err, row) => {
+                    if (err) reject(err);
+                    else resolve(row);
+                });
+            });
+            if (!odp) {
+                return res.status(400).json({ 
+                    success: false, 
+                    message: 'ODP tidak valid atau tidak aktif' 
+                });
+            }
+        }
+
+        // Update customer in database
+        const db = require('../config/billing').db;
+        await new Promise((resolve, reject) => {
+            const updateFields = [];
+            const values = [];
+
+            if (name) { updateFields.push('name = ?'); values.push(name); }
+            if (phone) { updateFields.push('phone = ?'); values.push(phone); }
+            if (email) { updateFields.push('email = ?'); values.push(email); }
+            if (address) { updateFields.push('address = ?'); values.push(address); }
+            if (package_id) { updateFields.push('package_id = ?'); values.push(package_id); }
+            if (status) { updateFields.push('status = ?'); values.push(status); }
+            if (pppoe_username) { updateFields.push('pppoe_username = ?'); values.push(pppoe_username); }
+            if (odp_id) { updateFields.push('odp_id = ?'); values.push(odp_id); }
+            if (notes !== undefined) { updateFields.push('notes = ?'); values.push(notes); }
+
+            // Add updated timestamp
+            updateFields.push('updated_at = CURRENT_TIMESTAMP');
+            values.push(customerId);
+
+            const sql = `UPDATE customers SET ${updateFields.join(', ')} WHERE id = ?`;
+            
+            db.run(sql, values, function(err) {
+                if (err) reject(err);
+                else resolve(this);
+            });
+        });
+
+        // Log activity
+        await authManager.logActivity(req.technician.id, 'customer_edit', `Mengedit customer ${name} (ID: ${customerId})`);
+
+        // Get updated customer data
+        const updatedCustomer = await billingManager.getCustomerById(customerId);
+
+        res.json({
+            success: true,
+            message: 'Customer berhasil diupdate',
+            customer: updatedCustomer
+        });
+
     } catch (error) {
-        logger.error('Error get customer by technician:', error);
-        res.status(500).json({ success: false, message: 'Gagal mengambil data pelanggan' });
+        logger.error('Error updating customer by technician:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Gagal mengupdate customer' 
+        });
     }
 });
 
@@ -535,6 +627,56 @@ router.delete('/customers/:id', technicianAuth, async (req, res) => {
 });
 
 /**
+ * API Endpoints untuk Edit Customer
+ */
+
+// API untuk mendapatkan packages
+router.get('/api/packages', technicianAuth, async (req, res) => {
+    try {
+        const packages = await billingManager.getPackages();
+        res.json({
+            success: true,
+            packages: packages
+        });
+    } catch (error) {
+        logger.error('Error getting packages for technician:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Gagal mengambil data packages' 
+        });
+    }
+});
+
+// API untuk mendapatkan ODPs
+router.get('/api/odps', technicianAuth, async (req, res) => {
+    try {
+        const db = require('../config/billing').db;
+        const odps = await new Promise((resolve, reject) => {
+            db.all(`
+                SELECT id, name, code, capacity, used_ports, status
+                FROM odps 
+                WHERE status = 'active'
+                ORDER BY name
+            `, (err, rows) => {
+                if (err) reject(err);
+                else resolve(rows || []);
+            });
+        });
+        
+        res.json({
+            success: true,
+            odps: odps
+        });
+    } catch (error) {
+        logger.error('Error getting ODPs for technician:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Gagal mengambil data ODPs' 
+        });
+    }
+});
+
+/**
  * API Endpoints untuk Mapping Technician
  */
 
@@ -552,6 +694,20 @@ router.get('/api/customers', technicianAuth, async (req, res) => {
             success: false, 
             error: error.message 
         });
+    }
+});
+
+// API untuk mendapatkan single customer (untuk edit)
+router.get('/api/customers/:id', technicianAuth, async (req, res) => {
+    try {
+        const id = parseInt(req.params.id);
+        if (!id) return res.status(400).json({ success: false, message: 'ID tidak valid' });
+        const customer = await billingManager.getCustomerById(id);
+        if (!customer) return res.status(404).json({ success: false, message: 'Pelanggan tidak ditemukan' });
+        res.json({ success: true, customer });
+    } catch (error) {
+        logger.error('Error get customer by technician:', error);
+        res.status(500).json({ success: false, message: 'Gagal mengambil data pelanggan' });
     }
 });
 
@@ -877,7 +1033,7 @@ router.get('/mapping', technicianAuth, async (req, res) => {
         const customers = await billingManager.getCustomers();
 
         // Render mapping khusus teknisi
-        res.render('technicianMapping', {
+        res.render('technician/mapping', {
             title: 'Network Mapping - Portal Teknisi',
             settings: {
                 company_header: getSetting('company_header', 'GEMBOK'),
@@ -1248,7 +1404,7 @@ router.get('/payments', technicianAuth, async (req, res) => {
         // Get payment statistics
         const paymentStats = await getPaymentStatsForCollector(req.technician.id);
 
-        res.render('technicianPayments', {
+        res.render('technician/collectors', {
             technician: req.technician,
             payments,
             paymentStats,
@@ -1911,6 +2067,493 @@ router.post('/genieacs/api/cache-clear', technicianAuth, async (req, res) => {
 });
 
 /**
+ * API ROUTES FOR DASHBOARD STATS
+ */
+
+// API: GenieACS Stats untuk dashboard
+router.get('/api/genieacs-stats', technicianAuth, async (req, res) => {
+    try {
+        const { getDevicesCached } = require('../config/genieacs');
+        const devices = await getDevicesCached();
+        
+        const total = devices.length;
+        const now = Date.now();
+        const online = devices.filter(dev => dev._lastInform && (now - new Date(dev._lastInform).getTime()) < 3600*1000).length;
+        const offline = total - online;
+        
+        res.json({
+            success: true,
+            total,
+            online,
+            offline
+        });
+    } catch (error) {
+        logger.error('Error getting GenieACS stats:', error);
+        res.json({
+            success: false,
+            total: 0,
+            online: 0,
+            offline: 0
+        });
+    }
+});
+
+// API: Customer Stats untuk dashboard
+router.get('/api/customer-stats', technicianAuth, async (req, res) => {
+    try {
+        const customers = await billingManager.getCustomers();
+        const total = customers.length;
+        
+        res.json({
+            success: true,
+            total
+        });
+    } catch (error) {
+        logger.error('Error getting customer stats:', error);
+        res.json({
+            success: false,
+            total: 0
+        });
+    }
+});
+
+/**
+ * MAPPING ROUTES
+ */
+
+/**
+ * Mapping Network untuk Teknisi
+ */
+router.get('/mobile/mapping', technicianAuth, async (req, res) => {
+    try {
+        // Log activity
+        await authManager.logActivity(req.technician.id, 'mapping_access', 'Mengakses network mapping');
+
+        res.render('technician/mapping', {
+            title: 'Network Mapping - Teknisi',
+            technician: req.technician
+        });
+    } catch (error) {
+        logger.error('Error loading technician mapping:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+// API: Mapping data untuk teknisi (menggunakan data real dari database seperti admin)
+router.get('/api/mapping-data', technicianAuth, async (req, res) => {
+    try {
+        const db = require('../config/billing').db;
+        
+        // Get ODPs data from database
+        const odps = await new Promise((resolve, reject) => {
+            db.all(`
+                SELECT o.id, o.name, o.code, o.capacity, o.used_ports, o.status,
+                       o.latitude, o.longitude, o.address, o.notes
+                FROM odps o
+                WHERE o.latitude IS NOT NULL AND o.longitude IS NOT NULL
+                ORDER BY o.name
+            `, (err, rows) => {
+                if (err) reject(err);
+                else resolve(rows || []);
+            });
+        });
+        
+        // Get cables data from database (sesuai struktur tabel yang sebenarnya)
+        const cables = await new Promise((resolve, reject) => {
+            db.all(`
+                SELECT c.id, c.customer_id, c.odp_id, c.cable_length, c.cable_type,
+                       c.status, c.port_number, c.notes,
+                       o.name as odp_name, o.latitude as odp_lat, o.longitude as odp_lng,
+                       cust.name as customer_name, cust.latitude as customer_lat, cust.longitude as customer_lng
+                FROM cable_routes c
+                LEFT JOIN odps o ON c.odp_id = o.id
+                LEFT JOIN customers cust ON c.customer_id = cust.id
+                WHERE o.latitude IS NOT NULL AND o.longitude IS NOT NULL
+                  AND cust.latitude IS NOT NULL AND cust.longitude IS NOT NULL
+                ORDER BY c.id
+            `, (err, rows) => {
+                if (err) reject(err);
+                else resolve(rows || []);
+            });
+        });
+        
+        // Get backbone data from database (menggunakan odp_connections table untuk routing antar ODP)
+        const backbone = await new Promise((resolve, reject) => {
+            db.all(`
+                SELECT oc.id, CONCAT('ODP-', oc.from_odp_id, '-', oc.to_odp_id) as name, 
+                       oc.from_odp_id, oc.to_odp_id, oc.connection_type, oc.cable_length,
+                       oc.status, oc.cable_capacity, oc.notes,
+                       o1.name as start_odp_name, o1.latitude as start_lat, o1.longitude as start_lng,
+                       o2.name as end_odp_name, o2.latitude as end_lat, o2.longitude as end_lng
+                FROM odp_connections oc
+                LEFT JOIN odps o1 ON oc.from_odp_id = o1.id
+                LEFT JOIN odps o2 ON oc.to_odp_id = o2.id
+                WHERE o1.latitude IS NOT NULL AND o1.longitude IS NOT NULL
+                  AND o2.latitude IS NOT NULL AND o2.longitude IS NOT NULL
+                ORDER BY oc.id
+            `, (err, rows) => {
+                if (err) reject(err);
+                else resolve(rows || []);
+            });
+        });
+        
+        // Get customers data with real coordinates from database
+        const customers = await new Promise((resolve, reject) => {
+            db.all(`
+                SELECT c.id, c.name, c.phone, c.email, c.address, c.latitude, c.longitude,
+                       c.pppoe_username, c.status, c.package_id, c.odp_id,
+                       o.name as odp_name
+                FROM customers c
+                LEFT JOIN odps o ON c.odp_id = o.id
+                WHERE c.latitude IS NOT NULL AND c.longitude IS NOT NULL
+                ORDER BY c.name
+            `, (err, rows) => {
+                if (err) reject(err);
+                else resolve(rows || []);
+            });
+        });
+        
+        // Format cables for map (sesuai struktur tabel cable_routes)
+        const formattedCables = cables.map(cable => ({
+            id: cable.id,
+            name: `Cable-${cable.id}`,
+            start_lat: cable.odp_lat,
+            start_lng: cable.odp_lng,
+            end_lat: cable.customer_lat,
+            end_lng: cable.customer_lng,
+            length: cable.cable_length,
+            type: cable.cable_type,
+            status: cable.status,
+            from_odp: cable.odp_name,
+            to_customer: cable.customer_name
+        }));
+        
+        // Format backbone for map (sesuai struktur tabel odp_connections)
+        const formattedBackbone = backbone.map(backboneItem => ({
+            id: backboneItem.id,
+            name: backboneItem.name,
+            start_lat: backboneItem.start_lat,
+            start_lng: backboneItem.start_lng,
+            end_lat: backboneItem.end_lat,
+            end_lng: backboneItem.end_lng,
+            length: backboneItem.cable_length,
+            type: backboneItem.connection_type,
+            status: backboneItem.status,
+            capacity: backboneItem.cable_capacity,
+            from_odp: backboneItem.start_odp_name,
+            to_odp: backboneItem.end_odp_name
+        }));
+        
+        logger.info(`✅ Loaded mapping data: ${odps.length} ODPs, ${customers.length} customers, ${formattedCables.length} cables, ${formattedBackbone.length} backbone routes`);
+        
+        res.json({
+            success: true,
+            data: {
+                odps: odps,
+                customers: customers,
+                cables: formattedCables,
+                backbone: formattedBackbone
+            }
+        });
+    } catch (error) {
+        logger.error('Error getting mapping data:', error);
+        res.json({
+            success: false,
+            message: 'Failed to load mapping data: ' + error.message
+        });
+    }
+});
+
+/**
+ * MONITORING ROUTES
+ */
+
+/**
+ * Device Monitoring untuk Teknisi
+ */
+router.get('/mobile/monitoring', technicianAuth, async (req, res) => {
+    try {
+        // Log activity
+        await authManager.logActivity(req.technician.id, 'monitoring_access', 'Mengakses device monitoring');
+
+        res.render('technician/monitoring', {
+            title: 'Device Monitoring - Teknisi',
+            technician: req.technician
+        });
+    } catch (error) {
+        logger.error('Error loading technician monitoring:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+// API: Monitoring data untuk teknisi
+router.get('/api/monitoring-data', technicianAuth, async (req, res) => {
+    try {
+        const { getDevicesCached } = require('../config/genieacs');
+        const devicesRaw = await getDevicesCached();
+        
+        // ParameterPaths yang sama dengan admin GenieACS
+        const parameterPaths = {
+            pppUsername: [
+                'VirtualParameters.pppoeUsername',
+                'VirtualParameters.pppUsername',
+                'InternetGatewayDevice.WANDevice.1.WANConnectionDevice.1.WANPPPConnection.1.Username'
+            ],
+            rxPower: [
+                'VirtualParameters.RXPower',
+                'VirtualParameters.redaman',
+                'InternetGatewayDevice.WANDevice.1.WANPONInterfaceConfig.RXPower'
+            ],
+            deviceTags: [
+                'Tags',
+                '_tags',
+                'VirtualParameters.Tags'
+            ],
+            serialNumber: [
+                'DeviceID.SerialNumber',
+                'InternetGatewayDevice.DeviceInfo.SerialNumber._value'
+            ],
+            model: [
+                'DeviceID.ProductClass',
+                'InternetGatewayDevice.DeviceInfo.ModelName._value'
+            ],
+            ssid: [
+                'InternetGatewayDevice.LANDevice.1.WLANConfiguration.1.SSID._value',
+                'InternetGatewayDevice.LANDevice.1.WLANConfiguration.5.SSID._value',
+                'VirtualParameters.SSID'
+            ],
+            password: [
+                'InternetGatewayDevice.LANDevice.1.WLANConfiguration.1.KeyPassphrase._value',
+                'InternetGatewayDevice.LANDevice.1.WLANConfiguration.5.KeyPassphrase._value',
+                'VirtualParameters.Password'
+            ],
+            userConnected: [
+                'InternetGatewayDevice.LANDevice.1.WLANConfiguration.1.TotalAssociations'
+            ]
+        };
+
+        // Helper function untuk mengambil parameter dengan multiple paths
+        function getParameterWithPaths(device, paths) {
+            for (const path of paths) {
+                const parts = path.split('.');
+                let value = device;
+                
+                for (const part of parts) {
+                    if (value && typeof value === 'object' && part in value) {
+                        value = value[part];
+                        if (value && value._value !== undefined) value = value._value;
+                    } else {
+                        value = undefined;
+                        break;
+                    }
+                }
+                
+                if (value !== undefined && value !== null && value !== '') {
+                    // Handle special case for device tags
+                    if (path.includes('Tags') || path.includes('_tags')) {
+                        if (Array.isArray(value)) {
+                            return value.filter(tag => tag && tag !== '').join(', ');
+                        } else if (typeof value === 'string') {
+                            return value;
+                        }
+                    }
+                    return value;
+                }
+            }
+            return 'N/A';
+        }
+
+        // Helper function untuk menentukan status device
+        function getDeviceStatus(lastInform) {
+            if (!lastInform) return 'Offline';
+            const lastInformTime = new Date(lastInform);
+            const now = new Date();
+            const diffMinutes = (now - lastInformTime) / (1000 * 60);
+            return diffMinutes <= 60 ? 'Online' : 'Offline';
+        }
+        
+        // Process devices data dengan parameter lengkap
+        const devices = devicesRaw.map(device => {
+            const status = getDeviceStatus(device._lastInform);
+            
+            return {
+                _id: device._id,
+                id: device._id,
+                serialNumber: getParameterWithPaths(device, parameterPaths.serialNumber),
+                model: getParameterWithPaths(device, parameterPaths.model),
+                status: status,
+                isOnline: status === 'Online',
+                lastInform: device._lastInform,
+                lastInformFormatted: device._lastInform ? new Date(device._lastInform).toLocaleString('id-ID') : 'N/A',
+                username: getParameterWithPaths(device, parameterPaths.pppUsername),
+                pppoeUsername: getParameterWithPaths(device, parameterPaths.pppUsername),
+                rxPower: getParameterWithPaths(device, parameterPaths.rxPower),
+                ssid: getParameterWithPaths(device, parameterPaths.ssid),
+                password: getParameterWithPaths(device, parameterPaths.password),
+                userConnected: getParameterWithPaths(device, parameterPaths.userConnected),
+                tag: getParameterWithPaths(device, parameterPaths.deviceTags)
+            };
+        });
+        
+        // Calculate statistics
+        const statistics = {
+            total: devices.length,
+            online: devices.filter(d => d.isOnline).length,
+            offline: devices.filter(d => !d.isOnline).length
+        };
+        
+        res.json({
+            success: true,
+            devices,
+            statistics
+        });
+    } catch (error) {
+        logger.error('Error getting monitoring data:', error);
+        res.json({
+            success: false,
+            message: 'Failed to load monitoring data'
+        });
+    }
+});
+
+/**
+ * CUSTOMER MANAGEMENT ROUTES
+ */
+
+/**
+ * Customer Management untuk Teknisi
+ */
+router.get('/mobile/customers', technicianAuth, async (req, res) => {
+    try {
+        // Log activity
+        await authManager.logActivity(req.technician.id, 'customers_access', 'Mengakses customer management');
+
+        res.render('technician/customers', {
+            title: 'Customer Management - Teknisi',
+            technician: req.technician
+        });
+    } catch (error) {
+        logger.error('Error loading technician customers:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+// API: Customer data untuk teknisi
+router.get('/api/customer-data', technicianAuth, async (req, res) => {
+    try {
+        const customers = await billingManager.getCustomers();
+        
+        // Calculate statistics
+        const statistics = {
+            total: customers.length,
+            active: customers.filter(c => c.status === 'active').length,
+            suspended: customers.filter(c => c.status === 'suspended').length,
+            pending: customers.filter(c => c.status === 'pending').length
+        };
+        
+        res.json({
+            success: true,
+            customers,
+            statistics
+        });
+    } catch (error) {
+        logger.error('Error getting customer data:', error);
+        res.json({
+            success: false,
+            message: 'Failed to load customer data'
+        });
+    }
+});
+
+// API: Suspend customer (untuk teknisi)
+router.post('/api/suspend-customer/:customerId', technicianAuth, async (req, res) => {
+    try {
+        const { customerId } = req.params;
+        
+        // Get customer data
+        const customer = await billingManager.getCustomerById(customerId);
+        if (!customer) {
+            return res.json({
+                success: false,
+                message: 'Customer not found'
+            });
+        }
+        
+        // Use service suspension system
+        const serviceSuspension = require('../config/serviceSuspension');
+        const result = await serviceSuspension.suspendCustomerService(customer);
+        
+        if (result.success) {
+            // Log activity
+            await authManager.logActivity(req.technician.id, 'customer_suspend', `Suspended customer ${customer.username || customer.pppoe_username}`, {
+                customerId,
+                customerUsername: customer.username || customer.pppoe_username
+            });
+            
+            res.json({
+                success: true,
+                message: 'Customer suspended successfully'
+            });
+        } else {
+            res.json({
+                success: false,
+                message: result.message || 'Failed to suspend customer'
+            });
+        }
+    } catch (error) {
+        logger.error('Error suspending customer:', error);
+        res.json({
+            success: false,
+            message: 'Failed to suspend customer'
+        });
+    }
+});
+
+// API: Restore customer (untuk teknisi)
+router.post('/api/restore-customer/:customerId', technicianAuth, async (req, res) => {
+    try {
+        const { customerId } = req.params;
+        
+        // Get customer data
+        const customer = await billingManager.getCustomerById(customerId);
+        if (!customer) {
+            return res.json({
+                success: false,
+                message: 'Customer not found'
+            });
+        }
+        
+        // Use service suspension system
+        const serviceSuspension = require('../config/serviceSuspension');
+        const result = await serviceSuspension.restoreCustomerService(customer);
+        
+        if (result.success) {
+            // Log activity
+            await authManager.logActivity(req.technician.id, 'customer_restore', `Restored customer ${customer.username || customer.pppoe_username}`, {
+                customerId,
+                customerUsername: customer.username || customer.pppoe_username
+            });
+            
+            res.json({
+                success: true,
+                message: 'Customer restored successfully'
+            });
+        } else {
+            res.json({
+                success: false,
+                message: result.message || 'Failed to restore customer'
+            });
+        }
+    } catch (error) {
+        logger.error('Error restoring customer:', error);
+        res.json({
+            success: false,
+            message: 'Failed to restore customer'
+        });
+    }
+});
+
+/**
  * MOBILE ROUTES
  */
 
@@ -1957,7 +2600,7 @@ router.get('/mobile/dashboard', technicianAuth, async (req, res) => {
         await authManager.logActivity(req.technician.id, 'mobile_dashboard_access', 'Mengakses mobile dashboard');
 
         // Render mobile dashboard
-        res.render('technicianMobileDashboard', {
+        res.render('technician/dashboard', {
             title: 'Dashboard Teknisi',
             page: 'dashboard',
             genieacsTotal,
@@ -2099,7 +2742,7 @@ router.get('/mobile/monitoring', technicianAuth, async (req, res) => {
         await authManager.logActivity(req.technician.id, 'mobile_monitoring_access', 'Mengakses mobile monitoring');
 
         // Render mobile monitoring
-        res.render('technicianMobileMonitoring', {
+        res.render('technician/monitoring', {
             title: 'Monitoring Device - Portal Teknisi',
             devices,
             settings,
@@ -2113,7 +2756,7 @@ router.get('/mobile/monitoring', technicianAuth, async (req, res) => {
 
     } catch (error) {
         logger.error('Error loading technician mobile monitoring:', error);
-        res.render('technicianMobileMonitoring', {
+        res.render('technician/monitoring', {
             title: 'Monitoring Device - Portal Teknisi',
             devices: [],
             settings: {},
@@ -2180,7 +2823,7 @@ router.get('/mobile/customers', technicianAuth, async (req, res) => {
         await authManager.logActivity(req.technician.id, 'mobile_customers_access', 'Mengakses mobile pelanggan');
 
         // Render mobile customers
-        res.render('technicianMobileCustomers', {
+        res.render('technician/customers', {
             title: 'Kelola Pelanggan - Portal Teknisi',
             page: 'customers',
             customers,
@@ -2207,6 +2850,139 @@ router.get('/mobile/customers', technicianAuth, async (req, res) => {
     } catch (error) {
         logger.error('Error loading technician mobile customers:', error);
         res.status(500).send('Internal Server Error');
+    }
+});
+
+// Route untuk Tukang Tagih (Collectors)
+router.get('/collectors', technicianAuth, async (req, res) => {
+    try {
+        // Get collectors data untuk technician
+        const collectors = await new Promise((resolve, reject) => {
+            const query = `
+                SELECT c.*, 
+                       COUNT(cp.id) as total_payments,
+                       SUM(cp.amount) as total_amount
+                FROM collectors c
+                LEFT JOIN collector_payments cp ON c.id = cp.collector_id
+                GROUP BY c.id
+                ORDER BY c.name ASC
+            `;
+            db.all(query, [], (err, rows) => {
+                if (err) reject(err);
+                else resolve(rows || []);
+            });
+        });
+
+        // Log activity
+        await authManager.logActivity(req.technician.id, 'collectors_access', 'Mengakses halaman tukang tagih');
+
+        res.render('technician/collectors', {
+            title: 'Tukang Tagih - Portal Teknisi',
+            technician: req.technician,
+            collectors: collectors
+        });
+    } catch (error) {
+        console.error('Error loading collectors:', error);
+        res.status(500).render('error', { 
+            message: 'Gagal memuat data tukang tagih',
+            error: error 
+        });
+    }
+});
+
+// Route untuk Settings/Pengaturan
+router.get('/settings', technicianAuth, async (req, res) => {
+    try {
+        // Log activity
+        await authManager.logActivity(req.technician.id, 'settings_access', 'Mengakses halaman pengaturan');
+
+        res.render('technician/settings', {
+            title: 'Pengaturan - Portal Teknisi',
+            technician: req.technician
+        });
+    } catch (error) {
+        console.error('Error loading settings:', error);
+        res.status(500).render('error', { 
+            message: 'Gagal memuat halaman pengaturan',
+            error: error 
+        });
+    }
+});
+
+// Route untuk update password
+router.post('/settings/update-password', technicianAuth, async (req, res) => {
+    try {
+        const { currentPassword, newPassword, confirmPassword } = req.body;
+
+        // Validasi input
+        if (!currentPassword || !newPassword || !confirmPassword) {
+            return res.status(400).json({
+                success: false,
+                message: 'Semua field harus diisi'
+            });
+        }
+
+        if (newPassword !== confirmPassword) {
+            return res.status(400).json({
+                success: false,
+                message: 'Password baru dan konfirmasi password tidak sama'
+            });
+        }
+
+        if (newPassword.length < 6) {
+            return res.status(400).json({
+                success: false,
+                message: 'Password baru minimal 6 karakter'
+            });
+        }
+
+        // Verify current password
+        const technician = await new Promise((resolve, reject) => {
+            db.get('SELECT * FROM technicians WHERE id = ?', [req.technician.id], (err, row) => {
+                if (err) reject(err);
+                else resolve(row);
+            });
+        });
+
+        if (!technician) {
+            return res.status(404).json({
+                success: false,
+                message: 'Teknisi tidak ditemukan'
+            });
+        }
+
+        const isCurrentPasswordValid = await bcrypt.compare(currentPassword, technician.password);
+        if (!isCurrentPasswordValid) {
+            return res.status(400).json({
+                success: false,
+                message: 'Password lama tidak benar'
+            });
+        }
+
+        // Hash new password
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        // Update password
+        await new Promise((resolve, reject) => {
+            db.run('UPDATE technicians SET password = ? WHERE id = ?', [hashedPassword, req.technician.id], (err) => {
+                if (err) reject(err);
+                else resolve();
+            });
+        });
+
+        // Log activity
+        await authManager.logActivity(req.technician.id, 'password_change', 'Mengubah password');
+
+        res.json({
+            success: true,
+            message: 'Password berhasil diubah'
+        });
+    } catch (error) {
+        console.error('Error updating password:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Gagal mengubah password'
+        });
     }
 });
 

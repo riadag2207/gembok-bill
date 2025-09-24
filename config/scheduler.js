@@ -337,7 +337,7 @@ class InvoiceScheduler {
                     const taxRate = (packageData.tax_rate === 0 || (typeof packageData.tax_rate === 'number' && packageData.tax_rate > -1))
                         ? Number(packageData.tax_rate)
                         : 11.00;
-                    const amountWithTax = billingManager.calculatePriceWithTax(basePrice, taxRate);
+                    const amountWithTax = billingManager.calculatePriceWithTax(basePrice, taxRate); // Sudah include rounding
 
                     const invoiceData = {
                         customer_id: customer.id,
